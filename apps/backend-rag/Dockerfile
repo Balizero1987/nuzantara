@@ -34,12 +34,12 @@ WORKDIR /app/backend/app
 # RUN cp /app/.env .env 2>/dev/null || echo "No .env file found"
 # Note: All config via Fly.io environment variables & secrets
 
-# Expose port
-EXPOSE 8000
+# Expose port (use PORT env var, default to 8080 for Fly.io)
+EXPOSE 8080
 
 # Health check (model downloads on first request, not at startup)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:${PORT:-8080}/health || exit 1
 
-# Start uvicorn
-CMD ["uvicorn", "main_cloud:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start uvicorn (use PORT env var from Fly.io, default to 8080)
+CMD uvicorn main_cloud:app --host 0.0.0.0 --port ${PORT:-8080}

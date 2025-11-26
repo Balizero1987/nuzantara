@@ -8,9 +8,19 @@ import jwt from 'jsonwebtoken';
 import logger from '../../services/logger.js';
 import { ok, err } from '../../utils/response.js';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required for token verification');
+/**
+ * Get JWT_SECRET with validation
+ * Throws error only when actually needed, not at module load
+ */
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required for token verification');
+  }
+  if (secret.length < 32) {
+    throw new Error('JWT_SECRET must be at least 32 characters long');
+  }
+  return secret;
 }
 
 export async function verifyToken(req: Request, res: Response) {
@@ -24,7 +34,7 @@ export async function verifyToken(req: Request, res: Response) {
     const token = authHeader.substring(7); // Remove 'Bearer '
 
     // Verify JWT
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, getJwtSecret()) as any;
 
     // Check if token is in blacklist (implement later)
     // const isBlacklisted = await checkTokenBlacklist(token);

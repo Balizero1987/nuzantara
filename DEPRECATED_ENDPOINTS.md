@@ -7,9 +7,12 @@
 ### Backend TypeScript
 
 1. **KBLI Handlers** (apps/backend-ts/src/handlers/bali-zero/)
-   - `kbli.ts` → Now in RAG backend
-   - `kbli-complete.ts` → Now in RAG backend
-   - **Action:** Return 410 Gone or redirect to RAG backend
+   - ❌ **REMOVED** - `kbli.ts` and `kbli-complete.ts` have been removed
+   - ✅ **NEW ENDPOINT:** KBLI queries are now handled exclusively through:
+     - `POST /api/oracle/query` (Python RAG backend)
+   - ✅ **MIGRATION:** All KBLI flows should use the universal Oracle endpoint
+   - ✅ **DEAD CODE REMOVED:** `kbli-external.ts` service has also been removed
+   - **Action:** Ensure all clients use `POST /api/oracle/query` for KBLI queries
 
 2. **Tax Routes** (commented out in server.ts:572-573)
    - Tax routes are commented but files might exist

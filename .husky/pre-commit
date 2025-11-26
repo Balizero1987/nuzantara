@@ -2,10 +2,14 @@
 
 echo "Running pre-commit checks..."
 
-# Run linting
-npm run lint:fix || echo "⚠️ Linting warnings (non-blocking)"
+# Use lint-staged to only lint changed files (prevents OOM)
+# lint-staged is configured in package.json to handle ESLint and Prettier
+npm run pre-commit || {
+  echo "❌ Lint-staged failed"
+  exit 1
+}
 
-# Run type checking
+# Run type checking (only checks TypeScript files, should be fast)
 npm run typecheck || {
   echo "❌ Type checking failed"
   exit 1

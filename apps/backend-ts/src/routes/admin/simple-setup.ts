@@ -8,6 +8,7 @@
 import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { ok, err } from '../../utils/response.js';
+import logger from '../../services/logger.js';
 
 const router = Router();
 
@@ -42,7 +43,7 @@ router.post('/create-tables', async (_req: Request, res: Response) => {
     }));
 
   } catch (error: any) {
-    console.error('Database setup error:', error);
+    logger.error('Database setup error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json(err('Database setup failed', {
       error: error.message
     } as any));

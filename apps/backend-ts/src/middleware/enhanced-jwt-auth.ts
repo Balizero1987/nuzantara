@@ -95,10 +95,11 @@ export class EnhancedJWTAuth {
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
-    this.jwtSecret = process.env.JWT_SECRET;
-    if (!this.jwtSecret) {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
       throw new Error('JWT_SECRET environment variable is required for Enhanced JWT authentication');
     }
+    this.jwtSecret = secret;
 
     // Clean up expired cache entries periodically
     setInterval(() => this.cleanupCache(), 60000); // Every minute
@@ -479,9 +480,20 @@ export class EnhancedJWTAuth {
   }
 }
 
-// Export singleton instance
-export const enhancedJWTAuth = new EnhancedJWTAuth();
+// Lazy initialization - don't instantiate at module load
+let _enhancedJWTAuth: EnhancedJWTAuth | null = null;
 
-// Export middleware function for easy use
+/**
+ * Get or create EnhancedJWTAuth instance (lazy initialization)
+ * This prevents JWT_SECRET validation at module load time
+ */
+export function getEnhancedJWTAuth(): EnhancedJWTAuth {
+  if (!_enhancedJWTAuth) {
+    _enhancedJWTAuth = new EnhancedJWTAuth();
+  }
+  return _enhancedJWTAuth;
+}
+
+// Export middleware function for easy use (lazy)
 export const authenticate = (permissions?: PermissionLevel[]) =>
-  enhancedJWTAuth.authenticate(permissions);
+  getEnhancedJWTAuth().authenticate(permissions);

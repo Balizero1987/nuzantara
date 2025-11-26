@@ -6,6 +6,7 @@
 
 import { Router } from 'express';
 import { registry, executor, PluginCategory } from '../core/plugins';
+import logger from '../services/logger.js';
 
 const router = Router();
 
@@ -43,7 +44,7 @@ router.get('/list', async (req, res) => {
       plugins
     });
   } catch (error: any) {
-    console.error('Error listing plugins:', error);
+    logger.error('Error listing plugins:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       success: false,
       error: error.message
@@ -80,7 +81,7 @@ router.get('/:pluginName', async (req, res) => {
       }
     });
   } catch (error: any) {
-    console.error('Error getting plugin:', error);
+    logger.error('Error getting plugin:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       success: false,
       error: error.message
@@ -115,7 +116,7 @@ router.post('/:pluginName/execute', async (req, res) => {
 
     res.json(result);
   } catch (error: any) {
-    console.error('Error executing plugin:', error);
+    logger.error('Error executing plugin:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       success: false,
       error: error.message
@@ -277,7 +278,7 @@ router.post('/:pluginName/reload', async (req, res) => {
       message: `Plugin ${pluginName} reloaded`
     });
   } catch (error: any) {
-    console.error('Error reloading plugin:', error);
+    logger.error('Error reloading plugin:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       success: false,
       error: error.message

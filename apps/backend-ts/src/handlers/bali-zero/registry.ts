@@ -8,7 +8,6 @@ import { globalRegistry } from '../../core/handler-registry.js';
 import { oracleSimulate, oracleAnalyze, oraclePredict } from './oracle.js';
 import { oracleUniversalQuery, oracleCollections } from './oracle-universal.js';
 import { documentPrepare, assistantRoute } from './advisory.js';
-import { kbliLookup, kbliRequirements } from './kbli.js';
 import { baliZeroPricing, baliZeroQuickPrice } from './bali-zero-pricing.js';
 import { teamList, teamGet, teamDepartments } from './team.js';
 import { teamRecentActivity } from './team-activity.js';
@@ -51,19 +50,6 @@ export function registerBaliZeroHandlers() {
     {
       requiresAuth: true,
       description: 'Business advisory services',
-    }
-  );
-
-  // KBLI handlers
-  globalRegistry.registerModule(
-    'bali-zero',
-    {
-      'kbli.lookup': kbliLookup as any,
-      'kbli.requirements': kbliRequirements as any,
-    } as any,
-    {
-      requiresAuth: false,
-      description: 'Indonesian business classification',
     }
   );
 

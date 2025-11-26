@@ -84,50 +84,6 @@
   border-color: rgba(255, 255, 255, 0.15);
 }
 
-/* =========================================
-   FEATURE 3: RLHF FEEDBACK (The Loop)
-   ========================================= */
-.feedback-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  opacity: 0; /* Hidden by default, shown on hover */
-  transition: opacity 0.2s ease;
-}
-
-.message:hover .feedback-actions {
-  opacity: 1;
-}
-
-.feedback-btn {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.3);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-}
-
-.feedback-btn:hover {
-  color: rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.feedback-btn.active {
-  color: #D4AF37; /* Gold for selected */
-  transform: scale(1.1);
-}
-
-.feedback-btn svg {
-  width: 14px;
-  height: 14px;
-}
 
 /* Message Sources Styling */
 .message-sources {

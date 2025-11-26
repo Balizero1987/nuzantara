@@ -334,14 +334,6 @@ export const HANDLER_REGISTRY: Record<string, HandlerMetadata> = {
       },
     },
   },
-  'kbli.lookup': {
-    key: 'kbli.lookup',
-    category: 'bali-zero',
-    description: 'Lookup KBLI business classification code',
-    params: {
-      query: { type: 'string', description: 'Business activity description', required: true },
-    },
-  },
   'team.list': {
     key: 'team.list',
     category: 'bali-zero',

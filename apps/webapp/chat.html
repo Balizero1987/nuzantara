@@ -4,7 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZANTARA - Legal Counsel</title>
+  <title>Legal Counsel AI Assistant | ZANTARA</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="ZANTARA - AI-powered legal counsel assistant for visa services, company setup, and tax solutions in Indonesia.">
+  <meta name="keywords" content="legal counsel, AI assistant, visa services, Indonesia, business setup, tax solutions, KITAS, PT PMA">
+  <meta name="author" content="ZANTARA">
+  <link rel="canonical" href="https://zantara.balizero.com/chat.html">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="ZANTARA - Legal Counsel AI Assistant">
+  <meta property="og:description" content="AI-powered legal counsel assistant for visa services, company setup, and tax solutions in Indonesia.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zantara.balizero.com/chat.html">
+  <meta property="og:image" content="https://zantara.balizero.com/assets/images/logo1-zantara.svg">
+  <meta property="og:site_name" content="ZANTARA">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ZANTARA - Legal Counsel AI Assistant">
+  <meta name="twitter:description" content="AI-powered legal counsel assistant for visa services, company setup, and tax solutions in Indonesia.">
+  <meta name="twitter:image" content="https://zantara.balizero.com/assets/images/logo1-zantara.svg">
+  
+  <!-- Resource Hints -->
+  <link rel="preconnect" href="https://nuzantara-backend.fly.dev">
+  <link rel="preconnect" href="https://nuzantara-rag.fly.dev">
+  <link rel="preconnect" href="https://nuzantara-memory.fly.dev">
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
   <!-- Design System -->
   <link rel="stylesheet" href="css/design-system.css">
@@ -24,6 +50,10 @@
   <!-- Global Error Handler (must be first) -->
   <script type="module" src="js/core/global-error-handler.js"></script>
   <script type="module" src="js/core/unified-api-client.js"></script>
+  <script type="module" src="js/core/logger.js"></script>
+  <script type="module" src="js/core/global-namespace.js"></script>
+  <!-- Service Worker Cleanup (run once to remove old workers) -->
+  <script type="module" src="js/utils/service-worker-cleanup.js"></script>
 
   <!-- API Configuration (Critical) -->
   <script type="module" src="js/api-config.js"></script>
@@ -36,7 +66,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker-zantara.js')
+        navigator.serviceWorker.register('/service-worker.js')
           .then(reg => console.log('✅ Service Worker registered:', reg.scope))
           .catch(err => console.warn('⚠️ Service Worker registration failed:', err));
       });
@@ -1290,7 +1320,7 @@
     <!-- Right: User Info (absolute positioned) -->
     <div class="user-info" id="userInfo" style="position: absolute; right: 1.5rem;">
       <div class="user-avatar" id="userAvatar"></div>
-      <button class="logout-btn" id="logoutBtn">Logout</button>
+      <button class="logout-btn" id="logoutBtn" aria-label="Logout">Logout</button>
     </div>
   </header>
 
@@ -1298,7 +1328,7 @@
   <!-- Messages Container -->
   <main class="messages-container" id="messagesContainer">
     <div class="messages-inner">
-      <div class="message-space" id="messageSpace">
+      <div class="message-space" id="messageSpace" aria-live="polite" aria-atomic="false" role="log">
         <div class="welcome-message">
           <p>Selamat datang di ZANTARA</p>
           <div class="welcome-divider"></div>
@@ -1309,7 +1339,7 @@
   </main>
 
   <!-- Sources Container (hidden by default, shown when sources available) -->
-  <div id="sources-container" class="sources-container" style="display: none;">
+  <div id="sources-container" class="sources-container" style="display: none;" aria-live="polite" aria-label="Message sources">
     <!-- Sources will be populated here by JavaScript -->
   </div>
 
@@ -1323,8 +1353,8 @@
     <div class="chat-input-wrapper">
       <div class="chat-input-box" id="inputBox">
         <textarea id="messageInput" class="chat-textarea" placeholder="Your inquiry…" rows="1"
-          maxlength="2000"></textarea>
-        <button class="attach-button" id="attachButton" title="Attach file or image" style="width: 40px; height: 40px; background: transparent; border: none;
+          maxlength="2000" aria-label="Message input" aria-describedby="input-hint"></textarea>
+        <button class="attach-button" id="attachButton" aria-label="Attach file or image" title="Attach file or image" style="width: 40px; height: 40px; background: transparent; border: none;
                        cursor: pointer; display: flex; align-items: center; justify-content: center;
                        margin-left: 8px; transition: transform 0.2s;">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white"
@@ -1333,10 +1363,10 @@
               d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
           </svg>
         </button>
-        <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
+        <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;" aria-label="File upload">
         <button id="sendButton" class="send-button" aria-label="Send message">∞</button>
       </div>
-      <p class="input-hint">Enter to send • Shift + Enter for new line</p>
+      <p class="input-hint" id="input-hint">Enter to send • Shift + Enter for new line</p>
     </div>
   </div>
 
@@ -1347,26 +1377,25 @@
       <div class="avatar-preview" id="avatarPreview">
         <span id="avatarLetter">Z</span>
       </div>
-      <input type="file" id="avatarFileInput" class="avatar-file-input" accept="image/*">
-      <button class="avatar-upload-btn" onclick="document.getElementById('avatarFileInput').click()">
+      <input type="file" id="avatarFileInput" class="avatar-file-input" accept="image/*" aria-label="Avatar image upload">
+      <button class="avatar-upload-btn" onclick="document.getElementById('avatarFileInput').click()" aria-label="Upload avatar photo">
         Upload Photo
       </button>
-      <button class="avatar-remove-btn" id="removeAvatarBtn">
+      <button class="avatar-remove-btn" id="removeAvatarBtn" aria-label="Remove avatar photo">
         Remove Photo
       </button>
-      <button class="avatar-close-btn" id="closeAvatarModalBtn">
+      <button class="avatar-close-btn" id="closeAvatarModalBtn" aria-label="Close avatar modal">
         Close
       </button>
     </div>
   </div>
 
   <!-- Production JavaScript -->
-  <script type="module" src="js/api-config.js"></script>
   <!-- Core Architecture -->
-  <script type="module" src="js/zantara-api-client.js"></script>
+  <!-- Note: api-config.js already loaded in <head> (line 29) -->
 
   <script type="module" src="js/components/notification.js"></script>
-  <script src="js/zantara-client.js"></script> <!-- Conversation Client (Memory Service) -->
+  <script type="module" src="js/zantara-client.js"></script> <!-- Conversation Client (Memory Service) -->
   <script type="module" src="js/conversation-client.js?v=20251107"></script>
   <!-- CRM Client -->
   <script type="module" src="js/crm-client.js"></script>
@@ -1376,28 +1405,12 @@
   <script type="module" src="js/system-handlers-client.js"></script>
   <!-- Collective Memory Client -->
   <script type="module" src="js/collective-memory-client.js"></script>
-  <!-- Team Analytics Client -->
-  <script type="module" src="js/team-analytics-client.js"></script>
+  <!-- Team Analytics Client - REMOVED: Endpoints not implemented in backend -->
+  <!-- <script type="module" src="js/team-analytics-client.js"></script> -->
   <script src="js/message-search.js?v=20251107"></script>
 
-  <!-- Initialize USER_CONTEXT from localStorage -->
-  <script>
-    window.USER_CONTEXT = {
-      getUser: function () {
-        try {
-          const userData = localStorage.getItem('zantara-user');
-          if (userData) {
-            const user = JSON.parse(userData);
-            console.log('✅ USER_CONTEXT initialized:', user);
-            return user;
-          }
-        } catch (e) {
-          console.error('❌ Failed to parse user data:', e);
-        }
-        return null;
-      }
-    };
-  </script>
+  <!-- UserContext is already initialized by user-context.js (loaded in <head> line 33) -->
+  <!-- Use window.UserContext instead of window.USER_CONTEXT -->
 
   <script type="module" src="js/app.js?v=20251120-fix3"></script>
 
@@ -1419,7 +1432,7 @@
       async function loadConversations() {
         try {
           // Get user info
-          const userContext = window.USER_CONTEXT?.getUser();
+          const userContext = window.UserContext?.user || window.UserContext?.getUser?.();
           const userId = userContext?.userId || userContext?.id;
           if (!userContext || !userId) {
             console.warn('⚠️ No user context available');
@@ -1667,8 +1680,8 @@
   <!-- Self-Healing Agent - REMOVED (file not found) -->
 
   <!-- Team Timesheet Widget -->
-  <script type="module" src="js/timesheet-client.js"></script>
-  <script type="module" src="js/timesheet-widget.js"></script>
+  <!-- Timesheet Client - Lazy loaded when needed -->
+  <!-- Timesheet Widget - Lazy loaded when needed -->
 
 </body>
 

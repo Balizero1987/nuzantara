@@ -52,8 +52,6 @@ import { creativeHandlers } from '../handlers/ai-services/creative.js';
 // Bali Zero Business Services
 import { oracleSimulate, oracleAnalyze, oraclePredict } from '../handlers/bali-zero/oracle.js';
 import { documentPrepare, assistantRoute } from '../handlers/bali-zero/advisory.js';
-import { kbliLookup, kbliRequirements } from '../handlers/bali-zero/kbli.js';
-// import { kbliLookupComplete, kbliBusinessAnalysis } from '../handlers/bali-zero/kbli-complete.js';
 import { baliZeroPricing, baliZeroQuickPrice } from '../handlers/bali-zero/bali-zero-pricing.js';
 import {
   teamList,
@@ -142,7 +140,7 @@ import {
 // DevAI integration removed - no longer used
 
 // Admin auth middleware
-import { adminAuth } from '../middleware/admin-auth.js';
+import { requireAdmin } from '../middleware/jwt-auth.js';
 
 // Memory & Persistence
 // LEGACY CODE CLEANED: Firestore removed - using Python memory system only
@@ -474,31 +472,6 @@ const handlers: Record<string, Handler> = {
    */
   'ai.chat': aiChat,
   // Real AI handlers (TS). ZANTARA-ONLY mode
-
-  // 🏢 KBLI Business Codes (NEW)
-  'kbli.lookup': async (params: any) => {
-    return await kbliLookup(params);
-  },
-  'kbli.requirements': async (params: any) => {
-    return await kbliRequirements(params);
-  },
-  // 🚀 KBLI COMPLETE DATABASE - Enhanced endpoints
-  // 'kbli.lookup.complete': async (params: any) => {
-  //   const mockReq = { body: { params } } as any;
-  //   const mockRes = {
-  //     json: (data: any) => data,
-  //     status: (_code: number) => ({ json: (data: any) => data }),
-  //   } as any;
-  //   return await kbliLookupComplete(mockReq, mockRes);
-  // },
-  // 'kbli.business.analysis': async (params: any) => {
-  //   const mockReq = { body: { params } } as any;
-  //   const mockRes = {
-  //     json: (data: any) => data,
-  //     status: (_code: number) => ({ json: (data: any) => data }),
-  //   } as any;
-  //   return await kbliBusinessAnalysis(mockReq, mockRes);
-  // },
 
   // Communication handlers
   'slack.notify': slackNotify,
@@ -1746,7 +1719,7 @@ export function attachRoutes(app: import('express').Express) {
   // ========================================
 
   // Main dashboard overview
-  router.get('/admin/dashboard/main', jwtAuth as any, adminAuth as any, async (_req, res) => {
+  router.get('/admin/dashboard/main', jwtAuth as any, requireAdmin as any, async (_req, res) => {
     try {
       const result = await dashboardMain({});
       res.json(result);
@@ -1759,7 +1732,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // Conversation metrics
-  router.get('/admin/dashboard/conversations', jwtAuth as any, adminAuth as any, async (_req, res) => {
+  router.get('/admin/dashboard/conversations', jwtAuth as any, requireAdmin as any, async (_req, res) => {
     try {
       const result = await dashboardConversations({});
       res.json(result);
@@ -1772,7 +1745,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // Service metrics
-  router.get('/admin/dashboard/services', jwtAuth as any, adminAuth as any, async (_req, res) => {
+  router.get('/admin/dashboard/services', jwtAuth as any, requireAdmin as any, async (_req, res) => {
     try {
       const result = await dashboardServices({});
       res.json(result);
@@ -1785,7 +1758,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // Handler performance metrics
-  router.get('/admin/dashboard/handlers', jwtAuth as any, adminAuth as any, async (_req, res) => {
+  router.get('/admin/dashboard/handlers', jwtAuth as any, requireAdmin as any, async (_req, res) => {
     try {
       const result = await dashboardHandlers({});
       res.json(result);
@@ -1798,7 +1771,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // System health metrics
-  router.get('/admin/dashboard/health', jwtAuth as any, adminAuth as any, async (_req, res) => {
+  router.get('/admin/dashboard/health', jwtAuth as any, requireAdmin as any, async (_req, res) => {
     try {
       const result = await dashboardHealth({});
       res.json(result);
@@ -1811,7 +1784,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // User activity metrics
-  router.get('/admin/dashboard/users', jwtAuth as any, adminAuth as any, async (_req, res) => {
+  router.get('/admin/dashboard/users', jwtAuth as any, requireAdmin as any, async (_req, res) => {
     try {
       const result = await dashboardUsers({});
       res.json(result);

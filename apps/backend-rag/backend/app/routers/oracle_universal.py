@@ -166,11 +166,87 @@ class GoogleServices:
     def drive_service(self):
         return self._drive_service
 
-    def get_gemini_model(self, model_name: str = "gemini-1.5-flash"):
+    def get_gemini_model(self, model_name: str = "models/gemini-2.5-flash"):
         """Get Gemini model instance"""
         if not self._gemini_initialized:
             raise RuntimeError("Gemini AI not initialized")
-        return genai.GenerativeModel(model_name)
+
+        # Try alternative model names for API compatibility (2025 models)
+        # SOLO FLASH MODE - Illimitato e veloce per piano ULTRA
+        alternative_names = [
+            "models/gemini-2.5-flash",         # Primario: Illimitato!
+            "models/gemini-2.0-flash-001",
+            "models/gemini-flash-latest",
+            "models/gemini-pro-latest"         # Fallback solo se necessario
+        ]
+
+        # Try original name first
+        try:
+            return genai.GenerativeModel(model_name)
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to load model '{model_name}': {e}")
+
+            # Try alternative names
+            for alt_name in alternative_names:
+                try:
+                    logger.info(f"🔄 Trying alternative model name: {alt_name}")
+                    return genai.GenerativeModel(alt_name)
+                except Exception as e2:
+                    logger.warning(f"⚠️ Failed to load alternative model '{alt_name}': {e2}")
+                    continue
+
+            raise RuntimeError(f"Could not load Gemini model '{model_name}' or any alternatives")
+
+    def get_zantara_model(self, use_case: str = "legal_reasoning") -> genai.GenerativeModel:
+        """
+        Get the best Gemini model for specific ZANTARA use cases
+
+        Args:
+            use_case: Type of task
+                - "legal_reasoning": Complex legal analysis (use PRO)
+                - "personality_translation": Fast personality conversion (use Flash)
+                - "multilingual": Multi-language support (use 3 Pro)
+                - "document_analysis": Deep document understanding (use PRO)
+        """
+        if not self._gemini_initialized:
+            raise RuntimeError("Gemini AI not initialized")
+
+        # SOLO GEMINI 2.5 FLASH - Illimitato e performante per piano ULTRA
+        model_mapping = {
+            "legal_reasoning": [
+                "models/gemini-2.5-flash",         # Flash ce la fa benissimo!
+                "models/gemini-2.0-flash-001",
+                "models/gemini-flash-latest"
+            ],
+            "personality_translation": [
+                "models/gemini-2.5-flash",         # PERFETTO: Illimitato
+                "models/gemini-2.0-flash-001",
+                "models/gemini-flash-latest"
+            ],
+            "multilingual": [
+                "models/gemini-2.5-flash",         # Flash per tutto (unlimited)
+                "models/gemini-2.0-flash-001",
+                "models/gemini-flash-latest"
+            ],
+            "document_analysis": [
+                "models/gemini-2.5-flash",         # Flash per ogni analisi
+                "models/gemini-2.0-flash-001",
+                "models/gemini-flash-latest"
+            ]
+        }
+
+        models_to_try = model_mapping.get(use_case, model_mapping["legal_reasoning"])
+
+        for model_name in models_to_try:
+            try:
+                logger.info(f"🧠 Using {model_name} for {use_case}")
+                return genai.GenerativeModel(model_name)
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to load {model_name}: {e}")
+                continue
+
+        # Ultimate fallback
+        return self.get_gemini_model()
 
 # Initialize Google services
 google_services = GoogleServices()
@@ -515,8 +591,8 @@ async def reason_with_gemini(documents: List[str], query: str, user_instruction:
         start_reasoning = time.time()
         logger.info(f"🧠 Starting Gemini reasoning with {len(documents)} documents")
 
-        # Configure model for production
-        model = google_services.get_gemini_model("gemini-1.5-flash")
+        # Configure model for production - Use Flash (unlimited on ULTRA plan)
+        model = google_services.get_gemini_model("models/gemini-2.5-flash")
 
         # Build comprehensive prompt
         if use_full_docs and documents:
@@ -561,7 +637,7 @@ RELEVANT DOCUMENT EXCERPTS:
 
         result = {
             "answer": response.text,
-            "model_used": "gemini-1.5-flash",
+            "model_used": "gemini-2.5-flash",
             "reasoning_time_ms": reasoning_time,
             "document_count": len(documents),
             "full_analysis": use_full_docs,
@@ -578,7 +654,7 @@ RELEVANT DOCUMENT EXCERPTS:
 
         return {
             "answer": f"I encountered an error while processing your request. The system has been notified. Please try again or contact support if the issue persists.",
-            "model_used": "gemini-1.5-flash",
+            "model_used": "gemini-2.5-flash",
             "reasoning_time_ms": error_time,
             "document_count": len(documents),
             "full_analysis": False,
@@ -747,10 +823,12 @@ async def hybrid_oracle_query(
                 # Apply personality translation if user email is provided
                 if answer and request.user_email:
                     try:
+                        # Use Gemini-only personality translation (Oracle not accessible externally)
                         personality_result = await personality_service.translate_to_personality(
                             gemini_response=answer,
                             user_email=request.user_email,
-                            original_query=request.query
+                            original_query=request.query,
+                            gemini_model_getter=google_services.get_zantara_model
                         )
 
                         if personality_result["success"]:
@@ -1073,14 +1151,14 @@ async def test_personality(
 async def test_gemini_integration():
     """Test Google Gemini integration"""
     try:
-        model = google_services.get_gemini_model("gemini-1.5-flash")
+        model = google_services.get_gemini_model("gemini-2.5-flash")
         response = model.generate_content("Hello, please confirm you are working correctly for Zantara v5.3.")
 
         return {
             "success": True,
             "message": "Gemini integration successful",
             "test_response": response.text[:200] + "..." if len(response.text) > 200 else response.text,
-            "model": "gemini-1.5-flash",
+            "model": "gemini-2.5-flash",
             "timestamp": datetime.now().isoformat()
         }
 

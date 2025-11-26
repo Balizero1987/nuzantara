@@ -103,7 +103,7 @@ REDIS_URL=redis://...
 - **Features**: Auto-routing between Llama/Gemini based on complexity
 
 ### Health & Monitoring
-- **GET** `/healthz` - Service health check
+- **GET** `/health` - Service health check
 - **GET** `/api/oracle/health` - RAG system status (Gemini/Drive/Qdrant)
 
 ## 🔄 Migration Status
