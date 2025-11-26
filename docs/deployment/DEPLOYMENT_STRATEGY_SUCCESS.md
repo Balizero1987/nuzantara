@@ -79,8 +79,8 @@ flyctl secrets list --app nuzantara-rag
 # Backend TypeScript: /health
 curl -s https://nuzantara-backend.fly.dev/health | jq '.' || echo "❌ Backend TS health check failed"
 
-# Backend RAG: /healthz (non /health!)
-curl -s https://nuzantara-rag.fly.dev/healthz | jq '.' || echo "❌ Backend RAG health check failed"
+# Backend RAG: /health (standardizzato)
+curl -s https://nuzantara-rag.fly.dev/health | jq '.' || echo "❌ Backend RAG health check failed"
 
 # Verifica che rispondano correttamente
 ```
