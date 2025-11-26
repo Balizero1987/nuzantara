@@ -243,13 +243,8 @@ async def on_shutdown() -> None:
         await handler_proxy.client.aclose()
 
 # --- Routes -----------------------------------------------------------------
-
-@app.get("/healthz", tags=["health"])
-async def healthz():
-    return JSONResponse(content={
-        "status": "ok", 
-        "version": app.version
-    })
+# Note: /health endpoint is provided by app.routers.health router
+# /healthz has been removed - use /health instead
 
 @app.get("/", tags=["root"])
 async def root():

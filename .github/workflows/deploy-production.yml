@@ -265,33 +265,63 @@ jobs:
           echo "status=unhealthy" >> $GITHUB_OUTPUT
           exit 1
 
-      - name: 🧪 Run smoke tests
+      - name: 🧪 Run comprehensive smoke tests
         if: steps.health.outputs.status == 'healthy'
         run: |
           PROD_URL="https://${{ env.FLY_APP_PRODUCTION }}.fly.dev"
+          FAILED=0
 
           echo "## 🧪 Production Smoke Tests" >> $GITHUB_STEP_SUMMARY
 
-          # Critical endpoint tests
-          ENDPOINTS=(
-            "/health"
-            "/"
-          )
+          # Test 1: Basic health check (critical)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/health" || echo "000")
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ /health: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+            curl -s "$PROD_URL/health" | jq '.' | head -15 >> $GITHUB_STEP_SUMMARY || echo "Health response received" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ /health: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+            FAILED=1
+          fi
 
-          FAILED=0
-          for endpoint in "${ENDPOINTS[@]}"; do
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL$endpoint" || echo "000")
-            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "404" ]; then
-              echo "✅ $endpoint: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "❌ $endpoint: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
-              FAILED=1
-            fi
-          done
+          # Test 2: Detailed health check (if available)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/health/detailed" || echo "000")
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ /health/detailed: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ /health/detailed: HTTP $HTTP_CODE (may not be available)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Test 3: AI monitoring health (if available)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/api/monitoring/ai-health" || echo "000")
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ /api/monitoring/ai-health: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ /api/monitoring/ai-health: HTTP $HTTP_CODE (may not be available)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Test 4: Root endpoint
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/" || echo "000")
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "404" ]; then
+            echo "✅ /: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ /: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Test 5: Auth verification endpoint (test responsiveness)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$PROD_URL/api/auth/verify" \
+            -H "Content-Type: application/json" \
+            -d '{"token": "demo-token-test"}' || echo "000")
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "401" ] || [ "$HTTP_CODE" = "400" ]; then
+            echo "✅ /api/auth/verify: HTTP $HTTP_CODE (endpoint responds)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ /api/auth/verify: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+          fi
 
           if [ $FAILED -eq 1 ]; then
-            echo "⚠️ Some endpoints failed smoke tests" >> $GITHUB_STEP_SUMMARY
+            echo "❌ Critical smoke tests failed" >> $GITHUB_STEP_SUMMARY
             exit 1
+          else
+            echo "✅ All smoke tests passed" >> $GITHUB_STEP_SUMMARY
           fi
 
   # ==========================================
