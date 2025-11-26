@@ -9,28 +9,59 @@ class TimesheetWidget {
     constructor() {
         this.status = null;
         this.updateInterval = null;
+        this.timerInterval = null; // Store timer interval for cleanup
         this.isOnline = false;
         this.todayHours = 0;
         this.clockInTime = null;
+        this.isDestroyed = false; // Flag to prevent operations after destroy
     }
 
     /**
      * Initialize the widget
      */
     async init() {
+        if (this.isDestroyed) return;
+        
         this.createWidgetHTML();
         this.attachEventListeners();
         await this.updateStatus();
 
         // Update status every 60 seconds
-        this.updateInterval = setInterval(() => this.updateStatus(), 60000);
+        this.updateInterval = setInterval(() => {
+            if (!this.isDestroyed) {
+                this.updateStatus();
+            }
+        }, 60000);
 
         // Update timer every second if clocked in
-        setInterval(() => {
-            if (this.isOnline && this.clockInTime) {
+        this.timerInterval = setInterval(() => {
+            if (!this.isDestroyed && this.isOnline && this.clockInTime) {
                 this.updateTimer();
             }
         }, 1000);
+    }
+
+    /**
+     * Cleanup method to prevent memory leaks
+     */
+    destroy() {
+        this.isDestroyed = true;
+        
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+        }
+        
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        
+        // Remove event listeners if needed
+        const widget = document.getElementById('timesheet-widget');
+        if (widget) {
+            widget.remove();
+        }
     }
 
     /**
@@ -249,20 +280,6 @@ class TimesheetWidget {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
         }, 3000);
-    }
-
-    /**
-     * Destroy widget
-     */
-    destroy() {
-        if (this.updateInterval) {
-            clearInterval(this.updateInterval);
-        }
-
-        const widget = document.getElementById('timesheet-widget');
-        if (widget) {
-            widget.remove();
-        }
     }
 }
 

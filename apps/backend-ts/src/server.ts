@@ -55,42 +55,45 @@ const PYTHON_SERVICE_URL =
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
-<<<<<<< HEAD
-  // Initialize Redis cache (non-blocking)
-  initializeRedis().catch(err => logger.error('Redis initialization failed:', err));
-
-  // V3 cache system removed
-
-  // GLM 4.6 Architect Patch: Initialize Enhanced Architecture
   try {
-    logger.info('✅ Enhanced Architecture (GLM 4.6) initialized');
-=======
-  logger.info('🚀 Starting ZANTARA Backend v5.2.1-fixed (Zod validation fix applied)');
-  
-  // Initialize Redis cache
-  await initializeRedis();
+    logger.info('🚀 Starting ZANTARA Backend v5.2.1-fixed (Zod validation fix applied)');
+    logger.info(`📋 PYTHON_SERVICE_URL: ${PYTHON_SERVICE_URL || 'NOT SET'}`);
+    
+    // Initialize Redis cache
+    logger.info('🔄 Initializing Redis cache...');
+    await initializeRedis();
+    logger.info('✅ Redis cache initialized');
 
   // Initialize enhanced architecture components
   try {
     logger.info('✅ Enhanced Architecture initialized');
->>>>>>> restore-7pm-state
   } catch (error: any) {
     logger.warn(`⚠️ Enhanced Architecture initialization failed: ${error.message}`);
+    logger.warn('⚠️ Continuing with basic architecture');
   }
 
-  // Initialize connection pools if enabled (non-blocking)
+  // Initialize connection pools if enabled
   if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
-    if (process.env.DATABASE_URL) {
-      initializeDatabasePool().catch(err => 
-        logger.warn(`⚠️ Connection pooling initialization failed: ${err.message}`)
-      );
+    try {
+      if (process.env.DATABASE_URL) {
+        await initializeDatabasePool();
+        logger.info('✅ Database connection pool initialized');
+      }
+
+    } catch (error: any) {
+      logger.warn(`⚠️  Connection pooling initialization failed: ${error.message}`);
+      logger.warn('⚠️  Continuing without enhanced pooling');
     }
   }
 
   // Initialize audit trail if enabled
   if (featureFlags.isEnabled(FeatureFlag.ENABLE_AUDIT_TRAIL)) {
     logger.info('✅ Audit trail system enabled');
-    // Audit logging is fire-and-forget usually, but initial setup is fast
+    await auditTrail.log({
+      eventType: 'SYSTEM_STARTUP' as any,
+      action: 'Server started',
+      result: 'success',
+    } as any);
   }
 
   // 🚀 Start performance monitoring cleanup scheduler
@@ -107,8 +110,6 @@ async function startServer() {
   const setupBypassRoutes = await import('./routes/admin/setup-bypass.js');
   app.use('/admin/setup', setupBypassRoutes.default);
   logger.info('⚠️  Admin setup bypass routes loaded (disable after initial setup)');
-
-
 
   // Mock login test routes (for testing without database)
   if (process.env.NODE_ENV !== 'production') {
@@ -280,32 +281,65 @@ async function startServer() {
   });
   logger.info('✅ Frontend compatibility alias mounted (/api/crm/shared-memory/search → /api/persistent-memory/collective/search)');
 
-  const createProxyOptions = (label: string) => ({
-    target: PYTHON_SERVICE_URL,
-    changeOrigin: true,
-    logLevel: 'warn' as const,
-    onError: (err: Error, _req: express.Request, res: express.Response) => {
-      logger.error(`❌ ${label} proxy error:`, err);
-      if (!res.headersSent) {
-        res.status(502).json({
-          ok: false,
-          error: `${label} service temporarily unavailable`,
-        });
-      }
-    },
-  });
+  // Proxy configuration - preserve full path when forwarding to Python backend
+  try {
+    if (!PYTHON_SERVICE_URL) {
+      logger.error('❌ PYTHON_SERVICE_URL not configured - proxy disabled');
+    } else {
+      logger.info(`✅ Configuring proxy to Python backend: ${PYTHON_SERVICE_URL}`);
+      
+      // Create proxy for /api/agents - preserve full path
+      const agentsProxyOptions = {
+        target: PYTHON_SERVICE_URL,
+        changeOrigin: true,
+        logLevel: 'warn' as const,
+        pathRewrite: (path: string) => {
+          // Path is stripped of /api/agents prefix, add it back
+          return '/api/agents' + path;
+        },
+        onError: (err: Error, _req: express.Request, res: express.Response) => {
+          logger.error('❌ Agents proxy error:', err);
+          if (!res.headersSent) {
+            res.status(502).json({ ok: false, error: 'Agents service unavailable' });
+          }
+        },
+      };
 
-  app.use('/api/agents', createProxyMiddleware(createProxyOptions('agents')));
+      // Create proxy for /api/crm - preserve full path
+      const crmProxyOptions = {
+        target: PYTHON_SERVICE_URL,
+        changeOrigin: true,
+        logLevel: 'warn' as const,
+        pathRewrite: (path: string) => {
+          // Path is stripped of /api/crm prefix, add it back
+          return '/api/crm' + path;
+        },
+        onError: (err: Error, _req: express.Request, res: express.Response) => {
+          logger.error('❌ CRM proxy error:', err);
+          if (!res.headersSent) {
+            res.status(502).json({ ok: false, error: 'CRM service unavailable' });
+          }
+        },
+      };
 
-  const crmProxy = createProxyMiddleware(createProxyOptions('crm'));
-  app.use('/api/crm', (req, res, next) => {
-    if (req.path.startsWith('/shared-memory/search')) {
-      return next();
+      app.use('/api/agents', createProxyMiddleware(agentsProxyOptions));
+      logger.info('✅ Agents proxy middleware mounted');
+
+      const crmProxy = createProxyMiddleware(crmProxyOptions);
+      app.use('/api/crm', (req, res, next) => {
+        if (req.path.startsWith('/shared-memory/search')) {
+          return next();
+        }
+        return crmProxy(req, res, next);
+      });
+      logger.info('✅ CRM proxy middleware mounted');
+
+      logger.info(`✅ Proxy routes mounted for CRM & Agents → ${PYTHON_SERVICE_URL}`);
     }
-    return crmProxy(req, res, next);
-  });
-
-  logger.info(`✅ Proxy routes mounted for CRM & Agents → ${PYTHON_SERVICE_URL}`);
+  } catch (error) {
+    logger.error('❌ Failed to configure proxy middleware:', error instanceof Error ? error : new Error(String(error)));
+    logger.warn('⚠️ Continuing without proxy - some endpoints may not work');
+  }
 
   // Frontend compatibility alias for compliance alerts (placeholder - returns empty array for now)
   app.get('/api/agents/compliance/alerts', (_req, res) => {
@@ -619,98 +653,114 @@ async function startServer() {
   // Create HTTP server (for WebSocket)
   const httpServer = createServer(app);
 
-    // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
+  // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
+  if (process.env.REDIS_URL) {
+    setupWebSocket(httpServer);
+    logger.info('✅ WebSocket server initialized');
+  } else {
+    logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');
+  }
+
+  const server = httpServer.listen(PORT, '0.0.0.0', async () => {
+    const addr = server.address();
+    const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr?.port}`;
+    logger.info(`🚀 ZANTARA TS-BACKEND started on ${bind}`);
+    logger.info(`🌐 Environment: ${ENV.NODE_ENV}`);
+    logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
     if (process.env.REDIS_URL) {
-      setupWebSocket(httpServer);
-      logger.info('✅ WebSocket server initialized');
-    } else {
-      logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');
+      logger.info(`🔌 WebSocket ready for real-time features`);
     }
 
-    const server = httpServer.listen(PORT, '0.0.0.0', async () => {
-      logger.info(`🚀 ZANTARA TS-BACKEND started on port ${PORT}`);
-      logger.info(`🌐 Environment: ${ENV.NODE_ENV}`);
-      logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
-      
-      // Start AI Automation Cron Scheduler
-      try {
-        getCronScheduler().start();
-        logger.info('🤖 AI Automation Cron Scheduler started');
-      } catch (error: any) {
-        logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
+    // Start AI Automation Cron Scheduler
+    try {
+      getCronScheduler().start();
+      logger.info('🤖 AI Automation Cron Scheduler started');
+    } catch (error: any) {
+      logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
+      logger.warn('⚠️  Continuing without AI automation');
+    }
+
+    // Initialize Cron Scheduler for Autonomous Agents
+    try {
+      const cronScheduler = getCronScheduler();
+      await cronScheduler.start();
+      logger.info('✅ Autonomous Agents Cron Scheduler activated');
+    } catch (error: any) {
+      logger.error('❌ Failed to start Cron Scheduler:', error.message);
+    }
+  });
+
+  // Handle shutdown gracefully
+  async function gracefulShutdown(signal: string) {
+    logger.info(`${signal} signal received: starting graceful shutdown`);
+
+    // Stop cron scheduler
+    try {
+      const cronScheduler = getCronScheduler();
+      await cronScheduler.stop();
+      logger.info('Cron Scheduler stopped');
+    } catch (error: any) {
+      logger.error('Error stopping Cron Scheduler:', error.message);
+    }
+
+    // Stop accepting new requests
+    server.close(async () => {
+      logger.info('HTTP server closed');
+
+      // Close connection pools
+      if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
+        try {
+          if (process.env.DATABASE_URL) {
+            const dbPool = getDatabasePool();
+            await dbPool.close();
+            logger.info('Database connection pool closed');
+          }
+
+        } catch (error: any) {
+          logger.error(`Error closing connection pools: ${error.message}`);
+        }
       }
 
-      // Initialize Cron Scheduler for Autonomous Agents
+      // Stop AI Automation Cron Scheduler
       try {
-        const cronScheduler = getCronScheduler();
-        await cronScheduler.start();
-        logger.info('✅ Autonomous Agents Cron Scheduler activated');
+        await getCronScheduler().stop();
+        logger.info('AI Automation Cron Scheduler stopped');
       } catch (error: any) {
-        logger.error('❌ Failed to start Cron Scheduler:', error.message);
+        logger.warn(`Error stopping cron scheduler: ${error.message}`);
       }
+
+      // Log shutdown to audit trail
+      if (featureFlags.isEnabled(FeatureFlag.ENABLE_AUDIT_TRAIL)) {
+        await auditTrail.log({
+          eventType: 'SYSTEM_SHUTDOWN' as any,
+          action: `Server shutdown: ${signal}`,
+          result: 'success',
+        } as any);
+      }
+
+      logger.info('Graceful shutdown complete');
+      process.exit(0);
     });
 
-    // Handle shutdown gracefully
-    async function gracefulShutdown(signal: string) {
-      logger.info(`${signal} signal received: starting graceful shutdown`);
+    // Force shutdown after 30 seconds
+    setTimeout(() => {
+      logger.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 30000);
+  }
 
-      // Stop cron scheduler
-      try {
-        const cronScheduler = getCronScheduler();
-        await cronScheduler.stop();
-        logger.info('Cron Scheduler stopped');
-      } catch (error: any) {
-        logger.error('Error stopping Cron Scheduler:', error.message);
-      }
-
-      // Stop accepting new requests
-      server.close(async () => {
-        logger.info('HTTP server closed');
-
-        // Close connection pools
-        if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
-          try {
-            if (process.env.DATABASE_URL) {
-              const dbPool = getDatabasePool();
-              await dbPool.close();
-              logger.info('Database connection pool closed');
-            }
-
-          } catch (error: any) {
-            logger.error(`Error closing connection pools: ${error.message}`);
-          }
-        }
-
-        // Stop AI Automation Cron Scheduler
-        try {
-          await getCronScheduler().stop();
-          logger.info('AI Automation Cron Scheduler stopped');
-        } catch (error: any) {
-          logger.warn(`Error stopping cron scheduler: ${error.message}`);
-        }
-
-        // Log shutdown to audit trail
-        if (featureFlags.isEnabled(FeatureFlag.ENABLE_AUDIT_TRAIL)) {
-          await auditTrail.log({
-            eventType: 'SYSTEM_SHUTDOWN' as any,
-            action: `Server shutdown: ${signal}`,
-            result: 'success',
-          } as any);
-        }
-
-        logger.info('Graceful shutdown complete');
-        process.exit(0);
-      });
-
-      // Force shutdown after 30 seconds
-      setTimeout(() => {
-        logger.error('Forced shutdown after timeout');
-        process.exit(1);
-      }, 30000);
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  
+  logger.info('✅ Server initialization complete');
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    logger.error('❌ Critical error during server initialization:', err);
+    if (err.stack) {
+      logger.error('Stack trace:', new Error(err.stack));
     }
-
-    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    throw err; // Re-throw to be caught by outer catch
+  }
 }
 
 // Start the server

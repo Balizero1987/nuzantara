@@ -1,10 +1,9 @@
 /**
  * Unified Authentication Strategy Pattern
  *
- * Consolidates 3 different JWT systems into 1 unified architecture:
+ * Consolidates 2 different JWT systems into 1 unified architecture:
  * 1. Enhanced JWT Auth (GLM 4.6)
  * 2. Team Login JWT (team-login.ts)
- * 3. Legacy JWT (various handlers)
  *
  * @author Gemini Pro 2.5 Recommendations
  * @version 1.0.0
@@ -12,7 +11,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import logger from '../../services/logger.js';
-import { enhancedJWTAuth, EnhancedUser } from '../../middleware/enhanced-jwt-auth.js';
+import { getEnhancedJWTAuth, EnhancedUser } from '../../middleware/enhanced-jwt-auth.js';
 
 // Unified User Interface - compatible with all systems
 export interface UnifiedUser {
@@ -28,7 +27,7 @@ export interface UnifiedUser {
   lastLogin?: Date;
   metadata?: Record<string, any>;
   // Extended properties for different auth types
-  authType: 'enhanced' | 'team' | 'legacy';
+  authType: 'enhanced' | 'team';
   sessionId?: string;
   language?: string;
   personalizedResponse?: string;
@@ -84,7 +83,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
 
       // Use enhanced JWT auth system
       return new Promise((resolve, reject) => {
-        const middleware = enhancedJWTAuth.authenticate();
+        const middleware = getEnhancedJWTAuth().authenticate();
         middleware(req, {} as Response, (error?: any) => {
           if (error) {
             reject(error);
@@ -123,15 +122,16 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
       metadata: user.metadata,
     };
 
-    return enhancedJWTAuth.createEnhancedToken(enhancedUser);
+    return getEnhancedJWTAuth().createEnhancedToken(enhancedUser);
   }
 
   async validateToken(token: string): Promise<UnifiedUser | null> {
     try {
       // Use enhanced JWT validation
-      const payload = enhancedJWTAuth['verifyToken'](token);
+      const auth = getEnhancedJWTAuth();
+      const payload = auth['verifyToken'](token);
 
-      const userStatus = await enhancedJWTAuth['checkUserStatus'](payload.userId);
+      const userStatus = await auth['checkUserStatus'](payload.userId);
 
       return {
         id: payload.userId,
@@ -167,7 +167,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
 
   async revokeToken(token: string): Promise<boolean> {
     try {
-      await enhancedJWTAuth.blacklistToken(token);
+      await getEnhancedJWTAuth().blacklistToken(token);
       return true;
     } catch (error) {
       logger.error('Enhanced JWT token revocation failed:', error instanceof Error ? error : new Error(String(error)));
@@ -180,12 +180,23 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
 export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   readonly name = 'team';
   readonly priority = 80;
-  private jwtSecret = process.env.JWT_SECRET;
+  private _jwtSecret: string | null = null;
 
-  constructor() {
-    if (!this.jwtSecret) {
-      throw new Error('JWT_SECRET environment variable is required for Team Login authentication');
+  /**
+   * Get JWT secret with lazy validation (only when actually used)
+   */
+  private getJwtSecret(): string {
+    if (!this._jwtSecret) {
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        throw new Error('JWT_SECRET environment variable is required for Team Login authentication');
+      }
+      if (secret.length < 32) {
+        throw new Error('JWT_SECRET must be at least 32 characters long');
+      }
+      this._jwtSecret = secret;
     }
+    return this._jwtSecret;
   }
 
   canHandle(req: Request): boolean {
@@ -210,7 +221,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
       const token = authHeader.substring(7);
       const jwt = await import('jsonwebtoken');
 
-      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
+      const decoded = (await jwt).verify(token, this.getJwtSecret()) as any;
 
       // Get team member data
       const teamMember = await this.getTeamMember(decoded.userId);
@@ -249,7 +260,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
         department: user.department,
         sessionId: sessionId,
       },
-      this.jwtSecret,
+      this.getJwtSecret(),
       { expiresIn: '7d' }
     );
   }
@@ -257,7 +268,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   async validateToken(token: string): Promise<UnifiedUser | null> {
     try {
       const jwt = await import('jsonwebtoken');
-      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
+      const decoded = (await jwt).verify(token, this.getJwtSecret()) as any;
 
       const teamMember = await this.getTeamMember(decoded.userId);
       if (!teamMember) return null;
@@ -320,95 +331,6 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   }
 }
 
-
-// LEGACY CODE: Legacy JWT Strategy (kept for backward compatibility only)
-// TODO: Migrate to modern JWT strategy
-export class LegacyJWTStrategy implements AuthenticationStrategy {
-  readonly name = 'legacy';
-  readonly priority = 20;
-
-  private jwtSecret = process.env.JWT_SECRET;
-
-  constructor() {
-    if (!this.jwtSecret) {
-      throw new Error('JWT_SECRET environment variable is required for Legacy authentication');
-    }
-  }
-
-  canHandle(req: Request): boolean {
-    const authHeader = req.headers.authorization;
-    return !!authHeader?.startsWith('Bearer ');
-  }
-
-  async authenticate(req: Request): Promise<UnifiedUser | null> {
-    try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader?.startsWith('Bearer ')) return null;
-
-      const token = authHeader.substring(7);
-      const jwt = await import('jsonwebtoken');
-
-      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
-
-      return {
-        id: decoded.userId || decoded.sub,
-        userId: decoded.userId || decoded.sub,
-        email: decoded.email,
-        role: decoded.role || 'User',
-        department: decoded.department || 'general',
-        name: decoded.name || decoded.email?.split('@')[0] || 'User',
-        permissions: decoded.permissions || ['read'],
-        isActive: true,
-        lastLogin: new Date(),
-        authType: 'legacy',
-      };
-    } catch (error) {
-      logger.error('Legacy JWT authentication failed:', error instanceof Error ? error : new Error(String(error)));
-      return null;
-    }
-  }
-
-  async generateToken(user: UnifiedUser): Promise<string> {
-    const jwt = await import('jsonwebtoken');
-
-    return (await jwt).sign(
-      {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        department: user.department,
-        name: user.name,
-        permissions: user.permissions,
-      },
-      this.jwtSecret,
-      { expiresIn: '24h' }
-    );
-  }
-
-  async validateToken(token: string): Promise<UnifiedUser | null> {
-    try {
-      const jwt = await import('jsonwebtoken');
-      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
-
-      return {
-        id: decoded.userId || decoded.sub,
-        userId: decoded.userId || decoded.sub,
-        email: decoded.email,
-        role: decoded.role || 'User',
-        department: decoded.department || 'general',
-        name: decoded.name || decoded.email?.split('@')[0] || 'User',
-        permissions: decoded.permissions || ['read'],
-        isActive: true,
-        lastLogin: new Date(),
-        authType: 'legacy',
-      };
-    } catch (error) {
-      logger.error('Legacy JWT validation failed:', error instanceof Error ? error : new Error(String(error)));
-      return null;
-    }
-  }
-}
-
 // Unified Authentication Manager
 export class UnifiedAuthenticationManager {
   private strategies: AuthenticationStrategy[] = [];
@@ -425,7 +347,6 @@ export class UnifiedAuthenticationManager {
     // Register strategies in priority order
     this.registerStrategy(new EnhancedJWTStrategy());
     this.registerStrategy(new TeamLoginJWTStrategy());
-    this.registerStrategy(new LegacyJWTStrategy());
 
     logger.info(
       `🔐 Unified Authentication Manager initialized with strategies: ${this.strategies.map((s) => s.name).join(', ')}`
@@ -553,12 +474,56 @@ export class UnifiedAuthenticationManager {
   }
 }
 
-// Export singleton and middleware
-export const unifiedAuth = UnifiedAuthenticationManager.getInstance();
+// Lazy initialization - don't instantiate at module load
+let _unifiedAuth: UnifiedAuthenticationManager | null = null;
+
+/**
+ * Get or create UnifiedAuthenticationManager instance (lazy initialization)
+ * This prevents JWT_SECRET validation at module load time
+ */
+export function getUnifiedAuth(): UnifiedAuthenticationManager {
+  if (!_unifiedAuth) {
+    _unifiedAuth = UnifiedAuthenticationManager.getInstance();
+  }
+  return _unifiedAuth;
+}
+
+// Backward compatibility - proxy object for existing code
+export const unifiedAuth = {
+  get instance() {
+    return getUnifiedAuth();
+  },
+  authenticate: (req: Request) => getUnifiedAuth().authenticate(req),
+  generateToken: (user: UnifiedUser, strategyName?: string) => getUnifiedAuth().generateToken(user, strategyName),
+  validateToken: (token: string, strategyName?: string) => {
+    // Find strategy and validate token
+    const manager = getUnifiedAuth();
+    const strategies = manager.getStrategies();
+    const strategy = strategyName 
+      ? strategies.find(s => s.name === strategyName)
+      : strategies[0]; // Use first strategy by default
+    
+    if (!strategy || !strategy.validateToken) {
+      return Promise.resolve(null);
+    }
+    
+    return strategy.validateToken(token).then(user => {
+      if (!user) return null;
+      return {
+        ...user,
+        authType: strategy.name,
+      } as UnifiedUser;
+    });
+  },
+  refreshToken: (token: string) => getUnifiedAuth().refreshToken(token),
+  revokeToken: (token: string) => getUnifiedAuth().revokeToken(token),
+  getStrategies: () => getUnifiedAuth().getStrategies(),
+  getStrategyStats: () => getUnifiedAuth().getStrategyStats(),
+};
 
 // Unified authentication middleware
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
-  unifiedAuth
+  getUnifiedAuth()
     .authenticate(req)
     .then((user) => {
       if (user) {
@@ -569,7 +534,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
           ok: false,
           error: 'Authentication failed',
           code: 'AUTH_REQUIRED',
-          strategies: unifiedAuth.getStrategies().map((s) => s.name),
+          strategies: getUnifiedAuth().getStrategies().map((s) => s.name),
         });
       }
     })

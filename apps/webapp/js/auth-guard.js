@@ -35,7 +35,7 @@
         return false;
       }
 
-      // 2. Parse Token (Handle both JSON object and legacy string)
+      // 2. Parse Token (JSON object format only)
       let token = null;
       let expiresAt = null;
 
@@ -46,12 +46,18 @@
           token = parsed.token;
           expiresAt = parsed.expiresAt;
         } else {
-          // Legacy/Plain string format (fallback)
-          token = parsed; 
+          // Invalid format - not an object
+          log('Invalid token format (not an object). Clearing...');
+          clearAuthData();
+          redirectToLogin();
+          return false;
         }
-      } catch (e) {
-        // If not JSON, maybe it's a raw string?
-        token = tokenData;
+      } catch {
+        // Not valid JSON - clear invalid data
+        log('Token is not valid JSON. Clearing...');
+        clearAuthData();
+        redirectToLogin();
+        return false;
       }
 
       if (!token) {
@@ -104,7 +110,7 @@
       if (!data) return null;
       const parsed = JSON.parse(data);
       return parsed.token || null;
-    } catch (e) { return null; }
+    } catch { return null; }
   };
 
   // Execute immediately

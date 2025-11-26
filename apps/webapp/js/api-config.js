@@ -34,35 +34,19 @@ export const API_ENDPOINTS = {
     hybridQuery: '/api/search',
   },
 
-  // Team Analytics
-  team: {
-    trends: '/api/team/analytics/trends',
-    skills: '/api/team/analytics/skills',
-    workload: '/api/team/analytics/workload',
-    collaboration: '/api/team/analytics/collaboration',
-    responseTimes: '/api/team/analytics/response-times',
-    satisfaction: '/api/team/analytics/satisfaction',
-    knowledgeSharing: '/api/team/analytics/knowledge-sharing'
-  },
+  // Team Analytics - REMOVED: Endpoints not implemented in backend
+  // team: { ... }
 
-  // Notifications
-  notifications: {
-    list: '/api/notifications/status',
-    markRead: '/api/notifications/send'
-  },
+  // Notifications - REMOVED: Endpoints not implemented (use WebSocket instead)
+  // notifications: { ... }
 
-  // Memory/Conversations
-  memory: {
-    save: '/api/bali-zero/conversations/save',
-    history: '/api/bali-zero/conversations/history',
-    stats: '/api/bali-zero/conversations/stats',
-    clear: '/api/bali-zero/conversations/clear'
-  },
+  // Memory/Conversations - REMOVED: Use /api/persistent-memory/* or memory-service directly
+  // memory: { ... }
 
   // Integrations
   integrations: {
-    gmail: '/google/gmail/list',
-    calendar: '/google/calendar/list',
+    gmail: '/api/gmail/list',
+    calendar: '/api/calendar/list',
     twitter: '/api/translate/text'
   },
 
@@ -170,12 +154,16 @@ export function getAuthHeaders() {
         if (typeof parsed === 'object' && parsed !== null) {
           token = parsed.token;
         } else {
-          // It was a valid JSON string but not an object? Or just a string that looked like JSON?
-          token = parsed; 
+          // Invalid format - not an object (legacy string support removed for security)
+          console.warn('Invalid token format in localStorage (not an object), clearing...');
+          localStorage.removeItem('zantara-token');
+          token = null;
         }
-      } catch (e) {
-        // Not JSON, assume legacy plain string
-        token = tokenData;
+      } catch {
+        // Invalid token format - clear and return empty headers
+        console.warn('Invalid token format in localStorage (not valid JSON), clearing...');
+        localStorage.removeItem('zantara-token');
+        token = null;
       }
     }
 

@@ -5,7 +5,8 @@
  */
 
 /* eslint-disable no-undef */ // fetch is built-in in Node 1dynamicValue
-/* eslint-disable no-console */ // Console statements appropriate for service client
+
+import logger from './logger.js';
 
 const MEMORY_SERVICE_URL = process.env.MEMORY_SERVICE_URL || 'https://nuzantara-memory.fly.dev';
 
@@ -68,7 +69,7 @@ export class MemoryAnalyticsClient {
 
       return data.analytics;
     } catch (error) {
-      console.error('❌ Failed to fetch comprehensive analytics:', error);
+      logger.error('❌ Failed to fetch comprehensive analytics:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -92,7 +93,7 @@ export class MemoryAnalyticsClient {
 
       return data.realtime;
     } catch (error) {
-      console.error('❌ Failed to fetch real-time metrics:', error);
+      logger.error('❌ Failed to fetch real-time metrics:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -120,9 +121,9 @@ export class MemoryAnalyticsClient {
         throw new Error(data.error || 'Failed to aggregate daily stats');
       }
 
-      console.log(`✅ Daily stats aggregated for ${data.date}`);
+      logger.info(`✅ Daily stats aggregated for ${data.date}`);
     } catch (error) {
-      console.error('❌ Failed to aggregate daily stats:', error);
+      logger.error('❌ Failed to aggregate daily stats:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -146,10 +147,10 @@ export class MemoryAnalyticsClient {
         throw new Error(data.error || 'Failed to clean old events');
       }
 
-      console.log(`✅ Cleaned ${data.deleted_count} old events`);
+      logger.info(`✅ Cleaned ${data.deleted_count} old events`);
       return data.deleted_count;
     } catch (error) {
-      console.error('❌ Failed to clean old events:', error);
+      logger.error('❌ Failed to clean old events:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -174,7 +175,7 @@ export class MemoryAnalyticsClient {
 
       return data.stats;
     } catch (error) {
-      console.error('❌ Failed to fetch basic stats:', error);
+      logger.error('❌ Failed to fetch basic stats:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }

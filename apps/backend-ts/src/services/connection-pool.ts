@@ -106,7 +106,7 @@ export class DatabaseConnectionPool {
     }
 
     // Implement retry logic with exponential backoff
-    let lastError: Error;
+    let lastError: Error = new Error('Connection failed');
     const maxRetries = 3;
     const baseDelay = 1000; // 1 second
 
@@ -121,7 +121,11 @@ export class DatabaseConnectionPool {
         // Log retry attempt
         if (attempt < maxRetries) {
           const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff
-          logger.warn(`Database connection attempt ${attempt} failed, retrying in ${delay}ms:`, lastError.message);
+          logger.warn(`Database connection attempt ${attempt} failed, retrying in ${delay}ms`, {
+            error: lastError.message,
+            attempt,
+            delay
+          });
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }

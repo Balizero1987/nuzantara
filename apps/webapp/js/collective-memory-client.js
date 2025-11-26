@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 // Unified client now available as window.ZantaraAPIClient
 import { API_CONFIG } from './api-config.js';
+import UnifiedAPIClient from './core/unified-api-client.js';
 
 /**
  * ZANTARA Collective Memory Client
@@ -22,7 +23,7 @@ class CollectiveMemoryClient {
         };
 
         // Use unified API client
-        this.api = window.apiClient || new window.UnifiedAPIClient({ baseURL: this.config.apiUrl });
+        this.api = window.apiClient || new UnifiedAPIClient({ baseURL: this.config.apiUrl });
     }
 
     /**

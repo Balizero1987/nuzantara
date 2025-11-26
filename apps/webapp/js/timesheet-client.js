@@ -4,14 +4,16 @@
  */
 
 import { API_CONFIG } from './api-config.js';
+import UnifiedAPIClient from './core/unified-api-client.js';
 
 class TimesheetClient {
     constructor() {
         this.baseURL = API_CONFIG.backend.url;
+        this.api = new UnifiedAPIClient({ baseURL: this.baseURL });
     }
 
     /**
-     * Get authentication headers
+     * Get authentication headers (deprecated - use this.api instead)
      */
     getAuthHeaders() {
         const tokenData = localStorage.getItem('zantara-token');
@@ -68,25 +70,22 @@ class TimesheetClient {
             throw new Error('User not authenticated');
         }
 
-        const response = await fetch(`${this.baseURL}/api/team/clock-in`, {
+        try {
+            const response = await this.api.request('/api/team/clock-in', {
             method: 'POST',
-            headers: this.getAuthHeaders(),
-            body: JSON.stringify({
+                body: {
                 user_id: user.userId || user.user_id || user.id,
                 email: user.email,
                 metadata: {
                     user_agent: navigator.userAgent,
                     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
                 }
-            })
+                }
         });
-
-        if (!response.ok) {
-            const error = await response.json();
+            return response;
+        } catch (error) {
             throw new Error(error.message || 'Clock-in failed');
         }
-
-        return await response.json();
     }
 
     /**
@@ -98,24 +97,21 @@ class TimesheetClient {
             throw new Error('User not authenticated');
         }
 
-        const response = await fetch(`${this.baseURL}/api/team/clock-out`, {
+        try {
+            const response = await this.api.request('/api/team/clock-out', {
             method: 'POST',
-            headers: this.getAuthHeaders(),
-            body: JSON.stringify({
+                body: {
                 user_id: user.userId || user.user_id || user.id,
                 email: user.email,
                 metadata: {
                     user_agent: navigator.userAgent
                 }
-            })
+                }
         });
-
-        if (!response.ok) {
-            const error = await response.json();
+            return response;
+        } catch (error) {
             throw new Error(error.message || 'Clock-out failed');
         }
-
-        return await response.json();
     }
 
     /**
@@ -128,105 +124,98 @@ class TimesheetClient {
         }
 
         const userId = user.userId || user.user_id || user.id;
-        const response = await fetch(
-            `${this.baseURL}/api/team/my-status?user_id=${encodeURIComponent(userId)}`,
-            {
-                headers: this.getAuthHeaders()
-            }
+        try {
+            const response = await this.api.request(
+                `/api/team/my-status?user_id=${encodeURIComponent(userId)}`,
+                { method: 'GET' }
         );
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch status');
+            return response;
+        } catch (error) {
+            throw new Error(error.message || 'Failed to fetch status');
         }
-
-        return await response.json();
     }
 
     /**
      * Get team online status (ADMIN ONLY)
      */
     async getTeamStatus() {
-        const response = await fetch(`${this.baseURL}/api/team/status`, {
-            headers: this.getAuthHeaders()
+        try {
+            const response = await this.api.request('/api/team/status', {
+                method: 'GET'
         });
-
-        if (!response.ok) {
-            if (response.status === 403) {
+            return response;
+        } catch (error) {
+            if (error.message && error.message.includes('403')) {
                 throw new Error('Admin access required');
             }
-            throw new Error('Failed to fetch team status');
+            throw new Error(error.message || 'Failed to fetch team status');
         }
-
-        return await response.json();
     }
 
     /**
      * Get daily hours (ADMIN ONLY)
      */
     async getDailyHours(date = null) {
-        let url = `${this.baseURL}/api/team/hours`;
+        let endpoint = '/api/team/hours';
         if (date) {
-            url += `?date=${date}`;
+            endpoint += `?date=${date}`;
         }
 
-        const response = await fetch(url, {
-            headers: this.getAuthHeaders()
+        try {
+            const response = await this.api.request(endpoint, {
+                method: 'GET'
         });
-
-        if (!response.ok) {
-            if (response.status === 403) {
+            return response;
+        } catch (error) {
+            if (error.message && error.message.includes('403')) {
                 throw new Error('Admin access required');
             }
-            throw new Error('Failed to fetch daily hours');
+            throw new Error(error.message || 'Failed to fetch daily hours');
         }
-
-        return await response.json();
     }
 
     /**
      * Get weekly activity summary (ADMIN ONLY)
      */
     async getWeeklyActivity(weekStart = null) {
-        let url = `${this.baseURL}/api/team/activity/weekly`;
+        let endpoint = '/api/team/activity/weekly';
         if (weekStart) {
-            url += `?week_start=${weekStart}`;
+            endpoint += `?week_start=${weekStart}`;
         }
 
-        const response = await fetch(url, {
-            headers: this.getAuthHeaders()
+        try {
+            const response = await this.api.request(endpoint, {
+                method: 'GET'
         });
-
-        if (!response.ok) {
-            if (response.status === 403) {
+            return response;
+        } catch (error) {
+            if (error.message && error.message.includes('403')) {
                 throw new Error('Admin access required');
             }
-            throw new Error('Failed to fetch weekly activity');
+            throw new Error(error.message || 'Failed to fetch weekly activity');
         }
-
-        return await response.json();
     }
 
     /**
      * Get monthly activity summary (ADMIN ONLY)
      */
     async getMonthlyActivity(monthStart = null) {
-        let url = `${this.baseURL}/api/team/activity/monthly`;
+        let endpoint = '/api/team/activity/monthly';
         if (monthStart) {
-            url += `?month_start=${monthStart}`;
+            endpoint += `?month_start=${monthStart}`;
         }
 
-        const response = await fetch(url, {
-            headers: this.getAuthHeaders()
+        try {
+            const response = await this.api.request(endpoint, {
+                method: 'GET'
         });
-
-        if (!response.ok) {
-            if (response.status === 403) {
+            return response;
+        } catch (error) {
+            if (error.message && error.message.includes('403')) {
                 throw new Error('Admin access required');
             }
-            throw new Error('Failed to fetch monthly activity');
+            throw new Error(error.message || 'Failed to fetch monthly activity');
         }
-
-        return await response.json();
     }
 
     /**

@@ -212,7 +212,10 @@ class ErrorHandler {
   async reportToBackend(error) {
     try {
       // Don't use apiClient to avoid circular errors
-      const response = await fetch('https://nuzantara-rag.fly.dev/call', {
+      const backendUrl = typeof window !== 'undefined' && window.API_CONFIG?.backend?.url 
+        ? window.API_CONFIG.backend.url 
+        : 'https://nuzantara-backend.fly.dev';
+      const response = await fetch(`${backendUrl}/call`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

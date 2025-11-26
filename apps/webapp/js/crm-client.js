@@ -1,5 +1,6 @@
 // Unified client now available as window.ZantaraAPIClient
 import { API_CONFIG } from './api-config.js';
+import UnifiedAPIClient from './core/unified-api-client.js';
 
 /**
  * CRM Client

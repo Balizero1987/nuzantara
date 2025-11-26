@@ -67,17 +67,42 @@ build({
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = dirname(__filename);
       
-      console.log("🔥 BOOTSTRAP: Ultimate Bundle Starting...");
-      
-      // Global error handlers at the absolute top level
-      process.on('uncaughtException', (err) => {
-        console.error('🔥 FATAL UNCAUGHT EXCEPTION:', err);
-        // In production, logging is critical before exit
-        process.exit(1);
-      });
-      process.on('unhandledRejection', (reason) => {
-        console.error('🔥 FATAL UNHANDLED REJECTION:', reason);
-      });
+      try {
+        console.log("🔥 BOOTSTRAP: Ultimate Bundle Starting...");
+        console.log("[BOOTSTRAP] Node version:", process.version);
+        console.log("[BOOTSTRAP] NODE_ENV:", process.env.NODE_ENV);
+        console.log("[BOOTSTRAP] JWT_SECRET length:", process.env.JWT_SECRET?.length || 0);
+        
+        // Global error handlers at the absolute top level
+        process.on('uncaughtException', (err) => {
+          console.error('🔥 FATAL UNCAUGHT EXCEPTION:', err);
+          console.error('🔥 Stack:', err.stack);
+          // Give time for logs to flush
+          setTimeout(() => {
+            process.exit(1);
+          }, 2000);
+        });
+        process.on('unhandledRejection', (reason, promise) => {
+          console.error('🔥 FATAL UNHANDLED REJECTION:', reason);
+          console.error('🔥 Promise:', promise);
+          // Give time for logs to flush
+          setTimeout(() => {
+            process.exit(1);
+          }, 2000);
+        });
+        
+        // Log when imports start
+        console.log("[BOOTSTRAP] Starting module imports...");
+      } catch (bannerError) {
+        console.error('🔥 FATAL ERROR IN BOOTSTRAP BANNER:', bannerError);
+        console.error('🔥 Stack:', bannerError.stack);
+        console.error('🔥 Error name:', bannerError.name);
+        console.error('🔥 Error message:', bannerError.message);
+        // Give time for logs to flush
+        setTimeout(() => {
+          process.exit(1);
+        }, 2000);
+      }
     `,
   },
   sourcemap: true,

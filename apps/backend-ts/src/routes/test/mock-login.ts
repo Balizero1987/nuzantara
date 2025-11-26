@@ -14,14 +14,23 @@ import logger from '../../services/logger.js';
 
 const router = Router();
 
-// Production guard - disable routes in production instead of crashing
-if (process.env.NODE_ENV === 'production') {
-  router.use((_req, res) => {
-    res.status(404).json(ok({ error: 'Mock login routes are disabled in production' }));
-  });
-} else {
-  // Mock team members data (same PIN: 1234 for testing)
-  const mockTeamMembers = [
+// Production guard middleware - blocks all routes in production
+const productionGuard = (_req: Request, res: Response, _next: () => void) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      ok: false,
+      error: 'Mock login is disabled in production',
+      code: 'MOCK_DISABLED'
+    });
+  }
+  _next();
+};
+
+// Apply production guard to all routes
+router.use(productionGuard);
+
+// Mock team members data (same PIN: 1234 for testing)
+const mockTeamMembers = [
   {
     id: 'ceo-123',
     name: 'Antonello Siano',
@@ -94,7 +103,7 @@ router.post('/mock-login', async (req: Request, res: Response) => {
     const sessionId = `session_${Date.now()}_${member.id}`;
 
     // Generate JWT token
-    const jwtSecret = process.env.JWT_SECRET!;
+    const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       return res.status(500).json(ok({
         success: false,
@@ -132,13 +141,12 @@ router.post('/mock-login', async (req: Request, res: Response) => {
       message: `Login riuscito! Benvenuto ${member.name}`
     }));
 
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+  } catch (error: any) {
     logger.error('Mock login error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json(ok({
       success: false,
       error: 'Errore durante il login',
-      details: errorMessage
+      details: error.message
     }));
   }
 });
@@ -177,6 +185,5 @@ router.get('/test', async (_req: Request, res: Response) => {
     ]
   }));
 });
-} // End of else block for production check
 
 export default router;

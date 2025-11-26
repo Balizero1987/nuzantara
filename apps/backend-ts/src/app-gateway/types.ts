@@ -8,7 +8,6 @@ export const ActionName = z.union([
   z.literal('lead_save'),
   z.literal('set_language'),
   // Additional capabilities
-  z.literal('kbli_lookup'),
   z.literal('team_search'),
   z.literal('pricing_query'),
   z.literal('collective_memory'),

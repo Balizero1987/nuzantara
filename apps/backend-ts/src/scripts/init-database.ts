@@ -9,22 +9,23 @@
 
 import { getDatabasePool } from '../services/connection-pool.js';
 import bcrypt from 'bcrypt';
+import logger from '../services/logger.js';
 
-// const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_URL = process.env.DATABASE_URL;
 
-// if (!DATABASE_URL) {
-//   console.error('❌ DATABASE_URL environment variable is required');
-//   // process.exit(1);
-// }
+if (!DATABASE_URL) {
+  logger.error('❌ DATABASE_URL environment variable is required');
+  process.exit(1);
+}
 
 async function initializeDatabase() {
-  console.log('🚀 Initializing ZANTARA database...');
+  logger.info('🚀 Initializing ZANTARA database...');
 
   try {
     const db = getDatabasePool();
 
     // Create tables
-    console.log('📋 Creating database tables...');
+    logger.info('📋 Creating database tables...');
 
     // Create team_members table
     await db.query(`
@@ -45,7 +46,7 @@ async function initializeDatabase() {
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
-    console.log('✅ team_members table created');
+    logger.info('✅ team_members table created');
 
     // Create auth_audit_log table
     await db.query(`
@@ -60,7 +61,7 @@ async function initializeDatabase() {
         failure_reason VARCHAR(255)
       )
     `);
-    console.log('✅ auth_audit_log table created');
+    logger.info('✅ auth_audit_log table created');
 
     // Create user_sessions table
     await db.query(`
@@ -76,10 +77,10 @@ async function initializeDatabase() {
         is_active BOOLEAN DEFAULT true
       )
     `);
-    console.log('✅ user_sessions table created');
+    logger.info('✅ user_sessions table created');
 
     // Create indexes
-    console.log('📋 Creating indexes...');
+    logger.info('📋 Creating indexes...');
 
     await db.query('CREATE INDEX IF NOT EXISTS idx_team_members_email ON team_members(LOWER(email))');
     await db.query('CREATE INDEX IF NOT EXISTS idx_team_members_role ON team_members(role)');
@@ -88,7 +89,7 @@ async function initializeDatabase() {
     await db.query('CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id)');
     await db.query('CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at ON user_sessions(expires_at)');
 
-    console.log('✅ Indexes created');
+    logger.info('✅ Indexes created');
 
     // Create update trigger function
     await db.query(`
@@ -108,10 +109,10 @@ async function initializeDatabase() {
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
     `);
 
-    console.log('✅ Triggers created');
+    logger.info('✅ Triggers created');
 
     // Insert default team members
-    console.log('👥 Creating default team members...');
+    logger.info('👥 Creating default team members...');
 
     const teamMembers = [
       {
@@ -188,31 +189,34 @@ async function initializeDatabase() {
           updated_at = NOW()
       `, [member.name, member.email, pinHash, member.role, member.department, member.language]);
 
-      console.log(`✅ Created user: ${member.name} (${member.email}) - PIN: ${member.pin}`);
+      logger.info(`✅ Created user: ${member.name} (${member.email}) - PIN: ${member.pin}`);
     }
 
     // Verify database setup
     const result = await db.query('SELECT COUNT(*) as count FROM team_members WHERE is_active = true');
-    console.log(`📊 Total active team members: ${result.rows[0].count}`);
+    logger.info(`📊 Total active team members: ${result.rows[0].count}`);
 
-    console.log('\n🎉 Database initialization completed successfully!');
-    console.log('\n📋 Login Credentials:');
-    console.log('─'.repeat(60));
+    logger.info('\n🎉 Database initialization completed successfully!');
+    logger.info('\n📋 Login Credentials:');
+    logger.info('─'.repeat(60));
     for (const member of teamMembers) {
-      console.log(`${member.name.padEnd(20)} | ${member.email.padEnd(25)} | PIN: ${member.pin}`);
+      logger.info(`${member.name.padEnd(20)} | ${member.email.padEnd(25)} | PIN: ${member.pin}`);
     }
-    console.log('─'.repeat(60));
-    console.log('\n🚀 Team login is now ready at: /api/auth/team/login');
+    logger.info('─'.repeat(60));
+    logger.info('\n🚀 Team login is now ready at: /api/auth/team/login');
 
   } catch (error) {
-    console.error('❌ Database initialization failed:', error);
+    logger.error('❌ Database initialization failed:', error instanceof Error ? error : new Error(String(error)));
     process.exit(1);
   }
 }
 
 // Run initialization if called directly
-// if (import.meta.url === `file://${process.argv[1]}`) {
-//   initializeDatabase().catch(console.error);
-// }
+if (import.meta.url === `file://${process.argv[1]}`) {
+  initializeDatabase().catch((error) => {
+    logger.error('Database initialization error:', error instanceof Error ? error : new Error(String(error)));
+    process.exit(1);
+  });
+}
 
 export { initializeDatabase };
