@@ -1,5 +1,3 @@
-import { StreamingTextResponse } from 'ai';
-
 export const runtime = 'edge';
 
 export async function POST(req: Request) {
@@ -84,5 +82,11 @@ export async function POST(req: Request) {
     },
   });
 
-  return new StreamingTextResponse(stream);
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    },
+  });
 }
