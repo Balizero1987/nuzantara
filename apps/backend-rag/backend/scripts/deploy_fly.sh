@@ -1,6 +1,6 @@
 #!/bin/bash
 # Fly.io Deployment Script for Reranker Optimization
-# 
+#
 # Usage: ./deploy_fly.sh [stage]
 # Stages: feature-flags | cache-10 | cache-50 | cache-100 | full | rollback
 
@@ -38,7 +38,7 @@ case $STAGE in
         echo "📦 Deploying to Fly.io..."
         fly deploy -a "$APP_NAME"
         ;;
-    
+
     cache-10)
         echo -e "${YELLOW}Stage 2: Enabling cache for 10% traffic${NC}"
         set_fly_secret "RERANKER_CACHE_ENABLED" "true"
@@ -46,19 +46,19 @@ case $STAGE in
         echo "✅ Cache enabled (small size: 100 entries)"
         fly deploy -a "$APP_NAME"
         ;;
-    
+
     cache-50)
         echo -e "${YELLOW}Stage 3: Scaling cache to 50% capacity${NC}"
         set_fly_secret "RERANKER_CACHE_SIZE" "500"
         fly deploy -a "$APP_NAME"
         ;;
-    
+
     cache-100)
         echo -e "${YELLOW}Stage 4: Full cache capacity${NC}"
         set_fly_secret "RERANKER_CACHE_SIZE" "1000"
         fly deploy -a "$APP_NAME"
         ;;
-    
+
     full)
         echo -e "${YELLOW}Stage 5: Full rollout${NC}"
         set_fly_secret "RERANKER_CACHE_ENABLED" "true"
@@ -70,14 +70,14 @@ case $STAGE in
         echo "✅ All features enabled"
         fly deploy -a "$APP_NAME"
         ;;
-    
+
     rollback)
         echo -e "${RED}Rollback: Disabling reranker optimizations${NC}"
         set_fly_secret "RERANKER_CACHE_ENABLED" "false"
         set_fly_secret "RERANKER_BATCH_ENABLED" "false"
         fly deploy -a "$APP_NAME"
         ;;
-    
+
     *)
         echo -e "${RED}Unknown stage: $STAGE${NC}"
         echo "Available stages: feature-flags | cache-10 | cache-50 | cache-100 | full | rollback"
@@ -89,4 +89,3 @@ echo ""
 echo -e "${GREEN}✅ Deployment stage '$STAGE' completed${NC}"
 echo "📊 Check health: fly ssh console -a $APP_NAME -C 'curl http://localhost:8000/health'"
 echo "📊 Monitor logs: fly logs -a $APP_NAME"
-

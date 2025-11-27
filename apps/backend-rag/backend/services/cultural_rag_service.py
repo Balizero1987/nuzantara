@@ -10,7 +10,7 @@ Latency: <5ms (Qdrant vector search)
 """
 
 import logging
-from typing import List, Dict, Optional, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +31,8 @@ class CulturalRAGService:
         logger.info("✅ CulturalRAGService initialized")
 
     async def get_cultural_context(
-        self,
-        context_params: Dict[str, Any],
-        limit: int = 2
-    ) -> List[Dict[str, Any]]:
+        self, context_params: dict[str, Any], limit: int = 2
+    ) -> list[dict[str, Any]]:
         """
         Get relevant cultural context based on conversation parameters
 
@@ -59,7 +57,7 @@ class CulturalRAGService:
                 "casual": "casual_chat",
                 "business_simple": None,  # No specific context, use semantic match
                 "business_complex": None,
-                "emotional_support": "casual_chat"
+                "emotional_support": "casual_chat",
             }
 
             when_to_use = intent_to_context.get(intent)
@@ -70,12 +68,12 @@ class CulturalRAGService:
 
             # Query cultural insights from Qdrant
             cultural_insights = await self.search_service.query_cultural_insights(
-                query=query,
-                when_to_use=when_to_use,
-                limit=limit
+                query=query, when_to_use=when_to_use, limit=limit
             )
 
-            logger.info(f"🌴 Retrieved {len(cultural_insights)} cultural insights (intent: {intent}, stage: {conversation_stage})")
+            logger.info(
+                f"🌴 Retrieved {len(cultural_insights)} cultural insights (intent: {intent}, stage: {conversation_stage})"
+            )
 
             return cultural_insights
 
@@ -83,7 +81,7 @@ class CulturalRAGService:
             logger.error(f"❌ Failed to get cultural context: {e}")
             return []
 
-    def build_cultural_prompt_injection(self, cultural_chunks: List[Dict[str, Any]]) -> str:
+    def build_cultural_prompt_injection(self, cultural_chunks: list[dict[str, Any]]) -> str:
         """
         Build cultural context string for injection into ZANTARA AI's system prompt
 
@@ -97,10 +95,7 @@ class CulturalRAGService:
             return ""
 
         try:
-            context_parts = [
-                "## 🌴 Indonesian Cultural Intelligence (from ZANTARA's soul)",
-                ""
-            ]
+            context_parts = ["## 🌴 Indonesian Cultural Intelligence (from ZANTARA's soul)", ""]
 
             for i, chunk in enumerate(cultural_chunks, 1):
                 topic = chunk["metadata"].get("topic", "cultural_insight")
@@ -124,14 +119,16 @@ class CulturalRAGService:
 
             cultural_context = "\n".join(context_parts)
 
-            logger.info(f"📝 Built cultural injection: {len(cultural_context)} chars from {len(cultural_chunks)} chunks")
+            logger.info(
+                f"📝 Built cultural injection: {len(cultural_context)} chars from {len(cultural_chunks)} chunks"
+            )
             return cultural_context
 
         except Exception as e:
             logger.error(f"❌ Failed to build cultural injection: {e}")
             return ""
 
-    async def get_cultural_topics_coverage(self) -> Dict[str, int]:
+    async def get_cultural_topics_coverage(self) -> dict[str, int]:
         """
         Get statistics on what cultural topics are available in Qdrant
 
@@ -151,10 +148,10 @@ class CulturalRAGService:
                 "ramadan_business",
                 "relationship_capital",
                 "flexibility_expectations",
-                "language_barrier_navigation"
+                "language_barrier_navigation",
             ]
 
-            return {topic: 1 for topic in expected_topics}
+            return dict.fromkeys(expected_topics, 1)
 
         except Exception as e:
             logger.error(f"❌ Failed to get cultural topics coverage: {e}")
@@ -172,56 +169,56 @@ async def test_cultural_rag():
 
     # Test queries
     test_cases = [
-        {
-            "query": "ciao",
-            "intent": "greeting",
-            "conversation_stage": "first_contact"
-        },
+        {"query": "ciao", "intent": "greeting", "conversation_stage": "first_contact"},
         {
             "query": "aku malu bertanya tentang visa",
             "intent": "casual",
-            "conversation_stage": "ongoing"
+            "conversation_stage": "ongoing",
         },
         {
             "query": "why is Indonesian bureaucracy so slow?",
             "intent": "business_simple",
-            "conversation_stage": "ongoing"
-        }
+            "conversation_stage": "ongoing",
+        },
     ]
 
+    import logging
+    logger = logging.getLogger(__name__)
+
     for i, test in enumerate(test_cases, 1):
-        print(f"\n{'=' * 60}")
-        print(f"TEST {i}: {test['query']}")
-        print(f"Intent: {test['intent']}, Stage: {test['conversation_stage']}")
-        print(f"{'=' * 60}")
+        logger.info(f"\n{'=' * 60}")
+        logger.info(f"TEST {i}: {test['query']}")
+        logger.info(f"Intent: {test['intent']}, Stage: {test['conversation_stage']}")
+        logger.info(f"{'=' * 60}")
 
         # Get cultural context
         cultural_chunks = await cultural_rag.get_cultural_context(test, limit=2)
 
         if cultural_chunks:
-            print(f"\n✅ Found {len(cultural_chunks)} cultural insights:")
+            logger.info(f"\nFound {len(cultural_chunks)} cultural insights:")
             for chunk in cultural_chunks:
                 topic = chunk["metadata"].get("topic", "unknown")
                 score = chunk.get("score", 0.0)
-                print(f"\n   Topic: {topic} (score: {score:.2f})")
-                print(f"   Content: {chunk['content'][:150]}...")
+                logger.info(f"\n   Topic: {topic} (score: {score:.2f})")
+                logger.info(f"   Content: {chunk['content'][:150]}...")
 
             # Build injection
             injection = cultural_rag.build_cultural_prompt_injection(cultural_chunks)
-            print(f"\n📝 Cultural Injection ({len(injection)} chars):")
-            print(injection[:300] + "...\n")
+            logger.info(f"\nCultural Injection ({len(injection)} chars):")
+            logger.info(injection[:300] + "...\n")
         else:
-            print("\n❌ No cultural insights found")
+            logger.warning("\nNo cultural insights found")
 
     # Coverage
-    print(f"\n{'=' * 60}")
-    print("CULTURAL TOPICS COVERAGE")
-    print(f"{'=' * 60}")
+    logger.info(f"\n{'=' * 60}")
+    logger.info("CULTURAL TOPICS COVERAGE")
+    logger.info(f"{'=' * 60}")
     coverage = await cultural_rag.get_cultural_topics_coverage()
     for topic, count in coverage.items():
-        print(f"   {topic}: {count} insight(s)")
+        logger.info(f"   {topic}: {count} insight(s)")
 
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(test_cultural_rag())

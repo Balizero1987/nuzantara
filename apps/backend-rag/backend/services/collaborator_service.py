@@ -13,7 +13,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -29,18 +29,18 @@ class CollaboratorProfile:
     department: str
     team: str
     language: str
-    languages: List[str] = field(default_factory=list)
+    languages: list[str] = field(default_factory=list)
     expertise_level: str = "intermediate"
-    age: Optional[int] = None
-    religion: Optional[str] = None
-    traits: List[str] = field(default_factory=list)
-    notes: Optional[str] = None
-    pin: Optional[str] = None
-    location: Optional[str] = None
-    emotional_preferences: Dict[str, str] = field(default_factory=dict)
-    relationships: List[Dict[str, str]] = field(default_factory=list)
+    age: int | None = None
+    religion: str | None = None
+    traits: list[str] = field(default_factory=list)
+    notes: str | None = None
+    pin: str | None = None
+    location: str | None = None
+    emotional_preferences: dict[str, str] = field(default_factory=dict)
+    relationships: list[dict[str, str]] = field(default_factory=list)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Serialize profile for JSON responses."""
         return {
             "id": self.id,
@@ -91,7 +91,7 @@ class CollaboratorService:
         with DATA_PATH.open("r", encoding="utf-8") as f:
             raw_members = json.load(f)
 
-        self.members: List[CollaboratorProfile] = [
+        self.members: list[CollaboratorProfile] = [
             CollaboratorProfile(
                 id=entry["id"],
                 email=entry["email"].lower(),
@@ -114,12 +114,12 @@ class CollaboratorService:
             for entry in raw_members
         ]
 
-        self.members_by_email: Dict[str, CollaboratorProfile] = {
+        self.members_by_email: dict[str, CollaboratorProfile] = {
             profile.email: profile for profile in self.members
         }
 
         # Backwards compatibility: expose TEAM_DATABASE similar to old version
-        self.TEAM_DATABASE: Dict[str, Dict] = {
+        self.TEAM_DATABASE: dict[str, dict] = {
             email: {
                 "id": profile.id,
                 "name": profile.name,
@@ -132,13 +132,13 @@ class CollaboratorService:
             for email, profile in self.members_by_email.items()
         }
 
-        self.cache: Dict[str, tuple[CollaboratorProfile, datetime]] = {}
+        self.cache: dict[str, tuple[CollaboratorProfile, datetime]] = {}
         self.cache_ttl = timedelta(minutes=10)
 
         logger.info("✅ CollaboratorService loaded %s team members", len(self.members))
 
     # ------------------------------------------------------------------ lookups
-    async def identify(self, email: Optional[str]) -> CollaboratorProfile:
+    async def identify(self, email: str | None) -> CollaboratorProfile:
         if not email:
             return self._anonymous_profile()
 
@@ -157,10 +157,10 @@ class CollaboratorService:
 
         return self._anonymous_profile()
 
-    def get_member(self, email: str) -> Optional[CollaboratorProfile]:
+    def get_member(self, email: str) -> CollaboratorProfile | None:
         return self.members_by_email.get(email.lower())
 
-    def list_members(self, department: Optional[str] = None) -> List[CollaboratorProfile]:
+    def list_members(self, department: str | None = None) -> list[CollaboratorProfile]:
         if not department:
             return list(self.members)
         dept = department.lower()
@@ -170,14 +170,14 @@ class CollaboratorService:
             if profile.department.lower() == dept or profile.team.lower() == dept
         ]
 
-    def search_members(self, query: str) -> List[CollaboratorProfile]:
+    def search_members(self, query: str) -> list[CollaboratorProfile]:
         query = query.strip()
         if not query:
             return []
         return [profile for profile in self.members if profile.matches(query)]
 
-    def get_team_stats(self) -> Dict[str, Any]:
-        by_department: Dict[str, int] = {}
+    def get_team_stats(self) -> dict[str, Any]:
+        by_department: dict[str, int] = {}
         for profile in self.members:
             dept = profile.department
             by_department[dept] = by_department.get(dept, 0) + 1
@@ -189,8 +189,8 @@ class CollaboratorService:
         }
 
     # ------------------------------------------------------------------ helpers
-    def _language_stats(self) -> Dict[str, int]:
-        stats: Dict[str, int] = {}
+    def _language_stats(self) -> dict[str, int]:
+        stats: dict[str, int] = {}
         for profile in self.members:
             stats[profile.language] = stats.get(profile.language, 0) + 1
         return stats
@@ -208,4 +208,3 @@ class CollaboratorService:
             expertise_level="beginner",
             notes="Anonymous user profile",
         )
-

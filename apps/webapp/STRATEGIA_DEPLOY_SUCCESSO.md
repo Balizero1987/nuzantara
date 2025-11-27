@@ -1,6 +1,6 @@
 # 🚀 Strategia di Deploy Successo - Analisi Precedenti Deploy
 
-**Data Analisi:** 2025-01-27  
+**Data Analisi:** 2025-01-27
 **Basato su:** Commit history, workflow files, fly.toml, deployment guides
 
 ---
@@ -436,7 +436,6 @@ primary_region = 'sin'
 
 ---
 
-**Generato da:** Analisi deploy precedenti  
-**Versione:** 1.0  
+**Generato da:** Analisi deploy precedenti
+**Versione:** 1.0
 **Data:** 2025-01-27
-

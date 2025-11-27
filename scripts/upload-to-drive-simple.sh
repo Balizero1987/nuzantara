@@ -26,4 +26,3 @@ echo ""
 echo "3️⃣  Usa gdrive CLI (se installato):"
 echo "   gdrive upload --parent $DRIVE_FOLDER_ID $ARCHIVE"
 echo ""
-

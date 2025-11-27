@@ -9,15 +9,17 @@ Phase 3 Enhancement: Conflict Resolution Agent
 - Transparent conflict reporting
 """
 
-from typing import Dict, Any, List, Optional, Tuple
 import logging
-import os
 from datetime import datetime
+from typing import Any
+
+from core.cache import cached
 from core.embeddings import EmbeddingsGenerator
 from core.qdrant_db import QdrantClient
-from app.models import TierLevel, AccessLevel
+
+from app.core.config import settings
+from app.models import TierLevel
 from services.query_router import QueryRouter
-from core.cache import cached
 
 logger = logging.getLogger(__name__)
 
@@ -30,19 +32,21 @@ class SearchService:
         0: [TierLevel.S],
         1: [TierLevel.S, TierLevel.A],
         2: [TierLevel.S, TierLevel.A, TierLevel.B, TierLevel.C],
-        3: [TierLevel.S, TierLevel.A, TierLevel.B, TierLevel.C, TierLevel.D]
+        3: [TierLevel.S, TierLevel.A, TierLevel.B, TierLevel.C, TierLevel.D],
     }
 
     def __init__(self):
         logger.info("🔄 SearchService initialization starting...")
-        
+
         # Initialize embeddings generator (singleton pattern)
         logger.info("🔄 Loading EmbeddingsGenerator...")
         self.embedder = EmbeddingsGenerator()
-        logger.info(f"✅ EmbeddingsGenerator ready: {self.embedder.provider} ({self.embedder.dimensions} dims)")
-        
-        # Get Qdrant URL from environment
-        qdrant_url = os.environ.get('QDRANT_URL', 'https://nuzantara-qdrant.fly.dev')
+        logger.info(
+            f"✅ EmbeddingsGenerator ready: {self.embedder.provider} ({self.embedder.dimensions} dims)"
+        )
+
+        # Get Qdrant URL from centralized config
+        qdrant_url = settings.qdrant_url
         logger.info(f"🔄 Connecting to Qdrant: {qdrant_url}")
 
         # FIX 2025-11-20: Migrated to Qdrant with OpenAI 1536-dim embeddings
@@ -52,26 +56,60 @@ class SearchService:
         # Map old Qdrant collection names to Qdrant collections
         logger.info("🔄 Initializing 16 Qdrant collection clients...")
         self.collections = {
-            "bali_zero_pricing": QdrantClient(qdrant_url=qdrant_url, collection_name="bali_zero_pricing"),  # 29 docs
+            "bali_zero_pricing": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="bali_zero_pricing"
+            ),  # 29 docs
             # PRODUCTION COLLECTIONS: All migrated with 1536-dim OpenAI embeddings
-            "visa_oracle": QdrantClient(qdrant_url=qdrant_url, collection_name="visa_oracle"),  # 1,612 docs (updated nomenclature)
-            "kbli_eye": QdrantClient(qdrant_url=qdrant_url, collection_name="kbli_unified"),  # Fallback to kbli_unified (8,886 docs)
-            "tax_genius": QdrantClient(qdrant_url=qdrant_url, collection_name="tax_genius"),  # 895 docs
-            "legal_architect": QdrantClient(qdrant_url=qdrant_url, collection_name="legal_unified"),  # 5,041 docs (Indonesian laws)
-            "legal_unified": QdrantClient(qdrant_url=qdrant_url, collection_name="legal_unified"),  # 5,041 docs (direct access)
-            "kb_indonesian": QdrantClient(qdrant_url=qdrant_url, collection_name="knowledge_base"),  # Fallback
-            "kbli_comprehensive": QdrantClient(qdrant_url=qdrant_url, collection_name="kbli_unified"),  # 8,886 docs
-            "kbli_unified": QdrantClient(qdrant_url=qdrant_url, collection_name="kbli_unified"),  # 8,886 docs
+            "visa_oracle": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="visa_oracle"
+            ),  # 1,612 docs (updated nomenclature)
+            "kbli_eye": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="kbli_unified"
+            ),  # Fallback to kbli_unified (8,886 docs)
+            "tax_genius": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="tax_genius"
+            ),  # 895 docs
+            "legal_architect": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="legal_unified"
+            ),  # 5,041 docs (Indonesian laws)
+            "legal_unified": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="legal_unified"
+            ),  # 5,041 docs (direct access)
+            "kb_indonesian": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="knowledge_base"
+            ),  # Fallback
+            "kbli_comprehensive": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="kbli_unified"
+            ),  # 8,886 docs
+            "kbli_unified": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="kbli_unified"
+            ),  # 8,886 docs
             # Fallback collection for unmigrated queries
-            "zantara_books": QdrantClient(qdrant_url=qdrant_url, collection_name="knowledge_base"),  # 8,923 docs
-            "cultural_insights": QdrantClient(qdrant_url=qdrant_url, collection_name="knowledge_base"),  # Fallback
+            "zantara_books": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="knowledge_base"
+            ),  # 8,923 docs
+            "cultural_insights": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="knowledge_base"
+            ),  # Fallback
             # Oracle System Collections
-            "tax_updates": QdrantClient(qdrant_url=qdrant_url, collection_name="tax_genius"),  # Redirect
-            "tax_knowledge": QdrantClient(qdrant_url=qdrant_url, collection_name="tax_genius"),  # 895 docs
-            "property_listings": QdrantClient(qdrant_url=qdrant_url, collection_name="property_unified"),  # 29 docs
-            "property_knowledge": QdrantClient(qdrant_url=qdrant_url, collection_name="property_unified"),  # 29 docs
-            "legal_updates": QdrantClient(qdrant_url=qdrant_url, collection_name="legal_unified"),  # 5,041 docs
-            "legal_intelligence": QdrantClient(qdrant_url=qdrant_url, collection_name="legal_unified")  # 5,041 docs
+            "tax_updates": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="tax_genius"
+            ),  # Redirect
+            "tax_knowledge": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="tax_genius"
+            ),  # 895 docs
+            "property_listings": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="property_unified"
+            ),  # 29 docs
+            "property_knowledge": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="property_unified"
+            ),  # 29 docs
+            "legal_updates": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="legal_unified"
+            ),  # 5,041 docs
+            "legal_intelligence": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="legal_unified"
+            ),  # 5,041 docs
         }
         logger.info("✅ All Qdrant collection clients initialized")
 
@@ -82,12 +120,26 @@ class SearchService:
 
         # Phase 3: Initialize collection health monitor
         from services.collection_health_service import CollectionHealthService
+
         self.health_monitor = CollectionHealthService(search_service=self)
 
         # Pricing query keywords
         self.pricing_keywords = [
-            "price", "cost", "charge", "fee", "how much", "pricing", "rate",
-            "expensive", "cheap", "payment", "pay", "harga", "biaya", "tarif", "berapa"
+            "price",
+            "cost",
+            "charge",
+            "fee",
+            "how much",
+            "pricing",
+            "rate",
+            "expensive",
+            "cheap",
+            "payment",
+            "pay",
+            "harga",
+            "biaya",
+            "tarif",
+            "berapa",
         ]
 
         # Phase 3: Conflict resolution tracking
@@ -96,11 +148,13 @@ class SearchService:
             "conflicts_detected": 0,
             "conflicts_resolved": 0,
             "timestamp_resolutions": 0,
-            "semantic_resolutions": 0
+            "semantic_resolutions": 0,
         }
 
         logger.info(f"SearchService initialized with Qdrant URL: {qdrant_url}")
-        logger.info("✅ Collections: 16 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect/legal_unified, kb_indonesian, kbli_comprehensive, kbli_unified, zantara_books, cultural_insights, tax_updates, tax_knowledge, property_listings, property_knowledge, legal_updates, legal_intelligence)")
+        logger.info(
+            "✅ Collections: 16 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect/legal_unified, kb_indonesian, kbli_comprehensive, kbli_unified, zantara_books, cultural_insights, tax_updates, tax_knowledge, property_listings, property_knowledge, legal_updates, legal_intelligence)"
+        )
         logger.info("✅ Query routing enabled (Phase 3: Smart Fallback + Conflict Resolution)")
         logger.info("✅ Conflict Resolution Agent: ENABLED")
 
@@ -110,9 +164,9 @@ class SearchService:
         query: str,
         user_level: int,
         limit: int = 5,
-        tier_filter: List[TierLevel] = None,
-        collection_override: Optional[str] = None
-    ) -> Dict[str, Any]:
+        tier_filter: list[TierLevel] = None,
+        collection_override: str | None = None,
+    ) -> dict[str, Any]:
         """
         Semantic search with tier-based access control and intelligent collection routing.
 
@@ -131,8 +185,12 @@ class SearchService:
             query_embedding = self.embedder.generate_query_embedding(query)
 
             # 🔍 DEBUG: Log embedding details
-            logger.info(f"🔍 DEBUG - Query: '{query[:50]}...', embedding_dim={len(query_embedding)}, provider={self.embedder.provider}")
-            logger.info(f"🔍 DEBUG - Parameters: collection_override={collection_override}, user_level={user_level}, limit={limit}")
+            logger.info(
+                f"🔍 DEBUG - Query: '{query[:50]}...', embedding_dim={len(query_embedding)}, provider={self.embedder.provider}"
+            )
+            logger.info(
+                f"🔍 DEBUG - Parameters: collection_override={collection_override}, user_level={user_level}, limit={limit}"
+            )
 
             # Detect if pricing query
             is_pricing_query = any(kw in query.lower() for kw in self.pricing_keywords)
@@ -144,7 +202,7 @@ class SearchService:
             elif is_pricing_query:
                 # Pricing query detected - prioritize pricing collection
                 collection_name = "bali_zero_pricing"
-                logger.info(f"💰 PRICING QUERY DETECTED → Using bali_zero_pricing collection")
+                logger.info("💰 PRICING QUERY DETECTED → Using bali_zero_pricing collection")
             else:
                 collection_name = self.router.route(query)
 
@@ -175,59 +233,76 @@ class SearchService:
 
             # Search
             raw_results = vector_db.search(
-                query_embedding=query_embedding,
-                filter=chroma_filter,
-                limit=limit
+                query_embedding=query_embedding, filter=chroma_filter, limit=limit
             )
 
             # Format results consistently
             formatted_results = []
             for i in range(len(raw_results.get("documents", []))):
-                distance = raw_results["distances"][i] if i < len(raw_results.get("distances", [])) else 1.0
+                distance = (
+                    raw_results["distances"][i]
+                    if i < len(raw_results.get("distances", []))
+                    else 1.0
+                )
                 score = 1 / (1 + distance)
 
                 if collection_name == "bali_zero_pricing":
                     score = min(1.0, score + 0.15)  # Bias towards official pricing docs
 
-                metadata = raw_results["metadatas"][i] if i < len(raw_results.get("metadatas", [])) else {}
+                metadata = (
+                    raw_results["metadatas"][i] if i < len(raw_results.get("metadatas", [])) else {}
+                )
                 if collection_name == "bali_zero_pricing":
                     metadata = {**metadata, "pricing_priority": "high"}
 
                 # Phase 3: Redact prices to prevent hallucinations
                 import re
+
                 def redact_prices(text: str) -> str:
                     patterns = [
-                        r'IDR\s*[\d,.]+',
-                        r'Rp\.?\s*[\d,.]+',
-                        r'USD\s*[\d,.]+',
-                        r'\$\s*[\d,.]+',
-                        r'[\d,.]+\s*IDR',  # NEW: Matches "7.500.000 IDR"
-                        r'[\d,.]+\s*USD',  # NEW: Matches "500 USD"
-                        r'[\d,.]+\s*(million|billion|juta|miliar)\s*(IDR|USD|Rp)?',
-                        r'price\s*[:=]\s*[\d,.]+',
-                        r'cost\s*[:=]\s*[\d,.]+'
+                        r"IDR\s*[\d,.]+",
+                        r"Rp\.?\s*[\d,.]+",
+                        r"USD\s*[\d,.]+",
+                        r"\$\s*[\d,.]+",
+                        r"[\d,.]+\s*IDR",  # NEW: Matches "7.500.000 IDR"
+                        r"[\d,.]+\s*USD",  # NEW: Matches "500 USD"
+                        r"[\d,.]+\s*(million|billion|juta|miliar)\s*(IDR|USD|Rp)?",
+                        r"price\s*[:=]\s*[\d,.]+",
+                        r"cost\s*[:=]\s*[\d,.]+",
                     ]
                     for pattern in patterns:
-                        text = re.sub(pattern, "[PRICE REDACTED - CONTACT SALES]", text, flags=re.IGNORECASE)
+                        text = re.sub(
+                            pattern, "[PRICE REDACTED - CONTACT SALES]", text, flags=re.IGNORECASE
+                        )
                     return text
 
-                doc_content = raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else ""
+                doc_content = (
+                    raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else ""
+                )
                 doc_content = redact_prices(doc_content)
 
-                formatted_results.append({
-                    "id": raw_results["ids"][i] if i < len(raw_results.get("ids", [])) else None,
-                    "text": doc_content,
-                    "metadata": metadata,
-                    "score": round(score, 4)
-                })
+                formatted_results.append(
+                    {
+                        "id": raw_results["ids"][i]
+                        if i < len(raw_results.get("ids", []))
+                        else None,
+                        "text": doc_content,
+                        "metadata": metadata,
+                        "score": round(score, 4),
+                    }
+                )
 
             # Phase 3: Record query for health monitoring
-            avg_score = sum(r["score"] for r in formatted_results) / len(formatted_results) if formatted_results else 0.0
+            avg_score = (
+                sum(r["score"] for r in formatted_results) / len(formatted_results)
+                if formatted_results
+                else 0.0
+            )
             self.health_monitor.record_query(
                 collection_name=collection_name,
                 had_results=len(formatted_results) > 0,
                 result_count=len(formatted_results),
-                avg_score=avg_score
+                avg_score=avg_score,
             )
 
             return {
@@ -235,17 +310,14 @@ class SearchService:
                 "results": formatted_results,
                 "user_level": user_level,
                 "allowed_tiers": tier_values,
-                "collection_used": collection_name  # NEW: tracking which collection was searched
+                "collection_used": collection_name,  # NEW: tracking which collection was searched
             }
 
         except Exception as e:
             logger.error(f"Search error: {e}")
             raise
 
-    def detect_conflicts(
-        self,
-        results_by_collection: Dict[str, List[Dict]]
-    ) -> List[Dict]:
+    def detect_conflicts(self, results_by_collection: dict[str, list[dict]]) -> list[dict]:
         """
         Detect conflicts between results from different collections (Phase 3).
 
@@ -267,7 +339,7 @@ class SearchService:
             ("legal_architect", "legal_updates"),
             ("property_knowledge", "property_listings"),
             ("tax_genius", "tax_updates"),
-            ("legal_architect", "legal_updates")
+            ("legal_architect", "legal_updates"),
         ]
 
         for coll1, coll2 in conflict_pairs:
@@ -284,7 +356,7 @@ class SearchService:
                         "collection2_results": len(results2),
                         "collection1_top_score": results1[0]["score"] if results1 else 0,
                         "collection2_top_score": results2[0]["score"] if results2 else 0,
-                        "detected_at": datetime.now().isoformat()
+                        "detected_at": datetime.now().isoformat(),
                     }
 
                     # Check for timestamp metadata
@@ -305,10 +377,8 @@ class SearchService:
         return conflicts
 
     def resolve_conflicts(
-        self,
-        results_by_collection: Dict[str, List[Dict]],
-        conflicts: List[Dict]
-    ) -> Tuple[List[Dict], List[Dict]]:
+        self, results_by_collection: dict[str, list[dict]], conflicts: list[dict]
+    ) -> tuple[list[dict], list[dict]]:
         """
         Resolve conflicts using timestamp and relevance-based priority (Phase 3).
 
@@ -372,7 +442,7 @@ class SearchService:
                 result["metadata"]["conflict_resolution"] = {
                     "status": "preferred",
                     "reason": resolution_reason,
-                    "alternate_source": loser_coll
+                    "alternate_source": loser_coll,
                 }
                 resolved_results.append(result)
 
@@ -381,7 +451,7 @@ class SearchService:
                 result["metadata"]["conflict_resolution"] = {
                     "status": "outdated" if "timestamp" in resolution_reason else "alternate",
                     "reason": resolution_reason,
-                    "preferred_source": winner_coll
+                    "preferred_source": winner_coll,
                 }
                 # Lower score to deprioritize
                 result["score"] = result["score"] * 0.7
@@ -393,8 +463,8 @@ class SearchService:
                 "resolution": {
                     "winner": winner_coll,
                     "loser": loser_coll,
-                    "reason": resolution_reason
-                }
+                    "reason": resolution_reason,
+                },
             }
             conflict_reports.append(conflict_report)
             self.conflict_stats["conflicts_resolved"] += 1
@@ -412,9 +482,9 @@ class SearchService:
         query: str,
         user_level: int,
         limit: int = 5,
-        tier_filter: List[TierLevel] = None,
-        enable_fallbacks: bool = True
-    ) -> Dict[str, Any]:
+        tier_filter: list[TierLevel] = None,
+        enable_fallbacks: bool = True,
+    ) -> dict[str, Any]:
         """
         Enhanced search with conflict detection and resolution (Phase 3).
 
@@ -447,11 +517,14 @@ class SearchService:
                 collections_to_search = ["bali_zero_pricing"]
                 primary_collection = "bali_zero_pricing"
                 confidence = 1.0
-                logger.info(f"💰 PRICING QUERY → Single collection: bali_zero_pricing")
+                logger.info("💰 PRICING QUERY → Single collection: bali_zero_pricing")
             else:
                 # Use route_with_confidence to get fallback chain
-                primary_collection, confidence, collections_to_search = \
-                    self.router.route_with_confidence(query, return_fallbacks=enable_fallbacks)
+                (
+                    primary_collection,
+                    confidence,
+                    collections_to_search,
+                ) = self.router.route_with_confidence(query, return_fallbacks=enable_fallbacks)
 
                 logger.info(
                     f"🎯 [Conflict Resolution] Primary: {primary_collection} "
@@ -481,15 +554,17 @@ class SearchService:
 
                 # Search this collection
                 raw_results = vector_db.search(
-                    query_embedding=query_embedding,
-                    filter=chroma_filter,
-                    limit=limit
+                    query_embedding=query_embedding, filter=chroma_filter, limit=limit
                 )
 
                 # Format results
                 formatted_results = []
                 for i in range(len(raw_results.get("documents", []))):
-                    distance = raw_results["distances"][i] if i < len(raw_results.get("distances", [])) else 1.0
+                    distance = (
+                        raw_results["distances"][i]
+                        if i < len(raw_results.get("distances", []))
+                        else 1.0
+                    )
                     score = 1 / (1 + distance)
 
                     # Boost primary collection results slightly
@@ -499,20 +574,32 @@ class SearchService:
                     if collection_name == "bali_zero_pricing":
                         score = min(1.0, score + 0.15)
 
-                    metadata = raw_results["metadatas"][i] if i < len(raw_results.get("metadatas", [])) else {}
+                    metadata = (
+                        raw_results["metadatas"][i]
+                        if i < len(raw_results.get("metadatas", []))
+                        else {}
+                    )
                     metadata["source_collection"] = collection_name
-                    metadata["is_primary"] = (collection_name == primary_collection)
+                    metadata["is_primary"] = collection_name == primary_collection
 
-                    formatted_results.append({
-                        "id": raw_results["ids"][i] if i < len(raw_results.get("ids", [])) else None,
-                        "text": raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else "",
-                        "metadata": metadata,
-                        "score": round(score, 4)
-                    })
+                    formatted_results.append(
+                        {
+                            "id": raw_results["ids"][i]
+                            if i < len(raw_results.get("ids", []))
+                            else None,
+                            "text": raw_results["documents"][i]
+                            if i < len(raw_results.get("documents", []))
+                            else "",
+                            "metadata": metadata,
+                            "score": round(score, 4),
+                        }
+                    )
 
                 if formatted_results:
                     results_by_collection[collection_name] = formatted_results
-                    logger.info(f"   ✓ {collection_name}: {len(formatted_results)} results (top score: {formatted_results[0]['score']:.2f})")
+                    logger.info(
+                        f"   ✓ {collection_name}: {len(formatted_results)} results (top score: {formatted_results[0]['score']:.2f})"
+                    )
 
                     # Phase 3: Record query for health monitoring
                     avg_score = sum(r["score"] for r in formatted_results) / len(formatted_results)
@@ -520,7 +607,7 @@ class SearchService:
                         collection_name=collection_name,
                         had_results=True,
                         result_count=len(formatted_results),
-                        avg_score=avg_score
+                        avg_score=avg_score,
                     )
                 else:
                     # Record zero-result query
@@ -528,7 +615,7 @@ class SearchService:
                         collection_name=collection_name,
                         had_results=False,
                         result_count=0,
-                        avg_score=0.0
+                        avg_score=0.0,
                     )
 
             # Detect conflicts
@@ -538,8 +625,7 @@ class SearchService:
             conflict_reports = []
             if conflicts:
                 resolved_results, conflict_reports = self.resolve_conflicts(
-                    results_by_collection,
-                    conflicts
+                    results_by_collection, conflicts
                 )
             else:
                 # No conflicts - just merge all results
@@ -551,7 +637,7 @@ class SearchService:
             resolved_results.sort(key=lambda x: x["score"], reverse=True)
 
             # Limit final results
-            final_results = resolved_results[:limit * 2]  # Return up to 2x limit to show conflicts
+            final_results = resolved_results[: limit * 2]  # Return up to 2x limit to show conflicts
 
             return {
                 "query": query,
@@ -562,7 +648,7 @@ class SearchService:
                 "confidence": confidence,
                 "conflicts_detected": len(conflicts),
                 "conflicts": conflict_reports,
-                "fallbacks_used": len(collections_to_search) > 1
+                "fallbacks_used": len(collections_to_search) > 1,
             }
 
         except Exception as e:
@@ -570,7 +656,7 @@ class SearchService:
             # Fallback to simple search
             return await self.search(query, user_level, limit, tier_filter)
 
-    def get_conflict_stats(self) -> Dict:
+    def get_conflict_stats(self) -> dict:
         """
         Get statistics about conflict resolution (Phase 3).
 
@@ -587,10 +673,10 @@ class SearchService:
         return {
             **self.conflict_stats,
             "conflict_rate": f"{conflict_rate:.1f}%",
-            "resolution_rate": f"{(self.conflict_stats['conflicts_resolved'] / self.conflict_stats['conflicts_detected'] * 100) if self.conflict_stats['conflicts_detected'] > 0 else 0:.1f}%"
+            "resolution_rate": f"{(self.conflict_stats['conflicts_resolved'] / self.conflict_stats['conflicts_detected'] * 100) if self.conflict_stats['conflicts_detected'] > 0 else 0:.1f}%",
         }
 
-    def get_collection_health(self, collection_name: str) -> Dict:
+    def get_collection_health(self, collection_name: str) -> dict:
         """
         Get health metrics for a specific collection (Phase 3).
 
@@ -601,10 +687,11 @@ class SearchService:
             Dict with health metrics
         """
         from dataclasses import asdict
+
         health = self.health_monitor.get_collection_health(collection_name)
         return asdict(health)
 
-    def get_all_collection_health(self) -> Dict:
+    def get_all_collection_health(self) -> dict:
         """
         Get health metrics for all collections (Phase 3).
 
@@ -612,13 +699,11 @@ class SearchService:
             Dict mapping collection_name -> health metrics
         """
         from dataclasses import asdict
-        all_health = self.health_monitor.get_all_collection_health()
-        return {
-            coll_name: asdict(health)
-            for coll_name, health in all_health.items()
-        }
 
-    def get_health_dashboard(self) -> Dict:
+        all_health = self.health_monitor.get_all_collection_health()
+        return {coll_name: asdict(health) for coll_name, health in all_health.items()}
+
+    def get_health_dashboard(self) -> dict:
         """
         Get dashboard summary for admin view (Phase 3).
 
@@ -639,11 +724,7 @@ class SearchService:
         """
         return self.health_monitor.get_health_report(format)
 
-    async def add_cultural_insight(
-        self,
-        text: str,
-        metadata: Dict[str, Any]
-    ) -> bool:
+    async def add_cultural_insight(self, text: str, metadata: dict[str, Any]) -> bool:
         """
         Add cultural insight to Qdrant (called by CulturalKnowledgeGenerator)
 
@@ -656,10 +737,9 @@ class SearchService:
         """
         try:
             import hashlib
-            import uuid
 
             # Generate unique ID from content hash
-            content_hash = hashlib.md5(text.encode('utf-8')).hexdigest()
+            content_hash = hashlib.md5(text.encode("utf-8")).hexdigest()
             doc_id = f"cultural_{metadata.get('topic', 'unknown')}_{content_hash[:8]}"
 
             # Generate embedding
@@ -670,14 +750,13 @@ class SearchService:
 
             # Convert list fields to strings for Qdrant compatibility
             chroma_metadata = {**metadata}
-            if 'when_to_use' in chroma_metadata and isinstance(chroma_metadata['when_to_use'], list):
-                chroma_metadata['when_to_use'] = ','.join(chroma_metadata['when_to_use'])
+            if "when_to_use" in chroma_metadata and isinstance(
+                chroma_metadata["when_to_use"], list
+            ):
+                chroma_metadata["when_to_use"] = ",".join(chroma_metadata["when_to_use"])
 
             cultural_db.collection.add(
-                ids=[doc_id],
-                embeddings=[embedding],
-                documents=[text],
-                metadatas=[chroma_metadata]
+                ids=[doc_id], embeddings=[embedding], documents=[text], metadatas=[chroma_metadata]
             )
 
             logger.info(f"✅ Added cultural insight: {metadata.get('topic')} (ID: {doc_id})")
@@ -688,11 +767,8 @@ class SearchService:
             return False
 
     async def query_cultural_insights(
-        self,
-        query: str,
-        when_to_use: Optional[str] = None,
-        limit: int = 3
-    ) -> List[Dict[str, Any]]:
+        self, query: str, when_to_use: str | None = None, limit: int = 3
+    ) -> list[dict[str, Any]]:
         """
         Query cultural insights from Qdrant
 
@@ -717,22 +793,30 @@ class SearchService:
             # Search cultural_insights collection
             cultural_db = self.collections["cultural_insights"]
             raw_results = cultural_db.search(
-                query_embedding=query_embedding,
-                filter=chroma_filter,
-                limit=limit
+                query_embedding=query_embedding, filter=chroma_filter, limit=limit
             )
 
             # Format results
             formatted_results = []
             for i in range(len(raw_results.get("documents", []))):
-                distance = raw_results["distances"][i] if i < len(raw_results.get("distances", [])) else 1.0
+                distance = (
+                    raw_results["distances"][i]
+                    if i < len(raw_results.get("distances", []))
+                    else 1.0
+                )
                 score = 1 / (1 + distance)
 
-                formatted_results.append({
-                    "content": raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else "",
-                    "metadata": raw_results["metadatas"][i] if i < len(raw_results.get("metadatas", [])) else {},
-                    "score": round(score, 4)
-                })
+                formatted_results.append(
+                    {
+                        "content": raw_results["documents"][i]
+                        if i < len(raw_results.get("documents", []))
+                        else "",
+                        "metadata": raw_results["metadatas"][i]
+                        if i < len(raw_results.get("metadatas", []))
+                        else {},
+                        "score": round(score, 4),
+                    }
+                )
 
             logger.info(f"🌴 Retrieved {len(formatted_results)} cultural insights for query")
             return formatted_results
@@ -757,6 +841,7 @@ class SearchService:
         """
         try:
             import time
+
             start_time = time.time()
 
             logger.info("🔥 [Warmup] Starting Qdrant warmup...")
@@ -764,8 +849,8 @@ class SearchService:
             # Priority collections to warm up (based on usage frequency)
             priority_collections = [
                 "bali_zero_pricing",  # Most common (pricing queries)
-                "visa_oracle",        # Second most common (visa queries)
-                "tax_genius"          # Third most common (tax queries)
+                "visa_oracle",  # Second most common (visa queries)
+                "tax_genius",  # Third most common (tax queries)
             ]
 
             # 1. Warm up embedding model with dummy query
@@ -775,7 +860,9 @@ class SearchService:
             logger.info("   ✅ [Warmup] Embedding model warmed up")
 
             # 2. Warm up Qdrant collections with light searches
-            logger.info(f"   🔥 [Warmup] Step 2/2: Warming up {len(priority_collections)} collections...")
+            logger.info(
+                f"   🔥 [Warmup] Step 2/2: Warming up {len(priority_collections)} collections..."
+            )
             for collection_name in priority_collections:
                 try:
                     vector_db = self.collections.get(collection_name)
@@ -788,7 +875,7 @@ class SearchService:
                     _ = vector_db.search(
                         query_embedding=dummy_embedding,
                         filter=None,
-                        limit=1  # Minimal results, just loading indexes
+                        limit=1,  # Minimal results, just loading indexes
                     )
                     logger.info(f"   ✅ [Warmup] {collection_name} warmed up")
 
@@ -797,7 +884,9 @@ class SearchService:
 
             elapsed = time.time() - start_time
             logger.info(f"🔥 [Warmup] Qdrant warmup completed in {elapsed:.2f}s")
-            logger.info(f"   💡 [Warmup] First business query should now respond in <1s (vs 5-20s cold start)")
+            logger.info(
+                "   💡 [Warmup] First business query should now respond in <1s (vs 5-20s cold start)"
+            )
 
         except Exception as e:
             logger.error(f"❌ [Warmup] Qdrant warmup failed: {e}")

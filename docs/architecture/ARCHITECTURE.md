@@ -168,4 +168,3 @@ The following components have been removed as part of the cleanup:
 - No hardcoded URLs - all use environment variables or centralized config
 - ZANTARA AI is model-agnostic - switch models via `ZANTARA_AI_MODEL` env var
 - System is designed for scalability and easy maintenance
-

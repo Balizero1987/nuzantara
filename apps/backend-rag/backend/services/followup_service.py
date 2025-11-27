@@ -10,7 +10,7 @@ Date: 2025-10-16
 """
 
 import logging
-from typing import List, Dict, Any, Optional
+from typing import Any
 
 from llm.zantara_ai_client import ZantaraAIClient
 
@@ -39,14 +39,9 @@ class FollowupService:
             logger.warning(f"⚠️ FollowupService: ZANTARA AI not available: {e}")
             self.zantara_client = None
 
-
     def get_topic_based_followups(
-        self,
-        query: str,
-        response: str,
-        topic: str = "business",
-        language: str = "en"
-    ) -> List[str]:
+        self, query: str, response: str, topic: str = "business", language: str = "en"
+    ) -> list[str]:
         """
         Get pre-defined topic-based follow-up questions
 
@@ -66,101 +61,101 @@ class FollowupService:
                     "What are the costs involved?",
                     "How long does the process take?",
                     "What documents do I need?",
-                    "Are there any requirements I should know about?"
+                    "Are there any requirements I should know about?",
                 ],
                 "it": [
                     "Quali sono i costi?",
                     "Quanto tempo richiede il processo?",
                     "Quali documenti servono?",
-                    "Ci sono requisiti da conoscere?"
+                    "Ci sono requisiti da conoscere?",
                 ],
                 "id": [
                     "Berapa biayanya?",
                     "Berapa lama prosesnya?",
                     "Dokumen apa yang diperlukan?",
-                    "Apa saja syaratnya?"
-                ]
+                    "Apa saja syaratnya?",
+                ],
             },
             "immigration": {
                 "en": [
                     "What visa types are available?",
                     "How do I extend my visa?",
                     "What are the requirements?",
-                    "Can you help me with the application process?"
+                    "Can you help me with the application process?",
                 ],
                 "it": [
                     "Quali tipi di visto sono disponibili?",
                     "Come posso estendere il mio visto?",
                     "Quali sono i requisiti?",
-                    "Puoi aiutarmi con la procedura?"
+                    "Puoi aiutarmi con la procedura?",
                 ],
                 "id": [
                     "Jenis visa apa yang tersedia?",
                     "Bagaimana cara memperpanjang visa?",
                     "Apa saja syaratnya?",
-                    "Bisakah bantu proses aplikasi?"
-                ]
+                    "Bisakah bantu proses aplikasi?",
+                ],
             },
             "tax": {
                 "en": [
                     "What tax information applies to my business?",
                     "How do I register for tax in Indonesia?",
                     "Are there any tax incentives?",
-                    "When are tax filing deadlines?"
+                    "When are tax filing deadlines?",
                 ],
                 "it": [
                     "Quali informazioni fiscali si applicano?",
                     "Come mi registro per le tasse in Indonesia?",
                     "Ci sono incentivi fiscali?",
-                    "Quando scadono le tasse?"
+                    "Quando scadono le tasse?",
                 ],
                 "id": [
                     "Informasi pajak apa yang berlaku untuk bisnis saya?",
                     "Bagaimana cara daftar pajak di Indonesia?",
                     "Ada insentif pajak?",
-                    "Kapan batas waktu lapor pajak?"
-                ]
+                    "Kapan batas waktu lapor pajak?",
+                ],
             },
             "casual": {
                 "en": [
                     "Tell me more about this",
                     "Can you explain further?",
                     "What else should I know?",
-                    "Any recommendations?"
+                    "Any recommendations?",
                 ],
                 "it": [
                     "Dimmi di più",
                     "Puoi spiegare meglio?",
                     "Cos'altro dovrei sapere?",
-                    "Qualche raccomandazione?"
+                    "Qualche raccomandazione?",
                 ],
                 "id": [
                     "Ceritakan lebih lanjut",
                     "Bisa jelaskan lebih detail?",
                     "Apa lagi yang perlu saya tahu?",
-                    "Ada rekomendasi?"
-                ]
+                    "Ada rekomendasi?",
+                ],
             },
             "technical": {
                 "en": [
                     "Can you show me a code example?",
                     "What are the best practices?",
                     "How do I debug this?",
-                    "Are there any alternatives?"
+                    "Are there any alternatives?",
                 ],
                 "it": [
                     "Puoi mostrarmi un esempio di codice?",
                     "Quali sono le best practice?",
                     "Come faccio il debug?",
-                    "Ci sono alternative?"
+                    "Ci sono alternative?",
                 ],
                 "id": [
                     "Bisa tunjukkan contoh kode?",
                     "Apa best practice-nya?",
                     "Bagaimana cara debug?",
-                    "Ada alternatif lain?"
-                ]
-            }
+                    "Ada alternatif lain?",
+                ],
+            },
         }
 
         # Get follow-ups for topic and language
@@ -169,19 +164,21 @@ class FollowupService:
 
         # Return 3 random ones
         import random
+
         selected = random.sample(followups, min(3, len(followups)))
 
-        logger.info(f"📝 [Follow-ups] Generated {len(selected)} topic-based follow-ups ({topic}, {language})")
+        logger.info(
+            f"📝 [Follow-ups] Generated {len(selected)} topic-based follow-ups ({topic}, {language})"
+        )
         return selected
-
 
     async def generate_dynamic_followups(
         self,
         query: str,
         response: str,
-        conversation_context: Optional[str] = None,
-        language: str = "en"
-    ) -> List[str]:
+        conversation_context: str | None = None,
+        language: str = "en",
+    ) -> list[str]:
         """
         Generate dynamic, contextually relevant follow-up questions using AI
 
@@ -195,20 +192,25 @@ class FollowupService:
             List of 3-4 AI-generated follow-up questions
         """
         if not self.zantara_client:
-            logger.warning("⚠️ [Follow-ups] ZANTARA AI client not available, cannot generate dynamic follow-ups")
+            logger.warning(
+                "⚠️ [Follow-ups] ZANTARA AI client not available, cannot generate dynamic follow-ups"
+            )
             # Fallback to topic-based
             return self.get_topic_based_followups(query, response, "business", language)
 
         # Build prompt for ZANTARA AI
-        prompt = self._build_followup_generation_prompt(query, response, conversation_context, language)
+        prompt = self._build_followup_generation_prompt(
+            query, response, conversation_context, language
+        )
 
         try:
-            logger.info(f"🤖 [Follow-ups] Generating dynamic follow-ups using ZANTARA AI ({language})")
+            logger.info(
+                f"🤖 [Follow-ups] Generating dynamic follow-ups using ZANTARA AI ({language})"
+            )
 
             # Call ZANTARA AI for fast follow-up generation
             ai_response = await self.zantara_client.chat_async(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=200
+                messages=[{"role": "user", "content": prompt}], max_tokens=200
             )
 
             # Parse response (expecting numbered list)
@@ -227,13 +229,8 @@ class FollowupService:
             # Fallback to topic-based
             return self.get_topic_based_followups(query, response, "business", language)
 
-
     def _build_followup_generation_prompt(
-        self,
-        query: str,
-        response: str,
-        conversation_context: Optional[str],
-        language: str
+        self, query: str, response: str, conversation_context: str | None, language: str
     ) -> str:
         """Build prompt for AI to generate follow-up questions"""
 
@@ -241,7 +238,7 @@ class FollowupService:
         language_instructions = {
             "en": "Generate 3-4 relevant follow-up questions in English.",
             "it": "Genera 3-4 domande di follow-up rilevanti in italiano.",
-            "id": "Buat 3-4 pertanyaan lanjutan yang relevan dalam bahasa Indonesia."
+            "id": "Buat 3-4 pertanyaan lanjutan yang relevan dalam bahasa Indonesia.",
         }
 
         instruction = language_instructions.get(language, language_instructions["en"])
@@ -252,7 +249,7 @@ User asked: "{query}"
 
 AI responded: "{response[:300]}..."
 
-{f'Previous context: {conversation_context[:200]}...' if conversation_context else ''}
+{f"Previous context: {conversation_context[:200]}..." if conversation_context else ""}
 
 Generate 3-4 short, specific follow-up questions that:
 1. Help the user dig deeper into the topic
@@ -270,8 +267,7 @@ Keep questions concise (max 10 words each)."""
 
         return prompt
 
-
-    def _parse_followup_list(self, text: str) -> List[str]:
+    def _parse_followup_list(self, text: str) -> list[str]:
         """
         Parse AI response into list of follow-up questions
 
@@ -284,8 +280,8 @@ Keep questions concise (max 10 words each)."""
         import re
 
         # Extract numbered items (1., 2., 3., etc.)
-        pattern = r'^\s*\d+[\.\)]\s*(.+?)$'
-        lines = text.strip().split('\n')
+        pattern = r"^\s*\d+[\.\)]\s*(.+?)$"
+        lines = text.strip().split("\n")
 
         followups = []
         for line in lines:
@@ -293,11 +289,10 @@ Keep questions concise (max 10 words each)."""
             if match:
                 question = match.group(1).strip()
                 # Remove quotes if present
-                question = question.strip('"\'')
+                question = question.strip("\"'")
                 followups.append(question)
 
         return followups
-
 
     def detect_topic_from_query(self, query: str) -> str:
         """
@@ -312,33 +307,54 @@ Keep questions concise (max 10 words each)."""
         query_lower = query.lower()
 
         # Immigration keywords
-        if any(keyword in query_lower for keyword in [
-            "visa", "kitas", "immigration", "permit", "imigrasi", "visto"
-        ]):
+        if any(
+            keyword in query_lower
+            for keyword in ["visa", "kitas", "immigration", "permit", "imigrasi", "visto"]
+        ):
             return "immigration"
 
         # Tax keywords
-        elif any(keyword in query_lower for keyword in [
-            "tax", "pajak", "tassa", "fiscal", "npwp", "pph"
-        ]):
+        elif any(
+            keyword in query_lower for keyword in ["tax", "pajak", "tassa", "fiscal", "npwp", "pph"]
+        ):
             return "tax"
 
         # Technical/code keywords
-        elif any(keyword in query_lower for keyword in [
-            "code", "programming", "api", "develop", "software", "bug", "error", "function"
-        ]):
+        elif any(
+            keyword in query_lower
+            for keyword in [
+                "code",
+                "programming",
+                "api",
+                "develop",
+                "software",
+                "bug",
+                "error",
+                "function",
+            ]
+        ):
             return "technical"
 
         # Casual keywords
-        elif any(keyword in query_lower for keyword in [
-            "hello", "hi", "ciao", "halo", "how are", "come stai", "apa kabar", "thanks", "grazie"
-        ]):
+        elif any(
+            keyword in query_lower
+            for keyword in [
+                "hello",
+                "hi",
+                "ciao",
+                "halo",
+                "how are",
+                "come stai",
+                "apa kabar",
+                "thanks",
+                "grazie",
+            ]
+        ):
             return "casual"
 
         # Default to business
         else:
             return "business"
-
 
     def detect_language_from_query(self, query: str) -> str:
         """
@@ -353,26 +369,43 @@ Keep questions concise (max 10 words each)."""
         query_lower = query.lower()
 
         # Italian detection
-        italian_keywords = ["ciao", "come stai", "grazie", "prego", "buongiorno", "per favore", "cosa", "dove"]
+        italian_keywords = [
+            "ciao",
+            "come stai",
+            "grazie",
+            "prego",
+            "buongiorno",
+            "per favore",
+            "cosa",
+            "dove",
+        ]
         if any(keyword in query_lower for keyword in italian_keywords):
             return "it"
 
         # Indonesian detection
-        indonesian_keywords = ["halo", "apa kabar", "terima kasih", "selamat", "aku", "saya", "mau", "bisa"]
+        indonesian_keywords = [
+            "halo",
+            "apa kabar",
+            "terima kasih",
+            "selamat",
+            "aku",
+            "saya",
+            "mau",
+            "bisa",
+        ]
         if any(keyword in query_lower for keyword in indonesian_keywords):
             return "id"
 
         # Default to English
         return "en"
 
-
     async def get_followups(
         self,
         query: str,
         response: str,
         use_ai: bool = True,
-        conversation_context: Optional[str] = None
-    ) -> List[str]:
+        conversation_context: str | None = None,
+    ) -> list[str]:
         """
         Get follow-up questions (main entry point)
 
@@ -397,14 +430,13 @@ Keep questions concise (max 10 words each)."""
                 query=query,
                 response=response,
                 conversation_context=conversation_context,
-                language=language
+                language=language,
             )
         else:
             # Use topic-based fallback
             return self.get_topic_based_followups(query, response, topic, language)
 
-
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """
         Health check for follow-up service
 
@@ -422,6 +454,6 @@ Keep questions concise (max 10 words each)."""
                 "dynamic_generation": self.zantara_client is not None,
                 "topic_based_fallback": True,
                 "supported_languages": ["en", "it", "id"],
-                "supported_topics": ["business", "immigration", "tax", "casual", "technical"]
-            }
+                "supported_topics": ["business", "immigration", "tax", "casual", "technical"],
+            },
         }

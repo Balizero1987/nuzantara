@@ -26,7 +26,7 @@ const router = Router();
 router.get('/my-status', jwtAuth as any, async (req: RequestWithJWT, res) => {
   try {
     const userId = req.query.user_id as string || req.user?.userId;
-    
+
     if (!userId) {
       return res.status(400).json(err('User ID is required'));
     }

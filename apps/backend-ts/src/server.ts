@@ -58,7 +58,7 @@ async function startServer() {
   try {
     logger.info('🚀 Starting ZANTARA Backend v5.2.1-fixed (Zod validation fix applied)');
     logger.info(`📋 PYTHON_SERVICE_URL: ${PYTHON_SERVICE_URL || 'NOT SET'}`);
-    
+
     // Initialize Redis cache
     logger.info('🔄 Initializing Redis cache...');
     await initializeRedis();
@@ -138,7 +138,7 @@ async function startServer() {
 
   // CSRF Protection (generate token for all requests)
   app.use(generateCsrfToken);
-  
+
   // CSRF Protection (validate token for state-changing requests)
   app.use(validateCsrfToken);
 
@@ -210,8 +210,8 @@ async function startServer() {
           },
           servers: [
             {
-              url: ENV.NODE_ENV === 'production' 
-                ? 'https://nuzantara-backend.fly.dev' 
+              url: ENV.NODE_ENV === 'production'
+                ? 'https://nuzantara-backend.fly.dev'
                 : `http://localhost:${ENV.PORT}`,
               description: ENV.NODE_ENV === 'production' ? 'Production server' : 'Development server',
             },
@@ -287,7 +287,7 @@ async function startServer() {
       logger.error('❌ PYTHON_SERVICE_URL not configured - proxy disabled');
     } else {
       logger.info(`✅ Configuring proxy to Python backend: ${PYTHON_SERVICE_URL}`);
-      
+
       // Create proxy for /api/agents - preserve full path
       const agentsProxyOptions = {
         target: PYTHON_SERVICE_URL,
@@ -712,8 +712,10 @@ async function startServer() {
         try {
           if (process.env.DATABASE_URL) {
             const dbPool = getDatabasePool();
-            await dbPool.close();
-            logger.info('Database connection pool closed');
+            if (dbPool) {
+              await dbPool.close();
+              logger.info('Database connection pool closed');
+            }
           }
 
         } catch (error: any) {
@@ -751,7 +753,7 @@ async function startServer() {
 
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-  
+
   logger.info('✅ Server initialization complete');
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error));

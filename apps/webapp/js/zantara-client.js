@@ -24,10 +24,10 @@ class ZantaraClient {
     this._authPromise = null; // Track auth promise to prevent race conditions
     // Use API_CONFIG if available, otherwise fallback to defaults
     const apiConfig = typeof window !== 'undefined' ? window.API_CONFIG : null;
-    
+
     this.config = {
-      apiUrl: config.apiUrl || apiConfig?.rag?.url || 'https://nuzantara-rag.fly.dev',
-      authUrl: config.authUrl || apiConfig?.backend?.url || 'https://nuzantara-backend.fly.dev',
+      apiUrl: config.apiUrl || apiConfig?.rag?.url || window.ENV?.API_URL || '/api',
+      authUrl: config.authUrl || apiConfig?.backend?.url || window.ENV?.API_URL || '/api',
       authEndpoint: config.authEndpoint || '/api/auth/team/login',
       chatEndpoint: config.chatEndpoint || '/bali-zero/chat',
       streamEndpoint: config.streamEndpoint || '/bali-zero/chat-stream',
@@ -223,17 +223,17 @@ class ZantaraClient {
    * Supports: Agent Thoughts, Emotions, standard Tokens, and Simulated Typing Latency
    */
   async sendMessageStream(content, callbacks = {}) {
-    const { 
-      onStart = () => {}, 
-      onToken = () => {}, 
-      onStatus = () => {}, 
-      onComplete = () => {}, 
-      onError = () => {} 
+    const {
+      onStart = () => {},
+      onToken = () => {},
+      onStatus = () => {},
+      onComplete = () => {},
+      onError = () => {}
     } = callbacks;
-    
+
     // Context preparation
     const context = this.messages.slice(-10);
-    
+
     try {
       await this.authenticate();
       this.isStreaming = true;
@@ -242,7 +242,18 @@ class ZantaraClient {
       await this.updateSession(this.messages);
       const sessionId = await this.ensureSession();
 
-      const url = new URL(`${this.config.apiUrl}${this.config.streamEndpoint}`);
+      // Handle both absolute URLs and relative paths
+      // Ensure apiUrl is never empty - fallback to '/api' if needed
+      const apiUrl = this.config.apiUrl || '/api';
+      let fullUrl;
+      if (apiUrl.startsWith('http://') || apiUrl.startsWith('https://')) {
+        // Absolute URL - use directly
+        fullUrl = `${apiUrl}${this.config.streamEndpoint}`;
+      } else {
+        // Relative path - construct with origin explicitly
+        fullUrl = `${window.location.origin}${apiUrl}${this.config.streamEndpoint}`;
+      }
+      const url = new URL(fullUrl);
       url.searchParams.append('query', content);
       url.searchParams.append('session_id', sessionId);
       url.searchParams.append('stream', 'true');
@@ -263,14 +274,14 @@ class ZantaraClient {
       // Get token for Authorization header (more secure than query parameter)
       const storedToken = this.getStoredToken();
       const headers = {};
-      
+
       if (storedToken) {
         // Use Bearer token in header instead of query parameter for security
         headers['Authorization'] = `Bearer ${storedToken}`;
       }
 
       clientLogger.debug(`🔌 Connecting to stream: ${url.toString().substring(0, 100)}...`);
-      
+
       // Use EventSourceWithHeaders to send token in header (more secure)
       // Falls back to query parameter if EventSourceWithHeaders fails
       try {
@@ -285,7 +296,7 @@ class ZantaraClient {
       }
       let accumulatedText = '';
       let currentMetadata = {};
-      
+
       // --- CHAT BUBBLE EFFECT LOGIC ---
       const tokenQueue = [];
       let isProcessingQueue = false;
@@ -302,7 +313,7 @@ class ZantaraClient {
           }
 
           const token = tokenQueue.shift();
-          
+
           // 1. Append to visual text
           // Handle replacement vs append logic (simplified to append)
           if (accumulatedText.length > 0 && token.startsWith(accumulatedText)) {
@@ -316,7 +327,7 @@ class ZantaraClient {
 
           // 3. Calculate "Human" Latency
           let delay = 15; // Base typing speed (very fast but visible)
-          
+
           if (token.match(/[.?!]\s*$/)) {
             delay = 400; // Long pause after sentence
           } else if (token.match(/[,;]\s*$/)) {
@@ -331,7 +342,7 @@ class ZantaraClient {
         }
 
         isProcessingQueue = false;
-        
+
         // Finalize if stream is done
         if (streamFinished) {
            onComplete(accumulatedText, currentMetadata);
@@ -403,10 +414,10 @@ class ZantaraClient {
         this.eventSource.close();
         this.isStreaming = false;
         streamFinished = true;
-        
+
         if (accumulatedText) {
           clientLogger.warn('⚠️ Returning partial response on error');
-          // Ensure queue is drained before completing? 
+          // Ensure queue is drained before completing?
           // For error, maybe just complete immediately
           onComplete(accumulatedText, currentMetadata);
         } else {
@@ -468,7 +479,7 @@ class ZantaraClient {
   fetchWithRetry(url, options, attempt = 0) {
     // ... (implementation same as original)
     // Simplified for brevity in this overwrite, assuming original logic was fine
-    return fetch(url, options); 
+    return fetch(url, options);
   }
 
   renderMarkdown(text) {

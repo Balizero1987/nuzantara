@@ -2,13 +2,15 @@
 ZANTARA RAG - Pydantic Models
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
 from enum import Enum
+from typing import Any
+
+from pydantic import BaseModel, Field
 
 
 class TierLevel(str, Enum):
     """Book tier classifications"""
+
     S = "S"  # Supreme - Quantum physics, consciousness, advanced metaphysics
     A = "A"  # Advanced - Philosophy, psychology, spiritual teachings
     B = "B"  # Intermediate - History, culture, practical wisdom
@@ -18,6 +20,7 @@ class TierLevel(str, Enum):
 
 class AccessLevel(int, Enum):
     """User access levels"""
+
     LEVEL_0 = 0  # Only Tier S
     LEVEL_1 = 1  # Tiers S + A
     LEVEL_2 = 2  # Tiers S + A + B + C
@@ -26,29 +29,32 @@ class AccessLevel(int, Enum):
 
 class ChunkMetadata(BaseModel):
     """Metadata for each text chunk"""
+
     book_title: str
     book_author: str
     tier: TierLevel
     min_level: int = Field(ge=0, le=3)
     chunk_index: int
-    page_number: Optional[int] = None
+    page_number: int | None = None
     language: str = "en"
-    topics: List[str] = Field(default_factory=list)
+    topics: list[str] = Field(default_factory=list)
     file_path: str
     total_chunks: int
 
 
 class SearchQuery(BaseModel):
     """Search request model"""
+
     query: str = Field(..., min_length=1, description="Search query text")
     level: int = Field(0, ge=0, le=3, description="User access level (0-3)")
     limit: int = Field(5, ge=1, le=50, description="Maximum results to return")
-    tier_filter: Optional[List[TierLevel]] = Field(None, description="Filter by specific tiers")
-    collection: Optional[str] = Field(None, description="Optional specific collection to search")
+    tier_filter: list[TierLevel] | None = Field(None, description="Filter by specific tiers")
+    collection: str | None = Field(None, description="Optional specific collection to search")
 
 
 class SearchResult(BaseModel):
     """Single search result"""
+
     text: str
     metadata: ChunkMetadata
     similarity_score: float = Field(ge=0.0, le=1.0)
@@ -56,8 +62,9 @@ class SearchResult(BaseModel):
 
 class SearchResponse(BaseModel):
     """Search response model"""
+
     query: str
-    results: List[SearchResult]
+    results: list[SearchResult]
     total_found: int
     user_level: int
     execution_time_ms: float
@@ -65,43 +72,48 @@ class SearchResponse(BaseModel):
 
 class BookIngestionRequest(BaseModel):
     """Request to ingest a single book"""
+
     file_path: str
-    title: Optional[str] = None
-    author: Optional[str] = None
+    title: str | None = None
+    author: str | None = None
     language: str = "en"
-    tier_override: Optional[TierLevel] = None
+    tier_override: TierLevel | None = None
 
 
 class BookIngestionResponse(BaseModel):
     """Response from book ingestion"""
+
     success: bool
     book_title: str
     book_author: str
     tier: TierLevel
     chunks_created: int
     message: str
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class BatchIngestionRequest(BaseModel):
     """Request to ingest multiple books"""
+
     directory_path: str
-    file_patterns: List[str] = Field(default_factory=lambda: ["*.pdf", "*.epub"])
+    file_patterns: list[str] = Field(default_factory=lambda: ["*.pdf", "*.epub"])
     skip_existing: bool = True
 
 
 class BatchIngestionResponse(BaseModel):
     """Response from batch ingestion"""
+
     total_books: int
     successful: int
     failed: int
-    results: List[BookIngestionResponse]
+    results: list[BookIngestionResponse]
     execution_time_seconds: float
 
 
 class HealthResponse(BaseModel):
     """Health check response"""
+
     status: str
     version: str
-    database: Dict[str, Any]
-    embeddings: Dict[str, Any]
+    database: dict[str, Any]
+    embeddings: dict[str, Any]

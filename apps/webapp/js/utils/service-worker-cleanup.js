@@ -1,6 +1,6 @@
 /**
  * Service Worker Cleanup Utility
- * 
+ *
  * Removes old service worker registrations to prevent conflicts.
  * Should be run once to clean up any cached old service workers.
  */
@@ -17,7 +17,7 @@ export async function cleanupOldServiceWorkers() {
 
     for (const registration of registrations) {
       const scriptURL = registration.active?.scriptURL || registration.installing?.scriptURL || registration.waiting?.scriptURL;
-      
+
       // Check if this is an old service worker we want to remove
       if (scriptURL && scriptURL.includes('service-worker-zantara.js')) {
         console.log(`[SW Cleanup] Unregistering old service worker: ${scriptURL}`);
@@ -35,8 +35,8 @@ export async function cleanupOldServiceWorkers() {
     // Also clear old caches
     if ('caches' in window) {
       const cacheNames = await caches.keys();
-      const oldCaches = cacheNames.filter(name => 
-        name.includes('zantara-v1') || 
+      const oldCaches = cacheNames.filter(name =>
+        name.includes('zantara-v1') ||
         name.includes('zantara-runtime') ||
         name.includes('service-worker-zantara')
       );
@@ -69,4 +69,3 @@ if (typeof window !== 'undefined' && !cleanupRun) {
 }
 
 export default cleanupOldServiceWorkers;
-

@@ -2,22 +2,25 @@
 Monitoring Plugin for ZANTARA
 System health monitoring and alerting
 """
-from .registry import BasePlugin, PluginInfo
+
 import logging
+
+from .registry import BasePlugin, PluginInfo
 
 logger = logging.getLogger(__name__)
 
+
 class MonitoringPlugin(BasePlugin):
     """Plugin for system monitoring and health checks"""
-    
+
     def get_info(self) -> PluginInfo:
         return PluginInfo(
             name="monitoring",
             version="1.0.0",
             description="System health monitoring and alerting plugin",
-            author="ZANTARA Team"
+            author="ZANTARA Team",
         )
-    
+
     async def initialize(self) -> bool:
         """Initialize monitoring system"""
         try:
@@ -30,7 +33,7 @@ class MonitoringPlugin(BasePlugin):
         except Exception as e:
             logger.error(f"Monitoring plugin initialization failed: {e}")
             return False
-    
+
     async def shutdown(self) -> bool:
         """Cleanup monitoring resources"""
         try:

@@ -1,7 +1,7 @@
 /**
  * ZANTARA Global Namespace
  * Consolidates global variables into a single namespace
- * 
+ *
  * Usage:
  * - window.ZANTARA.config - API configuration
  * - window.ZANTARA.auth - Authentication utilities
@@ -96,4 +96,3 @@ window.ZANTARA.state = {
 
 // Export for module systems
 export default window.ZANTARA;
-

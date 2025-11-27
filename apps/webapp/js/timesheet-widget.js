@@ -21,7 +21,7 @@ class TimesheetWidget {
      */
     async init() {
         if (this.isDestroyed) return;
-        
+
         this.createWidgetHTML();
         this.attachEventListeners();
         await this.updateStatus();
@@ -46,17 +46,17 @@ class TimesheetWidget {
      */
     destroy() {
         this.isDestroyed = true;
-        
+
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
             this.updateInterval = null;
         }
-        
+
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
             this.timerInterval = null;
         }
-        
+
         // Remove event listeners if needed
         const widget = document.getElementById('timesheet-widget');
         if (widget) {

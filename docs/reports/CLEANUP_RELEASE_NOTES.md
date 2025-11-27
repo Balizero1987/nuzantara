@@ -140,4 +140,3 @@ Raggiungere **0% codice inutile** attraverso pulizia completa di tutti i pattern
 
 ## 👥 Autori
 ZANTARA Development Team
-

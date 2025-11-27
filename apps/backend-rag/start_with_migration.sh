@@ -19,13 +19,13 @@ if [ -f "$MIGRATION_DONE_FLAG" ]; then
 else
     echo "🔍 Checking if Qdrant migration is needed..."
     echo ""
-    
+
     # Check if Qdrant has collections
     QDRANT_URL="${QDRANT_URL:-https://nuzantara-qdrant.fly.dev}"
-    
+
     if curl -s -f "$QDRANT_URL/collections" > /tmp/qdrant_check.json 2>&1; then
         COLLECTION_COUNT=$(cat /tmp/qdrant_check.json | python3 -c "import sys, json; print(len(json.load(sys.stdin)['result']['collections']))" 2>/dev/null || echo "0")
-        
+
         if [ "$COLLECTION_COUNT" -gt "0" ]; then
             echo "✅ Qdrant has $COLLECTION_COUNT collections - skipping migration"
             echo "   Creating skip flag..."
@@ -40,7 +40,7 @@ else
             echo "⏱️  Estimated time: 15-20 minutes"
             echo "📊 Expected: 14 collections, ~14,365 documents"
             echo ""
-            
+
             # Run migration
             if python scripts/migrate_r2_to_qdrant.py; then
                 echo ""
@@ -48,7 +48,7 @@ else
                 echo "✅ MIGRATION SUCCESSFUL!"
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
                 echo ""
-                
+
                 # Create success flag
                 touch "$MIGRATION_DONE_FLAG"
                 echo "✅ Created migration completion flag"
@@ -67,7 +67,7 @@ else
     else
         echo "⚠️  Cannot reach Qdrant - will try migration anyway"
         echo ""
-        
+
         # Try migration
         if python scripts/migrate_r2_to_qdrant.py; then
             touch "$MIGRATION_DONE_FLAG"

@@ -499,14 +499,14 @@ export const unifiedAuth = {
     // Find strategy and validate token
     const manager = getUnifiedAuth();
     const strategies = manager.getStrategies();
-    const strategy = strategyName 
+    const strategy = strategyName
       ? strategies.find(s => s.name === strategyName)
       : strategies[0]; // Use first strategy by default
-    
+
     if (!strategy || !strategy.validateToken) {
       return Promise.resolve(null);
     }
-    
+
     return strategy.validateToken(token).then(user => {
       if (!user) return null;
       return {

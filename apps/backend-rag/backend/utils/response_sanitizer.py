@@ -4,7 +4,6 @@ Fixes Phase 1 & 2: Remove training data artifacts and enforce quality standards
 """
 
 import re
-from typing import Optional
 
 
 def sanitize_zantara_response(response: str) -> str:
@@ -29,39 +28,39 @@ def sanitize_zantara_response(response: str) -> str:
     cleaned = response
 
     # Remove placeholder markers
-    cleaned = re.sub(r'\[PRICE\]\.?\s*', '', cleaned)
-    cleaned = re.sub(r'\[MANDATORY\]\s*', '', cleaned)
-    cleaned = re.sub(r'\[OPTIONAL\]\s*', '', cleaned)
+    cleaned = re.sub(r"\[PRICE\]\.?\s*", "", cleaned)
+    cleaned = re.sub(r"\[MANDATORY\]\s*", "", cleaned)
+    cleaned = re.sub(r"\[OPTIONAL\]\s*", "", cleaned)
 
     # Remove training format leaks
-    cleaned = re.sub(r'User:\s*', '', cleaned)
-    cleaned = re.sub(r'Assistant:\s*', '', cleaned)
-    cleaned = re.sub(r'Context:.*?\n', '', cleaned, flags=re.DOTALL)
-    cleaned = re.sub(r'Context from knowledge base:.*?\n', '', cleaned)
+    cleaned = re.sub(r"User:\s*", "", cleaned)
+    cleaned = re.sub(r"Assistant:\s*", "", cleaned)
+    cleaned = re.sub(r"Context:.*?\n", "", cleaned, flags=re.DOTALL)
+    cleaned = re.sub(r"Context from knowledge base:.*?\n", "", cleaned)
 
     # Remove meta-commentary
-    cleaned = re.sub(r'\(.*?for this scenario.*?\)', '', cleaned)
-    cleaned = re.sub(r'natural language summary\s*\n*', '', cleaned, flags=re.IGNORECASE)
-    cleaned = re.sub(r'Simplified Explanation.*?\n', '', cleaned)
-    cleaned = re.sub(r'Contexto per la risposta:.*?\n', '', cleaned)
-    cleaned = re.sub(r'\(from KB source\)\s*\n*', '', cleaned)
+    cleaned = re.sub(r"\(.*?for this scenario.*?\)", "", cleaned)
+    cleaned = re.sub(r"natural language summary\s*\n*", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"Simplified Explanation.*?\n", "", cleaned)
+    cleaned = re.sub(r"Contexto per la risposta:.*?\n", "", cleaned)
+    cleaned = re.sub(r"\(from KB source\)\s*\n*", "", cleaned)
 
     # Remove markdown headers from plain text (should not appear in conversational responses)
-    cleaned = re.sub(r'###?\s+\*\*([^*]+)\*\*', r'\1', cleaned)  # ### **Header** → Header
-    cleaned = re.sub(r'###?\s+', '', cleaned)  # ### Header → Header
-    cleaned = re.sub(r'\*\*([^*]+)\*\*:\s*\n', r'\1: ', cleaned)  # **Label**:\n → Label:
-    cleaned = re.sub(r'\*([^*]+)\*\*', r'\1', cleaned)  # *bold** → bold (fix broken markdown)
+    cleaned = re.sub(r"###?\s+\*\*([^*]+)\*\*", r"\1", cleaned)  # ### **Header** → Header
+    cleaned = re.sub(r"###?\s+", "", cleaned)  # ### Header → Header
+    cleaned = re.sub(r"\*\*([^*]+)\*\*:\s*\n", r"\1: ", cleaned)  # **Label**:\n → Label:
+    cleaned = re.sub(r"\*([^*]+)\*\*", r"\1", cleaned)  # *bold** → bold (fix broken markdown)
 
     # Remove section dividers
-    cleaned = re.sub(r'\n--+\n', '\n', cleaned)
-    cleaned = re.sub(r'^--+\n', '', cleaned)
+    cleaned = re.sub(r"\n--+\n", "\n", cleaned)
+    cleaned = re.sub(r"^--+\n", "", cleaned)
 
     # Remove requirement lists (often hallucinated)
-    cleaned = re.sub(r'Requirements:\s*\n', '', cleaned)
-    cleaned = re.sub(r'Deviation from Requirement:\s*\n', '', cleaned)
+    cleaned = re.sub(r"Requirements:\s*\n", "", cleaned)
+    cleaned = re.sub(r"Deviation from Requirement:\s*\n", "", cleaned)
 
     # Clean up multiple newlines
-    cleaned = re.sub(r'\n{3,}', '\n\n', cleaned)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
 
     return cleaned.strip()
 
@@ -82,27 +81,23 @@ def enforce_santai_mode(response: str, query_type: str, max_words: int = 30) -> 
         return response  # No truncation for business queries
 
     # Split into sentences
-    sentences = re.split(r'(?<=[.!?])\s+', response)
+    sentences = re.split(r"(?<=[.!?])\s+", response)
 
     # For greetings/casual: max 3 sentences
     if len(sentences) > 3:
-        response = ' '.join(sentences[:3])
+        response = " ".join(sentences[:3])
 
     # Word count check
     words = response.split()
     if len(words) > max_words:
         # Truncate at sentence boundary
-        truncated = ' '.join(words[:max_words])
-        last_period = max(
-            truncated.rfind('.'),
-            truncated.rfind('!'),
-            truncated.rfind('?')
-        )
+        truncated = " ".join(words[:max_words])
+        last_period = max(truncated.rfind("."), truncated.rfind("!"), truncated.rfind("?"))
         if last_period > 0:
-            response = truncated[:last_period + 1]
+            response = truncated[: last_period + 1]
         else:
             # No sentence boundary found, hard truncate
-            response = truncated + '...'
+            response = truncated + "..."
 
     return response.strip()
 
@@ -145,13 +140,23 @@ def classify_query_type(message: str) -> str:
     msg_lower = message.lower().strip()
 
     # Remove punctuation for matching
-    msg_clean = re.sub(r'[!?.,]', '', msg_lower)
+    msg_clean = re.sub(r"[!?.,]", "", msg_lower)
 
     # GREETING: Simple greetings (NO RAG)
     greetings = [
-        "ciao", "hi", "hello", "hey", "good morning", "buongiorno",
-        "good afternoon", "buonasera", "good evening", "hola",
-        "salve", "buondì", "yo"
+        "ciao",
+        "hi",
+        "hello",
+        "hey",
+        "good morning",
+        "buongiorno",
+        "good afternoon",
+        "buonasera",
+        "good evening",
+        "hola",
+        "salve",
+        "buondì",
+        "yo",
     ]
     if msg_clean in greetings:
         return "greeting"
@@ -160,10 +165,23 @@ def classify_query_type(message: str) -> str:
     # FIX: Only classify as casual if query is SHORT (< 10 words)
     # This prevents false positives on long technical queries
     casual_patterns = [
-        "come stai", "come va", "how are you", "how r you", "how are u",
-        "what's up", "whats up", "wassup", "how's it going", "how is it going",
-        "come ti chiami", "what's your name", "who are you", "chi sei",
-        "tell me about yourself", "parlami di te", "describe yourself"
+        "come stai",
+        "come va",
+        "how are you",
+        "how r you",
+        "how are u",
+        "what's up",
+        "whats up",
+        "wassup",
+        "how's it going",
+        "how is it going",
+        "come ti chiami",
+        "what's your name",
+        "who are you",
+        "chi sei",
+        "tell me about yourself",
+        "parlami di te",
+        "describe yourself",
     ]
     word_count = len(msg_lower.split())
     if word_count < 10 and any(pattern in msg_lower for pattern in casual_patterns):
@@ -171,9 +189,22 @@ def classify_query_type(message: str) -> str:
 
     # EMERGENCY: Urgent issues (RAG + special handling)
     emergency_keywords = [
-        "urgent", "urgente", "emergency", "emergenza", "help", "aiuto",
-        "lost", "stolen", "perso", "rubato", "problema", "problem",
-        "scaduto", "expired", "deportation", "deportato"
+        "urgent",
+        "urgente",
+        "emergency",
+        "emergenza",
+        "help",
+        "aiuto",
+        "lost",
+        "stolen",
+        "perso",
+        "rubato",
+        "problema",
+        "problem",
+        "scaduto",
+        "expired",
+        "deportation",
+        "deportato",
     ]
     if any(keyword in msg_lower for keyword in emergency_keywords):
         return "emergency"
@@ -183,10 +214,7 @@ def classify_query_type(message: str) -> str:
 
 
 def process_zantara_response(
-    response: str,
-    query_type: str,
-    apply_santai: bool = True,
-    add_contact: bool = True
+    response: str, query_type: str, apply_santai: bool = True, add_contact: bool = True
 ) -> str:
     """
     Complete response processing pipeline

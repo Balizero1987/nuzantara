@@ -33,18 +33,19 @@ KITAS (Limited Stay Permit)
 The graph is stored in JSON/dict format (could be migrated to Neo4j later).
 """
 
-import logging
-from typing import Dict, List, Optional, Any, Set
-from dataclasses import dataclass, field, asdict
-from datetime import datetime
 import json
+import logging
 import re
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 class EntityType(str):
     """Types of entities in knowledge graph"""
+
     KBLI_CODE = "kbli_code"
     LEGAL_ENTITY = "legal_entity"
     VISA_TYPE = "visa_type"
@@ -59,6 +60,7 @@ class EntityType(str):
 
 class RelationType(str):
     """Types of relationships between entities"""
+
     REQUIRES = "requires"
     RELATED_TO = "related_to"
     PART_OF = "part_of"
@@ -74,12 +76,13 @@ class RelationType(str):
 @dataclass
 class Entity:
     """Node in knowledge graph"""
+
     entity_id: str
     entity_type: str
     name: str
     description: str
-    properties: Dict[str, Any] = field(default_factory=dict)
-    source_collection: Optional[str] = None
+    properties: dict[str, Any] = field(default_factory=dict)
+    source_collection: str | None = None
     confidence: float = 1.0
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
@@ -87,13 +90,14 @@ class Entity:
 @dataclass
 class Relationship:
     """Edge in knowledge graph"""
+
     relationship_id: str
     source_entity_id: str
     target_entity_id: str
     relationship_type: str
-    properties: Dict[str, Any] = field(default_factory=dict)
+    properties: dict[str, Any] = field(default_factory=dict)
     confidence: float = 1.0
-    source_collection: Optional[str] = None
+    source_collection: str | None = None
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
@@ -113,30 +117,30 @@ class KnowledgeGraphBuilder:
         EntityType.KBLI_CODE: [
             r"KBLI\s+(\d{5})",
             r"kode\s+KBLI\s+(\d{5})",
-            r"business\s+classification\s+(\d{5})"
+            r"business\s+classification\s+(\d{5})",
         ],
         EntityType.VISA_TYPE: [
             # Generic visa/permit patterns - no specific codes (codes are in database)
             r"([A-Z]\d+[A-Z]?)\s+visa",  # Generic visa code pattern
             r"(work permit|stay permit|residence permit|long-stay permit)",
-            r"([A-Z]+)\s+permit"  # Generic permit pattern
+            r"([A-Z]+)\s+permit",  # Generic permit pattern
         ],
         EntityType.TAX_TYPE: [
             # Generic tax patterns - no specific codes (codes are in database)
             r"([A-Z]+\s+\d+)",  # Generic tax code pattern
             r"([A-Z]{2,10})",  # Generic tax acronym pattern
-            r"(tax\s+ID|VAT\s+number|tax\s+registration)"
+            r"(tax\s+ID|VAT\s+number|tax\s+registration)",
         ],
         EntityType.LEGAL_ENTITY: [
             # Generic legal entity patterns - no specific codes (codes are in database)
             r"([A-Z]{2,10}\s+[A-Z]+)",  # Generic company type pattern
-            r"(limited\s+liability|partnership|foundation|company\s+type)"
+            r"(limited\s+liability|partnership|foundation|company\s+type)",
         ],
         EntityType.PERMIT: [
             # Generic permit patterns - no specific codes (codes are in database)
             r"([A-Z]{2,10}(-[A-Z]+)?)",  # Generic permit acronym pattern
-            r"(business\s+license|operational\s+permit|permit\s+code)"
-        ]
+            r"(business\s+license|operational\s+permit|permit\s+code)",
+        ],
     }
 
     # Relationship inference patterns
@@ -147,27 +151,18 @@ class KnowledgeGraphBuilder:
             r"must\s+have",
             r"prerequisite",
             r"diperlukan",
-            r"membutuhkan"
+            r"membutuhkan",
         ],
-        RelationType.COSTS: [
-            r"costs?",
-            r"Rp\s+[\d,]+",
-            r"biaya",
-            r"tarif",
-            r"harga"
-        ],
+        RelationType.COSTS: [r"costs?", r"Rp\s+[\d,]+", r"biaya", r"tarif", r"harga"],
         RelationType.DURATION: [
             r"(\d+)\s+(days?|months?|years?)",
             r"(\d+)\s+(hari|bulan|tahun)",
             r"process\s+time",
-            r"duration"
-        ]
+            r"duration",
+        ],
     }
 
-    def __init__(
-        self,
-        search_service=None
-    ):
+    def __init__(self, search_service=None):
         """
         Initialize Knowledge Graph Builder.
 
@@ -177,29 +172,27 @@ class KnowledgeGraphBuilder:
         self.search = search_service
 
         # Graph storage (in production, use graph database like Neo4j)
-        self.entities: Dict[str, Entity] = {}
-        self.relationships: Dict[str, Relationship] = {}
+        self.entities: dict[str, Entity] = {}
+        self.relationships: dict[str, Relationship] = {}
 
         # Indexes for fast lookup
-        self.entity_by_type: Dict[str, List[str]] = {}
-        self.relationships_by_source: Dict[str, List[str]] = {}
-        self.relationships_by_target: Dict[str, List[str]] = {}
+        self.entity_by_type: dict[str, list[str]] = {}
+        self.relationships_by_source: dict[str, list[str]] = {}
+        self.relationships_by_target: dict[str, list[str]] = {}
 
         self.graph_stats = {
             "total_entities": 0,
             "total_relationships": 0,
             "entity_type_distribution": {},
             "relationship_type_distribution": {},
-            "collections_analyzed": []
+            "collections_analyzed": [],
         }
 
         logger.info("✅ KnowledgeGraphBuilder initialized")
 
     def extract_entities_from_text(
-        self,
-        text: str,
-        source_collection: Optional[str] = None
-    ) -> List[Entity]:
+        self, text: str, source_collection: str | None = None
+    ) -> list[Entity]:
         """
         Extract entities from text using pattern matching.
 
@@ -240,7 +233,7 @@ class KnowledgeGraphBuilder:
                         name=entity_name,
                         description=context,
                         source_collection=source_collection,
-                        confidence=0.8  # Pattern-based extraction
+                        confidence=0.8,  # Pattern-based extraction
                     )
 
                     entities.append(entity)
@@ -248,11 +241,8 @@ class KnowledgeGraphBuilder:
         return entities
 
     def infer_relationships_from_text(
-        self,
-        text: str,
-        entities: List[Entity],
-        source_collection: Optional[str] = None
-    ) -> List[Relationship]:
+        self, text: str, entities: list[Entity], source_collection: str | None = None
+    ) -> list[Relationship]:
         """
         Infer relationships between entities from text.
 
@@ -268,7 +258,7 @@ class KnowledgeGraphBuilder:
 
         # For each pair of entities
         for i, source_entity in enumerate(entities):
-            for target_entity in entities[i+1:]:
+            for target_entity in entities[i + 1 :]:
                 # Check if both entities appear in text
                 if source_entity.name not in text or target_entity.name not in text:
                     continue
@@ -297,7 +287,7 @@ class KnowledgeGraphBuilder:
                             target_entity_id=target_entity.entity_id,
                             relationship_type=rel_type,
                             source_collection=source_collection,
-                            confidence=0.7  # Inferred relationship
+                            confidence=0.7,  # Inferred relationship
                         )
 
                         relationships.append(relationship)
@@ -305,11 +295,7 @@ class KnowledgeGraphBuilder:
 
         return relationships
 
-    async def build_graph_from_collection(
-        self,
-        collection_name: str,
-        limit: int = 100
-    ) -> int:
+    async def build_graph_from_collection(self, collection_name: str, limit: int = 100) -> int:
         """
         Build knowledge graph from a single collection.
 
@@ -332,7 +318,7 @@ class KnowledgeGraphBuilder:
                 query="business setup visa tax legal",  # Broad query
                 user_level=3,
                 limit=limit,
-                collection_override=collection_name
+                collection_override=collection_name,
             )
         except Exception as e:
             logger.error(f"Error querying {collection_name}: {e}")
@@ -356,11 +342,7 @@ class KnowledgeGraphBuilder:
                     total_added += 1
 
             # Infer relationships
-            relationships = self.infer_relationships_from_text(
-                text,
-                entities,
-                collection_name
-            )
+            relationships = self.infer_relationships_from_text(text, entities, collection_name)
 
             # Add relationships to graph
             for rel in relationships:
@@ -387,8 +369,9 @@ class KnowledgeGraphBuilder:
 
         # Update stats
         self.graph_stats["total_entities"] += 1
-        self.graph_stats["entity_type_distribution"][entity.entity_type] = \
+        self.graph_stats["entity_type_distribution"][entity.entity_type] = (
             self.graph_stats["entity_type_distribution"].get(entity.entity_type, 0) + 1
+        )
 
     def add_relationship(self, relationship: Relationship):
         """Add relationship to graph"""
@@ -397,31 +380,37 @@ class KnowledgeGraphBuilder:
         # Update indexes
         if relationship.source_entity_id not in self.relationships_by_source:
             self.relationships_by_source[relationship.source_entity_id] = []
-        self.relationships_by_source[relationship.source_entity_id].append(relationship.relationship_id)
+        self.relationships_by_source[relationship.source_entity_id].append(
+            relationship.relationship_id
+        )
 
         if relationship.target_entity_id not in self.relationships_by_target:
             self.relationships_by_target[relationship.target_entity_id] = []
-        self.relationships_by_target[relationship.target_entity_id].append(relationship.relationship_id)
+        self.relationships_by_target[relationship.target_entity_id].append(
+            relationship.relationship_id
+        )
 
         # Update stats
         self.graph_stats["total_relationships"] += 1
-        self.graph_stats["relationship_type_distribution"][relationship.relationship_type] = \
-            self.graph_stats["relationship_type_distribution"].get(relationship.relationship_type, 0) + 1
+        self.graph_stats["relationship_type_distribution"][relationship.relationship_type] = (
+            self.graph_stats["relationship_type_distribution"].get(
+                relationship.relationship_type, 0
+            )
+            + 1
+        )
 
-    def get_entity(self, entity_id: str) -> Optional[Entity]:
+    def get_entity(self, entity_id: str) -> Entity | None:
         """Get entity by ID"""
         return self.entities.get(entity_id)
 
-    def get_entities_by_type(self, entity_type: str) -> List[Entity]:
+    def get_entities_by_type(self, entity_type: str) -> list[Entity]:
         """Get all entities of a specific type"""
         entity_ids = self.entity_by_type.get(entity_type, [])
         return [self.entities[eid] for eid in entity_ids]
 
     def get_relationships_for_entity(
-        self,
-        entity_id: str,
-        direction: str = "outgoing"
-    ) -> List[Relationship]:
+        self, entity_id: str, direction: str = "outgoing"
+    ) -> list[Relationship]:
         """
         Get relationships for an entity.
 
@@ -444,11 +433,7 @@ class KnowledgeGraphBuilder:
 
         return relationships
 
-    def query_graph(
-        self,
-        entity_name: str,
-        max_depth: int = 2
-    ) -> Dict[str, Any]:
+    def query_graph(self, entity_name: str, max_depth: int = 2) -> dict[str, Any]:
         """
         Query knowledge graph starting from an entity.
 
@@ -461,17 +446,11 @@ class KnowledgeGraphBuilder:
         """
         # Find entity
         matching_entities = [
-            e for e in self.entities.values()
-            if entity_name.lower() in e.name.lower()
+            e for e in self.entities.values() if entity_name.lower() in e.name.lower()
         ]
 
         if not matching_entities:
-            return {
-                "query": entity_name,
-                "found": False,
-                "entities": [],
-                "relationships": []
-            }
+            return {"query": entity_name, "found": False, "entities": [], "relationships": []}
 
         start_entity = matching_entities[0]
 
@@ -513,7 +492,7 @@ class KnowledgeGraphBuilder:
             "entities": [asdict(e) for e in entities_result],
             "relationships": [asdict(r) for r in relationships_result],
             "total_entities": len(entities_result),
-            "total_relationships": len(relationships_result)
+            "total_relationships": len(relationships_result),
         }
 
     def export_graph(self, format: str = "json") -> str:
@@ -527,19 +506,22 @@ class KnowledgeGraphBuilder:
             Exported graph string
         """
         if format == "json":
-            return json.dumps({
-                "entities": [asdict(e) for e in self.entities.values()],
-                "relationships": [asdict(r) for r in self.relationships.values()],
-                "stats": self.graph_stats
-            }, indent=2)
+            return json.dumps(
+                {
+                    "entities": [asdict(e) for e in self.entities.values()],
+                    "relationships": [asdict(r) for r in self.relationships.values()],
+                    "stats": self.graph_stats,
+                },
+                indent=2,
+            )
         else:
             raise NotImplementedError(f"Format {format} not implemented")
 
-    def get_graph_stats(self) -> Dict:
+    def get_graph_stats(self) -> dict:
         """Get knowledge graph statistics"""
         return {
             **self.graph_stats,
             "avg_relationships_per_entity": (
                 self.graph_stats["total_relationships"] / max(self.graph_stats["total_entities"], 1)
-            )
+            ),
         }

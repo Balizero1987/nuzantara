@@ -8,7 +8,7 @@
  */
 
 import { getDatabasePool } from '../services/connection-pool.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import logger from '../services/logger.js';
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -23,6 +23,9 @@ async function initializeDatabase() {
 
   try {
     const db = getDatabasePool();
+    if (!db) {
+      throw new Error('Database pool not available. Please set DATABASE_URL environment variable.');
+    }
 
     // Create tables
     logger.info('📋 Creating database tables...');

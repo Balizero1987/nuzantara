@@ -9,12 +9,7 @@ print("=" * 60)
 print("ENVIRONMENT VARIABLE CHECK")
 print("=" * 60)
 
-required_vars = [
-    "R2_ACCESS_KEY_ID",
-    "R2_SECRET_ACCESS_KEY",
-    "R2_ENDPOINT_URL",
-    "QDRANT_URL"
-]
+required_vars = ["R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_ENDPOINT_URL", "QDRANT_URL"]
 
 all_ok = True
 for var in required_vars:

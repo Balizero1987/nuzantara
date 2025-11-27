@@ -2,7 +2,7 @@
 
 **Basata su:** Analisi dei deploy precedenti riusciti (v5.3, production workflows)
 
-**Data:** 2025-01-27  
+**Data:** 2025-01-27
 **Versione:** 1.0
 
 ---
@@ -201,13 +201,13 @@ PROD_URL="https://nuzantara-backend.fly.dev/health"
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL" || echo "000")
-  
+
   if [ "$HTTP_CODE" = "200" ]; then
     echo "✅ Health check passed (HTTP $HTTP_CODE)"
     curl -s "$PROD_URL" | jq '.'
     exit 0
   fi
-  
+
   RETRY_COUNT=$((RETRY_COUNT + 1))
   echo "⏳ Attempt $RETRY_COUNT/$MAX_RETRIES: HTTP $HTTP_CODE"
   sleep 10
@@ -228,13 +228,13 @@ APP_URL="https://nuzantara-rag.fly.dev/health"  # ⭐ Endpoint corretto
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" || echo "000")
-  
+
   if [ "$HTTP_CODE" = "200" ]; then
     echo "✅ Health check passed (HTTP $HTTP_CODE)"
     curl -s "$APP_URL" | jq '.'
     exit 0
   fi
-  
+
   RETRY_COUNT=$((RETRY_COUNT + 1))
   echo "⏳ Attempt $RETRY_COUNT/$MAX_RETRIES: HTTP $HTTP_CODE"
   sleep 10
@@ -371,11 +371,11 @@ ERROR_COUNT=0
 
 for i in {1..12}; do
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL" || echo "000")
-  
+
   if [ "$HTTP_CODE" != "200" ]; then
     ERROR_COUNT=$((ERROR_COUNT + 1))
   fi
-  
+
   sleep 10
 done
 
@@ -582,7 +582,6 @@ Un deploy è considerato riuscito quando:
 
 ---
 
-**Strategia validata:** ✅ Basata su deploy riusciti v5.3 e production workflows  
-**Ultima revisione:** 2025-01-27  
+**Strategia validata:** ✅ Basata su deploy riusciti v5.3 e production workflows
+**Ultima revisione:** 2025-01-27
 **Mantenuto da:** DevOps Team
-

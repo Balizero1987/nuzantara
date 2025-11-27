@@ -18,13 +18,13 @@ test_query() {
     local description="$1"
     local query="$2"
     local expected="$3"
-    
+
     echo -n "Testing: $description ... "
-    
+
     response=$(curl -s -X POST 'http://localhost:8000/bali-zero/chat' \
         -H 'Content-Type: application/json' \
         -d "{\"query\": \"$query\"}")
-    
+
     if echo "$response" | grep -q "$expected"; then
         echo -e "${GREEN}✓ PASSED${NC}"
         ((PASSED++))

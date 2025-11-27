@@ -168,4 +168,3 @@ echo "  ❌ __pycache__"
 echo "  ❌ File di test"
 echo "  ❌ Documentazione .md"
 echo "  ❌ File temporanei e cache"
-

@@ -4,10 +4,12 @@ Run database migrations for ZANTARA Memory System
 Applies SQL schemas to Fly.io PostgreSQL database
 """
 
-import os
 import asyncio
-import asyncpg
+import os
 from pathlib import Path
+
+import asyncpg
+
 
 async def run_migrations():
     """Run all SQL migrations in order"""
@@ -23,7 +25,9 @@ async def run_migrations():
     print("=" * 80)
     print("🚀 ZANTARA MEMORY SYSTEM - DATABASE MIGRATIONS")
     print("=" * 80)
-    print(f"\n📊 Database: {database_url.split('@')[1] if '@' in database_url else 'Fly.io PostgreSQL'}")
+    print(
+        f"\n📊 Database: {database_url.split('@')[1] if '@' in database_url else 'Fly.io PostgreSQL'}"
+    )
 
     try:
         # Connect to database
@@ -44,7 +48,7 @@ async def run_migrations():
             print(f"\n⚙️  Running migration: {migration_file.name}")
 
             # Read SQL file
-            with open(migration_file, 'r') as f:
+            with open(migration_file) as f:
                 sql = f.read()
 
             # Execute SQL
@@ -58,7 +62,7 @@ async def run_migrations():
         # Verify tables were created
         print("\n🔍 Verifying tables...")
 
-        tables_to_check = ['memory_facts', 'user_stats', 'conversations', 'users']
+        tables_to_check = ["memory_facts", "user_stats", "conversations", "users"]
 
         for table_name in tables_to_check:
             result = await conn.fetchval(
@@ -68,7 +72,7 @@ async def run_migrations():
                     WHERE table_name = $1
                 )
                 """,
-                table_name
+                table_name,
             )
 
             if result:
@@ -88,8 +92,10 @@ async def run_migrations():
     except Exception as e:
         print(f"\n❌ Migration failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     # Check for DATABASE_URL

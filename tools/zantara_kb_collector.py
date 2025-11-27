@@ -9,18 +9,16 @@ import shutil
 import hashlib
 from pathlib import Path
 from datetime import datetime
-from typing import Set, Generator
+from typing import Generator
 import logging
 
 # Configurazione logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('zantara_kb_collector.log')
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("zantara_kb_collector.log")],
 )
+
 
 class ZantaraKBCollector:
     def __init__(self):
@@ -32,34 +30,34 @@ class ZantaraKBCollector:
 
         # Percorsi da escludere (assoluti e relativi)
         self.exclude_paths = {
-            '/Library',
-            '/Applications',
-            '/System',
-            '/Volumes',
-            '/Network',
-            '/usr',
-            '/bin',
-            '/sbin',
-            '/etc',
-            '/var',
-            '/tmp',
-            '/private'
+            "/Library",
+            "/Applications",
+            "/System",
+            "/Volumes",
+            "/Network",
+            "/usr",
+            "/bin",
+            "/sbin",
+            "/etc",
+            "/var",
+            "/tmp",
+            "/private",
         }
 
         # Pattern da escludere nei percorsi
         self.exclude_patterns = {
-            '.Trash',
-            'node_modules',
-            '.git',
-            '.vscode',
-            '.DS_Store',
-            '__pycache__',
-            '.pyc',
-            '.log',
-            '.cache',
-            '.tmp',
-            'temp',
-            'tmp'
+            ".Trash",
+            "node_modules",
+            ".git",
+            ".vscode",
+            ".DS_Store",
+            "__pycache__",
+            ".pyc",
+            ".log",
+            ".cache",
+            ".tmp",
+            "temp",
+            "tmp",
         }
 
     def should_exclude_path(self, path: Path) -> bool:
@@ -75,7 +73,10 @@ class ZantaraKBCollector:
             return True
 
         # Controlla se il path inizia con . (file nascosti di sistema)
-        if any(part.startswith('.') and part not in {'.config', '.local'} for part in path.parts):
+        if any(
+            part.startswith(".") and part not in {".config", ".local"}
+            for part in path.parts
+        ):
             return True
 
         return False
@@ -95,11 +96,13 @@ class ZantaraKBCollector:
                     continue
 
                 # Filtra le directory da esplorare
-                dirs[:] = [d for d in dirs if not self.should_exclude_path(root_path / d)]
+                dirs[:] = [
+                    d for d in dirs if not self.should_exclude_path(root_path / d)
+                ]
 
                 # Cerca file PDF
                 for file in files:
-                    if file.lower().endswith('.pdf'):
+                    if file.lower().endswith(".pdf"):
                         file_path = root_path / file
 
                         # Verifica dimensione file (escludi file vuoti o troppo piccoli)
@@ -107,7 +110,9 @@ class ZantaraKBCollector:
                             if file_path.stat().st_size > 1024:  # Minimo 1KB
                                 yield file_path
                         except (OSError, PermissionError) as e:
-                            logging.warning(f"⚠️  Impossibile accedere a {file_path}: {e}")
+                            logging.warning(
+                                f"⚠️  Impossibile accedere a {file_path}: {e}"
+                            )
                             self.errors += 1
 
         except KeyboardInterrupt:
@@ -130,7 +135,7 @@ class ZantaraKBCollector:
 
         # Genera hash breve del contenuto per identificare file duplicati
         try:
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 # Leggi solo i primi 8KB per generare un hash veloce
                 content_sample = f.read(8192)
                 hash_suffix = hashlib.md5(content_sample).hexdigest()[:6]
@@ -204,8 +209,12 @@ class ZantaraKBCollector:
         print("=" * 60)
 
         if self.copied_files > 0:
-            print("✅ Raccolta completata! Ora trascina la cartella 'Zantara_KB_Source' nel tuo Google Drive qui:")
-            print("🔗 https://drive.google.com/drive/folders/1Zy0oD3Mk6ASZ9mufwa4T6XmC4QREcnSU?usp=drive_link")
+            print(
+                "✅ Raccolta completata! Ora trascina la cartella 'Zantara_KB_Source' nel tuo Google Drive qui:"
+            )
+            print(
+                "🔗 https://drive.google.com/drive/folders/1Zy0oD3Mk6ASZ9mufwa4T6XmC4QREcnSU?usp=drive_link"
+            )
         else:
             print("⚠️  Nessun file PDF trovato o copiato.")
 
@@ -216,7 +225,7 @@ class ZantaraKBCollector:
 
         try:
             total_size = 0
-            for file_path in self.destination_dir.rglob('*'):
+            for file_path in self.destination_dir.rglob("*"):
                 if file_path.is_file():
                     total_size += file_path.stat().st_size
 
@@ -226,6 +235,7 @@ class ZantaraKBCollector:
 
         except Exception:
             return "Sconosciuta"
+
 
 def main():
     """Funzione principale"""
@@ -238,6 +248,7 @@ def main():
     except Exception as e:
         logging.error(f"❌ Errore fatale: {e}")
         print(f"\n❌ Si è verificato un errore: {e}")
+
 
 if __name__ == "__main__":
     main()

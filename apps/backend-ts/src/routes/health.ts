@@ -64,16 +64,24 @@ router.get('/health/detailed', async (_req: Request, res: Response) => {
   try {
     if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
       const pool = getDatabasePool();
-      const dbHealthy = await pool.healthCheck();
-      const metrics = pool.getMetrics();
+      if (!pool) {
+        health.services.postgresql = {
+          status: 'unavailable',
+          message: 'Database pool not initialized',
+        };
+        allHealthy = false;
+      } else {
+        const dbHealthy = await pool.healthCheck();
+        const metrics = pool.getMetrics();
 
-      health.services.postgresql = {
-        status: dbHealthy ? 'healthy' : 'unhealthy',
-        metrics: metrics || null,
-        circuitBreaker: dbCircuitBreaker.getHealthSummary(),
-      };
+        health.services.postgresql = {
+          status: dbHealthy ? 'healthy' : 'unhealthy',
+          metrics: metrics || null,
+          circuitBreaker: dbCircuitBreaker.getHealthSummary(),
+        };
 
-      if (!dbHealthy) allHealthy = false;
+        if (!dbHealthy) allHealthy = false;
+      }
     } else {
       health.services.postgresql = {
         status: 'check_disabled',
@@ -120,7 +128,11 @@ router.get('/health/ready', async (_req: Request, res: Response) => {
     if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
       try {
         const pool = getDatabasePool();
-        checks.database = await pool.healthCheck();
+        if (pool) {
+          checks.database = await pool.healthCheck();
+        } else {
+          checks.database = false;
+        }
       } catch {
         checks.database = false;
       }
@@ -182,8 +194,9 @@ router.get('/metrics', async (_req: Request, res: Response) => {
     if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
       try {
         const pool = getDatabasePool();
-        const poolMetrics = pool.getMetrics();
-        if (poolMetrics) {
+        if (pool) {
+          const poolMetrics = pool.getMetrics();
+          if (poolMetrics) {
           metrics.push(`# HELP db_pool_total_connections Total database connections`);
           metrics.push(`# TYPE db_pool_total_connections gauge`);
           metrics.push(`db_pool_total_connections ${poolMetrics.total}`);
@@ -199,6 +212,7 @@ router.get('/metrics', async (_req: Request, res: Response) => {
           metrics.push(`# HELP db_pool_waiting_connections Waiting database connections`);
           metrics.push(`# TYPE db_pool_waiting_connections gauge`);
           metrics.push(`db_pool_waiting_connections ${poolMetrics.waiting}`);
+          }
         }
       } catch (error) {
         // Ignore errors in metrics

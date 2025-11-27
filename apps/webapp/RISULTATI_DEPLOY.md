@@ -1,7 +1,7 @@
 # 🚀 Risultati Deploy - Webapp
 
-**Data:** 2025-01-27  
-**Deploy:** GitHub Pages  
+**Data:** 2025-01-27
+**Deploy:** GitHub Pages
 **URL:** https://zantara.balizero.com
 
 ---
@@ -15,7 +15,7 @@
 
 ### **Deploy Status:**
 - ✅ Homepage: HTTP 200
-- ✅ Chat Page: HTTP 200  
+- ✅ Chat Page: HTTP 200
 - ✅ Login Page: HTTP 200
 
 ---
@@ -84,7 +84,6 @@ curl https://zantara.balizero.com/health
 
 ---
 
-**Deploy eseguito da:** Auto  
-**Data:** 2025-01-27  
+**Deploy eseguito da:** Auto
+**Data:** 2025-01-27
 **Commit:** [Verificare ultimo commit]
-

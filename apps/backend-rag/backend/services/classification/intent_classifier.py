@@ -4,81 +4,208 @@ Fast pattern-based intent classification without AI cost
 """
 
 import logging
-from typing import Dict
 
 logger = logging.getLogger(__name__)
 
 # Pattern matching constants
 SIMPLE_GREETINGS = [
-    "ciao", "hello", "hi", "hey", "salve",
-    "buongiorno", "buonasera", "halo", "hallo"
+    "ciao",
+    "hello",
+    "hi",
+    "hey",
+    "salve",
+    "buongiorno",
+    "buonasera",
+    "halo",
+    "hallo",
 ]
 
 SESSION_PATTERNS = [
     # Login intents
-    "login", "log in", "sign in", "signin", "masuk", "accedi",
+    "login",
+    "log in",
+    "sign in",
+    "signin",
+    "masuk",
+    "accedi",
     # Logout intents
-    "logout", "log out", "sign out", "signout", "keluar", "esci",
+    "logout",
+    "log out",
+    "sign out",
+    "signout",
+    "keluar",
+    "esci",
     # Identity queries
-    "who am i", "siapa aku", "siapa saya", "chi sono", "who is this",
-    "do you know me", "recognize me", "mi riconosci", "kenal saya",
-    "chi sono io", "sai chi sono"
+    "who am i",
+    "siapa aku",
+    "siapa saya",
+    "chi sono",
+    "who is this",
+    "do you know me",
+    "recognize me",
+    "mi riconosci",
+    "kenal saya",
+    "chi sono io",
+    "sai chi sono",
 ]
 
 CASUAL_PATTERNS = [
-    "come stai", "how are you", "come va", "tutto bene",
-    "apa kabar", "what's up", "whats up",
-    "sai chi sono", "do you know me", "know who i am",
-    "recognize me", "remember me", "mi riconosci"
+    "come stai",
+    "how are you",
+    "come va",
+    "tutto bene",
+    "apa kabar",
+    "what's up",
+    "whats up",
+    "sai chi sono",
+    "do you know me",
+    "know who i am",
+    "recognize me",
+    "remember me",
+    "mi riconosci",
 ]
 
 EMOTIONAL_PATTERNS = [
     # Embarrassment / Shyness
-    "aku malu", "saya malu", "i'm embarrassed", "i feel embarrassed", "sono imbarazzato",
+    "aku malu",
+    "saya malu",
+    "i'm embarrassed",
+    "i feel embarrassed",
+    "sono imbarazzato",
     # Sadness / Upset
-    "aku sedih", "saya sedih", "i'm sad", "i feel sad", "sono triste", "mi sento giù",
+    "aku sedih",
+    "saya sedih",
+    "i'm sad",
+    "i feel sad",
+    "sono triste",
+    "mi sento giù",
     # Anxiety / Worry
-    "aku khawatir", "saya khawatir", "i'm worried", "i worry", "sono preoccupato", "mi preoccupa",
+    "aku khawatir",
+    "saya khawatir",
+    "i'm worried",
+    "i worry",
+    "sono preoccupato",
+    "mi preoccupa",
     # Loneliness
-    "aku kesepian", "saya kesepian", "i'm lonely", "i feel lonely", "mi sento solo",
+    "aku kesepian",
+    "saya kesepian",
+    "i'm lonely",
+    "i feel lonely",
+    "mi sento solo",
     # Stress / Overwhelm
-    "aku stress", "saya stress", "i'm stressed", "sono stressato", "mi sento sopraffatto",
+    "aku stress",
+    "saya stress",
+    "i'm stressed",
+    "sono stressato",
+    "mi sento sopraffatto",
     # Fear
-    "aku takut", "saya takut", "i'm scared", "i'm afraid", "ho paura",
+    "aku takut",
+    "saya takut",
+    "i'm scared",
+    "i'm afraid",
+    "ho paura",
     # Happiness / Excitement
-    "aku senang", "saya senang", "i'm happy", "sono felice", "che bello"
+    "aku senang",
+    "saya senang",
+    "i'm happy",
+    "sono felice",
+    "che bello",
 ]
 
 BUSINESS_KEYWORDS = [
     # Generic business keywords only - no specific codes (KITAS, PT PMA are in database)
-    "visa", "company", "business", "investimento", "investment",
-    "tax", "pajak", "immigration", "imigrasi", "permit", "license", "regulation",
-    "real estate", "property", "kbli", "nib", "oss", "work permit"
+    "visa",
+    "company",
+    "business",
+    "investimento",
+    "investment",
+    "tax",
+    "pajak",
+    "immigration",
+    "imigrasi",
+    "permit",
+    "license",
+    "regulation",
+    "real estate",
+    "property",
+    "kbli",
+    "nib",
+    "oss",
+    "work permit",
 ]
 
 COMPLEX_INDICATORS = [
     # Process-oriented
-    "how to", "how do i", "come si", "bagaimana cara", "cara untuk",
-    "step", "process", "procedure", "prosedur", "langkah",
+    "how to",
+    "how do i",
+    "come si",
+    "bagaimana cara",
+    "cara untuk",
+    "step",
+    "process",
+    "procedure",
+    "prosedur",
+    "langkah",
     # Detail-oriented
-    "explain", "spiegare", "jelaskan", "detail", "dettaglio", "rincian",
+    "explain",
+    "spiegare",
+    "jelaskan",
+    "detail",
+    "dettaglio",
+    "rincian",
     # Requirement-oriented
-    "requirement", "requisiti", "syarat", "what do i need", "cosa serve",
+    "requirement",
+    "requisiti",
+    "syarat",
+    "what do i need",
+    "cosa serve",
     # Multi-part questions
-    " and ", " or ", " also ", " e ", " o ", " dan ", " atau "
+    " and ",
+    " or ",
+    " also ",
+    " e ",
+    " o ",
+    " dan ",
+    " atau ",
 ]
 
 SIMPLE_PATTERNS = [
-    "what is", "what's", "cos'è", "apa itu", "cosa è",
-    "who is", "chi è", "siapa",
-    "when is", "quando", "kapan",
-    "where is", "dove", "dimana"
+    "what is",
+    "what's",
+    "cos'è",
+    "apa itu",
+    "cosa è",
+    "who is",
+    "chi è",
+    "siapa",
+    "when is",
+    "quando",
+    "kapan",
+    "where is",
+    "dove",
+    "dimana",
 ]
 
 DEVAI_KEYWORDS = [
-    "code", "coding", "programming", "debug", "error", "bug", "function",
-    "api", "devai", "typescript", "javascript", "python", "java", "react",
-    "algorithm", "refactor", "optimize", "test", "unit test"
+    "code",
+    "coding",
+    "programming",
+    "debug",
+    "error",
+    "bug",
+    "function",
+    "api",
+    "devai",
+    "typescript",
+    "javascript",
+    "python",
+    "java",
+    "react",
+    "algorithm",
+    "refactor",
+    "optimize",
+    "test",
+    "unit test",
 ]
 
 
@@ -100,7 +227,7 @@ class IntentClassifier:
         """Initialize intent classifier with pattern constants"""
         logger.info("🏷️ [IntentClassifier] Initialized (pattern-based, no AI cost)")
 
-    async def classify_intent(self, message: str) -> Dict:
+    async def classify_intent(self, message: str) -> dict:
         """
         Classify user intent using fast pattern matching
 
@@ -125,7 +252,7 @@ class IntentClassifier:
                     "category": "greeting",
                     "confidence": 1.0,
                     "suggested_ai": "haiku",
-                    "require_memory": True  # Always use memory for personalized greetings
+                    "require_memory": True,  # Always use memory for personalized greetings
                 }
 
             # Check session state patterns
@@ -135,17 +262,13 @@ class IntentClassifier:
                     "category": "session_state",
                     "confidence": 1.0,
                     "suggested_ai": "haiku",
-                    "require_memory": True  # Critical: need user identity
+                    "require_memory": True,  # Critical: need user identity
                 }
 
             # Check casual questions
             if any(pattern in message_lower for pattern in CASUAL_PATTERNS):
                 logger.info("🏷️ [IntentClassifier] Classified: casual")
-                return {
-                    "category": "casual",
-                    "confidence": 1.0,
-                    "suggested_ai": "haiku"
-                }
+                return {"category": "casual", "confidence": 1.0, "suggested_ai": "haiku"}
 
             # Check emotional patterns
             if any(pattern in message_lower for pattern in EMOTIONAL_PATTERNS):
@@ -153,7 +276,7 @@ class IntentClassifier:
                 return {
                     "category": "casual",  # Treat emotional as casual for warm response
                     "confidence": 1.0,
-                    "suggested_ai": "haiku"
+                    "suggested_ai": "haiku",
                 }
 
             # Check business keywords
@@ -164,9 +287,7 @@ class IntentClassifier:
                 has_complex_indicator = any(
                     indicator in message_lower for indicator in COMPLEX_INDICATORS
                 )
-                is_simple_question = any(
-                    pattern in message_lower for pattern in SIMPLE_PATTERNS
-                )
+                is_simple_question = any(pattern in message_lower for pattern in SIMPLE_PATTERNS)
 
                 # Decision logic:
                 # 1. Simple question + short message → Haiku with RAG
@@ -176,31 +297,27 @@ class IntentClassifier:
                     return {
                         "category": "business_simple",
                         "confidence": 0.9,
-                        "suggested_ai": "haiku"
+                        "suggested_ai": "haiku",
                     }
                 elif has_complex_indicator or len(message) > 100:
                     logger.info("🏷️ [IntentClassifier] Classified: business_complex")
                     return {
                         "category": "business_complex",
                         "confidence": 0.9,
-                        "suggested_ai": "sonnet"
+                        "suggested_ai": "sonnet",
                     }
                 else:
                     logger.info("🏷️ [IntentClassifier] Classified: business_medium")
                     return {
                         "category": "business_simple",
                         "confidence": 0.8,
-                        "suggested_ai": "sonnet"
+                        "suggested_ai": "sonnet",
                     }
 
             # Check DevAI keywords
             if any(keyword in message_lower for keyword in DEVAI_KEYWORDS):
                 logger.info("🏷️ [IntentClassifier] Classified: devai_code")
-                return {
-                    "category": "devai_code",
-                    "confidence": 0.9,
-                    "suggested_ai": "devai"
-                }
+                return {"category": "devai_code", "confidence": 0.9, "suggested_ai": "devai"}
 
             # Fast heuristic fallback: short messages → Haiku
             logger.info(f"🏷️ [IntentClassifier] Fallback classification for: '{message[:50]}...'")
@@ -217,14 +334,10 @@ class IntentClassifier:
             return {
                 "category": category,
                 "confidence": 0.7,  # Pattern matching confidence
-                "suggested_ai": suggested_ai
+                "suggested_ai": suggested_ai,
             }
 
         except Exception as e:
             logger.error(f"🏷️ [IntentClassifier] Error: {e}")
             # Fallback: route to Haiku
-            return {
-                "category": "unknown",
-                "confidence": 0.0,
-                "suggested_ai": "haiku"
-            }
+            return {"category": "unknown", "confidence": 0.0, "suggested_ai": "haiku"}

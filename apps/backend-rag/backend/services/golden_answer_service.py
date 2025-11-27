@@ -13,14 +13,13 @@ Flow:
 This provides 250x speedup for ~50-60% of queries.
 """
 
-import asyncpg
-import logging
-from typing import Optional, Dict, List
-from datetime import datetime
 import hashlib
+import logging
+
+import asyncpg
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -38,18 +37,15 @@ class GoldenAnswerService:
             database_url: PostgreSQL connection string
         """
         self.database_url = database_url
-        self.pool: Optional[asyncpg.Pool] = None
-        self.model: Optional[SentenceTransformer] = None
+        self.pool: asyncpg.Pool | None = None
+        self.model: SentenceTransformer | None = None
         self.similarity_threshold = 0.80  # 80% similarity required
 
     async def connect(self):
         """Initialize PostgreSQL connection pool"""
         try:
             self.pool = await asyncpg.create_pool(
-                self.database_url,
-                min_size=2,
-                max_size=10,
-                command_timeout=30
+                self.database_url, min_size=2, max_size=10, command_timeout=30
             )
             logger.info("✅ GoldenAnswerService connected to PostgreSQL")
         except Exception as e:
@@ -66,13 +62,9 @@ class GoldenAnswerService:
         """Lazy load embedding model"""
         if self.model is None:
             logger.info("Loading embedding model for similarity matching...")
-            self.model = SentenceTransformer('all-MiniLM-L6-v2')
+            self.model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    async def lookup_golden_answer(
-        self,
-        query: str,
-        user_id: Optional[str] = None
-    ) -> Optional[Dict]:
+    async def lookup_golden_answer(self, query: str, user_id: str | None = None) -> dict | None:
         """
         Lookup golden answer for user query
 
@@ -88,11 +80,12 @@ class GoldenAnswerService:
 
         try:
             # Generate query hash for exact match
-            query_hash = hashlib.md5(query.lower().strip().encode('utf-8')).hexdigest()
+            query_hash = hashlib.md5(query.lower().strip().encode("utf-8")).hexdigest()
 
             # Step 1: Try exact match in query_clusters
             async with self.pool.acquire() as conn:
-                exact_match = await conn.fetchrow("""
+                exact_match = await conn.fetchrow(
+                    """
                     SELECT
                         qc.cluster_id,
                         ga.canonical_question,
@@ -103,13 +96,15 @@ class GoldenAnswerService:
                     FROM query_clusters qc
                     JOIN golden_answers ga ON qc.cluster_id = ga.cluster_id
                     WHERE qc.query_hash = $1
-                """, query_hash)
+                """,
+                    query_hash,
+                )
 
             if exact_match:
                 logger.info(f"✅ Exact golden answer match: {exact_match['cluster_id']}")
 
                 # Increment usage count
-                await self._increment_usage(exact_match['cluster_id'])
+                await self._increment_usage(exact_match["cluster_id"])
 
                 return {
                     "cluster_id": exact_match["cluster_id"],
@@ -117,17 +112,19 @@ class GoldenAnswerService:
                     "answer": exact_match["answer"],
                     "sources": exact_match["sources"],
                     "confidence": exact_match["confidence"],
-                    "match_type": "exact"
+                    "match_type": "exact",
                 }
 
             # Step 2: Try semantic similarity match
             semantic_match = await self._semantic_lookup(query)
 
             if semantic_match:
-                logger.info(f"✅ Semantic golden answer match: {semantic_match['cluster_id']} (similarity: {semantic_match['similarity']:.2f})")
+                logger.info(
+                    f"✅ Semantic golden answer match: {semantic_match['cluster_id']} (similarity: {semantic_match['similarity']:.2f})"
+                )
 
                 # Increment usage count
-                await self._increment_usage(semantic_match['cluster_id'])
+                await self._increment_usage(semantic_match["cluster_id"])
 
                 return {
                     "cluster_id": semantic_match["cluster_id"],
@@ -136,7 +133,7 @@ class GoldenAnswerService:
                     "sources": semantic_match["sources"],
                     "confidence": semantic_match["confidence"],
                     "match_type": "semantic",
-                    "similarity": semantic_match["similarity"]
+                    "similarity": semantic_match["similarity"],
                 }
 
             # No match found
@@ -147,7 +144,7 @@ class GoldenAnswerService:
             logger.error(f"❌ Golden answer lookup failed: {e}")
             return None
 
-    async def _semantic_lookup(self, query: str) -> Optional[Dict]:
+    async def _semantic_lookup(self, query: str) -> dict | None:
         """
         Find golden answer using semantic similarity
 
@@ -166,7 +163,8 @@ class GoldenAnswerService:
 
             # Get all canonical questions from golden_answers
             async with self.pool.acquire() as conn:
-                golden_answers = await conn.fetch("""
+                golden_answers = await conn.fetch(
+                    """
                     SELECT
                         cluster_id,
                         canonical_question,
@@ -177,7 +175,8 @@ class GoldenAnswerService:
                     FROM golden_answers
                     ORDER BY usage_count DESC
                     LIMIT 100
-                """)
+                """
+                )
 
             if not golden_answers:
                 return None
@@ -203,7 +202,7 @@ class GoldenAnswerService:
                     "answer": best_match["answer"],
                     "sources": best_match["sources"],
                     "confidence": best_match["confidence"],
-                    "similarity": float(best_similarity)
+                    "similarity": float(best_similarity),
                 }
 
             return None
@@ -224,18 +223,21 @@ class GoldenAnswerService:
 
         try:
             async with self.pool.acquire() as conn:
-                await conn.execute("""
+                await conn.execute(
+                    """
                     UPDATE golden_answers
                     SET
                         usage_count = usage_count + 1,
                         last_used_at = NOW()
                     WHERE cluster_id = $1
-                """, cluster_id)
+                """,
+                    cluster_id,
+                )
 
         except Exception as e:
             logger.warning(f"⚠️ Failed to increment usage for {cluster_id}: {e}")
 
-    async def get_golden_answer_stats(self) -> Dict:
+    async def get_golden_answer_stats(self) -> dict:
         """
         Get statistics about golden answer usage
 
@@ -246,7 +248,8 @@ class GoldenAnswerService:
             await self.connect()
 
         async with self.pool.acquire() as conn:
-            stats = await conn.fetchrow("""
+            stats = await conn.fetchrow(
+                """
                 SELECT
                     COUNT(*) as total_golden_answers,
                     SUM(usage_count) as total_hits,
@@ -254,9 +257,11 @@ class GoldenAnswerService:
                     MAX(usage_count) as max_usage,
                     MIN(usage_count) as min_usage
                 FROM golden_answers
-            """)
+            """
+            )
 
-            top_10 = await conn.fetch("""
+            top_10 = await conn.fetch(
+                """
                 SELECT
                     cluster_id,
                     canonical_question,
@@ -265,7 +270,8 @@ class GoldenAnswerService:
                 FROM golden_answers
                 ORDER BY usage_count DESC
                 LIMIT 10
-            """)
+            """
+            )
 
         return {
             "total_golden_answers": stats["total_golden_answers"],
@@ -278,56 +284,59 @@ class GoldenAnswerService:
                     "cluster_id": row["cluster_id"],
                     "question": row["canonical_question"],
                     "usage_count": row["usage_count"],
-                    "last_used": row["last_used"].isoformat() if row["last_used"] else None
+                    "last_used": row["last_used"].isoformat() if row["last_used"] else None,
                 }
                 for row in top_10
-            ]
+            ],
         }
 
 
 # Convenience function for testing
 async def test_service():
     """Test golden answer service"""
-    import os
+    import logging
 
-    database_url = os.getenv("DATABASE_URL")
-    if not database_url:
-        print("❌ DATABASE_URL not set")
+    from app.core.config import settings
+
+    logger = logging.getLogger(__name__)
+
+    if not settings.database_url:
+        logger.error("DATABASE_URL not set")
         return
 
-    service = GoldenAnswerService(database_url)
+    service = GoldenAnswerService(settings.database_url)
 
     try:
         await service.connect()
 
-        print("\n🔍 TESTING GOLDEN ANSWER LOOKUP")
-        print("=" * 60)
+        logger.info("\nTESTING GOLDEN ANSWER LOOKUP")
+        logger.info("=" * 60)
 
         # Test query
         test_query = "How to get KITAS in Indonesia?"
 
-        print(f"\nQuery: {test_query}")
+        logger.info(f"\nQuery: {test_query}")
         result = await service.lookup_golden_answer(test_query)
 
         if result:
-            print(f"\n✅ MATCH FOUND!")
-            print(f"Match type: {result['match_type']}")
-            print(f"Cluster ID: {result['cluster_id']}")
-            print(f"Canonical: {result['canonical_question']}")
-            print(f"Confidence: {result['confidence']}")
-            print(f"\nAnswer:")
-            print(result['answer'][:300] + "...")
-            print(f"\nSources: {len(result.get('sources', []))}")
+            logger.info("\nMATCH FOUND!")
+            logger.info(f"Match type: {result['match_type']}")
+            logger.info(f"Cluster ID: {result['cluster_id']}")
+            logger.info(f"Canonical: {result['canonical_question']}")
+            logger.info(f"Confidence: {result['confidence']}")
+            logger.info("\nAnswer:")
+            logger.info(result["answer"][:300] + "...")
+            logger.info(f"\nSources: {len(result.get('sources', []))}")
         else:
-            print("\n❌ No match found")
+            logger.warning("\nNo match found")
 
         # Get stats
-        print("\n📊 GOLDEN ANSWER STATISTICS")
-        print("=" * 60)
+        logger.info("\nGOLDEN ANSWER STATISTICS")
+        logger.info("=" * 60)
         stats = await service.get_golden_answer_stats()
-        print(f"Total golden answers: {stats['total_golden_answers']}")
-        print(f"Total cache hits: {stats['total_hits']}")
-        print(f"Average confidence: {stats['avg_confidence']:.2f}")
+        logger.info(f"Total golden answers: {stats['total_golden_answers']}")
+        logger.info(f"Total cache hits: {stats['total_hits']}")
+        logger.info(f"Average confidence: {stats['avg_confidence']:.2f}")
 
     finally:
         await service.close()
@@ -335,4 +344,5 @@ async def test_service():
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(test_service())

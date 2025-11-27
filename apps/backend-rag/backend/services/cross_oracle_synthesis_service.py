@@ -12,10 +12,10 @@ Example Scenario: "I want to open a restaurant in Canggu"
 This is the "magic" agent that makes complex business queries feel effortless.
 """
 
-import logging
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict
 import asyncio
+import logging
+from dataclasses import dataclass
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class OracleQuery:
     """Query specification for a single Oracle collection"""
+
     collection: str
     query: str
     priority: int = 1  # 1=critical, 2=important, 3=optional
@@ -32,15 +33,16 @@ class OracleQuery:
 @dataclass
 class SynthesisResult:
     """Result of cross-oracle synthesis"""
+
     query: str
     scenario_type: str  # e.g., "business_setup", "visa_application", "property_investment"
-    oracles_consulted: List[str]
+    oracles_consulted: list[str]
     synthesis: str  # Main synthesized answer
-    timeline: Optional[str]  # Estimated timeline
-    investment: Optional[str]  # Estimated costs
-    key_requirements: List[str]  # Key action items
-    risks: List[str]  # Identified risks
-    sources: Dict[str, Any]  # Raw data from each Oracle
+    timeline: str | None  # Estimated timeline
+    investment: str | None  # Estimated costs
+    key_requirements: list[str]  # Key action items
+    risks: list[str]  # Identified risks
+    sources: dict[str, Any]  # Raw data from each Oracle
     confidence: float  # Overall confidence (0.0-1.0)
     cached: bool = False  # Whether from cache
 
@@ -57,52 +59,87 @@ class CrossOracleSynthesisService:
     SCENARIO_PATTERNS = {
         "business_setup": {
             "keywords": [
-                "open", "start", "setup", "launch", "business", "company",
-                "restaurant", "cafe", "shop", "store", "hotel", "villa"
+                "open",
+                "start",
+                "setup",
+                "launch",
+                "business",
+                "company",
+                "restaurant",
+                "cafe",
+                "shop",
+                "store",
+                "hotel",
+                "villa",
             ],
             "required_oracles": ["kbli_eye", "legal_architect", "tax_genius"],
-            "optional_oracles": ["visa_oracle", "property_knowledge", "bali_zero_pricing"]
+            "optional_oracles": ["visa_oracle", "property_knowledge", "bali_zero_pricing"],
         },
         "visa_application": {
             "keywords": [
-                "visa", "kitas", "kitap", "work permit", "stay permit",
-                "immigration", "expat", "foreigner"
+                "visa",
+                "kitas",
+                "kitap",
+                "work permit",
+                "stay permit",
+                "immigration",
+                "expat",
+                "foreigner",
             ],
             "required_oracles": ["visa_oracle"],
-            "optional_oracles": ["legal_architect", "tax_genius", "bali_zero_pricing"]
+            "optional_oracles": ["legal_architect", "tax_genius", "bali_zero_pricing"],
         },
         "property_investment": {
             "keywords": [
-                "buy", "purchase", "invest", "property", "land", "villa",
-                "real estate", "ownership", "leasehold", "freehold"
+                "buy",
+                "purchase",
+                "invest",
+                "property",
+                "land",
+                "villa",
+                "real estate",
+                "ownership",
+                "leasehold",
+                "freehold",
             ],
             "required_oracles": ["property_knowledge", "legal_architect"],
-            "optional_oracles": ["tax_genius", "visa_oracle", "property_listings", "bali_zero_pricing"]
+            "optional_oracles": [
+                "tax_genius",
+                "visa_oracle",
+                "property_listings",
+                "bali_zero_pricing",
+            ],
         },
         "tax_optimization": {
             "keywords": [
-                "tax", "pajak", "npwp", "pph", "ppn", "tax planning",
-                "tax obligation", "fiscal"
+                "tax",
+                "pajak",
+                "npwp",
+                "pph",
+                "ppn",
+                "tax planning",
+                "tax obligation",
+                "fiscal",
             ],
             "required_oracles": ["tax_genius"],
-            "optional_oracles": ["legal_architect", "kbli_eye", "tax_updates"]
+            "optional_oracles": ["legal_architect", "kbli_eye", "tax_updates"],
         },
         "compliance_check": {
             "keywords": [
-                "compliance", "requirement", "regulation", "legal",
-                "permit", "license", "izin"
+                "compliance",
+                "requirement",
+                "regulation",
+                "legal",
+                "permit",
+                "license",
+                "izin",
             ],
             "required_oracles": ["legal_architect", "kbli_eye"],
-            "optional_oracles": ["tax_genius", "visa_oracle", "legal_updates", "tax_updates"]
-        }
+            "optional_oracles": ["tax_genius", "visa_oracle", "legal_updates", "tax_updates"],
+        },
     }
 
-    def __init__(
-        self,
-        search_service,
-        zantara_ai_client=None,
-        golden_answer_service=None
-    ):
+    def __init__(self, search_service, zantara_ai_client=None, golden_answer_service=None):
         """
         Initialize Cross-Oracle Synthesis Agent.
 
@@ -114,6 +151,7 @@ class CrossOracleSynthesisService:
         self.search = search_service
         if zantara_ai_client is None:
             from llm.zantara_ai_client import ZantaraAIClient
+
             zantara_ai_client = ZantaraAIClient()
         self.zantara = zantara_ai_client
         self.golden_answers = golden_answer_service
@@ -122,14 +160,14 @@ class CrossOracleSynthesisService:
             "total_syntheses": 0,
             "cache_hits": 0,
             "avg_oracles_consulted": 0.0,
-            "scenario_counts": {}
+            "scenario_counts": {},
         }
 
         logger.info("✅ CrossOracleSynthesisService initialized")
         logger.info(f"   Scenario patterns: {len(self.SCENARIO_PATTERNS)}")
         logger.info(f"   Golden answer cache: {'✅' if golden_answer_service else '❌'}")
 
-    def classify_scenario(self, query: str) -> Tuple[str, float]:
+    def classify_scenario(self, query: str) -> tuple[str, float]:
         """
         Classify user query into scenario type.
 
@@ -143,10 +181,7 @@ class CrossOracleSynthesisService:
         scenario_scores = {}
 
         for scenario_type, pattern in self.SCENARIO_PATTERNS.items():
-            score = sum(
-                1 for keyword in pattern["keywords"]
-                if keyword in query_lower
-            )
+            score = sum(1 for keyword in pattern["keywords"] if keyword in query_lower)
             if score > 0:
                 scenario_scores[scenario_type] = score
 
@@ -163,11 +198,7 @@ class CrossOracleSynthesisService:
         logger.info(f"🎯 Scenario classified: {best_scenario} (confidence={confidence:.2f})")
         return best_scenario, confidence
 
-    def determine_oracles(
-        self,
-        query: str,
-        scenario_type: str
-    ) -> List[OracleQuery]:
+    def determine_oracles(self, query: str, scenario_type: str) -> list[OracleQuery]:
         """
         Determine which Oracles to consult for a scenario.
 
@@ -182,10 +213,7 @@ class CrossOracleSynthesisService:
             # Default: use query router's fallback logic
             return [
                 OracleQuery(
-                    collection="visa_oracle",
-                    query=query,
-                    priority=1,
-                    rationale="Default Oracle"
+                    collection="visa_oracle", query=query, priority=1, rationale="Default Oracle"
                 )
             ]
 
@@ -199,7 +227,7 @@ class CrossOracleSynthesisService:
                     collection=oracle,
                     query=query,  # Same query for all
                     priority=1,
-                    rationale=f"Required for {scenario_type}"
+                    rationale=f"Required for {scenario_type}",
                 )
             )
 
@@ -210,7 +238,7 @@ class CrossOracleSynthesisService:
                     collection=oracle,
                     query=query,
                     priority=2,
-                    rationale=f"Enhances {scenario_type} analysis"
+                    rationale=f"Enhances {scenario_type} analysis",
                 )
             )
 
@@ -222,11 +250,7 @@ class CrossOracleSynthesisService:
 
         return oracle_queries
 
-    async def query_oracle(
-        self,
-        oracle_query: OracleQuery,
-        user_level: int = 3
-    ) -> Dict[str, Any]:
+    async def query_oracle(self, oracle_query: OracleQuery, user_level: int = 3) -> dict[str, Any]:
         """
         Query a single Oracle collection.
 
@@ -245,7 +269,7 @@ class CrossOracleSynthesisService:
                 query=oracle_query.query,
                 user_level=user_level,
                 limit=3,  # Top 3 results per Oracle
-                collection_override=oracle_query.collection
+                collection_override=oracle_query.collection,
             )
 
             return {
@@ -254,7 +278,7 @@ class CrossOracleSynthesisService:
                 "rationale": oracle_query.rationale,
                 "results": results.get("results", []),
                 "result_count": len(results.get("results", [])),
-                "success": len(results.get("results", [])) > 0
+                "success": len(results.get("results", [])) > 0,
             }
 
         except Exception as e:
@@ -266,14 +290,12 @@ class CrossOracleSynthesisService:
                 "results": [],
                 "result_count": 0,
                 "success": False,
-                "error": str(e)
+                "error": str(e),
             }
 
     async def query_all_oracles(
-        self,
-        oracle_queries: List[OracleQuery],
-        user_level: int = 3
-    ) -> Dict[str, Any]:
+        self, oracle_queries: list[OracleQuery], user_level: int = 3
+    ) -> dict[str, Any]:
         """
         Query all Oracles in parallel.
 
@@ -287,18 +309,12 @@ class CrossOracleSynthesisService:
         logger.info(f"🔄 Querying {len(oracle_queries)} Oracles in parallel...")
 
         # Query all in parallel
-        tasks = [
-            self.query_oracle(oq, user_level)
-            for oq in oracle_queries
-        ]
+        tasks = [self.query_oracle(oq, user_level) for oq in oracle_queries]
 
         oracle_results = await asyncio.gather(*tasks)
 
         # Convert to dict
-        results_dict = {
-            result["collection"]: result
-            for result in oracle_results
-        }
+        results_dict = {result["collection"]: result for result in oracle_results}
 
         # Log summary
         successful = sum(1 for r in oracle_results if r["success"])
@@ -312,10 +328,7 @@ class CrossOracleSynthesisService:
         return results_dict
 
     async def synthesize_with_zantara(
-        self,
-        query: str,
-        scenario_type: str,
-        oracle_results: Dict[str, Any]
+        self, query: str, scenario_type: str, oracle_results: dict[str, Any]
     ) -> str:
         """
         Use ZANTARA AI to synthesize Oracle results into integrated answer.
@@ -386,9 +399,7 @@ Keep the response comprehensive but concise (max 800 words).
         try:
             # Call ZANTARA AI
             response = await self.zantara.generate_text(
-                prompt=synthesis_prompt,
-                max_tokens=1500,
-                temperature=0.7
+                prompt=synthesis_prompt, max_tokens=1500, temperature=0.7
             )
 
             synthesis_text = response.get("text", "")
@@ -401,11 +412,7 @@ Keep the response comprehensive but concise (max 800 words).
             # Fallback: simple concatenation
             return self._simple_synthesis(query, oracle_results)
 
-    def _simple_synthesis(
-        self,
-        query: str,
-        oracle_results: Dict[str, Any]
-    ) -> str:
+    def _simple_synthesis(self, query: str, oracle_results: dict[str, Any]) -> str:
         """Fallback synthesis without AI (simple concatenation)"""
         parts = [f"## Results for: {query}\n"]
 
@@ -417,7 +424,7 @@ Keep the response comprehensive but concise (max 800 words).
 
         return "\n".join(parts)
 
-    def _parse_synthesis(self, synthesis_text: str) -> Dict[str, Any]:
+    def _parse_synthesis(self, synthesis_text: str) -> dict[str, Any]:
         """
         Parse synthesized text to extract structured data.
 
@@ -426,12 +433,7 @@ Keep the response comprehensive but concise (max 800 words).
         """
         import re
 
-        parsed = {
-            "timeline": None,
-            "investment": None,
-            "key_requirements": [],
-            "risks": []
-        }
+        parsed = {"timeline": None, "investment": None, "key_requirements": [], "risks": []}
 
         # Extract timeline
         timeline_match = re.search(r"## Timeline\s*\n(.*?)(?=\n##|\Z)", synthesis_text, re.DOTALL)
@@ -439,12 +441,16 @@ Keep the response comprehensive but concise (max 800 words).
             parsed["timeline"] = timeline_match.group(1).strip()
 
         # Extract investment
-        investment_match = re.search(r"## Investment Required\s*\n(.*?)(?=\n##|\Z)", synthesis_text, re.DOTALL)
+        investment_match = re.search(
+            r"## Investment Required\s*\n(.*?)(?=\n##|\Z)", synthesis_text, re.DOTALL
+        )
         if investment_match:
             parsed["investment"] = investment_match.group(1).strip()
 
         # Extract key requirements
-        req_match = re.search(r"## Key Requirements\s*\n(.*?)(?=\n##|\Z)", synthesis_text, re.DOTALL)
+        req_match = re.search(
+            r"## Key Requirements\s*\n(.*?)(?=\n##|\Z)", synthesis_text, re.DOTALL
+        )
         if req_match:
             req_text = req_match.group(1).strip()
             parsed["key_requirements"] = [
@@ -454,7 +460,9 @@ Keep the response comprehensive but concise (max 800 words).
             ]
 
         # Extract risks
-        risk_match = re.search(r"## Potential Risks\s*\n(.*?)(?=\n##|\Z)", synthesis_text, re.DOTALL)
+        risk_match = re.search(
+            r"## Potential Risks\s*\n(.*?)(?=\n##|\Z)", synthesis_text, re.DOTALL
+        )
         if risk_match:
             risk_text = risk_match.group(1).strip()
             parsed["risks"] = [
@@ -466,10 +474,7 @@ Keep the response comprehensive but concise (max 800 words).
         return parsed
 
     async def synthesize(
-        self,
-        query: str,
-        user_level: int = 3,
-        use_cache: bool = True
+        self, query: str, user_level: int = 3, use_cache: bool = True
     ) -> SynthesisResult:
         """
         Main synthesis method - orchestrates full cross-Oracle synthesis.
@@ -495,8 +500,9 @@ Keep the response comprehensive but concise (max 800 words).
         scenario_type, confidence = self.classify_scenario(query)
 
         # Update stats
-        self.synthesis_stats["scenario_counts"][scenario_type] = \
+        self.synthesis_stats["scenario_counts"][scenario_type] = (
             self.synthesis_stats["scenario_counts"].get(scenario_type, 0) + 1
+        )
 
         # Step 3: Determine which Oracles to consult
         oracle_queries = self.determine_oracles(query, scenario_type)
@@ -507,17 +513,13 @@ Keep the response comprehensive but concise (max 800 words).
         # Update stats
         oracles_consulted = [k for k, v in oracle_results.items() if v["success"]]
         self.synthesis_stats["avg_oracles_consulted"] = (
-            (self.synthesis_stats["avg_oracles_consulted"] * (self.synthesis_stats["total_syntheses"] - 1)
-             + len(oracles_consulted))
-            / self.synthesis_stats["total_syntheses"]
-        )
+            self.synthesis_stats["avg_oracles_consulted"]
+            * (self.synthesis_stats["total_syntheses"] - 1)
+            + len(oracles_consulted)
+        ) / self.synthesis_stats["total_syntheses"]
 
         # Step 5: Synthesize with ZANTARA AI
-        synthesis_text = await self.synthesize_with_zantara(
-            query,
-            scenario_type,
-            oracle_results
-        )
+        synthesis_text = await self.synthesize_with_zantara(query, scenario_type, oracle_results)
 
         # Step 6: Parse structured data from synthesis
         parsed = self._parse_synthesis(synthesis_text)
@@ -534,7 +536,7 @@ Keep the response comprehensive but concise (max 800 words).
             risks=parsed["risks"],
             sources=oracle_results,
             confidence=confidence,
-            cached=False
+            cached=False,
         )
 
         logger.info(
@@ -545,9 +547,9 @@ Keep the response comprehensive but concise (max 800 words).
 
         return result
 
-    def get_synthesis_stats(self) -> Dict:
+    def get_synthesis_stats(self) -> dict:
         """Get synthesis statistics"""
         return {
             **self.synthesis_stats,
-            "scenario_distribution": self.synthesis_stats["scenario_counts"]
+            "scenario_distribution": self.synthesis_stats["scenario_counts"],
         }

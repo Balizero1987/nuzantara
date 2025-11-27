@@ -18,7 +18,7 @@ flyctl autoscale set min=2 max=10
 # Configure CPU-based scaling
 flyctl autoscale set cpu=70
 
-# Configure memory-based scaling  
+# Configure memory-based scaling
 flyctl autoscale set memory=80
 ```
 
@@ -103,6 +103,3 @@ flyctl releases rollback <release-id>
 - [ ] Response times acceptable
 - [ ] Auto-scaling configured
 - [ ] Features enabled gradually (if desired)
-
-
-

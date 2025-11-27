@@ -20,16 +20,17 @@ Example Monitored Items:
 """
 
 import logging
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 class ComplianceType(str, Enum):
     """Type of compliance item"""
+
     VISA_EXPIRY = "visa_expiry"
     TAX_FILING = "tax_filing"
     LICENSE_RENEWAL = "license_renewal"
@@ -40,14 +41,16 @@ class ComplianceType(str, Enum):
 
 class AlertSeverity(str, Enum):
     """Alert severity levels"""
-    INFO = "info"          # >60 days
-    WARNING = "warning"    # 30-60 days
-    URGENT = "urgent"      # 7-30 days
+
+    INFO = "info"  # >60 days
+    WARNING = "warning"  # 30-60 days
+    URGENT = "urgent"  # 7-30 days
     CRITICAL = "critical"  # <7 days or overdue
 
 
 class AlertStatus(str, Enum):
     """Alert status"""
+
     PENDING = "pending"
     SENT = "sent"
     ACKNOWLEDGED = "acknowledged"
@@ -58,6 +61,7 @@ class AlertStatus(str, Enum):
 @dataclass
 class ComplianceItem:
     """Single compliance tracking item"""
+
     item_id: str
     client_id: str
     compliance_type: ComplianceType
@@ -65,17 +69,18 @@ class ComplianceItem:
     description: str
     deadline: str  # ISO date
     requirement_details: str
-    estimated_cost: Optional[float] = None
-    required_documents: List[str] = field(default_factory=list)
-    renewal_process: Optional[str] = None
-    source_oracle: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    estimated_cost: float | None = None
+    required_documents: list[str] = field(default_factory=list)
+    renewal_process: str | None = None
+    source_oracle: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
 @dataclass
 class ComplianceAlert:
     """Alert for upcoming compliance deadline"""
+
     alert_id: str
     compliance_item_id: str
     client_id: str
@@ -85,11 +90,11 @@ class ComplianceAlert:
     deadline: str
     days_until_deadline: int
     action_required: str
-    estimated_cost: Optional[float] = None
+    estimated_cost: float | None = None
     status: AlertStatus = AlertStatus.PENDING
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    sent_at: Optional[str] = None
-    acknowledged_at: Optional[str] = None
+    sent_at: str | None = None
+    acknowledged_at: str | None = None
 
 
 class ProactiveComplianceMonitor:
@@ -111,7 +116,7 @@ class ProactiveComplianceMonitor:
             "deadline_day": 31,
             "description": "Annual tax return filing for individuals",
             "estimated_cost": 2000000,  # IDR for service
-            "compliance_type": ComplianceType.TAX_FILING
+            "compliance_type": ComplianceType.TAX_FILING,
         },
         "spt_tahunan_corporate": {
             "title": "SPT Tahunan (Corporate Tax Return)",
@@ -119,15 +124,15 @@ class ProactiveComplianceMonitor:
             "deadline_day": 30,
             "description": "Annual tax return filing for corporations",
             "estimated_cost": 5000000,
-            "compliance_type": ComplianceType.TAX_FILING
+            "compliance_type": ComplianceType.TAX_FILING,
         },
         "ppn_monthly": {
             "title": "Monthly VAT (PPn) Filing",
             "deadline_day": 15,  # Every month
             "description": "Monthly VAT reporting and payment",
             "estimated_cost": 500000,
-            "compliance_type": ComplianceType.TAX_FILING
-        }
+            "compliance_type": ComplianceType.TAX_FILING,
+        },
     }
 
     # Alert thresholds (days before deadline)
@@ -135,13 +140,13 @@ class ProactiveComplianceMonitor:
         AlertSeverity.INFO: 60,
         AlertSeverity.WARNING: 30,
         AlertSeverity.URGENT: 7,
-        AlertSeverity.CRITICAL: 0  # Overdue
+        AlertSeverity.CRITICAL: 0,  # Overdue
     }
 
     def __init__(
         self,
         search_service=None,
-        notification_service=None  # For WhatsApp/email alerts
+        notification_service=None,  # For WhatsApp/email alerts
     ):
         """
         Initialize Proactive Compliance Monitor.
@@ -154,8 +159,8 @@ class ProactiveComplianceMonitor:
         self.notifications = notification_service
 
         # Storage (in production, use database)
-        self.compliance_items: Dict[str, ComplianceItem] = {}
-        self.alerts: Dict[str, ComplianceAlert] = {}
+        self.compliance_items: dict[str, ComplianceItem] = {}
+        self.alerts: dict[str, ComplianceAlert] = {}
 
         self.monitor_stats = {
             "total_items_tracked": 0,
@@ -163,7 +168,7 @@ class ProactiveComplianceMonitor:
             "alerts_generated": 0,
             "alerts_sent": 0,
             "overdue_items": 0,
-            "compliance_type_distribution": {}
+            "compliance_type_distribution": {},
         }
 
         logger.info("✅ ProactiveComplianceMonitor initialized")
@@ -176,9 +181,9 @@ class ProactiveComplianceMonitor:
         title: str,
         deadline: str,
         description: str = "",
-        estimated_cost: Optional[float] = None,
-        required_documents: Optional[List[str]] = None,
-        metadata: Optional[Dict] = None
+        estimated_cost: float | None = None,
+        required_documents: list[str] | None = None,
+        metadata: dict | None = None,
     ) -> ComplianceItem:
         """
         Add a new compliance item to track.
@@ -208,7 +213,7 @@ class ProactiveComplianceMonitor:
             requirement_details=description,
             estimated_cost=estimated_cost,
             required_documents=required_documents or [],
-            metadata=metadata or {}
+            metadata=metadata or {},
         )
 
         self.compliance_items[item_id] = item
@@ -216,19 +221,16 @@ class ProactiveComplianceMonitor:
         # Update stats
         self.monitor_stats["total_items_tracked"] += 1
         self.monitor_stats["active_items"] += 1
-        self.monitor_stats["compliance_type_distribution"][compliance_type.value] = \
+        self.monitor_stats["compliance_type_distribution"][compliance_type.value] = (
             self.monitor_stats["compliance_type_distribution"].get(compliance_type.value, 0) + 1
+        )
 
         logger.info(f"📋 Added compliance item: {item_id} - {title} (deadline: {deadline})")
 
         return item
 
     def add_visa_expiry(
-        self,
-        client_id: str,
-        visa_type: str,
-        expiry_date: str,
-        passport_number: str
+        self, client_id: str, visa_type: str, expiry_date: str, passport_number: str
     ) -> ComplianceItem:
         """
         Add KITAS/KITAP expiry tracking.
@@ -250,17 +252,11 @@ class ProactiveComplianceMonitor:
             description=f"{visa_type} for passport {passport_number} expires on {expiry_date}",
             estimated_cost=None,  # Retrieved from database (pricing service)
             required_documents=[],  # Retrieved from database (document checklist)
-            metadata={
-                "visa_type": visa_type,
-                "passport_number": passport_number
-            }
+            metadata={"visa_type": visa_type, "passport_number": passport_number},
         )
 
     def add_annual_tax_deadline(
-        self,
-        client_id: str,
-        deadline_type: str,
-        year: int
+        self, client_id: str, deadline_type: str, year: int
     ) -> ComplianceItem:
         """
         Add annual tax deadline (SPT Tahunan, etc.).
@@ -279,11 +275,7 @@ class ProactiveComplianceMonitor:
         template = self.ANNUAL_DEADLINES[deadline_type]
 
         # Calculate deadline date
-        deadline_date = datetime(
-            year,
-            template["deadline_month"],
-            template["deadline_day"]
-        )
+        deadline_date = datetime(year, template["deadline_month"], template["deadline_day"])
 
         return self.add_compliance_item(
             client_id=client_id,
@@ -292,16 +284,10 @@ class ProactiveComplianceMonitor:
             deadline=deadline_date.isoformat(),
             description=template["description"],
             estimated_cost=template.get("estimated_cost"),
-            metadata={
-                "deadline_type": deadline_type,
-                "tax_year": year
-            }
+            metadata={"deadline_type": deadline_type, "tax_year": year},
         )
 
-    def calculate_severity(
-        self,
-        deadline: str
-    ) -> tuple[AlertSeverity, int]:
+    def calculate_severity(self, deadline: str) -> tuple[AlertSeverity, int]:
         """
         Calculate alert severity based on days until deadline.
 
@@ -311,7 +297,7 @@ class ProactiveComplianceMonitor:
         Returns:
             Tuple of (severity, days_until_deadline)
         """
-        deadline_date = datetime.fromisoformat(deadline.replace('Z', ''))
+        deadline_date = datetime.fromisoformat(deadline.replace("Z", ""))
         now = datetime.now()
         days_until = (deadline_date - now).days
 
@@ -324,7 +310,7 @@ class ProactiveComplianceMonitor:
         else:
             return AlertSeverity.INFO, days_until
 
-    def check_compliance_items(self) -> List[ComplianceAlert]:
+    def check_compliance_items(self) -> list[ComplianceAlert]:
         """
         Check all compliance items and generate alerts.
 
@@ -357,23 +343,20 @@ class ProactiveComplianceMonitor:
         return new_alerts
 
     def _find_alert(
-        self,
-        compliance_item_id: str,
-        severity: AlertSeverity
-    ) -> Optional[ComplianceAlert]:
+        self, compliance_item_id: str, severity: AlertSeverity
+    ) -> ComplianceAlert | None:
         """Find existing alert for item at severity level"""
         for alert in self.alerts.values():
-            if (alert.compliance_item_id == compliance_item_id and
-                alert.severity == severity and
-                alert.status != AlertStatus.EXPIRED):
+            if (
+                alert.compliance_item_id == compliance_item_id
+                and alert.severity == severity
+                and alert.status != AlertStatus.EXPIRED
+            ):
                 return alert
         return None
 
     def _generate_alert(
-        self,
-        item: ComplianceItem,
-        severity: AlertSeverity,
-        days_until: int
+        self, item: ComplianceItem, severity: AlertSeverity, days_until: int
     ) -> ComplianceAlert:
         """Generate alert from compliance item"""
         alert_id = f"alert_{item.item_id}_{severity.value}_{int(datetime.now().timestamp())}"
@@ -398,7 +381,7 @@ class ProactiveComplianceMonitor:
 
         # Add document requirements
         if item.required_documents:
-            message += f"\nRequired documents:\n"
+            message += "\nRequired documents:\n"
             for doc in item.required_documents[:5]:  # Top 5
                 message += f"  • {doc}\n"
 
@@ -412,14 +395,10 @@ class ProactiveComplianceMonitor:
             deadline=item.deadline,
             days_until_deadline=days_until,
             action_required=action,
-            estimated_cost=item.estimated_cost
+            estimated_cost=item.estimated_cost,
         )
 
-    async def send_alert(
-        self,
-        alert_id: str,
-        via: str = "whatsapp"
-    ) -> bool:
+    async def send_alert(self, alert_id: str, via: str = "whatsapp") -> bool:
         """
         Send alert to client.
 
@@ -440,9 +419,7 @@ class ProactiveComplianceMonitor:
         if self.notifications:
             # Use notification service
             success = await self.notifications.send(
-                client_id=alert.client_id,
-                message=alert.message,
-                via=via
+                client_id=alert.client_id, message=alert.message, via=via
             )
         else:
             # Log only (no notification service)
@@ -457,10 +434,7 @@ class ProactiveComplianceMonitor:
 
         return success
 
-    def acknowledge_alert(
-        self,
-        alert_id: str
-    ) -> bool:
+    def acknowledge_alert(self, alert_id: str) -> bool:
         """
         Mark alert as acknowledged by client.
 
@@ -480,10 +454,7 @@ class ProactiveComplianceMonitor:
         logger.info(f"✅ Alert acknowledged: {alert_id}")
         return True
 
-    def resolve_compliance_item(
-        self,
-        item_id: str
-    ) -> bool:
+    def resolve_compliance_item(self, item_id: str) -> bool:
         """
         Mark compliance item as resolved.
 
@@ -511,10 +482,8 @@ class ProactiveComplianceMonitor:
         return True
 
     def get_upcoming_deadlines(
-        self,
-        client_id: Optional[str] = None,
-        days_ahead: int = 90
-    ) -> List[ComplianceItem]:
+        self, client_id: str | None = None, days_ahead: int = 90
+    ) -> list[ComplianceItem]:
         """
         Get upcoming compliance deadlines.
 
@@ -532,7 +501,7 @@ class ProactiveComplianceMonitor:
             if client_id and item.client_id != client_id:
                 continue
 
-            deadline_date = datetime.fromisoformat(item.deadline.replace('Z', ''))
+            deadline_date = datetime.fromisoformat(item.deadline.replace("Z", ""))
             if deadline_date <= cutoff_date:
                 upcoming.append(item)
 
@@ -542,10 +511,8 @@ class ProactiveComplianceMonitor:
         return upcoming
 
     def get_alerts_for_client(
-        self,
-        client_id: str,
-        status_filter: Optional[AlertStatus] = None
-    ) -> List[ComplianceAlert]:
+        self, client_id: str, status_filter: AlertStatus | None = None
+    ) -> list[ComplianceAlert]:
         """
         Get alerts for a specific client.
 
@@ -556,10 +523,7 @@ class ProactiveComplianceMonitor:
         Returns:
             List of alerts
         """
-        alerts = [
-            alert for alert in self.alerts.values()
-            if alert.client_id == client_id
-        ]
+        alerts = [alert for alert in self.alerts.values() if alert.client_id == client_id]
 
         if status_filter:
             alerts = [a for a in alerts if a.status == status_filter]
@@ -569,35 +533,36 @@ class ProactiveComplianceMonitor:
             AlertSeverity.CRITICAL,
             AlertSeverity.URGENT,
             AlertSeverity.WARNING,
-            AlertSeverity.INFO
+            AlertSeverity.INFO,
         ]
         alerts.sort(key=lambda x: severity_order.index(x.severity))
 
         return alerts
 
-    def get_monitor_stats(self) -> Dict:
+    def get_monitor_stats(self) -> dict:
         """Get monitoring statistics"""
         return {
             **self.monitor_stats,
             "alert_severity_distribution": {
                 severity.value: sum(
-                    1 for a in self.alerts.values()
+                    1
+                    for a in self.alerts.values()
                     if a.severity == severity and a.status != AlertStatus.EXPIRED
                 )
                 for severity in AlertSeverity
-            }
+            },
         }
 
-    def generate_alerts(self) -> List[Dict]:
+    def generate_alerts(self) -> list[dict]:
         """Generate compliance alerts for all monitored items"""
         try:
             alerts = []
-            
+
             # Get all compliance items
             for item_id, item in self.compliance_items.items():
                 # Calculate days until deadline
                 days_until = (item.deadline - datetime.now()).days
-                
+
                 # Determine severity
                 if days_until < 0:
                     severity = AlertSeverity.CRITICAL
@@ -607,7 +572,7 @@ class ProactiveComplianceMonitor:
                     severity = AlertSeverity.WARNING
                 else:
                     severity = AlertSeverity.INFO
-                
+
                 # Create alert
                 alert = {
                     "alert_id": f"alert_{item_id}",
@@ -619,13 +584,13 @@ class ProactiveComplianceMonitor:
                     "days_until": days_until,
                     "severity": severity.value,
                     "status": "active",
-                    "created_at": datetime.now().isoformat()
+                    "created_at": datetime.now().isoformat(),
                 }
                 alerts.append(alert)
-            
+
             logger.info(f"Generated {len(alerts)} compliance alerts")
             return alerts
-            
+
         except Exception as e:
             logger.error(f"Error generating alerts: {e}")
             return []

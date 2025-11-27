@@ -3,9 +3,10 @@ HANDLER PROXY SERVICE
 Allows RAG backend to execute TypeScript handlers via HTTP
 """
 
-import httpx
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Any
+
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -22,15 +23,15 @@ class HandlerProxyService:
         Args:
             backend_url: TypeScript backend URL (e.g., https://nuzantara-backend.fly.dev)
         """
-        self.backend_url = backend_url.rstrip('/')
+        self.backend_url = backend_url.rstrip("/")
         self.client = httpx.AsyncClient(timeout=30.0)
 
     async def execute_handler(
         self,
         handler_key: str,
-        params: Optional[Dict[str, Any]] = None,
-        internal_key: Optional[str] = None
-    ) -> Dict[str, Any]:
+        params: dict[str, Any] | None = None,
+        internal_key: str | None = None,
+    ) -> dict[str, Any]:
         """
         Execute a single TypeScript handler
 
@@ -51,25 +52,16 @@ class HandlerProxyService:
         try:
             endpoint = f"{self.backend_url}/call"
 
-            headers = {
-                "Content-Type": "application/json"
-            }
+            headers = {"Content-Type": "application/json"}
 
             if internal_key:
                 headers["x-api-key"] = internal_key
 
-            payload = {
-                "key": handler_key,
-                "params": params or {}
-            }
+            payload = {"key": handler_key, "params": params or {}}
 
             logger.info(f"🔌 Executing handler: {handler_key}")
 
-            response = await self.client.post(
-                endpoint,
-                json=payload,
-                headers=headers
-            )
+            response = await self.client.post(endpoint, json=payload, headers=headers)
 
             response.raise_for_status()
             data = response.json()
@@ -89,10 +81,8 @@ class HandlerProxyService:
             return {"error": str(e)}
 
     async def execute_batch(
-        self,
-        handlers: List[Dict[str, Any]],
-        internal_key: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, handlers: list[dict[str, Any]], internal_key: str | None = None
+    ) -> dict[str, Any]:
         """
         Execute multiple handlers in sequence
 
@@ -112,24 +102,16 @@ class HandlerProxyService:
         try:
             endpoint = f"{self.backend_url}/system.handlers.batch"
 
-            headers = {
-                "Content-Type": "application/json"
-            }
+            headers = {"Content-Type": "application/json"}
 
             if internal_key:
                 headers["x-api-key"] = internal_key
 
-            payload = {
-                "handlers": handlers
-            }
+            payload = {"handlers": handlers}
 
             logger.info(f"🔌 Executing batch: {len(handlers)} handlers")
 
-            response = await self.client.post(
-                endpoint,
-                json=payload,
-                headers=headers
-            )
+            response = await self.client.post(endpoint, json=payload, headers=headers)
 
             response.raise_for_status()
             data = response.json()
@@ -145,7 +127,7 @@ class HandlerProxyService:
             logger.error(f"Error executing batch: {e}")
             return {"error": str(e)}
 
-    async def get_all_handlers(self, internal_key: Optional[str] = None) -> Dict[str, Any]:
+    async def get_all_handlers(self, internal_key: str | None = None) -> dict[str, Any]:
         """
         Get list of all available handlers
 
@@ -172,7 +154,7 @@ class HandlerProxyService:
             logger.error(f"Error getting handlers list: {e}")
             return {"error": str(e)}
 
-    async def get_anthropic_tools(self, internal_key: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def get_anthropic_tools(self, internal_key: str | None = None) -> list[dict[str, Any]]:
         """
         Get ZANTARA AI-compatible tool definitions for all handlers (legacy Anthropic format)
 
@@ -187,9 +169,7 @@ class HandlerProxyService:
                 headers["x-api-key"] = internal_key
 
             response = await self.client.post(
-                endpoint,
-                json={"key": "system.handlers.tools", "params": {}},
-                headers=headers
+                endpoint, json={"key": "system.handlers.tools", "params": {}}, headers=headers
             )
             response.raise_for_status()
 
@@ -210,10 +190,10 @@ class HandlerProxyService:
 
 
 # Global instance (initialized in main.py)
-handler_proxy: Optional[HandlerProxyService] = None
+handler_proxy: HandlerProxyService | None = None
 
 
-def get_handler_proxy() -> Optional[HandlerProxyService]:
+def get_handler_proxy() -> HandlerProxyService | None:
     """Get global handler proxy instance"""
     return handler_proxy
 
@@ -232,4 +212,6 @@ def init_handler_proxy(backend_url: str) -> HandlerProxyService:
     handler_proxy = HandlerProxyService(backend_url)
     logger.info(f"✅ Handler proxy initialized: {backend_url}")
     return handler_proxy
+
+
 # Updated Mar  7 Ott 2025 02:21:12 WITA

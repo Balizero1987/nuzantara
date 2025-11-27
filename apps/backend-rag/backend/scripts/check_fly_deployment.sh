@@ -1,6 +1,6 @@
 #!/bin/bash
 # Check Fly.io deployment status
-# 
+#
 # Usage: ./check_fly_deployment.sh
 
 APP_NAME="${FLY_APP_NAME:-nuzantara-rag}"
@@ -33,21 +33,21 @@ HEALTH_RESPONSE=$(curl -s "$HEALTH_URL" 2>/dev/null)
 
 if [ $? -eq 0 ] && [ -n "$HEALTH_RESPONSE" ]; then
     echo -e "   ${GREEN}✅ Health endpoint responding${NC}"
-    
+
     if command -v jq &> /dev/null; then
         echo ""
         echo "3. Reranker Status:"
         RERANKER_ENABLED=$(echo "$HEALTH_RESPONSE" | jq -r '.reranker.enabled // false')
         RERANKER_STATUS=$(echo "$HEALTH_RESPONSE" | jq -r '.reranker.status // "unknown"')
-        
+
         STATUS_COLOR=$GREEN
         if [ "$RERANKER_STATUS" != "ready" ] && [ "$RERANKER_STATUS" != "healthy" ]; then
             STATUS_COLOR=$YELLOW
         fi
-        
+
         echo -e "   Enabled: $RERANKER_ENABLED"
         echo -e "   Status: ${STATUS_COLOR}$RERANKER_STATUS${NC}"
-        
+
         RERANKER_STATS=$(echo "$HEALTH_RESPONSE" | jq '.reranker.stats // {}')
         if [ "$RERANKER_STATS" != "{}" ] && [ "$RERANKER_STATS" != "null" ]; then
             echo ""
@@ -82,4 +82,3 @@ fi
 
 echo ""
 echo -e "${GREEN}✅ Deployment check completed${NC}"
-

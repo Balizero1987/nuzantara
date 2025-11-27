@@ -1,6 +1,6 @@
 # 🧪 Post-Deploy Test Results - 2025-01-27
 
-**Test eseguiti su:** Servizi esistenti (pre-deploy)  
+**Test eseguiti su:** Servizi esistenti (pre-deploy)
 **Scopo:** Verificare stato attuale prima del nuovo deploy
 
 ---
@@ -122,7 +122,6 @@
 
 ---
 
-**Test eseguiti da:** Post-deploy test script  
-**Data:** 2025-01-27  
+**Test eseguiti da:** Post-deploy test script
+**Data:** 2025-01-27
 **Ambiente:** Production (servizi esistenti)
-

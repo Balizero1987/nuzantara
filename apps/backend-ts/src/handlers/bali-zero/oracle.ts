@@ -64,17 +64,17 @@ function getMultiTopicCollections(scenario: string, primaryService: ServiceKey):
   if (!detectMultiTopic(scenario)) {
     return [getCollectionForService(primaryService)];
   }
-  
+
   const lower = scenario.toLowerCase();
   const collections: string[] = [];
-  
+
   // Add collections based on detected topics (generic keywords only)
   if (lower.includes('visa') || lower.includes('permit') || lower.includes('immigration')) collections.push('visa_oracle');
   if (lower.includes('company') || lower.includes('business') || lower.includes('investment')) collections.push('company_oracle');
   if (lower.includes('tax') || lower.includes('pajak')) collections.push('tax_genius');
   if (lower.includes('legal') || lower.includes('hukum')) collections.push('legal_intelligence');
   if (lower.includes('property') || lower.includes('properti')) collections.push('property_knowledge');
-  
+
   // If no specific topics detected, use primary service collection
   return collections.length > 0 ? collections : [getCollectionForService(primaryService)];
 }
@@ -109,10 +109,10 @@ export async function oracleSimulate(params: OracleParams = {}) {
   const service = resolveService(params.service);
   const { urgencyFactor, complexityFactor, riskLevel, timelineMultiplier } =
     deriveAdjustments(params);
-  
+
   // Collection routing logic - determines which Qdrant collection to query
   const collection = getCollectionForService(service);
-  
+
   // All simulation data (success probabilities, timelines, checkpoints, accelerators, blockers)
   // are retrieved from RAG backend (Qdrant/PostgreSQL)
   return ok({
@@ -147,7 +147,7 @@ export async function oracleAnalyze(params: OracleParams = {}) {
 
   // Collection routing logic - determines which Qdrant collection to query
   const collection = getCollectionForService(service);
-  
+
   return ok({
     service: service,
     riskLevel,
@@ -169,11 +169,11 @@ export async function oraclePredict(params: OracleParams = {}) {
 
   const service = resolveService(params.service);
   const { urgencyFactor, complexityFactor } = deriveAdjustments(params);
-  
+
   // Collection routing logic - determines which Qdrant collection to query
   const collection = getCollectionForService(service);
-  
-  // All forecast data (timelines, success probabilities, checkpoints) 
+
+  // All forecast data (timelines, success probabilities, checkpoints)
   // are retrieved from RAG backend (Qdrant/PostgreSQL)
   return ok({
     service: service,

@@ -47,6 +47,12 @@ router.get('/database-status', async (_req: Request, res: Response) => {
   try {
     const { getDatabasePool } = await import('../../services/connection-pool.js');
     const db = getDatabasePool();
+    if (!db) {
+      return res.status(503).json({
+        ok: false,
+        error: 'Database pool not available',
+      });
+    }
 
     // Check if tables exist
     const tablesResult = await db.query(`

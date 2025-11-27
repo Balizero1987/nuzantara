@@ -8,7 +8,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   prettier,
-  
+
   // Configuration for TypeScript files (backend)
   {
     files: ['**/*.ts'],
@@ -26,7 +26,7 @@ export default tseslint.config(
       // TypeScript-specific rules can go here
     },
   },
-  
+
   // Configuration for JavaScript files in webapp (browser environment)
   {
     files: ['apps/webapp/**/*.js'],
@@ -45,7 +45,7 @@ export default tseslint.config(
       'no-undef': 'error',
     },
   },
-  
+
   // Configuration for test files in webapp (browser + Jest environment)
   {
     files: ['apps/webapp/**/*.test.js', 'apps/webapp/**/tests/**/*.js'],
@@ -64,7 +64,7 @@ export default tseslint.config(
       'no-undef': 'error',
     },
   },
-  
+
   // Configuration for other JavaScript files (Node.js environment)
   {
     files: ['**/*.js'],
@@ -77,7 +77,7 @@ export default tseslint.config(
       },
     },
   },
-  
+
   // Ignore patterns
   {
     ignores: [
@@ -93,4 +93,3 @@ export default tseslint.config(
     ],
   }
 );
-

@@ -14,12 +14,34 @@ import { logger } from '../logging/unified-logger.js';
 
 const router = Router();
 
+/**
+ * Get SSL configuration for PostgreSQL connection
+ * Fly.io requires SSL connections to PostgreSQL
+ */
+function getSSLConfig() {
+  const nodeEnv = process.env.NODE_ENV || 'production';
+
+  // For production (Fly.io), always use SSL with rejectUnauthorized: false
+  // Fly.io PostgreSQL uses self-signed certificates
+  if (nodeEnv === 'production') {
+    return { rejectUnauthorized: false };
+  }
+
+  // For development, check if DATABASE_URL contains sslmode
+  const databaseUrl = process.env.DATABASE_URL || '';
+  if (databaseUrl.includes('sslmode=require') || databaseUrl.includes('sslmode=prefer')) {
+    return { rejectUnauthorized: false };
+  }
+
+  return false;
+}
+
 // Database connection
 const pool = new Pool({
   connectionString:
     process.env.DATABASE_URL ||
     'postgres://postgres:password@nuzantara-postgres.internal:5432/zantara_db',
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: getSSLConfig(),
 });
 
 // Interface definitions
@@ -570,10 +592,19 @@ export const persistentMemoryManager = new PersistentMemoryManager();
  * Routes
  */
 
-// Initialize database on route load
-initializeDatabase().catch((error) => {
-  logger.error('Failed to initialize persistent memory database:', error instanceof Error ? error : new Error(String(error)));
-});
+// Initialize database on route load (non-blocking - don't crash if DB is unavailable)
+// This allows the server to start even if the database connection fails initially
+let dbInitialized = false;
+initializeDatabase()
+  .then(() => {
+    dbInitialized = true;
+    logger.info('✅ Persistent memory database initialized successfully');
+  })
+  .catch((error) => {
+    logger.error('⚠️ Failed to initialize persistent memory database:', error instanceof Error ? error : new Error(String(error)));
+    logger.warn('⚠️ Server will continue without persistent memory features. Database may become available later.');
+    // Don't throw - allow server to start without persistent memory
+  });
 
 /**
  * POST /api/persistent-memory/session

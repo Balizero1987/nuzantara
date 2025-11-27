@@ -1,6 +1,6 @@
 #!/bin/bash
 # Deployment script for Reranker Optimization (Zero-Downtime)
-# 
+#
 # Usage: ./deploy_reranker.sh [stage]
 # Stages: feature-flags | cache-10 | cache-50 | cache-100 | full | rollback
 
@@ -33,7 +33,7 @@ wait_for_health() {
     local url=${1:-"http://localhost:8000/health"}
     local max_attempts=30
     local attempt=0
-    
+
     echo "⏳ Waiting for service to be healthy..."
     while [ $attempt -lt $max_attempts ]; do
         if curl -sf "$url" > /dev/null 2>&1; then
@@ -44,7 +44,7 @@ wait_for_health() {
         echo "   Attempt $attempt/$max_attempts..."
         sleep 2
     done
-    
+
     echo -e "${RED}❌ Service health check failed after $max_attempts attempts${NC}"
     return 1
 }
@@ -64,7 +64,7 @@ case $STAGE in
         update_env "RERANKER_AUDIT_ENABLED" "true"
         echo "✅ Feature flags deployed (cache/batch disabled, audit enabled)"
         ;;
-    
+
     cache-10)
         echo -e "${YELLOW}Stage 2: Enabling cache for 10% traffic${NC}"
         update_env "RERANKER_CACHE_ENABLED" "true"
@@ -72,19 +72,19 @@ case $STAGE in
         echo "✅ Cache enabled (small size: 100 entries)"
         echo "📊 Monitor cache hit rate over next 10 minutes"
         ;;
-    
+
     cache-50)
         echo -e "${YELLOW}Stage 3: Scaling cache to 50% capacity${NC}"
         update_env "RERANKER_CACHE_SIZE" "500"
         echo "✅ Cache size increased to 500 entries"
         ;;
-    
+
     cache-100)
         echo -e "${YELLOW}Stage 4: Full cache capacity${NC}"
         update_env "RERANKER_CACHE_SIZE" "1000"
         echo "✅ Cache at full capacity (1000 entries)"
         ;;
-    
+
     full)
         echo -e "${YELLOW}Stage 5: Full rollout${NC}"
         update_env "RERANKER_CACHE_ENABLED" "true"
@@ -95,14 +95,14 @@ case $STAGE in
         update_env "RERANKER_RETURN_COUNT" "5"
         echo "✅ All features enabled"
         ;;
-    
+
     rollback)
         echo -e "${RED}Rollback: Disabling reranker optimizations${NC}"
         update_env "RERANKER_CACHE_ENABLED" "false"
         update_env "RERANKER_BATCH_ENABLED" "false"
         echo "✅ Reranker optimizations disabled (fallback to basic mode)"
         ;;
-    
+
     *)
         echo -e "${RED}Unknown stage: $STAGE${NC}"
         echo "Available stages: feature-flags | cache-10 | cache-50 | cache-100 | full | rollback"
@@ -129,4 +129,3 @@ check_reranker_stats
 echo ""
 echo -e "${GREEN}✅ Deployment stage '$STAGE' completed${NC}"
 echo "📊 Monitor metrics: ./scripts/monitor_reranker.sh"
-

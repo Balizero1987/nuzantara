@@ -1,5 +1,6 @@
 # ZANTARA TypeScript Backend - Production Dockerfile
 # Multi-stage build for minimal size and memory usage
+# FIXED: Uses bcryptjs (pure JS) to avoid Alpine native module crashes
 
 # --- Stage 1: Builder ---
 FROM node:20-alpine AS builder

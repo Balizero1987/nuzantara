@@ -32,7 +32,7 @@
 - `/api/notifications/status`
 - `/api/notifications/send`
 
-**Motivo:** 
+**Motivo:**
 - Endpoint non implementati nel backend
 - Notifiche gestite via WebSocket (vedi `websocket.ts`)
 
@@ -48,7 +48,7 @@
 - `/api/bali-zero/conversations/stats`
 - `/api/bali-zero/conversations/clear`
 
-**Motivo:** 
+**Motivo:**
 - Endpoint non implementati nel backend
 - Usare `/api/persistent-memory/*` o `memory-service` direttamente (vedi `conversation-client.js`)
 
@@ -135,7 +135,6 @@ La feature feedback è disabilitata ma l'UI funziona ancora:
 
 ---
 
-**Generato da:** Rimozione automatica endpoint non utilizzati  
-**Versione:** 1.0  
+**Generato da:** Rimozione automatica endpoint non utilizzati
+**Versione:** 1.0
 **Data:** 2025-01-27
-

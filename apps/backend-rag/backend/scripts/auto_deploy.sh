@@ -1,6 +1,6 @@
 #!/bin/bash
 # Automated deployment script - executes all stages with monitoring
-# 
+#
 # Usage: ./auto_deploy.sh [skip_checks]
 
 SKIP_CHECKS=${1:-false}
@@ -22,18 +22,18 @@ NC='\033[0m'
 # Check prerequisites
 if [ "$SKIP_CHECKS" != "true" ]; then
     echo "📋 Pre-deployment checks..."
-    
+
     # Check files exist
     if [ ! -f "services/reranker_service.py" ]; then
         echo -e "${RED}❌ reranker_service.py not found${NC}"
         exit 1
     fi
-    
+
     if [ ! -f "services/reranker_audit.py" ]; then
         echo -e "${RED}❌ reranker_audit.py not found${NC}"
         exit 1
     fi
-    
+
     echo -e "${GREEN}✅ All files present${NC}"
 fi
 
@@ -95,4 +95,3 @@ echo ""
 echo "📊 Start monitoring:"
 echo "   ./scripts/monitor_fly.sh 30"
 echo ""
-

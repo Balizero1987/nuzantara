@@ -42,7 +42,7 @@ build({
   external: [
     // Exclude dependencies that have native bindings or issues with bundling
     // We will install production dependencies in the Docker image
-    'bcrypt',
+    // 'bcrypt', // Removed: replaced with bcryptjs
     'bcryptjs',
     'sharp',
     '@opentelemetry/instrumentation',
@@ -62,17 +62,17 @@ build({
       import { createRequire } from 'module';
       import { fileURLToPath } from 'url';
       import { dirname } from 'path';
-      
+
       const require = createRequire(import.meta.url);
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = dirname(__filename);
-      
+
       try {
         console.log("🔥 BOOTSTRAP: Ultimate Bundle Starting...");
         console.log("[BOOTSTRAP] Node version:", process.version);
         console.log("[BOOTSTRAP] NODE_ENV:", process.env.NODE_ENV);
         console.log("[BOOTSTRAP] JWT_SECRET length:", process.env.JWT_SECRET?.length || 0);
-        
+
         // Global error handlers at the absolute top level
         process.on('uncaughtException', (err) => {
           console.error('🔥 FATAL UNCAUGHT EXCEPTION:', err);
@@ -90,7 +90,7 @@ build({
             process.exit(1);
           }, 2000);
         });
-        
+
         // Log when imports start
         console.log("[BOOTSTRAP] Starting module imports...");
       } catch (bannerError) {

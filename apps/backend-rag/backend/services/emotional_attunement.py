@@ -5,17 +5,17 @@ Detects emotional state from message content and adapts response tone/style.
 Integrates with CollaboratorService for personalized emotional preferences.
 """
 
-from typing import Dict, Optional, List
+import logging
+import re
 from dataclasses import dataclass
 from enum import Enum
-import re
-import logging
 
 logger = logging.getLogger(__name__)
 
 
 class EmotionalState(str, Enum):
     """Detected emotional states"""
+
     NEUTRAL = "neutral"
     STRESSED = "stressed"
     EXCITED = "excited"
@@ -35,6 +35,7 @@ class EmotionalState(str, Enum):
 
 class ToneStyle(str, Enum):
     """Response tone styles"""
+
     PROFESSIONAL = "professional"
     WARM = "warm"
     TECHNICAL = "technical"
@@ -46,11 +47,12 @@ class ToneStyle(str, Enum):
 @dataclass
 class EmotionalProfile:
     """Emotional analysis result"""
+
     detected_state: EmotionalState
     confidence: float  # 0.0 - 1.0
     suggested_tone: ToneStyle
     reasoning: str
-    detected_indicators: List[str]
+    detected_indicators: list[str]
 
 
 class EmotionalAttunementService:
@@ -68,12 +70,29 @@ class EmotionalAttunementService:
     # Emotional indicator patterns
     EMOTION_PATTERNS = {
         EmotionalState.STRESSED: {
-            "keywords": ["urgent", "asap", "emergency", "help", "problem", "issue", "stuck", "broken"],
+            "keywords": [
+                "urgent",
+                "asap",
+                "emergency",
+                "help",
+                "problem",
+                "issue",
+                "stuck",
+                "broken",
+            ],
             "patterns": [r"!!+", r"\?\?+", r"please.*urgent", r"need.*asap"],
             "caps_threshold": 0.3,  # 30% caps = stressed
         },
         EmotionalState.EXCITED: {
-            "keywords": ["amazing", "awesome", "fantastic", "great", "love", "perfect", "excellent"],
+            "keywords": [
+                "amazing",
+                "awesome",
+                "fantastic",
+                "great",
+                "love",
+                "perfect",
+                "excellent",
+            ],
             "patterns": [r"!+", r"wow", r"omg", r"yes+"],
             "caps_threshold": 0.2,
         },
@@ -109,13 +128,32 @@ class EmotionalAttunementService:
             "caps_threshold": 0.0,
         },
         EmotionalState.ANXIOUS: {
-            "keywords": ["anxious", "worried", "nervous", "scared", "afraid", "ansioso", "khawatir", "preoccupato"],
-            "patterns": [r"feel.*anxious", r"i'm.*worried", r"sono.*preoccupato", r"saya.*khawatir"],
+            "keywords": [
+                "anxious",
+                "worried",
+                "nervous",
+                "scared",
+                "afraid",
+                "ansioso",
+                "khawatir",
+                "preoccupato",
+            ],
+            "patterns": [
+                r"feel.*anxious",
+                r"i'm.*worried",
+                r"sono.*preoccupato",
+                r"saya.*khawatir",
+            ],
             "caps_threshold": 0.1,
         },
         EmotionalState.EMBARRASSED: {
             "keywords": ["embarrassed", "ashamed", "shy", "awkward", "imbarazzato", "malu"],
-            "patterns": [r"feel.*embarrassed", r"i'm.*embarrassed", r"sono.*imbarazzato", r"aku.*malu"],
+            "patterns": [
+                r"feel.*embarrassed",
+                r"i'm.*embarrassed",
+                r"sono.*imbarazzato",
+                r"aku.*malu",
+            ],
             "caps_threshold": 0.0,
         },
         EmotionalState.LONELY: {
@@ -130,9 +168,14 @@ class EmotionalAttunementService:
         },
         EmotionalState.WORRIED: {
             "keywords": ["worried", "concern", "anxious", "trouble", "preoccupato", "khawatir"],
-            "patterns": [r"worried about", r"concerned about", r"preoccupato per", r"khawatir tentang"],
+            "patterns": [
+                r"worried about",
+                r"concerned about",
+                r"preoccupato per",
+                r"khawatir tentang",
+            ],
             "caps_threshold": 0.1,
-        }
+        },
     }
 
     # Tone suggestions based on emotional state
@@ -168,9 +211,7 @@ class EmotionalAttunementService:
         logger.info("✅ EmotionalAttunementService initialized")
 
     def analyze_message(
-        self,
-        message: str,
-        collaborator_preferences: Optional[Dict] = None
+        self, message: str, collaborator_preferences: dict | None = None
     ) -> EmotionalProfile:
         """
         Analyze message to detect emotional state.
@@ -184,7 +225,7 @@ class EmotionalAttunementService:
         """
         message_lower = message.lower()
         detected_indicators = []
-        scores = {state: 0.0 for state in EmotionalState}
+        scores = dict.fromkeys(EmotionalState, 0.0)
 
         # 1. Check keyword matches
         for state, config in self.EMOTION_PATTERNS.items():
@@ -201,7 +242,9 @@ class EmotionalAttunementService:
                     detected_indicators.append(f"pattern:{pattern}")
 
         # 3. Check capitalization (stress indicator)
-        caps_ratio = sum(1 for c in message if c.isupper()) / len(message) if len(message) > 0 else 0
+        caps_ratio = (
+            sum(1 for c in message if c.isupper()) / len(message) if len(message) > 0 else 0
+        )
         for state, config in self.EMOTION_PATTERNS.items():
             if caps_ratio >= config.get("caps_threshold", 0):
                 scores[state] += caps_ratio * 2.0
@@ -236,7 +279,9 @@ class EmotionalAttunementService:
                 confidence = 1.0
                 reasoning = "Weak emotional indicators, defaulting to neutral"
             else:
-                reasoning = f"Detected via {len(detected_indicators)} indicators (score: {max_score:.1f})"
+                reasoning = (
+                    f"Detected via {len(detected_indicators)} indicators (score: {max_score:.1f})"
+                )
 
         # 6. Apply collaborator preferences (override if strong preference)
         suggested_tone = self.STATE_TO_TONE[detected_state]
@@ -268,7 +313,7 @@ class EmotionalAttunementService:
             confidence=confidence,
             suggested_tone=suggested_tone,
             reasoning=reasoning,
-            detected_indicators=detected_indicators
+            detected_indicators=detected_indicators,
         )
 
     def get_tone_prompt(self, tone_style: ToneStyle) -> str:
@@ -279,7 +324,7 @@ class EmotionalAttunementService:
         self,
         base_prompt: str,
         emotional_profile: EmotionalProfile,
-        collaborator_name: Optional[str] = None
+        collaborator_name: str | None = None,
     ) -> str:
         """
         Build enhanced system prompt with emotional attunement.
@@ -294,7 +339,7 @@ class EmotionalAttunementService:
         """
         tone_instruction = self.get_tone_prompt(emotional_profile.suggested_tone)
 
-        emotional_context = f"\n\n--- EMOTIONAL ATTUNEMENT ---\n"
+        emotional_context = "\n\n--- EMOTIONAL ATTUNEMENT ---\n"
 
         if collaborator_name:
             emotional_context += f"User: {collaborator_name}\n"
@@ -309,7 +354,9 @@ class EmotionalAttunementService:
         elif emotional_profile.detected_state == EmotionalState.CONFUSED:
             emotional_context += "\nNote: User appears confused. Break down your explanation into simple steps. Avoid jargon.\n"
         elif emotional_profile.detected_state == EmotionalState.URGENT:
-            emotional_context += "\nNote: User has urgent need. Be direct and solution-focused. Skip preamble.\n"
+            emotional_context += (
+                "\nNote: User has urgent need. Be direct and solution-focused. Skip preamble.\n"
+            )
         # PRIORITY 4: Guidance for empathetic emotional states
         elif emotional_profile.detected_state == EmotionalState.SAD:
             emotional_context += "\nNote: User appears sad. Show warmth, empathy, and gentle support. Avoid being overly cheerful.\n"
@@ -326,12 +373,12 @@ class EmotionalAttunementService:
 
         return base_prompt + emotional_context
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get service statistics"""
         return {
             "supported_states": len(EmotionalState),
             "supported_tones": len(ToneStyle),
             "emotion_patterns": len(self.EMOTION_PATTERNS),
             "states": [s.value for s in EmotionalState],
-            "tones": [t.value for t in ToneStyle]
+            "tones": [t.value for t in ToneStyle],
         }

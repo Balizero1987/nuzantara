@@ -10,12 +10,10 @@ Average cost per article: ~$0.0004
 """
 
 import os
-import json
 from datetime import datetime
 from typing import Dict, Any, Optional
 from pathlib import Path
 from loguru import logger
-import time
 
 # AI Clients
 import anthropic
@@ -32,10 +30,12 @@ class AIJournalGenerator:
         self,
         openrouter_api_key: Optional[str] = None,
         gemini_api_key: Optional[str] = None,
-        anthropic_api_key: Optional[str] = None
+        anthropic_api_key: Optional[str] = None,
     ):
         # API Keys
-        self.openrouter_key = openrouter_api_key or os.getenv("OPENROUTER_API_KEY_LLAMA")
+        self.openrouter_key = openrouter_api_key or os.getenv(
+            "OPENROUTER_API_KEY_LLAMA"
+        )
         self.gemini_key = gemini_api_key or os.getenv("GEMINI_API_KEY")
         self.anthropic_key = anthropic_api_key or os.getenv("ANTHROPIC_API_KEY")
 
@@ -45,7 +45,7 @@ class AIJournalGenerator:
 
         if self.gemini_key:
             genai.configure(api_key=self.gemini_key)
-            self.gemini_model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            self.gemini_model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
         # Metrics tracking
         self.metrics = {
@@ -53,19 +53,21 @@ class AIJournalGenerator:
             "llama_success": 0,
             "gemini_success": 0,
             "haiku_success": 0,
-            "total_cost_usd": 0.0
+            "total_cost_usd": 0.0,
         }
 
         # Cost per 1M tokens (input/output)
         self.costs = {
             "llama": (0.20, 0.20),
             "gemini": (0.075, 0.30),
-            "haiku": (1.00, 5.00)
+            "haiku": (1.00, 5.00),
         }
 
         logger.info("✅ AI Journal Generator initialized with 3-tier fallback")
 
-    def generate_with_llama(self, content: str, category: str, metadata: Dict) -> Optional[str]:
+    def generate_with_llama(
+        self, content: str, category: str, metadata: Dict
+    ) -> Optional[str]:
         """Generate article using Llama 4 Scout (PRIMARY - cheapest)"""
 
         if not self.openrouter_key:
@@ -82,29 +84,31 @@ class AIJournalGenerator:
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={
                     "Authorization": f"Bearer {self.openrouter_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
                 json={
                     "model": "meta-llama/llama-3.3-70b-instruct",
                     "messages": [{"role": "user", "content": prompt}],
                     "temperature": 0.7,
-                    "max_tokens": 2000
+                    "max_tokens": 2000,
                 },
-                timeout=60
+                timeout=60,
             )
 
             if response.status_code == 200:
                 result = response.json()
-                article = result['choices'][0]['message']['content']
+                article = result["choices"][0]["message"]["content"]
 
                 # Calculate cost
-                input_tokens = result['usage']['prompt_tokens']
-                output_tokens = result['usage']['completion_tokens']
-                cost = (input_tokens / 1_000_000 * self.costs['llama'][0] +
-                        output_tokens / 1_000_000 * self.costs['llama'][1])
+                input_tokens = result["usage"]["prompt_tokens"]
+                output_tokens = result["usage"]["completion_tokens"]
+                cost = (
+                    input_tokens / 1_000_000 * self.costs["llama"][0]
+                    + output_tokens / 1_000_000 * self.costs["llama"][1]
+                )
 
-                self.metrics['llama_success'] += 1
-                self.metrics['total_cost_usd'] += cost
+                self.metrics["llama_success"] += 1
+                self.metrics["total_cost_usd"] += cost
 
                 logger.success(f"✅ Llama generated article (Cost: ${cost:.6f})")
                 return article
@@ -116,7 +120,9 @@ class AIJournalGenerator:
             logger.error(f"❌ Llama error: {e}")
             return None
 
-    def generate_with_gemini(self, content: str, category: str, metadata: Dict) -> Optional[str]:
+    def generate_with_gemini(
+        self, content: str, category: str, metadata: Dict
+    ) -> Optional[str]:
         """Generate article using Gemini 2.0 Flash (FALLBACK 1)"""
 
         if not self.gemini_key:
@@ -135,11 +141,13 @@ class AIJournalGenerator:
                 # Estimate cost (Gemini doesn't provide exact token counts)
                 est_input_tokens = len(prompt.split()) * 1.3
                 est_output_tokens = len(article.split()) * 1.3
-                cost = (est_input_tokens / 1_000_000 * self.costs['gemini'][0] +
-                        est_output_tokens / 1_000_000 * self.costs['gemini'][1])
+                cost = (
+                    est_input_tokens / 1_000_000 * self.costs["gemini"][0]
+                    + est_output_tokens / 1_000_000 * self.costs["gemini"][1]
+                )
 
-                self.metrics['gemini_success'] += 1
-                self.metrics['total_cost_usd'] += cost
+                self.metrics["gemini_success"] += 1
+                self.metrics["total_cost_usd"] += cost
 
                 logger.success(f"✅ Gemini generated article (Est. cost: ${cost:.6f})")
                 return article
@@ -151,14 +159,18 @@ class AIJournalGenerator:
             logger.error(f"❌ Gemini error: {e}")
             return None
 
-    def generate_with_haiku(self, content: str, category: str, metadata: Dict) -> Optional[str]:
+    def generate_with_haiku(
+        self, content: str, category: str, metadata: Dict
+    ) -> Optional[str]:
         """Generate article using Claude Haiku (FALLBACK 2 - most expensive but reliable)"""
 
         if not self.anthropic_key:
             return None
 
         try:
-            logger.info("🎨 Attempting generation with Claude Haiku (final fallback)...")
+            logger.info(
+                "🎨 Attempting generation with Claude Haiku (final fallback)..."
+            )
 
             prompt = self._build_journal_prompt(content, category, metadata)
 
@@ -166,7 +178,7 @@ class AIJournalGenerator:
                 model="claude-3-5-haiku-20241022",
                 max_tokens=2000,
                 temperature=0.7,
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             article = response.content[0].text
@@ -174,11 +186,13 @@ class AIJournalGenerator:
             # Calculate cost
             input_tokens = response.usage.input_tokens
             output_tokens = response.usage.output_tokens
-            cost = (input_tokens / 1_000_000 * self.costs['haiku'][0] +
-                    output_tokens / 1_000_000 * self.costs['haiku'][1])
+            cost = (
+                input_tokens / 1_000_000 * self.costs["haiku"][0]
+                + output_tokens / 1_000_000 * self.costs["haiku"][1]
+            )
 
-            self.metrics['haiku_success'] += 1
-            self.metrics['total_cost_usd'] += cost
+            self.metrics["haiku_success"] += 1
+            self.metrics["total_cost_usd"] += cost
 
             logger.success(f"✅ Haiku generated article (Cost: ${cost:.6f})")
             return article
@@ -258,24 +272,25 @@ Transform the following scraped content into a professional, actionable journal 
         """
 
         # Read raw file
-        with open(raw_file, 'r', encoding='utf-8') as f:
+        with open(raw_file, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Extract metadata from frontmatter
         import re
-        metadata_match = re.search(r'---\n(.*?)\n---', content, re.DOTALL)
+
+        metadata_match = re.search(r"---\n(.*?)\n---", content, re.DOTALL)
 
         if metadata_match:
             metadata_str = metadata_match.group(1)
             metadata = {}
-            for line in metadata_str.split('\n'):
-                if ':' in line:
-                    key, value = line.split(':', 1)
+            for line in metadata_str.split("\n"):
+                if ":" in line:
+                    key, value = line.split(":", 1)
                     metadata[key.strip()] = value.strip()
         else:
             metadata = {}
 
-        category = metadata.get('category', 'general')
+        category = metadata.get("category", "general")
 
         logger.info(f"📝 Generating journal article for: {raw_file.name}")
 
@@ -294,10 +309,7 @@ Transform the following scraped content into a professional, actionable journal 
 
         if not article:
             logger.error("❌ All AI models failed to generate article")
-            return {
-                "success": False,
-                "error": "All AI models failed"
-            }
+            return {"success": False, "error": "All AI models failed"}
 
         # Save article
         output_category_dir = output_dir / category
@@ -317,10 +329,10 @@ ai_model: {"llama" if self.metrics['llama_success'] > 0 else "gemini" if self.me
 {article}
 """
 
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(final_article)
 
-        self.metrics['total_articles'] += 1
+        self.metrics["total_articles"] += 1
 
         logger.success(f"✅ Article saved: {output_file}")
 
@@ -328,27 +340,27 @@ ai_model: {"llama" if self.metrics['llama_success'] > 0 else "gemini" if self.me
             "success": True,
             "output_file": str(output_file),
             "category": category,
-            "metrics": self.get_metrics()
+            "metrics": self.get_metrics(),
         }
 
     def get_metrics(self) -> Dict:
         """Get generation metrics and cost savings"""
 
-        if self.metrics['total_articles'] == 0:
+        if self.metrics["total_articles"] == 0:
             return self.metrics
 
         # Calculate savings vs Haiku-only
-        haiku_only_cost = self.metrics['total_articles'] * 0.0042  # Avg Haiku cost
-        actual_cost = self.metrics['total_cost_usd']
+        haiku_only_cost = self.metrics["total_articles"] * 0.0042  # Avg Haiku cost
+        actual_cost = self.metrics["total_cost_usd"]
         savings = haiku_only_cost - actual_cost
         savings_pct = (savings / haiku_only_cost * 100) if haiku_only_cost > 0 else 0
 
         return {
             **self.metrics,
-            "avg_cost_per_article": actual_cost / self.metrics['total_articles'],
+            "avg_cost_per_article": actual_cost / self.metrics["total_articles"],
             "llama_success_rate": f"{self.metrics['llama_success'] / self.metrics['total_articles'] * 100:.1f}%",
             "total_savings_vs_haiku": f"${savings:.4f}",
-            "savings_percentage": f"{savings_pct:.1f}%"
+            "savings_percentage": f"{savings_pct:.1f}%",
         }
 
 
@@ -358,22 +370,23 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input', required=True, help='Input raw markdown file')
-    parser.add_argument('--output-dir', default='data/articles', help='Output directory')
+    parser.add_argument("--input", required=True, help="Input raw markdown file")
+    parser.add_argument(
+        "--output-dir", default="data/articles", help="Output directory"
+    )
 
     args = parser.parse_args()
 
     generator = AIJournalGenerator()
 
     result = generator.generate_article(
-        raw_file=Path(args.input),
-        output_dir=Path(args.output_dir)
+        raw_file=Path(args.input), output_dir=Path(args.output_dir)
     )
 
-    if result['success']:
+    if result["success"]:
         print(f"\n✅ Article generated: {result['output_file']}")
-        print(f"\n📊 Metrics:")
-        for key, value in result['metrics'].items():
+        print("\n📊 Metrics:")
+        for key, value in result["metrics"].items():
             print(f"  {key}: {value}")
     else:
         print(f"\n❌ Generation failed: {result['error']}")

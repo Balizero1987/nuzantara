@@ -8,7 +8,7 @@
 import type { Request, Response } from 'express';
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { ok } from '../../utils/response.js';
 import logger from '../../services/logger.js';
 

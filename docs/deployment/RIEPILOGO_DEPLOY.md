@@ -158,4 +158,3 @@ git push origin main
 ---
 
 **Status generale:** 🟡 **In Progress** - Ottimizzazioni completate, push in attesa risoluzione conflitti
-

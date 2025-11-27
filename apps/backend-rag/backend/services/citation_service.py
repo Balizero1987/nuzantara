@@ -11,8 +11,7 @@ Date: 2025-10-16
 
 import logging
 import re
-from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +30,6 @@ class CitationService:
     def __init__(self):
         """Initialize citation service"""
         logger.info("✅ CitationService initialized")
-
 
     def create_citation_instructions(self, sources_available: bool = False) -> str:
         """
@@ -66,8 +64,7 @@ Sources:
 """
         return instructions
 
-
-    def extract_sources_from_rag(self, rag_results: List[Dict]) -> List[Dict[str, Any]]:
+    def extract_sources_from_rag(self, rag_results: list[dict]) -> list[dict[str, Any]]:
         """
         Extract source metadata from RAG results
 
@@ -100,7 +97,7 @@ Sources:
                 "date": metadata.get("date", metadata.get("scraped_at", "")),
                 "type": "rag",
                 "score": doc.get("score", 0.0),
-                "category": metadata.get("category", "general")
+                "category": metadata.get("category", "general"),
             }
 
             sources.append(source)
@@ -108,8 +105,7 @@ Sources:
         logger.info(f"📚 [Citations] Extracted {len(sources)} sources from RAG")
         return sources
 
-
-    def format_sources_section(self, sources: List[Dict[str, Any]]) -> str:
+    def format_sources_section(self, sources: list[dict[str, Any]]) -> str:
         """
         Format sources into a readable "Sources:" section
 
@@ -155,11 +151,8 @@ Sources:
 
         return "\n".join(lines)
 
-
     def inject_citation_context_into_prompt(
-        self,
-        system_prompt: str,
-        sources: List[Dict[str, Any]]
+        self, system_prompt: str, sources: list[dict[str, Any]]
     ) -> str:
         """
         Inject citation instructions and source context into system prompt
@@ -190,8 +183,9 @@ Sources:
         logger.info(f"📝 [Citations] Injected {len(sources)} sources into prompt")
         return enhanced_prompt
 
-
-    def validate_citations_in_response(self, response_text: str, sources: List[Dict]) -> Dict[str, Any]:
+    def validate_citations_in_response(
+        self, response_text: str, sources: list[dict]
+    ) -> dict[str, Any]:
         """
         Validate that citations in response match available sources
 
@@ -210,7 +204,7 @@ Sources:
             }
         """
         # Extract citation numbers from response [1], [2], etc.
-        citation_pattern = r'\[(\d+)\]'
+        citation_pattern = r"\[(\d+)\]"
         found_citations = re.findall(citation_pattern, response_text)
         found_citations = [int(c) for c in found_citations]
         found_citations = list(set(found_citations))  # Remove duplicates
@@ -234,8 +228,8 @@ Sources:
             "stats": {
                 "total_citations": len(found_citations),
                 "total_sources": len(sources),
-                "citation_rate": len(found_citations) / len(sources) if sources else 0
-            }
+                "citation_rate": len(found_citations) / len(sources) if sources else 0,
+            },
         }
 
         if invalid_citations:
@@ -248,12 +242,11 @@ Sources:
 
         return result
 
-
     def append_sources_to_response(
         self,
         response_text: str,
-        sources: List[Dict[str, Any]],
-        validation_result: Optional[Dict] = None
+        sources: list[dict[str, Any]],
+        validation_result: dict | None = None,
     ) -> str:
         """
         Append formatted sources section to AI response
@@ -283,13 +276,9 @@ Sources:
         logger.info(f"📚 [Citations] Appended {len(sources)} sources to response")
         return enhanced_response
 
-
     def process_response_with_citations(
-        self,
-        response_text: str,
-        rag_results: Optional[List[Dict]] = None,
-        auto_append: bool = True
-    ) -> Dict[str, Any]:
+        self, response_text: str, rag_results: list[dict] | None = None, auto_append: bool = True
+    ) -> dict[str, Any]:
         """
         Complete citation processing workflow
 
@@ -317,21 +306,16 @@ Sources:
         # Append sources if requested
         final_response = response_text
         if auto_append and sources and validation["citations_found"]:
-            final_response = self.append_sources_to_response(
-                response_text,
-                sources,
-                validation
-            )
+            final_response = self.append_sources_to_response(response_text, sources, validation)
 
         return {
             "response": final_response,
             "sources": sources,
             "validation": validation,
-            "has_citations": len(validation["citations_found"]) > 0
+            "has_citations": len(validation["citations_found"]) > 0,
         }
 
-
-    def create_source_metadata_for_frontend(self, sources: List[Dict]) -> List[Dict]:
+    def create_source_metadata_for_frontend(self, sources: list[dict]) -> list[dict]:
         """
         Format source metadata for frontend display
 
@@ -355,19 +339,20 @@ Sources:
         frontend_sources = []
 
         for source in sources:
-            frontend_sources.append({
-                "id": source["id"],
-                "title": source.get("title", "Unknown Source"),
-                "url": source.get("url", ""),
-                "date": source.get("date", ""),
-                "type": source.get("type", "rag"),
-                "category": source.get("category", "general")
-            })
+            frontend_sources.append(
+                {
+                    "id": source["id"],
+                    "title": source.get("title", "Unknown Source"),
+                    "url": source.get("url", ""),
+                    "date": source.get("date", ""),
+                    "type": source.get("type", "rag"),
+                    "category": source.get("category", "general"),
+                }
+            )
 
         return frontend_sources
 
-
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """
         Health check for citation service
 
@@ -384,6 +369,6 @@ Sources:
                 "source_formatting": True,
                 "citation_validation": True,
                 "rag_integration": True,
-                "frontend_metadata": True
-            }
+                "frontend_metadata": True,
+            },
         }

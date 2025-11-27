@@ -3,13 +3,14 @@ ZANTARA RAG - Search Router
 Semantic search with tier-based access control
 """
 
-from fastapi import APIRouter, HTTPException
-from typing import List
-import time
 import logging
+import time
 
-from ..models import SearchQuery, SearchResponse, SearchResult, ChunkMetadata
+from fastapi import APIRouter, HTTPException
+
 from services.search_service import SearchService
+
+from ..models import ChunkMetadata, SearchQuery, SearchResponse, SearchResult
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/search", tags=["search"])
@@ -31,14 +32,13 @@ async def semantic_search(query: SearchQuery):
         start_time = time.time()
 
         # 🔍 DEBUG: Log incoming request
-        logger.info(f"🔍 DEBUG ROUTER - Received query: '{query.query}', collection={query.collection}, level={query.level}, limit={query.limit}")
+        logger.info(
+            f"🔍 DEBUG ROUTER - Received query: '{query.query}', collection={query.collection}, level={query.level}, limit={query.limit}"
+        )
 
         # Validate level
         if query.level < 0 or query.level > 3:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid access level. Must be 0-3."
-            )
+            raise HTTPException(status_code=400, detail="Invalid access level. Must be 0-3.")
 
         # Initialize search service
         search_service = SearchService()
@@ -49,11 +49,11 @@ async def semantic_search(query: SearchQuery):
             user_level=query.level,
             limit=query.limit,
             tier_filter=query.tier_filter,
-            collection_override=query.collection
+            collection_override=query.collection,
         )
 
         # Format results
-        search_results: List[SearchResult] = []
+        search_results: list[SearchResult] = []
 
         if raw_results["results"]["documents"]:
             for idx in range(len(raw_results["results"]["documents"])):
@@ -76,14 +76,12 @@ async def semantic_search(query: SearchQuery):
                     language=metadata_dict.get("language", "en"),
                     topics=metadata_dict.get("topics", []),
                     file_path=metadata_dict.get("file_path", ""),
-                    total_chunks=metadata_dict.get("total_chunks", 0)
+                    total_chunks=metadata_dict.get("total_chunks", 0),
                 )
 
                 # Create search result
                 result = SearchResult(
-                    text=text,
-                    metadata=metadata,
-                    similarity_score=round(similarity_score, 4)
+                    text=text, metadata=metadata, similarity_score=round(similarity_score, 4)
                 )
 
                 search_results.append(result)
@@ -100,15 +98,12 @@ async def semantic_search(query: SearchQuery):
             results=search_results,
             total_found=len(search_results),
             user_level=query.level,
-            execution_time_ms=round(execution_time, 2)
+            execution_time_ms=round(execution_time, 2),
         )
 
     except Exception as e:
         logger.error(f"Search error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Search failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
 
 
 @router.get("/health")
@@ -120,10 +115,7 @@ async def search_health():
             "status": "operational",
             "service": "search",
             "embeddings": "ready",
-            "vector_db": "connected"
+            "vector_db": "connected",
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Search service unhealthy: {str(e)}"
-        )
+        raise HTTPException(status_code=503, detail=f"Search service unhealthy: {str(e)}")

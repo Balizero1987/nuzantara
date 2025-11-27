@@ -11,14 +11,14 @@ export interface ZantaraRequest {
 }
 
 export class ZantaraRouter {
-  
+
   /**
    * Main entry point for Zantara Chat
    * Routes between "Nongkrong" (Chat) and "Daging" (Consulting) modes
    */
   async handleRequest(req: ZantaraRequest) {
     const { message, user_email = 'guest' } = req;
-    
+
     // 1. Retrieve Memory Context (Used for both modes)
     let memoryContext = '';
     try {
@@ -53,13 +53,13 @@ export class ZantaraRouter {
    */
   private async handleChatMode(message: string, memoryContext: string) {
     logger.info('💬 [MODE] Entering CHAT mode (Oracle Direct)');
-    
+
     const systemPrompt = `
     You are ZANTARA, a Senior Legal Consultant in Jakarta (SCBD).
-    
+
     CONTEXT (User Facts):
     ${memoryContext}
-    
+
     STYLE GUIDE:
     - Speak "Bahasa Jaksel" (Indo mixed with English terms like "Basically", "Which is").
     - Be chill, friendly, and professional. Like a smart colleague.
@@ -110,16 +110,16 @@ export class ZantaraRouter {
     // Step B: Style Transfer using Oracle (Zantara Jaksel)
     // Takes the boring legal answer and makes it "Jaksel"
     logger.info('🎨 [STYLE] Transferring style via Oracle...');
-    
+
     const stylePrompt = `
     TASK: Rewrite the following legal advice into "Bahasa Jaksel" style (SCBD Consultant).
-    
+
     RAW LEGAL INFO:
     "${ragResponse}"
-    
+
     USER CONTEXT:
     ${memoryContext}
-    
+
     GUIDELINES:
     - Keep all legal facts (prices, laws, dates) EXACTLY as they are.
     - Change the tone to: Professional, Chill, Smart.

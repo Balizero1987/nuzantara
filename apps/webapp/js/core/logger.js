@@ -4,7 +4,7 @@
  * Disables console.log in production, keeps console.error/warn
  */
 
-const isProduction = window.location.hostname !== 'localhost' && 
+const isProduction = window.location.hostname !== 'localhost' &&
                      !window.location.hostname.includes('127.0.0.1') &&
                      !window.location.hostname.includes('192.168.');
 
@@ -56,4 +56,3 @@ if (typeof window !== 'undefined') {
   window.Logger = Logger;
   window.logger = logger;
 }
-

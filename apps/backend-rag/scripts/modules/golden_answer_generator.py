@@ -10,11 +10,10 @@ For each query cluster:
 CRITICAL: LLAMA must ALWAYS use RAG legal docs as source of truth
 """
 
-import asyncpg
-import logging
-from typing import List, Dict, Optional
-from datetime import datetime
 import json
+import logging
+
+import asyncpg
 import httpx
 
 logger = logging.getLogger(__name__)
@@ -28,9 +27,9 @@ class GoldenAnswerGenerator:
     def __init__(
         self,
         database_url: str,
-        runpod_endpoint: Optional[str] = None,
-        runpod_api_key: Optional[str] = None,
-        rag_backend_url: Optional[str] = None
+        runpod_endpoint: str | None = None,
+        runpod_api_key: str | None = None,
+        rag_backend_url: str | None = None,
     ):
         """
         Initialize generator
@@ -45,16 +44,13 @@ class GoldenAnswerGenerator:
         self.runpod_endpoint = runpod_endpoint
         self.runpod_api_key = runpod_api_key
         self.rag_backend_url = rag_backend_url
-        self.pool: Optional[asyncpg.Pool] = None
+        self.pool: asyncpg.Pool | None = None
 
     async def connect(self):
         """Initialize PostgreSQL connection pool"""
         try:
             self.pool = await asyncpg.create_pool(
-                self.database_url,
-                min_size=2,
-                max_size=10,
-                command_timeout=60
+                self.database_url, min_size=2, max_size=10, command_timeout=60
             )
             logger.info("✅ GoldenAnswerGenerator connected to PostgreSQL")
         except Exception as e:
@@ -69,9 +65,9 @@ class GoldenAnswerGenerator:
 
     async def generate_golden_answer(
         self,
-        cluster: 'QueryCluster',  # From query_clustering.py
-        user_id: str = "system"
-    ) -> Optional[Dict]:
+        cluster: "QueryCluster",  # From query_clustering.py
+        user_id: str = "system",
+    ) -> dict | None:
         """
         Generate golden answer for a query cluster
 
@@ -86,10 +82,7 @@ class GoldenAnswerGenerator:
 
         try:
             # Step 1: Query RAG for relevant documents
-            rag_results = await self._query_rag(
-                query=cluster.canonical_question,
-                user_id=user_id
-            )
+            rag_results = await self._query_rag(query=cluster.canonical_question, user_id=user_id)
 
             if not rag_results:
                 logger.warning(f"⚠️ No RAG results found for: {cluster.canonical_question}")
@@ -102,7 +95,7 @@ class GoldenAnswerGenerator:
             answer_data = await self._generate_with_llama(
                 canonical_question=cluster.canonical_question,
                 variations=cluster.variations,
-                rag_context=context
+                rag_context=context,
             )
 
             if not answer_data:
@@ -114,9 +107,9 @@ class GoldenAnswerGenerator:
                 cluster_id=cluster.cluster_id,
                 canonical_question=cluster.canonical_question,
                 variations=cluster.variations,
-                answer=answer_data['answer'],
+                answer=answer_data["answer"],
                 sources=rag_results[:5],  # Top 5 sources
-                confidence=answer_data.get('confidence', 0.8)
+                confidence=answer_data.get("confidence", 0.8),
             )
 
             logger.info(f"✅ Golden answer generated: {cluster.cluster_id}")
@@ -124,22 +117,17 @@ class GoldenAnswerGenerator:
             return {
                 "cluster_id": cluster.cluster_id,
                 "canonical_question": cluster.canonical_question,
-                "answer": answer_data['answer'],
+                "answer": answer_data["answer"],
                 "sources": rag_results[:5],
-                "confidence": answer_data.get('confidence', 0.8),
-                "tokens_used": answer_data.get('tokens_used', 0)
+                "confidence": answer_data.get("confidence", 0.8),
+                "tokens_used": answer_data.get("tokens_used", 0),
             }
 
         except Exception as e:
             logger.error(f"❌ Failed to generate golden answer: {e}")
             return None
 
-    async def _query_rag(
-        self,
-        query: str,
-        user_id: str = "system",
-        limit: int = 5
-    ) -> List[Dict]:
+    async def _query_rag(self, query: str, user_id: str = "system", limit: int = 5) -> list[dict]:
         """
         Query RAG/vector DB for relevant documents
 
@@ -159,11 +147,7 @@ class GoldenAnswerGenerator:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
                     f"{self.rag_backend_url}/search",
-                    json={
-                        "query": query,
-                        "user_id": user_id,
-                        "limit": limit
-                    }
+                    json={"query": query, "user_id": user_id, "limit": limit},
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -177,7 +161,7 @@ class GoldenAnswerGenerator:
             logger.error(f"❌ RAG query failed: {e}")
             return []
 
-    def _build_rag_context(self, rag_results: List[Dict]) -> str:
+    def _build_rag_context(self, rag_results: list[dict]) -> str:
         """
         Build context string from RAG documents
 
@@ -190,10 +174,10 @@ class GoldenAnswerGenerator:
         context_parts = []
 
         for i, result in enumerate(rag_results, 1):
-            content = result.get('content', '')
-            metadata = result.get('metadata', {})
-            title = metadata.get('title', f'Document {i}')
-            source_url = metadata.get('source_url', '')
+            content = result.get("content", "")
+            metadata = result.get("metadata", {})
+            title = metadata.get("title", f"Document {i}")
+            source_url = metadata.get("source_url", "")
 
             context_parts.append(f"### Source {i}: {title}")
             if source_url:
@@ -204,11 +188,8 @@ class GoldenAnswerGenerator:
         return "\n".join(context_parts)
 
     async def _generate_with_llama(
-        self,
-        canonical_question: str,
-        variations: List[str],
-        rag_context: str
-    ) -> Optional[Dict]:
+        self, canonical_question: str, variations: list[str], rag_context: str
+    ) -> dict | None:
         """
         Generate comprehensive answer using LLAMA 3.1
 
@@ -259,16 +240,16 @@ Generate the FAQ answer now:"""
                     f"{self.runpod_endpoint}/runsync",
                     headers={
                         "Authorization": f"Bearer {self.runpod_api_key}",
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
                     json={
                         "input": {
                             "prompt": prompt,
                             "max_tokens": 800,
                             "temperature": 0.3,
-                            "top_p": 0.9
+                            "top_p": 0.9,
                         }
-                    }
+                    },
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -285,12 +266,14 @@ Generate the FAQ answer now:"""
                     usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0)
                 )
 
-                logger.info(f"✅ LLAMA generated answer ({len(answer_text)} chars, {tokens_used} tokens)")
+                logger.info(
+                    f"✅ LLAMA generated answer ({len(answer_text)} chars, {tokens_used} tokens)"
+                )
 
                 return {
                     "answer": answer_text.strip(),
                     "confidence": 0.85,  # Default confidence
-                    "tokens_used": tokens_used
+                    "tokens_used": tokens_used,
                 }
 
         except httpx.TimeoutException:
@@ -304,10 +287,10 @@ Generate the FAQ answer now:"""
         self,
         cluster_id: str,
         canonical_question: str,
-        variations: List[str],
+        variations: list[str],
         answer: str,
-        sources: List[Dict],
-        confidence: float
+        sources: list[dict],
+        confidence: float,
     ):
         """
         Save golden answer to PostgreSQL
@@ -326,16 +309,17 @@ Generate the FAQ answer now:"""
         # Format sources as JSONB
         sources_json = [
             {
-                "title": s.get('metadata', {}).get('title', 'Unknown'),
-                "url": s.get('metadata', {}).get('source_url', ''),
-                "score": s.get('score', 0.0)
+                "title": s.get("metadata", {}).get("title", "Unknown"),
+                "url": s.get("metadata", {}).get("source_url", ""),
+                "score": s.get("score", 0.0),
             }
             for s in sources
         ]
 
         try:
             async with self.pool.acquire() as conn:
-                await conn.execute("""
+                await conn.execute(
+                    """
                     INSERT INTO golden_answers (
                         cluster_id,
                         canonical_question,
@@ -363,7 +347,7 @@ Generate the FAQ answer now:"""
                     json.dumps(sources_json),
                     "llama-3.1-zantara",
                     "llama_rag",
-                    confidence
+                    confidence,
                 )
 
             logger.info(f"✅ Saved golden answer: {cluster_id}")
@@ -373,10 +357,8 @@ Generate the FAQ answer now:"""
             raise
 
     async def batch_generate_golden_answers(
-        self,
-        clusters: List['QueryCluster'],
-        limit: Optional[int] = None
-    ) -> Dict:
+        self, clusters: list["QueryCluster"], limit: int | None = None
+    ) -> dict:
         """
         Generate golden answers for multiple clusters
 
@@ -397,7 +379,7 @@ Generate the FAQ answer now:"""
             "successful": 0,
             "failed": 0,
             "skipped": 0,
-            "tokens_used": 0
+            "tokens_used": 0,
         }
 
         for i, cluster in enumerate(clusters, 1):
@@ -418,9 +400,10 @@ Generate the FAQ answer now:"""
 
             # Rate limiting (avoid LLAMA throttling)
             import asyncio
+
             await asyncio.sleep(5)
 
-        logger.info(f"✅ Batch generation complete:")
+        logger.info("✅ Batch generation complete:")
         logger.info(f"   Successful: {stats['successful']}")
         logger.info(f"   Failed: {stats['failed']}")
         logger.info(f"   Tokens used: {stats['tokens_used']}")
@@ -432,6 +415,7 @@ Generate the FAQ answer now:"""
 async def test_generator():
     """Test golden answer generator"""
     import os
+
     from query_clustering import QueryCluster
 
     database_url = os.getenv("DATABASE_URL")
@@ -447,7 +431,7 @@ async def test_generator():
         database_url=database_url,
         runpod_endpoint=runpod_endpoint,
         runpod_api_key=runpod_api_key,
-        rag_backend_url=rag_backend_url
+        rag_backend_url=rag_backend_url,
     )
 
     # Test cluster
@@ -457,11 +441,11 @@ async def test_generator():
         variations=[
             "How to get KITAS in Indonesia?",
             "KITAS requirements?",
-            "What is needed for KITAS?"
+            "What is needed for KITAS?",
         ],
         query_hashes=["hash1", "hash2", "hash3"],
         avg_similarity=0.85,
-        total_frequency=15
+        total_frequency=15,
     )
 
     try:
@@ -473,11 +457,11 @@ async def test_generator():
         result = await generator.generate_golden_answer(test_cluster)
 
         if result:
-            print(f"\n✅ SUCCESS!")
+            print("\n✅ SUCCESS!")
             print(f"Cluster ID: {result['cluster_id']}")
             print(f"Question: {result['canonical_question']}")
             print(f"\nAnswer ({len(result['answer'])} chars):")
-            print(result['answer'][:500] + "...")
+            print(result["answer"][:500] + "...")
             print(f"\nSources: {len(result['sources'])}")
             print(f"Confidence: {result['confidence']}")
         else:
@@ -489,4 +473,5 @@ async def test_generator():
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(test_generator())

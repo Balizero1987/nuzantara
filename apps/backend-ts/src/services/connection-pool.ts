@@ -23,6 +23,7 @@ export interface PoolConfig {
   min?: number;
   idleTimeoutMillis?: number;
   connectionTimeoutMillis?: number;
+  ssl?: boolean | { rejectUnauthorized: boolean };
 }
 
 export class DatabaseConnectionPool {
@@ -38,6 +39,7 @@ export class DatabaseConnectionPool {
       min: config.min || 5,
       idleTimeoutMillis: config.idleTimeoutMillis || 30000,
       connectionTimeoutMillis: config.connectionTimeoutMillis || 5000,
+      // SSL config is passed through from initializeDatabasePool
     };
   }
 
@@ -238,14 +240,37 @@ let dbPool: DatabaseConnectionPool | null = null;
 /**
  * Initialize database connection pool
  */
-export async function initializeDatabasePool(): Promise<DatabaseConnectionPool> {
+/**
+ * Get SSL configuration for PostgreSQL connection
+ * Fly.io requires SSL connections to PostgreSQL
+ */
+function getSSLConfig() {
+  const nodeEnv = process.env.NODE_ENV || 'production';
+
+  // For production (Fly.io), always use SSL with rejectUnauthorized: false
+  // Fly.io PostgreSQL uses self-signed certificates
+  if (nodeEnv === 'production') {
+    return { rejectUnauthorized: false };
+  }
+
+  // For development, check if DATABASE_URL contains sslmode
+  const databaseUrl = process.env.DATABASE_URL || '';
+  if (databaseUrl.includes('sslmode=require') || databaseUrl.includes('sslmode=prefer')) {
+    return { rejectUnauthorized: false };
+  }
+
+  return false;
+}
+
+export async function initializeDatabasePool(): Promise<DatabaseConnectionPool | null> {
   if (dbPool) {
     return dbPool;
   }
 
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
-    throw new Error('DATABASE_URL environment variable is not set');
+    logger.warn('DATABASE_URL not set - database features disabled');
+    return null;
   }
 
   dbPool = new DatabaseConnectionPool({
@@ -254,7 +279,8 @@ export async function initializeDatabasePool(): Promise<DatabaseConnectionPool> 
     min: Number.parseInt(process.env.DB_POOL_MIN || '5', 10),
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
-  });
+    ssl: getSSLConfig(),
+  } as any);
 
   await dbPool.initialize();
   return dbPool;
@@ -263,9 +289,6 @@ export async function initializeDatabasePool(): Promise<DatabaseConnectionPool> 
 /**
  * Get database connection pool
  */
-export function getDatabasePool(): DatabaseConnectionPool {
-  if (!dbPool) {
-    throw new Error('Database pool not initialized. Call initializeDatabasePool() first.');
-  }
-  return dbPool;
+export function getDatabasePool(): DatabaseConnectionPool | null {
+  return dbPool || null;
 }

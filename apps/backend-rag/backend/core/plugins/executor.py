@@ -4,15 +4,16 @@ Plugin Executor
 Executes plugins with performance monitoring, caching, rate limiting, and error handling.
 """
 
+import asyncio
+import hashlib
+import json
+import logging
+import time
+from collections import defaultdict
+from typing import Any
+
 from .plugin import Plugin, PluginInput, PluginOutput
 from .registry import registry
-import time
-import asyncio
-from typing import Optional, Dict, Any
-from collections import defaultdict
-import logging
-import json
-import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ class PluginExecutor:
         )
     """
 
-    def __init__(self, redis_client: Optional[Any] = None):
+    def __init__(self, redis_client: Any | None = None):
         """
         Initialize executor
 
@@ -63,10 +64,10 @@ class PluginExecutor:
     async def execute(
         self,
         plugin_name: str,
-        input_data: Dict[str, Any],
+        input_data: dict[str, Any],
         use_cache: bool = True,
-        user_id: Optional[str] = None,
-        timeout: Optional[float] = None,
+        user_id: str | None = None,
+        timeout: float | None = None,
         retry_count: int = 0,
     ) -> PluginOutput:
         """
@@ -86,9 +87,7 @@ class PluginExecutor:
         # Get plugin
         plugin = registry.get(plugin_name)
         if not plugin:
-            return PluginOutput(
-                success=False, error=f"Plugin {plugin_name} not found"
-            )
+            return PluginOutput(success=False, error=f"Plugin {plugin_name} not found")
 
         # Check circuit breaker
         if self._is_circuit_broken(plugin_name):
@@ -99,9 +98,7 @@ class PluginExecutor:
 
         # Check rate limit
         if plugin.metadata.rate_limit:
-            if not await self._check_rate_limit(
-                plugin_name, plugin.metadata.rate_limit, user_id
-            ):
+            if not await self._check_rate_limit(plugin_name, plugin.metadata.rate_limit, user_id):
                 return PluginOutput(
                     success=False,
                     error=f"Rate limit exceeded for {plugin_name}",
@@ -116,9 +113,7 @@ class PluginExecutor:
         try:
             validated_input = plugin.input_schema(**input_data)
         except Exception as e:
-            return PluginOutput(
-                success=False, error=f"Input validation failed: {str(e)}"
-            )
+            return PluginOutput(success=False, error=f"Input validation failed: {str(e)}")
 
         # Check cache
         if use_cache and self.redis:
@@ -132,9 +127,7 @@ class PluginExecutor:
         # Execute with retry
         for attempt in range(retry_count + 1):
             try:
-                result = await self._execute_with_monitoring(
-                    plugin, validated_input, timeout
-                )
+                result = await self._execute_with_monitoring(plugin, validated_input, timeout)
 
                 # Cache if successful
                 if result.success and use_cache and self.redis:
@@ -153,7 +146,7 @@ class PluginExecutor:
 
                 if attempt < retry_count:
                     # Wait before retry with exponential backoff
-                    wait_time = 2 ** attempt
+                    wait_time = 2**attempt
                     logger.info(f"Retrying {plugin_name} in {wait_time}s...")
                     await asyncio.sleep(wait_time)
                 else:
@@ -165,7 +158,7 @@ class PluginExecutor:
                     )
 
     async def _execute_with_monitoring(
-        self, plugin: Plugin, input_data: PluginInput, timeout: Optional[float] = None
+        self, plugin: Plugin, input_data: PluginInput, timeout: float | None = None
     ) -> PluginOutput:
         """
         Execute plugin with monitoring
@@ -193,9 +186,7 @@ class PluginExecutor:
             # Execute with timeout
             execution_timeout = timeout or (plugin.metadata.estimated_time * 2)
 
-            output = await asyncio.wait_for(
-                plugin.execute(input_data), timeout=execution_timeout
-            )
+            output = await asyncio.wait_for(plugin.execute(input_data), timeout=execution_timeout)
 
             # Record metrics
             execution_time = time.time() - start_time
@@ -225,7 +216,7 @@ class PluginExecutor:
             raise
 
     async def _check_rate_limit(
-        self, plugin_name: str, limit: int, user_id: Optional[str] = None
+        self, plugin_name: str, limit: int, user_id: str | None = None
     ) -> bool:
         """
         Check if plugin has exceeded rate limit
@@ -257,8 +248,8 @@ class PluginExecutor:
         return True
 
     async def _get_cached(
-        self, plugin_name: str, input_data: Dict[str, Any]
-    ) -> Optional[PluginOutput]:
+        self, plugin_name: str, input_data: dict[str, Any]
+    ) -> PluginOutput | None:
         """
         Get cached result if exists
 
@@ -284,7 +275,7 @@ class PluginExecutor:
         return None
 
     async def _cache_result(
-        self, plugin_name: str, input_data: Dict[str, Any], output: PluginOutput
+        self, plugin_name: str, input_data: dict[str, Any], output: PluginOutput
     ):
         """
         Cache execution result
@@ -305,9 +296,7 @@ class PluginExecutor:
         except Exception as e:
             logger.error(f"Cache write error: {e}")
 
-    def _generate_cache_key(
-        self, plugin_name: str, input_data: Dict[str, Any]
-    ) -> str:
+    def _generate_cache_key(self, plugin_name: str, input_data: dict[str, Any]) -> str:
         """
         Generate cache key from plugin name and input
 
@@ -369,7 +358,7 @@ class PluginExecutor:
 
         return False
 
-    def get_metrics(self, plugin_name: str) -> Dict[str, Any]:
+    def get_metrics(self, plugin_name: str) -> dict[str, Any]:
         """
         Get plugin metrics
 
@@ -398,7 +387,7 @@ class PluginExecutor:
 
         return metrics
 
-    def get_all_metrics(self) -> Dict[str, Dict[str, Any]]:
+    def get_all_metrics(self) -> dict[str, dict[str, Any]]:
         """
         Get metrics for all plugins
 

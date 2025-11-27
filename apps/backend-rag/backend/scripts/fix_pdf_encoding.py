@@ -13,10 +13,11 @@ Usage:
     python scripts/fix_pdf_encoding.py
 """
 
-import pymupdf  # pip install pymupdf
-from pathlib import Path
 import sys
-import os
+from pathlib import Path
+
+import pymupdf  # pip install pymupdf
+
 
 def fix_pdf_encoding():
     """Extract clean text from PDFs and save as .txt for re-ingestion"""
@@ -27,11 +28,11 @@ def fix_pdf_encoding():
     # Create kb/ directory if it doesn't exist
     if not kb_dir.exists():
         print(f"⚠️  Directory KB non trovata: {kb_dir}")
-        print(f"🔧 Creazione directory...")
+        print("🔧 Creazione directory...")
         kb_dir.mkdir(parents=True, exist_ok=True)
         print(f"✅ Directory creata: {kb_dir}")
         print(f"\n📌 Copia i tuoi PDF in: {kb_dir}")
-        print(f"   Poi riesegui questo script.\n")
+        print("   Poi riesegui questo script.\n")
         return
 
     # Find PDF files
@@ -39,7 +40,7 @@ def fix_pdf_encoding():
     if not pdf_files:
         print(f"❌ Nessun PDF trovato in {kb_dir}")
         print(f"\n📌 Copia i tuoi PDF in: {kb_dir}")
-        print(f"   Poi riesegui questo script.\n")
+        print("   Poi riesegui questo script.\n")
         return
 
     print(f"📄 Trovati {len(pdf_files)} PDF da processare\n")
@@ -65,8 +66,8 @@ def fix_pdf_encoding():
             doc.close()
 
             # Save as .txt with UTF-8 encoding
-            txt_path = pdf_path.with_suffix('.txt')
-            txt_path.write_text(text, encoding='utf-8')
+            txt_path = pdf_path.with_suffix(".txt")
+            txt_path.write_text(text, encoding="utf-8")
 
             chars = len(text)
             total_chars += chars
@@ -81,7 +82,7 @@ def fix_pdf_encoding():
 
     # Summary
     print(f"\n{'='*60}")
-    print(f"📊 SUMMARY:")
+    print("📊 SUMMARY:")
     print(f"{'='*60}")
     print(f"  ✅ Successi:     {success_count}/{len(pdf_files)}")
     print(f"  ❌ Errori:       {error_count}/{len(pdf_files)}")
@@ -90,25 +91,26 @@ def fix_pdf_encoding():
     print(f"{'='*60}\n")
 
     if success_count > 0:
-        print(f"✅ PDF processati con successo!")
-        print(f"\n📋 PROSSIMI STEP:")
-        print(f"1. Verifica i file .txt generati:")
+        print("✅ PDF processati con successo!")
+        print("\n📋 PROSSIMI STEP:")
+        print("1. Verifica i file .txt generati:")
         print(f"   ls -lh {kb_dir}/*.txt")
-        print(f"\n2. (Opzionale) Backup Qdrant esistente:")
-        print(f"   cp -r chroma_db chroma_db.backup_$(date +%Y%m%d_%H%M%S)")
-        print(f"\n3. Re-ingest la knowledge base:")
-        print(f"   python scripts/run_ingestion.py")
-        print(f"\n4. Riavvia il backend:")
-        print(f"   uvicorn app.main:app --reload --port 8000")
+        print("\n2. (Opzionale) Backup Qdrant esistente:")
+        print("   cp -r chroma_db chroma_db.backup_$(date +%Y%m%d_%H%M%S)")
+        print("\n3. Re-ingest la knowledge base:")
+        print("   python scripts/run_ingestion.py")
+        print("\n4. Riavvia il backend:")
+        print("   uvicorn app.main:app --reload --port 8000")
         print()
     else:
-        print(f"⚠️  Nessun PDF processato con successo.")
-        print(f"   Verifica che i PDF siano validi e leggibili.\n")
+        print("⚠️  Nessun PDF processato con successo.")
+        print("   Verifica che i PDF siano validi e leggibili.\n")
+
 
 if __name__ == "__main__":
-    print("="*60)
+    print("=" * 60)
     print("🔧 PDF Encoding Fix Tool")
-    print("="*60)
+    print("=" * 60)
     print("Questo script estrae testo pulito da PDF per risolvere")
     print("problemi di encoding nella knowledge base.\n")
 
@@ -120,5 +122,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ ERRORE FATALE: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

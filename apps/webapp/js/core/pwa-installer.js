@@ -202,15 +202,15 @@ class PWAInstaller {
           <div style="font-size: 14px; opacity: 0.95; margin-bottom: 12px;">
             A new version of ZANTARA is available.
           </div>
-          <button onclick="window.location.reload()" 
-                  style="background: white; color: #3b82f6; border: none; 
-                         padding: 8px 16px; border-radius: 6px; font-weight: 600; 
+          <button onclick="window.location.reload()"
+                  style="background: white; color: #3b82f6; border: none;
+                         padding: 8px 16px; border-radius: 6px; font-weight: 600;
                          cursor: pointer; font-size: 13px;">
             Reload Now
           </button>
         </div>
-        <button onclick="this.parentElement.parentElement.remove()" 
-                style="background: none; border: none; color: white; 
+        <button onclick="this.parentElement.parentElement.remove()"
+                style="background: none; border: none; color: white;
                        cursor: pointer; font-size: 24px; padding: 0;">
           ×
         </button>
@@ -271,7 +271,7 @@ style.textContent = `
       opacity: 1;
     }
   }
-  
+
   @keyframes slideInRight {
     from {
       transform: translateX(400px);

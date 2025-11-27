@@ -1,6 +1,6 @@
 /**
  * Lazy Loader Utility
- * 
+ *
  * Provides dynamic import functionality for loading modules on-demand.
  * This improves initial page load performance by deferring non-critical modules.
  */
@@ -61,7 +61,7 @@ export async function loadClient(modulePath, globalName, initCallback = null) {
 
   try {
     const module = await loadModule(modulePath);
-    
+
     // Store in global scope if it exports a default
     if (module.default) {
       window[globalName] = module.default;
@@ -89,4 +89,3 @@ export default {
   isModuleLoaded,
   loadClient
 };
-

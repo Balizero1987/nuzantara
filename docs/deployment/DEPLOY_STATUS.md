@@ -8,7 +8,7 @@
 
 **Status:** ⚠️ Push bloccato da conflitti di merge
 
-**Problema:** 
+**Problema:**
 - Branch remoto ha modifiche non presenti localmente
 - Conflitti di merge su molti file
 - Errore permessi workflow (OAuth scope)
@@ -40,7 +40,7 @@
    git rm apps/backend-ts/src/handlers/bali-zero/kbli.ts
    git rm apps/backend-ts/src/services/kbli-external.ts
    # ... altri file eliminati
-   
+
    # Risolvere conflitti file modificati
    # Poi: git add . && git commit
    ```
@@ -56,4 +56,3 @@
 ---
 
 **Nota:** I test possono essere eseguiti anche manualmente sui servizi esistenti mentre si risolvono i conflitti.
-

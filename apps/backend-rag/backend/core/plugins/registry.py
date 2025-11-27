@@ -4,13 +4,13 @@ Plugin Registry
 Central registry for all plugins. Handles loading, discovery, versioning, and lifecycle.
 """
 
-from typing import Dict, List, Optional, Type
-from .plugin import Plugin, PluginMetadata, PluginCategory
+import asyncio
 import importlib
 import inspect
-from pathlib import Path
 import logging
-import asyncio
+from pathlib import Path
+
+from .plugin import Plugin, PluginCategory, PluginMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -35,16 +35,14 @@ class PluginRegistry:
     """
 
     def __init__(self):
-        self._plugins: Dict[str, Plugin] = {}
-        self._metadata: Dict[str, PluginMetadata] = {}
-        self._versions: Dict[str, List[str]] = {}  # name -> [versions]
-        self._aliases: Dict[str, str] = {}  # alias -> canonical_name
+        self._plugins: dict[str, Plugin] = {}
+        self._metadata: dict[str, PluginMetadata] = {}
+        self._versions: dict[str, list[str]] = {}  # name -> [versions]
+        self._aliases: dict[str, str] = {}  # alias -> canonical_name
         self._lock = asyncio.Lock()
         logger.info("Initialized PluginRegistry")
 
-    async def register(
-        self, plugin_class: Type[Plugin], config: Optional[Dict] = None
-    ) -> Plugin:
+    async def register(self, plugin_class: type[Plugin], config: dict | None = None) -> Plugin:
         """
         Register a plugin instance
 
@@ -105,8 +103,8 @@ class PluginRegistry:
             return plugin
 
     async def register_batch(
-        self, plugin_classes: List[Type[Plugin]], config: Optional[Dict] = None
-    ) -> List[Plugin]:
+        self, plugin_classes: list[type[Plugin]], config: dict | None = None
+    ) -> list[Plugin]:
         """
         Register multiple plugins in batch
 
@@ -146,13 +144,11 @@ class PluginRegistry:
                 del self._metadata[name]
 
                 # Remove aliases
-                self._aliases = {
-                    k: v for k, v in self._aliases.items() if v != name
-                }
+                self._aliases = {k: v for k, v in self._aliases.items() if v != name}
 
                 logger.info(f"Unregistered plugin: {name}")
 
-    def get(self, name: str) -> Optional[Plugin]:
+    def get(self, name: str) -> Plugin | None:
         """
         Get plugin by name or alias
 
@@ -173,7 +169,7 @@ class PluginRegistry:
 
         return None
 
-    def get_metadata(self, name: str) -> Optional[PluginMetadata]:
+    def get_metadata(self, name: str) -> PluginMetadata | None:
         """
         Get plugin metadata by name
 
@@ -187,10 +183,10 @@ class PluginRegistry:
 
     def list_plugins(
         self,
-        category: Optional[PluginCategory] = None,
-        tags: Optional[List[str]] = None,
-        allowed_models: Optional[List[str]] = None,
-    ) -> List[PluginMetadata]:
+        category: PluginCategory | None = None,
+        tags: list[str] | None = None,
+        allowed_models: list[str] | None = None,
+    ) -> list[PluginMetadata]:
         """
         List all plugins, optionally filtered
 
@@ -212,9 +208,7 @@ class PluginRegistry:
 
         if allowed_models:
             result = [
-                m
-                for m in result
-                if any(model in m.allowed_models for model in allowed_models)
+                m for m in result if any(model in m.allowed_models for model in allowed_models)
             ]
 
         # Sort by category, then name
@@ -269,7 +263,7 @@ class PluginRegistry:
 
         logger.info(f"Discovered {discovered_count} plugins")
 
-    def search(self, query: str) -> List[PluginMetadata]:
+    def search(self, query: str) -> list[PluginMetadata]:
         """
         Search plugins by name, description, or tags
 
@@ -292,7 +286,7 @@ class PluginRegistry:
 
         return results
 
-    def get_statistics(self) -> Dict[str, any]:
+    def get_statistics(self) -> dict[str, any]:
         """
         Get registry statistics
 
@@ -312,7 +306,7 @@ class PluginRegistry:
             "aliases": len(self._aliases),
         }
 
-    def get_all_anthropic_tools(self) -> List[Dict[str, any]]:
+    def get_all_anthropic_tools(self) -> list[dict[str, any]]:
         """
         Get all plugins as ZANTARA AI tool definitions (legacy Anthropic format for compatibility)
 
@@ -330,7 +324,7 @@ class PluginRegistry:
                 )
         return tools
 
-    def get_haiku_allowed_tools(self) -> List[Dict[str, any]]:
+    def get_haiku_allowed_tools(self) -> list[dict[str, any]]:
         """
         Get tools allowed for Haiku model (fast, limited set)
 

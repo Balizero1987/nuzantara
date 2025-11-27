@@ -3,12 +3,12 @@ ZANTARA CRM - Auto-Population Service
 Automatically creates/updates clients and practices from chat conversations
 """
 
-import os
 import logging
-from typing import Dict, List, Optional
+import os
 from datetime import datetime
+
 import psycopg2
-from psycopg2.extras import RealDictCursor, Json
+from psycopg2.extras import Json, RealDictCursor
 
 from services.ai_crm_extractor import get_extractor
 
@@ -20,9 +20,9 @@ class AutoCRMService:
     Automatically populate CRM from conversations using AI extraction
     """
 
-    def __init__(self):
+    def __init__(self, ai_client=None):
         """Initialize service"""
-        self.extractor = get_extractor()
+        self.extractor = get_extractor(ai_client=ai_client)
 
     def get_db_connection(self):
         """Get PostgreSQL connection"""
@@ -34,10 +34,10 @@ class AutoCRMService:
     async def process_conversation(
         self,
         conversation_id: int,
-        messages: List[Dict],
-        user_email: Optional[str] = None,
-        team_member: str = "system"
-    ) -> Dict:
+        messages: list[dict],
+        user_email: str | None = None,
+        team_member: str = "system",
+    ) -> dict:
         """
         Process a conversation and auto-populate CRM
 
@@ -67,10 +67,7 @@ class AutoCRMService:
             # Step 1: Check if client exists (by email if provided)
             existing_client = None
             if user_email:
-                cursor.execute(
-                    "SELECT * FROM clients WHERE email = %s",
-                    (user_email,)
-                )
+                cursor.execute("SELECT * FROM clients WHERE email = %s", (user_email,))
                 existing_client = cursor.fetchone()
 
             # Step 2: Extract data using AI
@@ -78,10 +75,12 @@ class AutoCRMService:
 
             extracted = await self.extractor.extract_from_conversation(
                 messages=messages,
-                existing_client_data=dict(existing_client) if existing_client else None
+                existing_client_data=dict(existing_client) if existing_client else None,
             )
 
-            logger.info(f"📊 Extraction result: client_confidence={extracted['client']['confidence']:.2f}, practice_detected={extracted['practice_intent']['detected']}")
+            logger.info(
+                f"📊 Extraction result: client_confidence={extracted['client']['confidence']:.2f}, practice_detected={extracted['practice_intent']['detected']}"
+            )
 
             # Step 3: Create or update client
             client_id = None
@@ -94,10 +93,7 @@ class AutoCRMService:
 
             # Re-check with extracted email
             if user_email and not existing_client:
-                cursor.execute(
-                    "SELECT * FROM clients WHERE email = %s",
-                    (user_email,)
-                )
+                cursor.execute("SELECT * FROM clients WHERE email = %s", (user_email,))
                 existing_client = cursor.fetchone()
 
             if existing_client:
@@ -118,7 +114,7 @@ class AutoCRMService:
                     if update_fields:
                         query = f"""
                             UPDATE clients
-                            SET {', '.join(update_fields)}, updated_at = NOW()
+                            SET {", ".join(update_fields)}, updated_at = NOW()
                             WHERE id = %s
                         """
                         params.append(client_id)
@@ -129,11 +125,10 @@ class AutoCRMService:
             else:
                 # Create new client if we have minimum data
                 if extracted["client"]["confidence"] >= 0.5 and (
-                    extracted["client"]["email"] or
-                    extracted["client"]["phone"] or
-                    user_email
+                    extracted["client"]["email"] or extracted["client"]["phone"] or user_email
                 ):
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         INSERT INTO clients (
                             full_name, email, phone, whatsapp, nationality,
                             status, first_contact_date, created_by, last_interaction_date
@@ -141,17 +136,20 @@ class AutoCRMService:
                             %s, %s, %s, %s, %s, %s, %s, %s, %s
                         )
                         RETURNING id
-                    """, (
-                        extracted["client"]["full_name"] or (user_email.split('@')[0] if user_email else "Unknown"),
-                        extracted["client"]["email"] or user_email,
-                        extracted["client"]["phone"],
-                        extracted["client"]["whatsapp"],
-                        extracted["client"]["nationality"],
-                        "prospect",
-                        datetime.now(),
-                        team_member,
-                        datetime.now()
-                    ))
+                    """,
+                        (
+                            extracted["client"]["full_name"]
+                            or (user_email.split("@")[0] if user_email else "Unknown"),
+                            extracted["client"]["email"] or user_email,
+                            extracted["client"]["phone"],
+                            extracted["client"]["whatsapp"],
+                            extracted["client"]["nationality"],
+                            "prospect",
+                            datetime.now(),
+                            team_member,
+                            datetime.now(),
+                        ),
+                    )
 
                     client_id = cursor.fetchone()["id"]
                     client_created = True
@@ -167,25 +165,29 @@ class AutoCRMService:
                 # Get practice_type_id
                 cursor.execute(
                     "SELECT id, base_price FROM practice_types WHERE code = %s",
-                    (practice_intent["practice_type_code"],)
+                    (practice_intent["practice_type_code"],),
                 )
                 practice_type = cursor.fetchone()
 
                 if practice_type:
                     # Check if similar practice already exists (avoid duplicates)
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         SELECT id FROM practices
                         WHERE client_id = %s
                         AND practice_type_id = %s
                         AND status IN ('inquiry', 'quotation_sent', 'payment_pending', 'in_progress')
                         AND created_at >= NOW() - INTERVAL '7 days'
-                    """, (client_id, practice_type["id"]))
+                    """,
+                        (client_id, practice_type["id"]),
+                    )
 
                     existing_practice = cursor.fetchone()
 
                     if not existing_practice:
                         # Create new practice
-                        cursor.execute("""
+                        cursor.execute(
+                            """
                             INSERT INTO practices (
                                 client_id, practice_type_id, status, priority,
                                 quoted_price, notes, inquiry_date, created_by
@@ -193,32 +195,36 @@ class AutoCRMService:
                                 %s, %s, %s, %s, %s, %s, %s, %s
                             )
                             RETURNING id
-                        """, (
-                            client_id,
-                            practice_type["id"],
-                            "inquiry",
-                            "high" if extracted["urgency"] == "urgent" else "normal",
-                            practice_type["base_price"],
-                            practice_intent["details"],
-                            datetime.now(),
-                            team_member
-                        ))
+                        """,
+                            (
+                                client_id,
+                                practice_type["id"],
+                                "inquiry",
+                                "high" if extracted["urgency"] == "urgent" else "normal",
+                                practice_type["base_price"],
+                                practice_intent["details"],
+                                datetime.now(),
+                                team_member,
+                            ),
+                        )
 
                         practice_id = cursor.fetchone()["id"]
                         practice_created = True
-                        logger.info(f"✅ Created practice {practice_id} ({practice_intent['practice_type_code']})")
+                        logger.info(
+                            f"✅ Created practice {practice_id} ({practice_intent['practice_type_code']})"
+                        )
                     else:
                         practice_id = existing_practice["id"]
                         logger.info(f"ℹ️  Practice already exists: {practice_id}")
 
             # Step 5: Log interaction
             conversation_summary = extracted["summary"] or "Chat conversation"
-            full_content = "\n\n".join([
-                f"{msg['role'].upper()}: {msg['content']}"
-                for msg in messages
-            ])
+            full_content = "\n\n".join(
+                [f"{msg['role'].upper()}: {msg['content']}" for msg in messages]
+            )
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO interactions (
                     client_id, practice_id, conversation_id,
                     interaction_type, channel, summary, full_content,
@@ -228,31 +234,36 @@ class AutoCRMService:
                     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                 )
                 RETURNING id
-            """, (
-                client_id,
-                practice_id,
-                conversation_id,
-                "chat",
-                "web_chat",
-                conversation_summary[:500],  # Limit summary length
-                full_content,
-                extracted["sentiment"],
-                team_member,
-                "inbound",
-                Json(extracted["extracted_entities"]),
-                Json(extracted["action_items"]),
-                datetime.now()
-            ))
+            """,
+                (
+                    client_id,
+                    practice_id,
+                    conversation_id,
+                    "chat",
+                    "web_chat",
+                    conversation_summary[:500],  # Limit summary length
+                    full_content,
+                    extracted["sentiment"],
+                    team_member,
+                    "inbound",
+                    Json(extracted["extracted_entities"]),
+                    Json(extracted["action_items"]),
+                    datetime.now(),
+                ),
+            )
 
             interaction_id = cursor.fetchone()["id"]
 
             # Update client last interaction if client exists
             if client_id:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     UPDATE clients
                     SET last_interaction_date = NOW()
                     WHERE id = %s
-                """, (client_id,))
+                """,
+                    (client_id,),
+                )
 
             conn.commit()
 
@@ -267,7 +278,7 @@ class AutoCRMService:
                 "practice_id": practice_id,
                 "practice_created": practice_created,
                 "interaction_id": interaction_id,
-                "extracted_data": extracted
+                "extracted_data": extracted,
             }
 
             logger.info(f"✅ Auto-CRM complete: client_id={client_id}, practice_id={practice_id}")
@@ -277,6 +288,7 @@ class AutoCRMService:
         except Exception as e:
             logger.error(f"❌ Auto-CRM processing failed: {e}")
             import traceback
+
             traceback.print_exc()
 
             return {
@@ -288,21 +300,81 @@ class AutoCRMService:
                 "practice_id": None,
                 "practice_created": False,
                 "interaction_id": None,
-                "extracted_data": None
+                "extracted_data": None,
             }
+
+    async def process_email_interaction(
+        self,
+        email_data: dict,
+        team_member: str = "system",
+    ) -> dict:
+        """
+        Process an incoming email and auto-populate CRM
+        
+        Args:
+            email_data: {subject, sender, body, date, id}
+            team_member: Team member handling (system default)
+        """
+        # Convert email to message format for extractor
+        messages = [
+            {"role": "user", "content": f"Subject: {email_data['subject']}\n\n{email_data['body']}"}
+        ]
+        
+        # Extract sender email from "Name <email@domain.com>" format
+        sender_email = email_data['sender']
+        if '<' in sender_email and '>' in sender_email:
+            sender_email = sender_email.split('<')[1].split('>')[0]
+            
+        # Use a dummy conversation ID for email interactions (or create a new table for emails later)
+        # For now, we reuse the process_conversation logic but we need a conversation_id.
+        # We'll use a negative number or hash to indicate email source if needed, 
+        # but process_conversation expects an int. 
+        # Let's create a dummy conversation entry or just pass 0 if FK allows.
+        # Actually, let's try to insert a conversation record first to be clean.
+        
+        try:
+            conn = self.get_db_connection()
+            cursor = conn.cursor()
+            
+            # Create a conversation record for this email thread
+            cursor.execute(
+                """
+                INSERT INTO conversations (user_id, title, created_at, updated_at)
+                VALUES (%s, %s, NOW(), NOW())
+                RETURNING id
+                """,
+                (sender_email, f"Email: {email_data['subject']}")
+            )
+            conversation_id = cursor.fetchone()['id']
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            logger.info(f"📧 Processing email from {sender_email} as conversation {conversation_id}")
+            
+            return await self.process_conversation(
+                conversation_id=conversation_id,
+                messages=messages,
+                user_email=sender_email,
+                team_member=team_member
+            )
+            
+        except Exception as e:
+            logger.error(f"❌ Email processing failed: {e}")
+            return {"success": False, "error": str(e)}
 
 
 # Singleton instance
-_auto_crm_instance: Optional[AutoCRMService] = None
+_auto_crm_instance: AutoCRMService | None = None
 
 
-def get_auto_crm_service() -> AutoCRMService:
+def get_auto_crm_service(ai_client=None) -> AutoCRMService:
     """Get or create singleton auto-CRM service instance"""
     global _auto_crm_instance
 
     if _auto_crm_instance is None:
         try:
-            _auto_crm_instance = AutoCRMService()
+            _auto_crm_instance = AutoCRMService(ai_client=ai_client)
             logger.info("✅ Auto-CRM Service initialized")
         except Exception as e:
             logger.warning(f"⚠️  Auto-CRM Service not available: {e}")

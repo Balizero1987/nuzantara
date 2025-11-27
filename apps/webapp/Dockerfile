@@ -1,23 +1,13 @@
-# ==============================================
-# 🐳 Dockerfile for ZANTARA Frontend
-# Static site serving with Nginx
-# ==============================================
+FROM nginx:alpine
 
-# Stage 1: Production (Nginx)
-FROM nginx:alpine-slim
+# Install envsubst
+RUN apk add --no-cache gettext
 
-# Remove default Nginx static assets
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy custom Nginx configuration
+# Copy Config & Scripts
+# nginx.conf è ora una configurazione completa, non solo un server block
 COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copy static assets from the project
-# Note: Assuming the context is the `apps/webapp` folder
 COPY . /usr/share/nginx/html
+COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
 
-# Expose port 8080 (as configured in nginx.conf)
-EXPOSE 8080
-
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

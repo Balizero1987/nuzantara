@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-    
+
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../index.html">All files</a> / <a href="index.html">src/services</a> rag-warmup.ts</h1>
         <div class='clearfix'>
-            
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/78</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/27</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/17</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/75</span>
             </div>
-        
-            
+
+
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -491,7 +491,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * RAG Backend Warmup Service
- * 
+ *
  * Keeps RAG backend alive by pinging health endpoint every 10 minutes.
  * Prevents 502 errors caused by Railway cold starts.
  */
@@ -526,7 +526,7 @@ class RAGWarmupService {
     averageResponseTime: 0,
     consecutiveFailures: 0
   };
-  
+
   private intervalId: NodeJS.Timeout | null = <span class="cstat-no" title="statement not covered" >null;</span>
   private responseTimes: number[] = <span class="cstat-no" title="statement not covered" >[];</span>
   private isRunning = <span class="cstat-no" title="statement not covered" >false;</span>
@@ -564,7 +564,7 @@ class RAGWarmupService {
 <span class="cstat-no" title="statement not covered" >        this.stats.lastStatus = 'success';</span>
 <span class="cstat-no" title="statement not covered" >        this.stats.lastPingTime = new Date();</span>
 <span class="cstat-no" title="statement not covered" >        this.stats.consecutiveFailures = 0;</span>
-        
+
 <span class="cstat-no" title="statement not covered" >        logger.info(`✅ RAG backend warmed up (${responseTime}ms, success rate: ${this.getSuccessRate()}%)`);</span>
 <span class="cstat-no" title="statement not covered" >        return true;</span>
       } else {
@@ -575,15 +575,15 @@ class RAGWarmupService {
 <span class="cstat-no" title="statement not covered" >      this.stats.lastStatus = 'failed';</span>
 <span class="cstat-no" title="statement not covered" >      this.stats.lastPingTime = new Date();</span>
 <span class="cstat-no" title="statement not covered" >      this.stats.consecutiveFailures++;</span>
-      
+
       const errorMsg = <span class="cstat-no" title="statement not covered" >error.name === 'AbortError' ? 'Timeout' : error.message;</span>
 <span class="cstat-no" title="statement not covered" >      logger.warn(`⚠️ RAG warmup failed: ${errorMsg} (consecutive failures: ${this.stats.consecutiveFailures})`);</span>
-      
+
       // Alert if too many consecutive failures
 <span class="cstat-no" title="statement not covered" >      if (this.stats.consecutiveFailures &gt;= 3) {</span>
 <span class="cstat-no" title="statement not covered" >        logger.error(`🚨 RAG backend appears to be down (${this.stats.consecutiveFailures} consecutive failures)`);</span>
       }
-      
+
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -639,7 +639,7 @@ class RAGWarmupService {
     status: string;
   } {
     const successRate = <span class="cstat-no" title="statement not covered" >this.getSuccessRate();</span>
-    
+
     let status = <span class="cstat-no" title="statement not covered" >'unknown';</span>
 <span class="cstat-no" title="statement not covered" >    if (this.stats.consecutiveFailures &gt;= 3) {</span>
 <span class="cstat-no" title="statement not covered" >      status = 'critical';</span>
@@ -721,4 +721,3 @@ export function <span class="fstat-no" title="function not covered" >triggerRAGP
         <script src="../../block-navigation.js"></script>
     </body>
 </html>
-    

@@ -1,6 +1,6 @@
 # Report Aggiornato - Codice Obsoleto e Legacy
 
-**Data Analisi:** 2025-01-27  
+**Data Analisi:** 2025-01-27
 **Status:** Verifica post-pulizia
 
 ---
@@ -199,7 +199,6 @@ Vedi: `apps/webapp/RIMOZIONE_ENDPOINT_NON_UTILIZZATI.md`
 
 ---
 
-**Generato da:** Verifica post-pulizia  
-**Versione:** 2.0  
+**Generato da:** Verifica post-pulizia
+**Versione:** 2.0
 **Data:** 2025-01-27
-

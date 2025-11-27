@@ -1,9 +1,9 @@
 /**
  * EventSource with Headers Support
- * 
+ *
  * Polyfill for EventSource that supports custom headers (including Authorization).
  * This is necessary because native EventSource API doesn't support custom headers.
- * 
+ *
  * Uses fetch API with ReadableStream to implement SSE with headers.
  */
 
@@ -12,25 +12,25 @@ export class EventSourceWithHeaders {
     this.url = url;
     this.headers = options.headers || {};
     this.withCredentials = options.withCredentials || false;
-    
+
     this.readyState = 0; // CONNECTING
     this.onopen = null;
     this.onmessage = null;
     this.onerror = null;
-    
+
     this._abortController = null;
     this._reader = null;
     this._closed = false;
-    
+
     this._connect();
   }
 
   async _connect() {
     try {
       this.readyState = 0; // CONNECTING
-      
+
       this._abortController = new AbortController();
-      
+
       const response = await fetch(this.url, {
         method: 'GET',
         headers: {
@@ -61,7 +61,7 @@ export class EventSourceWithHeaders {
 
       while (true) {
         const { done, value } = await this._reader.read();
-        
+
         if (done) {
           break;
         }
@@ -146,14 +146,14 @@ export class EventSourceWithHeaders {
 
   close() {
     if (this._closed) return;
-    
+
     this._closed = true;
     this.readyState = 2; // CLOSED
-    
+
     if (this._abortController) {
       this._abortController.abort();
     }
-    
+
     if (this._reader) {
       this._reader.cancel();
     }
@@ -162,4 +162,3 @@ export class EventSourceWithHeaders {
 
 // Export as default
 export default EventSourceWithHeaders;
-

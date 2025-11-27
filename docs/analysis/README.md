@@ -30,4 +30,3 @@ Questi file sono stati spostati qui per:
 - Evitare che vengano committati accidentalmente (sono in .gitignore)
 
 Se necessario, questi file possono essere referenziati per capire le decisioni prese durante lo sviluppo.
-

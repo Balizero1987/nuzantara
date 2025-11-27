@@ -1,7 +1,7 @@
 # ADR-XXX: [Title]
 
-**Date:** YYYY-MM-DD  
-**Status:** [Proposed | Accepted | Deprecated | Superseded]  
+**Date:** YYYY-MM-DD
+**Status:** [Proposed | Accepted | Deprecated | Superseded]
 **Deciders:** [Names]
 
 ## Context
@@ -35,4 +35,3 @@
 ## References
 - [Link 1]
 - [Link 2]
-

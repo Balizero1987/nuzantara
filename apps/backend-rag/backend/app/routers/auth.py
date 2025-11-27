@@ -3,22 +3,24 @@ JWT Authentication Router
 Real email+PIN authentication using bcrypt and JWT tokens
 """
 
-import bcrypt
-from jose import jwt
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, EmailStr
 import logging
-import os
+from datetime import datetime, timedelta, timezone
+from typing import Any
+
+import bcrypt
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import jwt
+from pydantic import BaseModel, EmailStr
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 # Configuration
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "zantara_default_secret_key_2025_change_in_production")
-JWT_ALGORITHM = "HS256"
-JWT_ACCESS_TOKEN_EXPIRE_HOURS = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_HOURS", "24"))
+JWT_SECRET_KEY = settings.jwt_secret_key
+JWT_ALGORITHM = settings.jwt_algorithm
+JWT_ACCESS_TOKEN_EXPIRE_HOURS = settings.jwt_access_token_expire_hours
 
 router = APIRouter(prefix="/api/auth", tags=["authentication"])
 security = HTTPBearer()
@@ -27,54 +29,67 @@ security = HTTPBearer()
 # Pydantic Models
 # ============================================================================
 
+
 class LoginRequest(BaseModel):
     """Login request model"""
+
     email: EmailStr
     password: str
 
+
 class LoginResponse(BaseModel):
     """Login response model"""
+
     success: bool
     message: str
-    data: Optional[Dict[str, Any]] = None
+    data: dict[str, Any] | None = None
+
 
 class UserProfile(BaseModel):
     """User profile model"""
+
     id: str
     email: str
     name: str
     role: str
     status: str
-    metadata: Optional[Dict[str, Any]] = None
-    language_preference: Optional[str] = None
+    metadata: dict[str, Any] | None = None
+    language_preference: str | None = None
+
 
 # ============================================================================
 # Database Dependencies
 # ============================================================================
 
+
 async def get_db_connection():
     """Get database connection"""
     try:
         import asyncpg
-        db_url = os.getenv("DATABASE_URL", "postgres://zantara_rag_user:0FTEr9mMOghmCnk@nuzantara-postgres.flycast:5432/nuzantara_rag?sslmode=disable")
-        return await asyncpg.connect(db_url)
+
+        if not settings.database_url:
+            raise ValueError("DATABASE_URL not configured")
+        return await asyncpg.connect(settings.database_url)
     except Exception as e:
         logger.error(f"❌ Database connection failed: {e}")
         raise HTTPException(status_code=503, detail="Database connection failed")
+
 
 # ============================================================================
 # Authentication Functions
 # ============================================================================
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify password against bcrypt hash"""
     try:
-        return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+        return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
     except Exception as e:
         logger.error(f"❌ Password verification failed: {e}")
         return False
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
     """Create JWT access token"""
     to_encode = data.copy()
     if expires_delta:
@@ -85,6 +100,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
     return encoded_jwt
+
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get current authenticated user from JWT token"""
@@ -120,9 +136,11 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     finally:
         await conn.close()
 
+
 # ============================================================================
 # API Endpoints
 # ============================================================================
+
 
 @router.post("/login", response_model=LoginResponse)
 async def login(request: LoginRequest):
@@ -145,7 +163,7 @@ async def login(request: LoginRequest):
             raise HTTPException(status_code=401, detail="Invalid email or PIN")
 
         # Verify PIN
-        if not verify_password(request.password, user['password_hash']):
+        if not verify_password(request.password, user["password_hash"]):
             raise HTTPException(status_code=401, detail="Invalid email or PIN")
 
         # Update last login (TODO: add last_login column to users table)
@@ -157,23 +175,19 @@ async def login(request: LoginRequest):
         # Create JWT token
         access_token_expires = timedelta(hours=JWT_ACCESS_TOKEN_EXPIRE_HOURS)
         access_token = create_access_token(
-            data={
-                "sub": user['id'],
-                "email": user['email'],
-                "role": user['role']
-            },
-            expires_delta=access_token_expires
+            data={"sub": user["id"], "email": user["email"], "role": user["role"]},
+            expires_delta=access_token_expires,
         )
 
         # Prepare user profile
         user_profile = {
-            "id": user['id'],
-            "email": user['email'],
-            "name": user['name'],
-            "role": user['role'],
-            "status": user['status'],
-            "metadata": user.get('metadata'),
-            "language_preference": user.get('language_preference', 'en')
+            "id": user["id"],
+            "email": user["email"],
+            "name": user["name"],
+            "role": user["role"],
+            "status": user["status"],
+            "metadata": user.get("metadata"),
+            "language_preference": user.get("language_preference", "en"),
         }
 
         return LoginResponse(
@@ -183,8 +197,8 @@ async def login(request: LoginRequest):
                 "token": access_token,
                 "token_type": "Bearer",
                 "expiresIn": JWT_ACCESS_TOKEN_EXPIRE_HOURS * 3600,  # Convert to seconds
-                "user": user_profile
-            }
+                "user": user_profile,
+            },
         )
 
     except HTTPException:
@@ -195,15 +209,18 @@ async def login(request: LoginRequest):
     finally:
         await conn.close()
 
+
 @router.get("/profile", response_model=UserProfile)
 async def get_profile(current_user: dict = Depends(get_current_user)):
     """Get current user profile"""
     return UserProfile(**current_user)
 
+
 @router.post("/logout")
 async def logout(current_user: dict = Depends(get_current_user)):
     """Logout user (server-side token invalidation would go here)"""
     return {"success": True, "message": "Logout successful"}
+
 
 @router.get("/check")
 async def check_auth(current_user: dict = Depends(get_current_user)):
@@ -211,11 +228,39 @@ async def check_auth(current_user: dict = Depends(get_current_user)):
     return {
         "valid": True,
         "user": {
-            "id": current_user['id'],
-            "email": current_user['email'],
-            "role": current_user['role']
-        }
+            "id": current_user["id"],
+            "email": current_user["email"],
+            "role": current_user["role"],
+        },
     }
+
+
+@router.get("/csrf-token")
+async def get_csrf_token():
+    """
+    Generate CSRF token and session ID for frontend security.
+    Returns token in both JSON body and response headers.
+    """
+    import secrets
+    from fastapi import Response
+    
+    # Generate CSRF token (32 bytes = 64 hex chars)
+    csrf_token = secrets.token_hex(32)
+    
+    # Generate session ID
+    from datetime import datetime, timezone
+    session_id = f"session_{int(datetime.now(timezone.utc).timestamp() * 1000)}_{secrets.token_hex(16)}"
+    
+    # Return in both JSON and headers
+    response_data = {
+        "csrfToken": csrf_token,
+        "sessionId": session_id
+    }
+    
+    # Note: FastAPI Response model doesn't support setting headers directly in decorator
+    # Headers will be set in the endpoint function
+    return response_data
+
 
 # ============================================================================
 # JWT Only Authentication - No Mock Endpoints

@@ -9,7 +9,7 @@
   // Configuration
   const PROTECTED_PAGES = ['/chat', '/chat.html', '/admin', '/dashboard'];
   const LOGIN_PAGE = '/login.html';
-  
+
   // Safe logging
   const log = (msg, ...args) => console.log(`🛡️ [AuthGuard] ${msg}`, ...args);
 
@@ -18,12 +18,12 @@
    */
   function checkAuth() {
     const currentPage = window.location.pathname;
-    
+
     // Skip check on non-protected pages
-    const isProtected = PROTECTED_PAGES.some(page => 
+    const isProtected = PROTECTED_PAGES.some(page =>
       currentPage.includes(page) || currentPage.endsWith(page)
     );
-    
+
     if (!isProtected) return true;
 
     try {
@@ -80,7 +80,7 @@
 
     } catch (error) {
       console.warn('⚠️ Auth check error:', error);
-      // Fail safe: don't redirect if it's just a runtime error, but maybe safe to stay? 
+      // Fail safe: don't redirect if it's just a runtime error, but maybe safe to stay?
       // Better to redirect if unsure security-wise.
       redirectToLogin();
       return false;
@@ -97,7 +97,7 @@
   function redirectToLogin() {
     // Prevent redirect loop
     if (window.location.pathname.includes('login')) return;
-    
+
     window.location.href = LOGIN_PAGE;
   }
 

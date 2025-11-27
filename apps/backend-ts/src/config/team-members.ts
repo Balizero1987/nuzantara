@@ -25,6 +25,10 @@ export interface TeamMember {
 export async function getTeamMemberById(id: string): Promise<TeamMember | null> {
   try {
     const db = getDatabasePool();
+    if (!db) {
+      logger.warn('Database pool not available');
+      return null;
+    }
     const result = await db.query(
       'SELECT id, name, email, role, department, language, personalized_response, is_active, last_login FROM team_members WHERE id = $1 AND is_active = true',
       [id]
@@ -47,6 +51,10 @@ export async function getTeamMemberById(id: string): Promise<TeamMember | null> 
 export async function getTeamMemberByEmail(email: string): Promise<TeamMember | null> {
   try {
     const db = getDatabasePool();
+    if (!db) {
+      logger.warn('Database pool not available');
+      return null;
+    }
     const result = await db.query(
       'SELECT id, name, email, role, department, language, personalized_response, is_active, last_login FROM team_members WHERE LOWER(email) = LOWER($1) AND is_active = true',
       [email]
@@ -69,6 +77,10 @@ export async function getTeamMemberByEmail(email: string): Promise<TeamMember | 
 export async function getAllTeamMembers(): Promise<TeamMember[]> {
   try {
     const db = getDatabasePool();
+    if (!db) {
+      logger.warn('Database pool not available');
+      return [];
+    }
     const result = await db.query(
       'SELECT id, name, email, role, department, language, personalized_response, is_active, last_login FROM team_members WHERE is_active = true ORDER BY name'
     );
@@ -79,4 +91,3 @@ export async function getAllTeamMembers(): Promise<TeamMember[]> {
     return [];
   }
 }
-

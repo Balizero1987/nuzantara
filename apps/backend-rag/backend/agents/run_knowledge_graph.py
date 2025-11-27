@@ -4,11 +4,11 @@ Knowledge Graph Builder - Standalone Runner
 Usage: python run_knowledge_graph.py [--days DAYS] [--init-schema]
 """
 
-import sys
-import os
-import asyncio
 import argparse
+import asyncio
 import logging
+import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -17,16 +17,15 @@ from agents.knowledge_graph_builder import KnowledgeGraphBuilder
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 
 async def main():
-    parser = argparse.ArgumentParser(description='Run Knowledge Graph Builder')
-    parser.add_argument('--days', type=int, default=30, help='Days to look back for conversations')
-    parser.add_argument('--init-schema', action='store_true', help='Initialize graph schema')
+    parser = argparse.ArgumentParser(description="Run Knowledge Graph Builder")
+    parser.add_argument("--days", type=int, default=30, help="Days to look back for conversations")
+    parser.add_argument("--init-schema", action="store_true", help="Initialize graph schema")
     args = parser.parse_args()
 
     logger.info("🕸️  Starting Knowledge Graph Builder")
@@ -50,15 +49,17 @@ async def main():
 
         logger.info("📊 Knowledge Graph Insights:")
         logger.info(f"   Top Entities: {len(insights['top_entities'])}")
-        for entity in insights['top_entities'][:5]:
-            logger.info(f"      - {entity['type']}: {entity['name']} ({entity['mentions']} mentions)")
+        for entity in insights["top_entities"][:5]:
+            logger.info(
+                f"      - {entity['type']}: {entity['name']} ({entity['mentions']} mentions)"
+            )
 
         logger.info(f"   Hubs (most connected): {len(insights['hubs'])}")
-        for hub in insights['hubs'][:5]:
+        for hub in insights["hubs"][:5]:
             logger.info(f"      - {hub['type']}: {hub['name']} ({hub['connections']} connections)")
 
         logger.info(f"   Relationship Types: {len(insights['relationship_types'])}")
-        for rel_type, count in list(insights['relationship_types'].items())[:5]:
+        for rel_type, count in list(insights["relationship_types"].items())[:5]:
             logger.info(f"      - {rel_type}: {count}")
 
         logger.info("🎉 Knowledge Graph Builder completed successfully!")
@@ -69,6 +70,6 @@ async def main():
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit_code = asyncio.run(main())
     sys.exit(exit_code)

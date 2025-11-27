@@ -3,14 +3,15 @@ ZANTARA CRM - Clients Management Router
 Endpoints for managing client data (anagrafica clienti)
 """
 
-from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, EmailStr
-from typing import List, Dict, Optional
 import logging
-import os
-import psycopg2
-from psycopg2.extras import RealDictCursor, Json
 from datetime import datetime
+
+import psycopg2
+from fastapi import APIRouter, HTTPException, Query
+from psycopg2.extras import Json, RealDictCursor
+from pydantic import BaseModel, EmailStr
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -21,51 +22,52 @@ router = APIRouter(prefix="/api/crm/clients", tags=["crm-clients"])
 # PYDANTIC MODELS
 # ================================================
 
+
 class ClientCreate(BaseModel):
     full_name: str
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    whatsapp: Optional[str] = None
-    nationality: Optional[str] = None
-    passport_number: Optional[str] = None
+    email: EmailStr | None = None
+    phone: str | None = None
+    whatsapp: str | None = None
+    nationality: str | None = None
+    passport_number: str | None = None
     client_type: str = "individual"  # 'individual' or 'company'
-    assigned_to: Optional[str] = None  # team member email
-    address: Optional[str] = None
-    notes: Optional[str] = None
-    tags: List[str] = []
-    custom_fields: Dict = {}
+    assigned_to: str | None = None  # team member email
+    address: str | None = None
+    notes: str | None = None
+    tags: list[str] = []
+    custom_fields: dict = {}
 
 
 class ClientUpdate(BaseModel):
-    full_name: Optional[str] = None
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    whatsapp: Optional[str] = None
-    nationality: Optional[str] = None
-    passport_number: Optional[str] = None
-    status: Optional[str] = None  # 'active', 'inactive', 'prospect'
-    client_type: Optional[str] = None
-    assigned_to: Optional[str] = None
-    address: Optional[str] = None
-    notes: Optional[str] = None
-    tags: Optional[List[str]] = None
-    custom_fields: Optional[Dict] = None
+    full_name: str | None = None
+    email: EmailStr | None = None
+    phone: str | None = None
+    whatsapp: str | None = None
+    nationality: str | None = None
+    passport_number: str | None = None
+    status: str | None = None  # 'active', 'inactive', 'prospect'
+    client_type: str | None = None
+    assigned_to: str | None = None
+    address: str | None = None
+    notes: str | None = None
+    tags: list[str] | None = None
+    custom_fields: dict | None = None
 
 
 class ClientResponse(BaseModel):
     id: int
     uuid: str
     full_name: str
-    email: Optional[str]
-    phone: Optional[str]
-    whatsapp: Optional[str]
-    nationality: Optional[str]
+    email: str | None
+    phone: str | None
+    whatsapp: str | None
+    nationality: str | None
     status: str
     client_type: str
-    assigned_to: Optional[str]
-    first_contact_date: Optional[datetime]
-    last_interaction_date: Optional[datetime]
-    tags: List[str]
+    assigned_to: str | None
+    first_contact_date: datetime | None
+    last_interaction_date: datetime | None
+    tags: list[str]
     created_at: datetime
     updated_at: datetime
 
@@ -74,9 +76,10 @@ class ClientResponse(BaseModel):
 # DATABASE CONNECTION
 # ================================================
 
+
 def get_db_connection():
     """Get PostgreSQL connection"""
-    database_url = os.getenv("DATABASE_URL")
+    database_url = settings.database_url
     if not database_url:
         raise Exception("DATABASE_URL environment variable not set")
     return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
@@ -86,8 +89,12 @@ def get_db_connection():
 # ENDPOINTS
 # ================================================
 
+
 @router.post("/", response_model=ClientResponse)
-async def create_client(client: ClientCreate, created_by: str = Query(..., description="Team member email creating this client")):
+async def create_client(
+    client: ClientCreate,
+    created_by: str = Query(..., description="Team member email creating this client"),
+):
     """
     Create a new client
 
@@ -106,7 +113,8 @@ async def create_client(client: ClientCreate, created_by: str = Query(..., descr
         cursor = conn.cursor()
 
         # Insert client
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO clients (
                 full_name, email, phone, whatsapp, nationality, passport_number,
                 client_type, assigned_to, address, notes, tags, custom_fields,
@@ -115,23 +123,25 @@ async def create_client(client: ClientCreate, created_by: str = Query(..., descr
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )
             RETURNING *
-        """, (
-            client.full_name,
-            client.email,
-            client.phone,
-            client.whatsapp,
-            client.nationality,
-            client.passport_number,
-            client.client_type,
-            client.assigned_to,
-            client.address,
-            client.notes,
-            Json(client.tags),
-            Json(client.custom_fields),
-            datetime.now(),
-            created_by,
-            'active'
-        ))
+        """,
+            (
+                client.full_name,
+                client.email,
+                client.phone,
+                client.whatsapp,
+                client.nationality,
+                client.passport_number,
+                client.client_type,
+                client.assigned_to,
+                client.address,
+                client.notes,
+                Json(client.tags),
+                Json(client.custom_fields),
+                datetime.now(),
+                created_by,
+                "active",
+            ),
+        )
 
         new_client = cursor.fetchone()
         conn.commit()
@@ -145,20 +155,22 @@ async def create_client(client: ClientCreate, created_by: str = Query(..., descr
 
     except psycopg2.IntegrityError as e:
         logger.error(f"❌ Integrity error creating client: {e}")
-        raise HTTPException(status_code=400, detail="Client with this email or phone already exists")
+        raise HTTPException(
+            status_code=400, detail="Client with this email or phone already exists"
+        )
 
     except Exception as e:
         logger.error(f"❌ Failed to create client: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/", response_model=List[ClientResponse])
+@router.get("/", response_model=list[ClientResponse])
 async def list_clients(
-    status: Optional[str] = Query(None, description="Filter by status: active, inactive, prospect"),
-    assigned_to: Optional[str] = Query(None, description="Filter by assigned team member email"),
-    search: Optional[str] = Query(None, description="Search by name, email, or phone"),
+    status: str | None = Query(None, description="Filter by status: active, inactive, prospect"),
+    assigned_to: str | None = Query(None, description="Filter by assigned team member email"),
+    search: str | None = Query(None, description="Search by name, email, or phone"),
     limit: int = Query(50, le=200, description="Max results to return"),
-    offset: int = Query(0, description="Offset for pagination")
+    offset: int = Query(0, description="Offset for pagination"),
 ):
     """
     List all clients with optional filtering
@@ -264,7 +276,11 @@ async def get_client_by_email(email: str):
 
 
 @router.patch("/{client_id}", response_model=ClientResponse)
-async def update_client(client_id: int, updates: ClientUpdate, updated_by: str = Query(..., description="Team member making the update")):
+async def update_client(
+    client_id: int,
+    updates: ClientUpdate,
+    updated_by: str = Query(..., description="Team member making the update"),
+):
     """
     Update client information
 
@@ -281,7 +297,7 @@ async def update_client(client_id: int, updates: ClientUpdate, updated_by: str =
 
         for field, value in updates.dict(exclude_unset=True).items():
             if value is not None:
-                if field in ['tags', 'custom_fields']:
+                if field in ["tags", "custom_fields"]:
                     update_fields.append(f"{field} = %s")
                     params.append(Json(value))
                 else:
@@ -293,7 +309,7 @@ async def update_client(client_id: int, updates: ClientUpdate, updated_by: str =
 
         query = f"""
             UPDATE clients
-            SET {', '.join(update_fields)}, updated_at = NOW()
+            SET {", ".join(update_fields)}, updated_at = NOW()
             WHERE id = %s
             RETURNING *
         """
@@ -306,16 +322,19 @@ async def update_client(client_id: int, updates: ClientUpdate, updated_by: str =
             raise HTTPException(status_code=404, detail="Client not found")
 
         # Log activity
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description)
             VALUES (%s, %s, %s, %s, %s)
-        """, (
-            'client',
-            client_id,
-            'updated',
-            updated_by,
-            f"Updated fields: {', '.join(updates.dict(exclude_unset=True).keys())}"
-        ))
+        """,
+            (
+                "client",
+                client_id,
+                "updated",
+                updated_by,
+                f"Updated fields: {', '.join(updates.dict(exclude_unset=True).keys())}",
+            ),
+        )
 
         conn.commit()
 
@@ -334,7 +353,9 @@ async def update_client(client_id: int, updates: ClientUpdate, updated_by: str =
 
 
 @router.delete("/{client_id}")
-async def delete_client(client_id: int, deleted_by: str = Query(..., description="Team member deleting the client")):
+async def delete_client(
+    client_id: int, deleted_by: str = Query(..., description="Team member deleting the client")
+):
     """
     Delete a client (soft delete - marks as inactive)
 
@@ -347,12 +368,15 @@ async def delete_client(client_id: int, deleted_by: str = Query(..., description
         cursor = conn.cursor()
 
         # Soft delete (mark as inactive)
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE clients
             SET status = 'inactive', updated_at = NOW()
             WHERE id = %s
             RETURNING id
-        """, (client_id,))
+        """,
+            (client_id,),
+        )
 
         result = cursor.fetchone()
 
@@ -360,16 +384,13 @@ async def delete_client(client_id: int, deleted_by: str = Query(..., description
             raise HTTPException(status_code=404, detail="Client not found")
 
         # Log activity
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description)
             VALUES (%s, %s, %s, %s, %s)
-        """, (
-            'client',
-            client_id,
-            'deleted',
-            deleted_by,
-            "Client marked as inactive"
-        ))
+        """,
+            ("client", client_id, "deleted", deleted_by, "Client marked as inactive"),
+        )
 
         conn.commit()
 
@@ -410,32 +431,41 @@ async def get_client_summary(client_id: int):
             raise HTTPException(status_code=404, detail="Client not found")
 
         # Get practices
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT p.*, pt.name as practice_type_name, pt.category
             FROM practices p
             JOIN practice_types pt ON p.practice_type_id = pt.id
             WHERE p.client_id = %s
             ORDER BY p.created_at DESC
-        """, (client_id,))
+        """,
+            (client_id,),
+        )
         practices = cursor.fetchall()
 
         # Get recent interactions
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT *
             FROM interactions
             WHERE client_id = %s
             ORDER BY interaction_date DESC
             LIMIT 10
-        """, (client_id,))
+        """,
+            (client_id,),
+        )
         interactions = cursor.fetchall()
 
         # Get upcoming renewals
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT *
             FROM renewal_alerts
             WHERE client_id = %s AND status = 'pending'
             ORDER BY alert_date ASC
-        """, (client_id,))
+        """,
+            (client_id,),
+        )
         renewals = cursor.fetchall()
 
         cursor.close()
@@ -445,17 +475,19 @@ async def get_client_summary(client_id: int):
             "client": dict(client),
             "practices": {
                 "total": len(practices),
-                "active": len([p for p in practices if p['status'] in ['inquiry', 'in_progress', 'waiting_documents', 'submitted_to_gov']]),
-                "completed": len([p for p in practices if p['status'] == 'completed']),
-                "list": [dict(p) for p in practices]
+                "active": len(
+                    [
+                        p
+                        for p in practices
+                        if p["status"]
+                        in ["inquiry", "in_progress", "waiting_documents", "submitted_to_gov"]
+                    ]
+                ),
+                "completed": len([p for p in practices if p["status"] == "completed"]),
+                "list": [dict(p) for p in practices],
             },
-            "interactions": {
-                "total": len(interactions),
-                "recent": [dict(i) for i in interactions]
-            },
-            "renewals": {
-                "upcoming": [dict(r) for r in renewals]
-            }
+            "interactions": {"total": len(interactions), "recent": [dict(i) for i in interactions]},
+            "renewals": {"upcoming": [dict(r) for r in renewals]},
         }
 
     except HTTPException:
@@ -478,39 +510,45 @@ async def get_clients_stats():
         cursor = conn.cursor()
 
         # Total clients by status
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT status, COUNT(*) as count
             FROM clients
             GROUP BY status
-        """)
+        """
+        )
         by_status = cursor.fetchall()
 
         # Clients by assigned team member
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT assigned_to, COUNT(*) as count
             FROM clients
             WHERE assigned_to IS NOT NULL
             GROUP BY assigned_to
             ORDER BY count DESC
-        """)
+        """
+        )
         by_team_member = cursor.fetchall()
 
         # New clients last 30 days
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT COUNT(*) as count
             FROM clients
             WHERE created_at >= NOW() - INTERVAL '30 days'
-        """)
-        new_last_30_days = cursor.fetchone()['count']
+        """
+        )
+        new_last_30_days = cursor.fetchone()["count"]
 
         cursor.close()
         conn.close()
 
         return {
-            "total": sum(row['count'] for row in by_status),
-            "by_status": {row['status']: row['count'] for row in by_status},
+            "total": sum(row["count"] for row in by_status),
+            "by_status": {row["status"]: row["count"] for row in by_status},
             "by_team_member": [dict(row) for row in by_team_member],
-            "new_last_30_days": new_last_30_days
+            "new_last_30_days": new_last_30_days,
         }
 
     except Exception as e:

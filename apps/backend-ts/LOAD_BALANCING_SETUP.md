@@ -79,7 +79,3 @@ Check that:
 2. Check CPU/memory metrics
 3. Review latency metrics
 4. Adjust thresholds if needed
-
-
-
-

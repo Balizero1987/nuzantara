@@ -1,11 +1,43 @@
+# Dependencies
 node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Git
 .git
-.github
-.vscode
+.gitignore
+
+# OS Files
 .DS_Store
+Thumbs.db
+
+# Build output (if any)
 dist
-coverage
-tests
-README.md
-Dockerfile
-.dockerignore
+build
+
+# Local Env
+.env
+.env.local
+
+# Logs
+logs
+*.log
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Documentation (not needed in production)
+*.md
+docs/
+tests/
+coverage/
+
+# Other
+.github
+.DS_Store

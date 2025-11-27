@@ -212,9 +212,9 @@ class ErrorHandler {
   async reportToBackend(error) {
     try {
       // Don't use apiClient to avoid circular errors
-      const backendUrl = typeof window !== 'undefined' && window.API_CONFIG?.backend?.url 
-        ? window.API_CONFIG.backend.url 
-        : 'https://nuzantara-backend.fly.dev';
+      const backendUrl = typeof window !== 'undefined' && window.API_CONFIG?.backend?.url
+        ? window.API_CONFIG.backend.url
+        : (window.ENV?.API_URL || '/api');
       const response = await fetch(`${backendUrl}/call`, {
         method: 'POST',
         headers: {
@@ -315,8 +315,8 @@ class ErrorHandler {
               : ''
           }
         </div>
-        <button onclick="this.parentElement.parentElement.remove()" 
-                style="background: none; border: none; color: white; cursor: pointer; 
+        <button onclick="this.parentElement.parentElement.remove()"
+                style="background: none; border: none; color: white; cursor: pointer;
                        font-size: 24px; padding: 0; line-height: 1; opacity: 0.8;
                        transition: opacity 0.2s;"
                 onmouseover="this.style.opacity='1'"
@@ -426,7 +426,7 @@ if (typeof document !== 'undefined') {
         opacity: 1;
       }
     }
-    
+
     @keyframes slideOutRight {
       from {
         transform: translateX(0);

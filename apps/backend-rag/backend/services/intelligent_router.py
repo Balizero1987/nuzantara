@@ -23,12 +23,15 @@ REFACTORED (2025-12-01):
 """
 
 import logging
-from typing import Dict, Optional, List, Any
+import time
+import asyncio
+from typing import Any, AsyncIterator
 
 # Import modular components
 from .classification import IntentClassifier
 from .context import ContextBuilder, RAGManager
-from .routing import SpecializedServiceRouter, ResponseHandler
+from .routing import ResponseHandler, SpecializedServiceRouter
+
 # ToolManager removed - using tool_executor directly
 
 logger = logging.getLogger(__name__)
@@ -54,7 +57,9 @@ class IntelligentRouter:
         tool_executor=None,
         cultural_rag_service=None,
         autonomous_research_service=None,
-        cross_oracle_synthesis_service=None
+        cross_oracle_synthesis_service=None,
+        client_journey_orchestrator=None,
+        personality_service=None,
     ):
         """
         Initialize intelligent router with modular components
@@ -66,19 +71,24 @@ class IntelligentRouter:
             cultural_rag_service: CulturalRAGService for Indonesian cultural context (optional)
             autonomous_research_service: AutonomousResearchService for complex queries (optional)
             cross_oracle_synthesis_service: CrossOracleSynthesisService for business planning (optional)
+            client_journey_orchestrator: ClientJourneyOrchestrator for workflows (optional)
+            personality_service: PersonalityService for Fast Track (optional)
         """
         # Core services
         self.ai = ai_client
         self.cultural_rag = cultural_rag_service
+        self.personality_service = personality_service
 
         # Initialize modular components
         self.classifier = IntentClassifier()
         self.context_builder = ContextBuilder()
         self.rag_manager = RAGManager(search_service)
         self.specialized_router = SpecializedServiceRouter(
-            autonomous_research_service,
-            cross_oracle_synthesis_service
+            autonomous_research_service, 
+            cross_oracle_synthesis_service,
+            client_journey_orchestrator
         )
+
         self.response_handler = ResponseHandler()
         # ToolManager removed - using tool_executor directly
         self.tool_executor = tool_executor
@@ -91,18 +101,19 @@ class IntelligentRouter:
         logger.info(f"   Cultural RAG: {'✅' if cultural_rag_service else '❌'}")
         logger.info(f"   Autonomous Research: {'✅' if autonomous_research_service else '❌'}")
         logger.info(f"   Cross-Oracle: {'✅' if cross_oracle_synthesis_service else '❌'}")
+        logger.info(f"   Personality Service: {'✅' if personality_service else '❌'}")
 
     async def route_chat(
         self,
         message: str,
         user_id: str,
-        conversation_history: Optional[List[Dict]] = None,
-        memory: Optional[Any] = None,
-        emotional_profile: Optional[Any] = None,
-        last_ai_used: Optional[str] = None,
-        collaborator: Optional[Any] = None,
-        frontend_tools: Optional[List[Dict]] = None
-    ) -> Dict:
+        conversation_history: list[dict] | None = None,
+        memory: Any | None = None,
+        emotional_profile: Any | None = None,
+        last_ai_used: str | None = None,
+        collaborator: Any | None = None,
+        frontend_tools: list[dict] | None = None,
+    ) -> dict:
         """
         Main routing function - classifies intent and routes to appropriate AI
 
@@ -130,11 +141,23 @@ class IntelligentRouter:
         try:
             logger.info(f"🚦 [Router] Routing message for user {user_id}")
 
+            # STEP 0: Fast Intent Classification (Before RAG)
+            intent = await self.classifier.classify_intent(message)
+            category = intent["category"]
+            suggested_ai = intent["suggested_ai"]
+            logger.info(f"📋 [Router] Initial Classification: {category} (Confidence: {intent.get('confidence', 0.0)})")
+
+            # STEP 0.5: Fast Track (Skip RAG/Gemini for greetings/casual)
+            if category in ["greeting", "casual"] and self.personality_service:
+                logger.info("🚀 [Router] FAST TRACK ACTIVATED: Skipping RAG & Gemini")
+                fast_response = await self.personality_service.fast_chat(user_id, message) # user_id is email in this context usually
+                return fast_response
+
             # STEP 1: Determine tools to use (frontend or backend)
             tools_to_use = frontend_tools
             if not tools_to_use and self.tool_executor:
                 # Get tools directly from tool_executor if available
-                tools_to_use = getattr(self.tool_executor, 'get_available_tools', lambda: [])()
+                tools_to_use = getattr(self.tool_executor, "get_available_tools", lambda: [])()
                 if tools_to_use:
                     logger.info(f"🔧 [Router] Using {len(tools_to_use)} tools from BACKEND")
             else:
@@ -146,17 +169,13 @@ class IntelligentRouter:
 
             # STEP 3: RAG retrieval (only for business/emergency)
             rag_result = await self.rag_manager.retrieve_context(
-                query=message,
-                query_type=query_type,
-                user_level=0,
-                limit=5
+                query=message, query_type=query_type, user_level=0, limit=5
             )
 
             # STEP 4: Check for emotional override
-            if emotional_profile and hasattr(emotional_profile, 'detected_state'):
+            if emotional_profile and hasattr(emotional_profile, "detected_state"):
                 emotional_result = await self._handle_emotional_override(
-                    message, user_id, conversation_history, memory,
-                    emotional_profile, tools_to_use
+                    message, user_id, conversation_history, memory, emotional_profile, tools_to_use
                 )
                 if emotional_result:
                     return emotional_result
@@ -172,29 +191,34 @@ class IntelligentRouter:
 
             # STEP 8: Combine all contexts
             combined_context = self.context_builder.combine_contexts(
-                memory_context,
-                team_context,
-                rag_result["context"],
-                cultural_context
+                memory_context, team_context, rag_result["context"], cultural_context
             )
 
-            # STEP 9: Classify intent
-            intent = await self.classifier.classify_intent(message)
-            category = intent["category"]
-            suggested_ai = intent["suggested_ai"]
+            # STEP 9: Re-classify intent (optional, but we already did it)
+            # intent = await self.classifier.classify_intent(message)
+            # category = intent["category"]
+            # suggested_ai = intent["suggested_ai"]
 
             logger.info(f"   Category: {category} → AI: {suggested_ai}")
 
             # STEP 10: Check for specialized service routing
             # Autonomous Research
             if self.specialized_router.detect_autonomous_research(message, category):
-                result = await self.specialized_router.route_autonomous_research(message, user_level=3)
+                result = await self.specialized_router.route_autonomous_research(
+                    message, user_level=3
+                )
                 if result:
                     return result
 
             # Cross-Oracle Synthesis
             if self.specialized_router.detect_cross_oracle(message, category):
                 result = await self.specialized_router.route_cross_oracle(message, user_level=3)
+                if result:
+                    return result
+
+            # Client Journey Orchestrator
+            if self.specialized_router.detect_client_journey(message, category):
+                result = await self.specialized_router.route_client_journey(message, user_id)
                 if result:
                     return result
 
@@ -211,7 +235,7 @@ class IntelligentRouter:
                     tools=tools_to_use,
                     tool_executor=self.tool_executor,
                     max_tokens=8000,
-                    max_tool_iterations=5
+                    max_tool_iterations=5,
                 )
             else:
                 logger.info("   Tool use: DISABLED")
@@ -220,15 +244,12 @@ class IntelligentRouter:
                     user_id=user_id,
                     conversation_history=conversation_history,
                     memory_context=combined_context,
-                    max_tokens=8000
+                    max_tokens=8000,
                 )
 
             # STEP 12: Sanitize response
             sanitized_response = self.response_handler.sanitize_response(
-                result["text"],
-                query_type,
-                apply_santai=True,
-                add_contact=True
+                result["text"], query_type, apply_santai=True, add_contact=True
             )
 
             return {
@@ -239,7 +260,7 @@ class IntelligentRouter:
                 "tokens": result["tokens"],
                 "used_rag": rag_result["used_rag"],
                 "used_tools": result.get("used_tools", False),
-                "tools_called": result.get("tools_called", [])
+                "tools_called": result.get("tools_called", []),
             }
 
         except Exception as e:
@@ -250,9 +271,9 @@ class IntelligentRouter:
         self,
         message: str,
         user_id: str,
-        conversation_history: Optional[List[Dict]] = None,
-        memory: Optional[Any] = None,
-        collaborator: Optional[Any] = None
+        conversation_history: list[dict] | None = None,
+        memory: Any | None = None,
+        collaborator: Any | None = None,
     ):
         """
         Stream chat response token by token for SSE
@@ -276,16 +297,28 @@ class IntelligentRouter:
 
             # STEP 2: Detect comparison/cross-topic queries (adjust max_tokens)
             comparison_keywords = [
-                "confronta", "compare", "vs", "differenza tra",
-                "difference between", "confronto", "comparison"
+                "confronta",
+                "compare",
+                "vs",
+                "differenza tra",
+                "difference between",
+                "confronto",
+                "comparison",
             ]
             cross_topic_keywords = [
-                "timeline", "percorso completo", "tutti i costi",
-                "step-by-step", "tutto", "complessivamente"
+                "timeline",
+                "percorso completo",
+                "tutti i costi",
+                "step-by-step",
+                "tutto",
+                "complessivamente",
             ]
 
             is_comparison = any(kw in message.lower() for kw in comparison_keywords)
-            is_cross_topic = any(kw in message.lower() for kw in cross_topic_keywords) or len(message.split()) > 20
+            is_cross_topic = (
+                any(kw in message.lower() for kw in cross_topic_keywords)
+                or len(message.split()) > 20
+            )
 
             if is_comparison:
                 max_tokens_to_use = 12000
@@ -296,6 +329,42 @@ class IntelligentRouter:
             else:
                 max_tokens_to_use = 8000
 
+            # STEP 2.5: Check for specialized service routing
+            category = query_type
+
+            # Autonomous Research
+            if self.specialized_router.detect_autonomous_research(message, category):
+                result = await self.specialized_router.route_autonomous_research(
+                    message, user_level=3
+                )
+                if result:
+                    # Yield result text as chunks
+                    text = result.get("response", result.get("text", ""))
+                    for word in text.split():
+                        yield word + " "
+                        await asyncio.sleep(0.02)
+                    return
+
+            # Cross-Oracle Synthesis
+            if self.specialized_router.detect_cross_oracle(message, category):
+                result = await self.specialized_router.route_cross_oracle(message, user_level=3)
+                if result:
+                    text = result.get("response", result.get("text", ""))
+                    for word in text.split():
+                        yield word + " "
+                        await asyncio.sleep(0.02)
+                    return
+
+            # Client Journey Orchestrator
+            if self.specialized_router.detect_client_journey(message, category):
+                result = await self.specialized_router.route_client_journey(message, user_id)
+                if result:
+                    text = result.get("response", result.get("text", ""))
+                    for word in text.split():
+                        yield word + " "
+                        await asyncio.sleep(0.02)
+                    return
+
             # STEP 3: Build memory context
             memory_context = self.context_builder.build_memory_context(memory)
 
@@ -304,30 +373,36 @@ class IntelligentRouter:
 
             # STEP 5: RAG retrieval (only for business/emergency)
             rag_result = await self.rag_manager.retrieve_context(
-                query=message,
-                query_type=query_type,
-                user_level=0,
-                limit=5
+                query=message, query_type=query_type, user_level=0, limit=5
             )
 
             # STEP 6: Combine contexts
             combined_context = self.context_builder.combine_contexts(
-                memory_context,
-                team_context,
-                rag_result["context"],
-                None
+                memory_context, team_context, rag_result["context"], None
             )
 
             # STEP 7: Tools are used directly during AI call
 
             # STEP 9: Stream from ZANTARA AI
             logger.info("🎯 [Router Stream] Using ZANTARA AI with REAL token-by-token streaming")
+
+            # Yield metadata first (custom format for frontend)
+            # Format: [METADATA]json_string[METADATA]
+            metadata = {
+                "memory_used": True if memory and (memory.get("facts") or memory.get("summary")) else False,
+                "rag_sources": [doc.metadata.get("source", "Unknown") for doc in rag_result.get("docs", [])] if rag_result else [],
+                "team_member": collaborator.get("name") if collaborator else "Zantara",
+                "intent": category
+            }
+            import json
+            yield f"[METADATA]{json.dumps(metadata)}[METADATA]"
+
             async for chunk in self.ai.stream(
                 message=message,
                 user_id=user_id,
                 conversation_history=conversation_history,
                 memory_context=combined_context,
-                max_tokens=max_tokens_to_use
+                max_tokens=max_tokens_to_use,
             ):
                 yield chunk
 
@@ -341,26 +416,34 @@ class IntelligentRouter:
         self,
         message: str,
         user_id: str,
-        conversation_history: Optional[List[Dict]],
-        memory: Optional[Any],
+        conversation_history: list[dict] | None,
+        memory: Any | None,
         emotional_profile: Any,
-        tools_to_use: Optional[List[Dict]]
-    ) -> Optional[Dict]:
+        tools_to_use: list[dict] | None,
+    ) -> dict | None:
         """Handle emotional override routing (internal helper)"""
         emotional_states_needing_empathy = [
-            "sad", "anxious", "stressed", "embarrassed", "lonely", "scared", "worried"
+            "sad",
+            "anxious",
+            "stressed",
+            "embarrassed",
+            "lonely",
+            "scared",
+            "worried",
         ]
 
         detected_state = (
             emotional_profile.detected_state.value
-            if hasattr(emotional_profile.detected_state, 'value')
+            if hasattr(emotional_profile.detected_state, "value")
             else str(emotional_profile.detected_state)
         )
 
         if detected_state not in emotional_states_needing_empathy:
             return None
 
-        logger.info(f"🎭 [Router] EMOTIONAL OVERRIDE: {detected_state} → Using ZANTARA AI for empathy")
+        logger.info(
+            f"🎭 [Router] EMOTIONAL OVERRIDE: {detected_state} → Using ZANTARA AI for empathy"
+        )
 
         memory_context = self.context_builder.build_memory_context(memory)
 
@@ -373,7 +456,7 @@ class IntelligentRouter:
                 tools=tools_to_use,
                 tool_executor=self.tool_executor,
                 max_tokens=8000,
-                max_tool_iterations=5
+                max_tool_iterations=5,
             )
         else:
             result = await self.ai.conversational(
@@ -381,7 +464,7 @@ class IntelligentRouter:
                 user_id=user_id,
                 conversation_history=conversation_history,
                 memory_context=memory_context,
-                max_tokens=8000
+                max_tokens=8000,
             )
 
         return {
@@ -392,14 +475,12 @@ class IntelligentRouter:
             "tokens": result["tokens"],
             "used_rag": False,
             "used_tools": result.get("used_tools", False),
-            "tools_called": result.get("tools_called", [])
+            "tools_called": result.get("tools_called", []),
         }
 
     async def _get_cultural_context(
-        self,
-        message: str,
-        conversation_history: Optional[List[Dict]]
-    ) -> Optional[str]:
+        self, message: str, conversation_history: list[dict] | None
+    ) -> str | None:
         """Get cultural context from CulturalRAGService (internal helper)"""
         if not self.cultural_rag:
             return None
@@ -412,13 +493,15 @@ class IntelligentRouter:
                     "first_contact"
                     if not conversation_history or len(conversation_history) < 3
                     else "ongoing"
-                )
+                ),
             }
 
             cultural_chunks = await self.cultural_rag.get_cultural_context(context_params, limit=2)
 
             if cultural_chunks:
-                logger.info(f"🌴 [Cultural RAG] Injecting {len(cultural_chunks)} Indonesian cultural insights")
+                logger.info(
+                    f"🌴 [Cultural RAG] Injecting {len(cultural_chunks)} Indonesian cultural insights"
+                )
                 return self.cultural_rag.build_cultural_prompt_injection(cultural_chunks)
 
         except Exception as e:
@@ -428,7 +511,7 @@ class IntelligentRouter:
 
     # _prefetch_tool_data method removed - tools are used directly during AI call
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get router statistics"""
         return {
             "router": "zantara_ai_router",
@@ -439,9 +522,9 @@ class IntelligentRouter:
                     "use_case": "ALL queries (greetings, casual, business, complex)",
                     "cost": "$0.20/$0.20 per 1M tokens",
                     "traffic": "100%",
-                    "engine": "ZANTARA AI (configurable via environment)"
+                    "engine": "ZANTARA AI (configurable via environment)",
                 }
             },
             "rag_available": self.rag_manager.search is not None,
-            "total_cost_monthly": "$8-15 (3,000 requests) - 3x cheaper than Sonnet"
+            "total_cost_monthly": "$8-15 (3,000 requests) - 3x cheaper than Sonnet",
         }

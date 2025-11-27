@@ -4,10 +4,11 @@ Centralized dependencies for all routers to avoid circular imports.
 Note: Qdrant references are legacy - system now uses Qdrant exclusively.
 """
 
-from fastapi import HTTPException
-from typing import Optional, Any, TYPE_CHECKING
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+from fastapi import HTTPException
 
 # Add parent to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -22,9 +23,9 @@ else:
     BaliZeroRouter = Any
 
 # Global service instances (initialized by main_integrated.py at startup)
-search_service: Optional[SearchService] = None
+search_service: SearchService | None = None
 # anthropic_client removed - using ZANTARA AI only
-bali_zero_router: Optional[Any] = None
+bali_zero_router: Any | None = None
 
 
 def get_search_service() -> SearchService:
@@ -42,7 +43,7 @@ def get_search_service() -> SearchService:
     if search_service is None:
         raise HTTPException(
             status_code=503,
-            detail="Search service not initialized. Server may still be starting up."
+            detail="Search service not initialized. Server may still be starting up.",
         )
     return search_service
 
@@ -51,7 +52,7 @@ def get_search_service() -> SearchService:
 # Use ZANTARA AI client instead
 
 
-def get_bali_zero_router() -> Optional[Any]:
+def get_bali_zero_router() -> Any | None:
     """
     Dependency injection for Bali Zero router.
     Returns None in production.

@@ -14,12 +14,19 @@
     "build": "tsc && vite build",
     "dev": "vite",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx || true",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix || true",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\" || true",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\" || true",
+    "clean": "find js -name '*.js' -type f -exec sed -i '' 's|https://nuzantara-[a-z-]*\\.fly\\.dev|window.API_CONFIG?.backend?.url || \\'/api\\'|g' {} \\; || true"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "lucide-react": "^0.555.0"
+  },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
     "@swc/core": "^1.15.2",

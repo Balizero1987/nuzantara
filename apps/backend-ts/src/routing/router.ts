@@ -1160,7 +1160,7 @@ export function attachRoutes(app: import('express').Express) {
   }) as any);
 
   // === Google Workspace Integration Status Endpoints ===
-  
+
   // Gmail Integration Status
   app.get('/api/integrations/gmail/status', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {

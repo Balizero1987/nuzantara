@@ -24,7 +24,7 @@ fileList.forEach(filePath => {
 
         const content = fs.readFileSync(filePath, 'utf8');
         const ext = path.extname(filePath).substring(1);
-        
+
         output += `### File: ${filePath}\n`;
         output += '```' + ext + '\n';
         output += content;

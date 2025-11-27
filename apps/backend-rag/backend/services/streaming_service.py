@@ -10,9 +10,10 @@ Date: 2025-10-16
 """
 
 import asyncio
-import logging
-from typing import AsyncIterator, Dict, Any, List, Optional
 import json
+import logging
+from collections.abc import AsyncIterator
+from typing import Any
 
 from llm.zantara_ai_client import ZantaraAIClient
 
@@ -35,15 +36,14 @@ class StreamingService:
         self.zantara_client = ZantaraAIClient()
         logger.info("✅ StreamingService initialized with ZANTARA AI")
 
-
     async def stream_zantara_response(
         self,
-        messages: List[Dict],
-        model: Optional[str] = None,
-        system: Optional[str] = None,
+        messages: list[dict],
+        model: str | None = None,
+        system: str | None = None,
         max_tokens: int = 2000,
-        temperature: float = 0.7
-    ) -> AsyncIterator[Dict[str, Any]]:
+        temperature: float = 0.7,
+    ) -> AsyncIterator[dict[str, Any]]:
         """
         Stream ZANTARA AI response token-by-token
 
@@ -78,13 +78,10 @@ class StreamingService:
                 user_id="streaming_user",
                 conversation_history=conversation_history,
                 memory_context=system,
-                max_tokens=max_tokens
+                max_tokens=max_tokens,
             ):
                 token_count += 1
-                yield {
-                    "type": "token",
-                    "data": text_chunk
-                }
+                yield {"type": "token", "data": text_chunk}
 
             logger.info(f"✅ [Streaming] Complete: {token_count} tokens streamed")
 
@@ -95,8 +92,8 @@ class StreamingService:
                     "model": use_model,
                     "provider": "openrouter",
                     "tokens_streamed": token_count,
-                    "ai_used": "zantara-ai"
-                }
+                    "ai_used": "zantara-ai",
+                },
             }
 
             # Send completion signal
@@ -104,22 +101,18 @@ class StreamingService:
 
         except Exception as e:
             logger.error(f"❌ [Streaming] Failed: {e}", exc_info=True)
-            yield {
-                "type": "error",
-                "data": str(e)
-            }
-
+            yield {"type": "error", "data": str(e)}
 
     async def stream_with_context(
         self,
         query: str,
-        conversation_history: List[Dict],
+        conversation_history: list[dict],
         system_prompt: str,
-        model: Optional[str] = None,
-        rag_context: Optional[str] = None,
-        memory_context: Optional[str] = None,
-        max_tokens: int = 2000
-    ) -> AsyncIterator[Dict[str, Any]]:
+        model: str | None = None,
+        rag_context: str | None = None,
+        memory_context: str | None = None,
+        max_tokens: int = 2000,
+    ) -> AsyncIterator[dict[str, Any]]:
         """
         Stream response with full context (RAG, memory, conversation history)
 
@@ -146,10 +139,7 @@ class StreamingService:
 
         # Build messages with conversation history
         messages = conversation_history.copy()
-        messages.append({
-            "role": "user",
-            "content": query
-        })
+        messages.append({"role": "user", "content": query})
 
         logger.info(
             f"📝 [Streaming] Context: "
@@ -160,22 +150,18 @@ class StreamingService:
 
         # Stream with full context
         async for chunk in self.stream_zantara_response(
-            messages=messages,
-            model=model,
-            system=enhanced_system,
-            max_tokens=max_tokens
+            messages=messages, model=model, system=enhanced_system, max_tokens=max_tokens
         ):
             yield chunk
 
-
     async def stream_with_retry(
         self,
-        messages: List[Dict],
+        messages: list[dict],
         model: str,
-        system: Optional[str] = None,
+        system: str | None = None,
         max_tokens: int = 2000,
-        max_retries: int = 2
-    ) -> AsyncIterator[Dict[str, Any]]:
+        max_retries: int = 2,
+    ) -> AsyncIterator[dict[str, Any]]:
         """
         Stream with automatic retry on failure
 
@@ -192,16 +178,11 @@ class StreamingService:
         for attempt in range(max_retries + 1):
             try:
                 async for chunk in self.stream_zantara_response(
-                    messages=messages,
-                    model=model,
-                    system=system,
-                    max_tokens=max_tokens
+                    messages=messages, model=model, system=system, max_tokens=max_tokens
                 ):
                     # If we get an error chunk, retry (unless last attempt)
                     if chunk["type"] == "error" and attempt < max_retries:
-                        logger.warning(
-                            f"⚠️ [Streaming] Attempt {attempt + 1} failed, retrying..."
-                        )
+                        logger.warning(f"⚠️ [Streaming] Attempt {attempt + 1} failed, retrying...")
                         await asyncio.sleep(1)  # Wait before retry
                         break
 
@@ -213,17 +194,14 @@ class StreamingService:
 
             except Exception as e:
                 if attempt < max_retries:
-                    logger.warning(
-                        f"⚠️ [Streaming] Attempt {attempt + 1} failed: {e}, retrying..."
-                    )
+                    logger.warning(f"⚠️ [Streaming] Attempt {attempt + 1} failed: {e}, retrying...")
                     await asyncio.sleep(1)
                 else:
-                    logger.error(f"❌ [Streaming] All retry attempts failed")
+                    logger.error("❌ [Streaming] All retry attempts failed")
                     yield {
                         "type": "error",
-                        "data": f"Streaming failed after {max_retries + 1} attempts: {str(e)}"
+                        "data": f"Streaming failed after {max_retries + 1} attempts: {str(e)}",
                     }
-
 
     def format_sse_event(self, event_type: str, data: Any) -> str:
         """
@@ -245,8 +223,7 @@ class StreamingService:
         # Format as SSE
         return f"event: {event_type}\ndata: {data_str}\n\n"
 
-
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """
         Health check for streaming service
 
@@ -260,20 +237,12 @@ class StreamingService:
         try:
             # Quick test with minimal request using ZantaraAIClient
             result = await self.zantara_client.chat_async(
-                messages=[{"role": "user", "content": "test"}],
-                max_tokens=5
+                messages=[{"role": "user", "content": "test"}], max_tokens=5
             )
 
             logger.info("✅ [Streaming] Health check passed")
-            return {
-                "status": "healthy",
-                "zantara_available": True
-            }
+            return {"status": "healthy", "zantara_available": True}
 
         except Exception as e:
             logger.error(f"❌ [Streaming] Health check failed: {e}")
-            return {
-                "status": "unhealthy",
-                "zantara_available": False,
-                "error": str(e)
-            }
+            return {"status": "unhealthy", "zantara_available": False, "error": str(e)}

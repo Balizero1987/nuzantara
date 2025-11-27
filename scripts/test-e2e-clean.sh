@@ -111,7 +111,7 @@ if [ -n "$TOKEN" ]; then
         -H "Authorization: Bearer ${TOKEN}" \
         -H "x-user-email: ${TEST_EMAIL}" \
         -d '{"key":"system.handlers.tools"}' 2>&1)
-    
+
     if echo "$TOOLS_RESPONSE" | grep -q "tools"; then
         TOOL_COUNT=$(echo "$TOOLS_RESPONSE" | grep -o '"tools"' | wc -l | tr -d ' ')
         test_pass "System handlers tools retrieved (found tools)"
@@ -133,7 +133,7 @@ if [ -n "$TOKEN" ]; then
     echo -n "Testing chat stream endpoint... "
     STREAM_RESPONSE=$(timeout 5 curl -s -N "${RAG_BACKEND_URL}/bali-zero/chat-stream?query=test&user_email=${TEST_EMAIL}&session_id=test" \
         -H "Authorization: Bearer ${TOKEN}" 2>&1 || true)
-    
+
     if echo "$STREAM_RESPONSE" | grep -q "token\|done\|error"; then
         test_pass "Chat stream endpoint responding"
     else
@@ -154,7 +154,7 @@ if [ -n "$TOKEN" ]; then
     TEAM_QUERY="chi è Amanda"
     TEAM_RESPONSE=$(timeout 10 curl -s -N "${RAG_BACKEND_URL}/bali-zero/chat-stream?query=${TEAM_QUERY}&user_email=${TEST_EMAIL}&session_id=team_test" \
         -H "Authorization: Bearer ${TOKEN}" 2>&1 | head -20 || true)
-    
+
     if echo "$TEAM_RESPONSE" | grep -qi "amanda\|team\|membro"; then
         test_pass "Team knowledge query responded"
     else
@@ -223,4 +223,3 @@ else
     echo -e "${RED}❌ Some tests failed${NC}"
     exit 1
 fi
-

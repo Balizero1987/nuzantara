@@ -7,7 +7,7 @@ import logger from '../../services/logger.js';
 import { ok } from '../../utils/response.js';
 import { BadRequestError, InternalServerError } from '../../utils/errors.js';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { getDatabasePool } from '../../services/connection-pool.js';
 
 // Session management with automatic cleanup
@@ -63,7 +63,7 @@ export async function teamLogin(params: any) {
       'SELECT id, name, email, pin_hash, role, department, language, personalized_response, is_active FROM team_members WHERE LOWER(email) = LOWER($1) AND is_active = true',
       [email]
     );
-    
+
     if (result.rows.length > 0) {
       member = result.rows[0];
     }
@@ -101,12 +101,18 @@ export async function teamLogin(params: any) {
   // Update last login timestamp in database
   try {
     const updateDb = getDatabasePool();
-    await updateDb.query(
-      'UPDATE team_members SET last_login = NOW() WHERE id = $1',
-      [member.id]
-    );
+    if (updateDb) {
+      try {
+        await updateDb.query(
+          'UPDATE team_members SET last_login = NOW() WHERE id = $1',
+          [member.id]
+        );
+      } catch (error) {
+        logger.warn('Failed to update last_login timestamp:', error as Error);
+      }
+    }
   } catch (error) {
-    logger.warn('Failed to update last_login timestamp:', error as Error);
+    logger.warn('Failed to get database pool for last_login update:', error as Error);
   }
 
   // Generate JWT token for API authentication
@@ -195,6 +201,10 @@ export function validateSession(sessionId: string): any {
 export async function getTeamMembers() {
   try {
     const db = getDatabasePool();
+    if (!db) {
+      logger.warn('Database pool not available');
+      return [];
+    }
     const result = await db.query('SELECT id, name, role, department, email, pin FROM team_members ORDER BY name');
     return result.rows;
   } catch (error) {

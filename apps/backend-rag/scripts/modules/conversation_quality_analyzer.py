@@ -13,11 +13,10 @@ Metrics:
 - Turn-taking naturalness
 """
 
-import re
-import logging
-from typing import Dict, List, Optional
-from collections import Counter
 import json
+import logging
+import re
+from collections import Counter
 
 logger = logging.getLogger(__name__)
 
@@ -28,33 +27,75 @@ class ConversationQualityAnalyzer:
     """
 
     # Indonesian particles
-    PARTICLES = [
-        "dong", "sih", "deh", "kok", "kan", "lho", "tuh",
-        "ya", "nih", "gitu", "gini"
-    ]
+    PARTICLES = ["dong", "sih", "deh", "kok", "kan", "lho", "tuh", "ya", "nih", "gitu", "gini"]
 
     # Jakarta millennial slang
     SLANG_WORDS = [
         # Pronouns
-        "gue", "gw", "lu", "lo", "elu",
+        "gue",
+        "gw",
+        "lu",
+        "lo",
+        "elu",
         # Intensifiers
-        "banget", "parah", "bgt", "anjir", "asoy",
+        "banget",
+        "parah",
+        "bgt",
+        "anjir",
+        "asoy",
         # Adjectives/States
-        "santuy", "santai", "receh", "keren", "mantap", "mantul",
-        "kepo", "baper", "mager", "gabut", "garing",
+        "santuy",
+        "santai",
+        "receh",
+        "keren",
+        "mantap",
+        "mantul",
+        "kepo",
+        "baper",
+        "mager",
+        "gabut",
+        "garing",
         # Verbs/Actions
-        "bokap", "nyokap", "gebetan", "nongkrong", "ngobrol",
+        "bokap",
+        "nyokap",
+        "gebetan",
+        "nongkrong",
+        "ngobrol",
         # Shortcuts
-        "gapapa", "gamau", "gaboleh", "gatau", "gimana", "kenapa",
-        "udah", "belom", "emang", "kalo", "trus", "abis",
+        "gapapa",
+        "gamau",
+        "gaboleh",
+        "gatau",
+        "gimana",
+        "kenapa",
+        "udah",
+        "belom",
+        "emang",
+        "kalo",
+        "trus",
+        "abis",
         # Casual
-        "kuy", "yuk", "sip", "oke", "cuy", "bro", "gan"
+        "kuy",
+        "yuk",
+        "sip",
+        "oke",
+        "cuy",
+        "bro",
+        "gan",
     ]
 
     # Code-switching indicators (English in Indonesian context)
     ENGLISH_BUSINESS_TERMS = [
-        "deadline", "meeting", "follow up", "update", "feedback",
-        "business plan", "investment", "roi", "timeline", "process"
+        "deadline",
+        "meeting",
+        "follow up",
+        "update",
+        "feedback",
+        "business plan",
+        "investment",
+        "roi",
+        "timeline",
+        "process",
     ]
 
     # Emotional indicators
@@ -64,7 +105,7 @@ class ConversationQualityAnalyzer:
         "relieved": ["lega", "oke sih", "lumayan", "gapapa", "tenang"],
         "excited": ["asik", "keren", "mantap", "wah", "seru"],
         "grateful": ["makasih", "thanks", "terima kasih", "helpful", "appreciate"],
-        "frustrated": ["aduh", "cape", "lama banget", "parah", "males"]
+        "frustrated": ["aduh", "cape", "lama banget", "parah", "males"],
     }
 
     # Memory reference patterns
@@ -74,10 +115,10 @@ class ConversationQualityAnalyzer:
         r"balik\s+lagi\s+ke",
         r"nah\s+itu\s+dia",
         r"hampir\s+lupa",
-        r"oh\s+iya\s+bener"
+        r"oh\s+iya\s+bener",
     ]
 
-    def analyze_conversation(self, conversation: Dict) -> Dict:
+    def analyze_conversation(self, conversation: dict) -> dict:
         """
         Analyze conversation quality
 
@@ -95,7 +136,9 @@ class ConversationQualityAnalyzer:
         # Extract all text
         all_text = " ".join([msg.get("content", "") for msg in messages])
         user_messages = [msg.get("content", "") for msg in messages if msg.get("role") == "user"]
-        assistant_messages = [msg.get("content", "") for msg in messages if msg.get("role") == "assistant"]
+        assistant_messages = [
+            msg.get("content", "") for msg in messages if msg.get("role") == "assistant"
+        ]
 
         # Run all analyses
         particle_analysis = self._analyze_particles(messages)
@@ -112,16 +155,12 @@ class ConversationQualityAnalyzer:
             code_switch_analysis,
             emotional_analysis,
             memory_analysis,
-            flow_analysis
+            flow_analysis,
         )
 
         # Generate recommendations
         recommendations = self._generate_recommendations(
-            particle_analysis,
-            slang_analysis,
-            emotional_analysis,
-            memory_analysis,
-            quality_score
+            particle_analysis, slang_analysis, emotional_analysis, memory_analysis, quality_score
         )
 
         return {
@@ -133,13 +172,13 @@ class ConversationQualityAnalyzer:
                 "code_switching": code_switch_analysis,
                 "emotions": emotional_analysis,
                 "memory_references": memory_analysis,
-                "flow": flow_analysis
+                "flow": flow_analysis,
             },
             "quality_score": quality_score,
-            "recommendations": recommendations
+            "recommendations": recommendations,
         }
 
-    def _analyze_particles(self, messages: List[Dict]) -> Dict:
+    def _analyze_particles(self, messages: list[dict]) -> dict:
         """Analyze particle usage"""
         total_messages = len(messages)
         messages_with_particles = 0
@@ -165,13 +204,13 @@ class ConversationQualityAnalyzer:
             "messages_with_particles": messages_with_particles,
             "coverage_percentage": round(coverage, 2),
             "particle_counts": dict(particle_counts.most_common()),
-            "score": min(10, int(coverage / 5))  # 50% coverage = 10/10
+            "score": min(10, int(coverage / 5)),  # 50% coverage = 10/10
         }
 
-    def _analyze_slang(self, text: str) -> Dict:
+    def _analyze_slang(self, text: str) -> dict:
         """Analyze slang density"""
         text_lower = text.lower()
-        words = re.findall(r'\b\w+\b', text_lower)
+        words = re.findall(r"\b\w+\b", text_lower)
         total_words = len(words)
 
         slang_found = Counter()
@@ -197,10 +236,10 @@ class ConversationQualityAnalyzer:
             "slang_count": slang_count,
             "density_percentage": round(density, 2),
             "slang_found": dict(slang_found.most_common(10)),
-            "score": score
+            "score": score,
         }
 
-    def _analyze_code_switching(self, text: str) -> Dict:
+    def _analyze_code_switching(self, text: str) -> dict:
         """Analyze code-switching patterns"""
         text_lower = text.lower()
 
@@ -217,10 +256,10 @@ class ConversationQualityAnalyzer:
             "total_code_switches": total_switches,
             "terms_found": dict(english_terms_found.most_common()),
             "is_natural": total_switches > 0 and total_switches < 20,  # Not too much, not none
-            "score": 8 if (0 < total_switches < 15) else 5
+            "score": 8 if (0 < total_switches < 15) else 5,
         }
 
-    def _analyze_emotions(self, messages: List[Dict]) -> Dict:
+    def _analyze_emotions(self, messages: list[dict]) -> dict:
         """Analyze emotional variety and progression"""
         emotion_timeline = []
 
@@ -235,10 +274,7 @@ class ConversationQualityAnalyzer:
                         break
 
             if detected_emotions:
-                emotion_timeline.append({
-                    "role": msg.get("role"),
-                    "emotions": detected_emotions
-                })
+                emotion_timeline.append({"role": msg.get("role"), "emotions": detected_emotions})
 
         unique_emotions = set()
         for entry in emotion_timeline:
@@ -250,10 +286,10 @@ class ConversationQualityAnalyzer:
             "unique_emotions_count": len(unique_emotions),
             "emotions_detected": list(unique_emotions),
             "emotion_timeline": emotion_timeline,
-            "variety_score": variety_score
+            "variety_score": variety_score,
         }
 
-    def _analyze_memory_references(self, messages: List[Dict]) -> Dict:
+    def _analyze_memory_references(self, messages: list[dict]) -> dict:
         """Analyze memory references between messages"""
         memory_refs_found = []
 
@@ -262,22 +298,16 @@ class ConversationQualityAnalyzer:
 
             for pattern in self.MEMORY_PATTERNS:
                 if re.search(pattern, content):
-                    memory_refs_found.append({
-                        "message_index": i,
-                        "role": msg.get("role"),
-                        "pattern": pattern
-                    })
+                    memory_refs_found.append(
+                        {"message_index": i, "role": msg.get("role"), "pattern": pattern}
+                    )
 
         count = len(memory_refs_found)
         score = min(10, count * 2)  # 5 references = 10/10
 
-        return {
-            "total_references": count,
-            "references_found": memory_refs_found,
-            "score": score
-        }
+        return {"total_references": count, "references_found": memory_refs_found, "score": score}
 
-    def _analyze_conversation_flow(self, messages: List[Dict]) -> Dict:
+    def _analyze_conversation_flow(self, messages: list[dict]) -> dict:
         """Analyze conversation flow and turn-taking"""
         turns = []
         current_role = None
@@ -290,19 +320,13 @@ class ConversationQualityAnalyzer:
                 consecutive_count += 1
             else:
                 if current_role:
-                    turns.append({
-                        "role": current_role,
-                        "consecutive_messages": consecutive_count
-                    })
+                    turns.append({"role": current_role, "consecutive_messages": consecutive_count})
                 current_role = role
                 consecutive_count = 1
 
         # Add last turn
         if current_role:
-            turns.append({
-                "role": current_role,
-                "consecutive_messages": consecutive_count
-            })
+            turns.append({"role": current_role, "consecutive_messages": consecutive_count})
 
         # Natural flow: some multi-message bursts but not too many
         multi_message_turns = [t for t in turns if t["consecutive_messages"] > 1]
@@ -312,17 +336,17 @@ class ConversationQualityAnalyzer:
             "total_turns": len(turns),
             "multi_message_turns": len(multi_message_turns),
             "is_natural_flow": is_natural,
-            "score": 9 if is_natural else 6
+            "score": 9 if is_natural else 6,
         }
 
     def _calculate_quality_score(
         self,
-        particle_analysis: Dict,
-        slang_analysis: Dict,
-        code_switch_analysis: Dict,
-        emotional_analysis: Dict,
-        memory_analysis: Dict,
-        flow_analysis: Dict
+        particle_analysis: dict,
+        slang_analysis: dict,
+        code_switch_analysis: dict,
+        emotional_analysis: dict,
+        memory_analysis: dict,
+        flow_analysis: dict,
     ) -> int:
         """
         Calculate overall quality score (weighted 100-point scale)
@@ -341,28 +365,28 @@ class ConversationQualityAnalyzer:
             "emotions": 0.20,
             "flow": 0.15,
             "memory": 0.10,
-            "code_switching": 0.10
+            "code_switching": 0.10,
         }
 
         score = (
-            particle_analysis["score"] * weights["particles"] * 10 +
-            slang_analysis["score"] * weights["slang"] * 10 +
-            emotional_analysis["variety_score"] * weights["emotions"] * 10 +
-            flow_analysis["score"] * weights["flow"] * 10 +
-            memory_analysis["score"] * weights["memory"] * 10 +
-            code_switch_analysis["score"] * weights["code_switching"] * 10
+            particle_analysis["score"] * weights["particles"] * 10
+            + slang_analysis["score"] * weights["slang"] * 10
+            + emotional_analysis["variety_score"] * weights["emotions"] * 10
+            + flow_analysis["score"] * weights["flow"] * 10
+            + memory_analysis["score"] * weights["memory"] * 10
+            + code_switch_analysis["score"] * weights["code_switching"] * 10
         )
 
         return int(score)
 
     def _generate_recommendations(
         self,
-        particle_analysis: Dict,
-        slang_analysis: Dict,
-        emotional_analysis: Dict,
-        memory_analysis: Dict,
-        quality_score: int
-    ) -> List[str]:
+        particle_analysis: dict,
+        slang_analysis: dict,
+        emotional_analysis: dict,
+        memory_analysis: dict,
+        quality_score: int,
+    ) -> list[str]:
         """Generate improvement recommendations"""
         recommendations = []
 
@@ -425,8 +449,8 @@ class ConversationQualityAnalyzer:
         # Memory recommendations (for medium/long conversations)
         if memory_analysis["total_references"] == 0:
             recommendations.append(
-                f"⚠️ NO MEMORY REFERENCES: "
-                f"For longer conversations, add callbacks to earlier messages (e.g., 'Tadi lu bilang...')."
+                "⚠️ NO MEMORY REFERENCES: "
+                "For longer conversations, add callbacks to earlier messages (e.g., 'Tadi lu bilang...')."
             )
         elif memory_analysis["total_references"] < 3:
             recommendations.append(
@@ -460,7 +484,7 @@ class ConversationQualityAnalyzer:
         return recommendations
 
 
-def analyze_conversation_from_file(file_path: str) -> Dict:
+def analyze_conversation_from_file(file_path: str) -> dict:
     """
     Convenience function to analyze conversation from JSON file
 
@@ -471,7 +495,7 @@ def analyze_conversation_from_file(file_path: str) -> Dict:
         Analysis results
     """
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             conversation = json.load(f)
 
         analyzer = ConversationQualityAnalyzer()
@@ -484,7 +508,7 @@ def analyze_conversation_from_file(file_path: str) -> Dict:
         return {"error": str(e)}
 
 
-def print_analysis_report(analysis: Dict):
+def print_analysis_report(analysis: dict):
     """
     Print formatted analysis report
 
@@ -492,7 +516,7 @@ def print_analysis_report(analysis: Dict):
         analysis: Analysis results dict
     """
     print("\n" + "=" * 80)
-    print(f"CONVERSATION QUALITY ANALYSIS REPORT")
+    print("CONVERSATION QUALITY ANALYSIS REPORT")
     print("=" * 80)
 
     print(f"\nConversation ID: {analysis.get('conversation_id')}")
@@ -503,47 +527,55 @@ def print_analysis_report(analysis: Dict):
     print("METRICS BREAKDOWN")
     print("-" * 80)
 
-    metrics = analysis.get('metrics', {})
+    metrics = analysis.get("metrics", {})
 
     # Particles
-    particles = metrics.get('particles', {})
-    print(f"\n📝 PARTICLES:")
-    print(f"   Coverage: {particles.get('coverage_percentage')}% ({particles.get('messages_with_particles')}/{particles.get('total_messages')} messages)")
+    particles = metrics.get("particles", {})
+    print("\n📝 PARTICLES:")
+    print(
+        f"   Coverage: {particles.get('coverage_percentage')}% ({particles.get('messages_with_particles')}/{particles.get('total_messages')} messages)"
+    )
     print(f"   Score: {particles.get('score')}/10")
-    if particles.get('particle_counts'):
-        print(f"   Most used: {', '.join([f'{k}({v})' for k, v in list(particles['particle_counts'].items())[:5]])}")
+    if particles.get("particle_counts"):
+        print(
+            f"   Most used: {', '.join([f'{k}({v})' for k, v in list(particles['particle_counts'].items())[:5]])}"
+        )
 
     # Slang
-    slang = metrics.get('slang', {})
-    print(f"\n🗣️  SLANG:")
-    print(f"   Density: {slang.get('density_percentage')}% ({slang.get('slang_count')}/{slang.get('total_words')} words)")
+    slang = metrics.get("slang", {})
+    print("\n🗣️  SLANG:")
+    print(
+        f"   Density: {slang.get('density_percentage')}% ({slang.get('slang_count')}/{slang.get('total_words')} words)"
+    )
     print(f"   Score: {slang.get('score')}/10")
-    if slang.get('slang_found'):
-        print(f"   Most used: {', '.join([f'{k}({v})' for k, v in list(slang['slang_found'].items())[:5]])}")
+    if slang.get("slang_found"):
+        print(
+            f"   Most used: {', '.join([f'{k}({v})' for k, v in list(slang['slang_found'].items())[:5]])}"
+        )
 
     # Emotions
-    emotions = metrics.get('emotions', {})
-    print(f"\n😊 EMOTIONS:")
+    emotions = metrics.get("emotions", {})
+    print("\n😊 EMOTIONS:")
     print(f"   Unique emotions: {emotions.get('unique_emotions_count')}")
     print(f"   Detected: {', '.join(emotions.get('emotions_detected', []))}")
     print(f"   Score: {emotions.get('variety_score')}/10")
 
     # Memory
-    memory = metrics.get('memory_references', {})
-    print(f"\n🧠 MEMORY REFERENCES:")
+    memory = metrics.get("memory_references", {})
+    print("\n🧠 MEMORY REFERENCES:")
     print(f"   Total: {memory.get('total_references')}")
     print(f"   Score: {memory.get('score')}/10")
 
     # Flow
-    flow = metrics.get('flow', {})
-    print(f"\n🔄 CONVERSATION FLOW:")
+    flow = metrics.get("flow", {})
+    print("\n🔄 CONVERSATION FLOW:")
     print(f"   Natural flow: {'Yes' if flow.get('is_natural_flow') else 'No'}")
     print(f"   Multi-message turns: {flow.get('multi_message_turns')}/{flow.get('total_turns')}")
     print(f"   Score: {flow.get('score')}/10")
 
     # Code-switching
-    code_switch = metrics.get('code_switching', {})
-    print(f"\n🌐 CODE-SWITCHING:")
+    code_switch = metrics.get("code_switching", {})
+    print("\n🌐 CODE-SWITCHING:")
     print(f"   Total switches: {code_switch.get('total_code_switches')}")
     print(f"   Natural: {'Yes' if code_switch.get('is_natural') else 'No'}")
     print(f"   Score: {code_switch.get('score')}/10")
@@ -552,7 +584,7 @@ def print_analysis_report(analysis: Dict):
     print("RECOMMENDATIONS")
     print("-" * 80)
 
-    for rec in analysis.get('recommendations', []):
+    for rec in analysis.get("recommendations", []):
         print(f"\n{rec}")
 
     print("\n" + "=" * 80)

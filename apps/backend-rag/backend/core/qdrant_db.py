@@ -3,9 +3,10 @@ ZANTARA RAG - Vector Database (Qdrant)
 Qdrant client wrapper for embeddings storage and retrieval
 """
 
-from typing import List, Dict, Any, Optional
 import logging
 import os
+from typing import Any
+
 import requests
 
 try:
@@ -22,11 +23,7 @@ class QdrantClient:
     Handles storage, retrieval, and filtering via REST API.
     """
 
-    def __init__(
-        self,
-        qdrant_url: str = None,
-        collection_name: str = None
-    ):
+    def __init__(self, qdrant_url: str = None, collection_name: str = None):
         """
         Initialize Qdrant client.
 
@@ -36,9 +33,9 @@ class QdrantClient:
         """
         # Get Qdrant URL from env or settings
         self.qdrant_url = (
-            qdrant_url or
-            os.environ.get("QDRANT_URL") or
-            (settings.qdrant_url if settings else "https://nuzantara-qdrant.fly.dev")
+            qdrant_url
+            or os.environ.get("QDRANT_URL")
+            or (settings.qdrant_url if settings else "https://nuzantara-qdrant.fly.dev")
         )
 
         self.collection_name = collection_name or "knowledge_base"
@@ -52,11 +49,8 @@ class QdrantClient:
         )
 
     def search(
-        self,
-        query_embedding: List[float],
-        filter: Optional[Dict[str, Any]] = None,
-        limit: int = 5
-    ) -> Dict[str, Any]:
+        self, query_embedding: list[float], filter: dict[str, Any] | None = None, limit: int = 5
+    ) -> dict[str, Any]:
         """
         Search for similar documents.
 
@@ -71,11 +65,7 @@ class QdrantClient:
         try:
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points/search"
 
-            payload = {
-                "vector": query_embedding,
-                "limit": limit,
-                "with_payload": True
-            }
+            payload = {"vector": query_embedding, "limit": limit, "with_payload": True}
 
             # Add filter if provided (Qdrant filter format)
             if filter:
@@ -93,7 +83,7 @@ class QdrantClient:
                     "documents": [],
                     "metadatas": [],
                     "distances": [],
-                    "total_found": 0
+                    "total_found": 0,
                 }
 
             results = response.json().get("result", [])
@@ -104,23 +94,19 @@ class QdrantClient:
                 "documents": [r["payload"].get("text", "") for r in results],
                 "metadatas": [r["payload"].get("metadata", {}) for r in results],
                 "distances": [1.0 - r["score"] for r in results],  # Convert similarity to distance
-                "total_found": len(results)
+                "total_found": len(results),
             }
 
-            logger.info(f"Qdrant search: collection={self.collection_name}, found {len(results)} results")
+            logger.info(
+                f"Qdrant search: collection={self.collection_name}, found {len(results)} results"
+            )
             return formatted_results
 
         except Exception as e:
             logger.error(f"Qdrant search error: {e}")
-            return {
-                "ids": [],
-                "documents": [],
-                "metadatas": [],
-                "distances": [],
-                "total_found": 0
-            }
+            return {"ids": [], "documents": [], "metadatas": [], "distances": [], "total_found": 0}
 
-    def get_collection_stats(self) -> Dict[str, Any]:
+    def get_collection_stats(self) -> dict[str, Any]:
         """
         Get statistics about the collection.
 
@@ -138,31 +124,34 @@ class QdrantClient:
                 return {
                     "collection_name": self.collection_name,
                     "total_documents": points_count,
-                    "vector_size": data.get("config", {}).get("params", {}).get("vectors", {}).get("size", 1536),
-                    "distance": data.get("config", {}).get("params", {}).get("vectors", {}).get("distance", "Cosine"),
-                    "status": data.get("status", "unknown")
+                    "vector_size": data.get("config", {})
+                    .get("params", {})
+                    .get("vectors", {})
+                    .get("size", 1536),
+                    "distance": data.get("config", {})
+                    .get("params", {})
+                    .get("vectors", {})
+                    .get("distance", "Cosine"),
+                    "status": data.get("status", "unknown"),
                 }
             else:
                 logger.error(f"Failed to get collection stats: {response.status_code}")
                 return {
                     "collection_name": self.collection_name,
-                    "error": f"HTTP {response.status_code}"
+                    "error": f"HTTP {response.status_code}",
                 }
 
         except Exception as e:
             logger.error(f"Error getting Qdrant stats: {e}")
-            return {
-                "collection_name": self.collection_name,
-                "error": str(e)
-            }
+            return {"collection_name": self.collection_name, "error": str(e)}
 
     def upsert_documents(
         self,
-        chunks: List[str],
-        embeddings: List[List[float]],
-        metadatas: List[Dict[str, Any]],
-        ids: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+        chunks: list[str],
+        embeddings: list[list[float]],
+        metadatas: list[dict[str, Any]],
+        ids: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         Insert or update documents in the collection.
 
@@ -181,6 +170,7 @@ class QdrantClient:
             # Generate IDs if not provided
             if not ids:
                 import uuid
+
                 ids = [str(uuid.uuid4()) for _ in range(len(chunks))]
 
             # Build points array
@@ -189,10 +179,7 @@ class QdrantClient:
                 point = {
                     "id": ids[i],
                     "vector": embeddings[i],
-                    "payload": {
-                        "text": chunks[i],
-                        "metadata": metadatas[i]
-                    }
+                    "payload": {"text": chunks[i], "metadata": metadatas[i]},
                 }
                 points.append(point)
 
@@ -201,18 +188,20 @@ class QdrantClient:
             response = requests.put(url, json=payload, params={"wait": "true"}, timeout=60)
 
             if response.status_code == 200:
-                logger.info(f"Upserted {len(chunks)} documents to Qdrant collection '{self.collection_name}'")
+                logger.info(
+                    f"Upserted {len(chunks)} documents to Qdrant collection '{self.collection_name}'"
+                )
                 return {
                     "success": True,
                     "documents_added": len(chunks),
-                    "collection": self.collection_name
+                    "collection": self.collection_name,
                 }
             else:
                 logger.error(f"Qdrant upsert failed: {response.status_code} - {response.text}")
                 return {
                     "success": False,
                     "error": f"HTTP {response.status_code}",
-                    "collection": self.collection_name
+                    "collection": self.collection_name,
                 }
 
         except Exception as e:
@@ -227,11 +216,7 @@ class QdrantClient:
         """
         return self
 
-    def get(
-        self,
-        ids: List[str],
-        include: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+    def get(self, ids: list[str], include: list[str] | None = None) -> dict[str, Any]:
         """
         Retrieve points by IDs (Qdrant-compatible interface).
 
@@ -244,7 +229,7 @@ class QdrantClient:
         """
         try:
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points"
-            
+
             # Qdrant retrieve endpoint
             payload = {"ids": ids}
             if include:
@@ -263,22 +248,12 @@ class QdrantClient:
 
             if response.status_code != 200:
                 logger.error(f"Qdrant get failed: {response.status_code} - {response.text}")
-                return {
-                    "ids": [],
-                    "embeddings": [],
-                    "documents": [],
-                    "metadatas": []
-                }
+                return {"ids": [], "embeddings": [], "documents": [], "metadatas": []}
 
             results = response.json().get("result", [])
 
             # Transform to Qdrant format
-            formatted = {
-                "ids": [],
-                "embeddings": [],
-                "documents": [],
-                "metadatas": []
-            }
+            formatted = {"ids": [], "embeddings": [], "documents": [], "metadatas": []}
 
             for point in results:
                 formatted["ids"].append(str(point["id"]))
@@ -286,7 +261,7 @@ class QdrantClient:
                     formatted["embeddings"].append(point["vector"])
                 else:
                     formatted["embeddings"].append(None)
-                
+
                 payload_data = point.get("payload", {})
                 formatted["documents"].append(payload_data.get("text", ""))
                 formatted["metadatas"].append(payload_data.get("metadata", {}))
@@ -295,14 +270,9 @@ class QdrantClient:
 
         except Exception as e:
             logger.error(f"Qdrant get error: {e}")
-            return {
-                "ids": [],
-                "embeddings": [],
-                "documents": [],
-                "metadatas": []
-            }
+            return {"ids": [], "embeddings": [], "documents": [], "metadatas": []}
 
-    def delete(self, ids: List[str]) -> Dict[str, Any]:
+    def delete(self, ids: list[str]) -> dict[str, Any]:
         """
         Delete points by IDs (Qdrant-compatible interface).
 
@@ -314,28 +284,24 @@ class QdrantClient:
         """
         try:
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points/delete"
-            
+
             payload = {"points": ids}
             response = requests.post(url, json=payload, params={"wait": "true"}, timeout=30)
 
             if response.status_code == 200:
-                logger.info(f"Deleted {len(ids)} points from Qdrant collection '{self.collection_name}'")
-                return {
-                    "success": True,
-                    "deleted_count": len(ids)
-                }
+                logger.info(
+                    f"Deleted {len(ids)} points from Qdrant collection '{self.collection_name}'"
+                )
+                return {"success": True, "deleted_count": len(ids)}
             else:
                 logger.error(f"Qdrant delete failed: {response.status_code} - {response.text}")
-                return {
-                    "success": False,
-                    "error": f"HTTP {response.status_code}"
-                }
+                return {"success": False, "error": f"HTTP {response.status_code}"}
 
         except Exception as e:
             logger.error(f"Error deleting from Qdrant: {e}")
             raise
 
-    def peek(self, limit: int = 10) -> Dict[str, Any]:
+    def peek(self, limit: int = 10) -> dict[str, Any]:
         """
         Peek at points in the collection (Qdrant-compatible interface).
 
@@ -347,12 +313,8 @@ class QdrantClient:
         """
         try:
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points/scroll"
-            
-            payload = {
-                "limit": limit,
-                "with_payload": True,
-                "with_vectors": False
-            }
+
+            payload = {"limit": limit, "with_payload": True, "with_vectors": False}
             response = requests.post(url, json=payload, timeout=10)
 
             if response.status_code == 200:
@@ -363,22 +325,14 @@ class QdrantClient:
                 formatted = {
                     "ids": [str(p["id"]) for p in points],
                     "documents": [p.get("payload", {}).get("text", "") for p in points],
-                    "metadatas": [p.get("payload", {}).get("metadata", {}) for p in points]
+                    "metadatas": [p.get("payload", {}).get("metadata", {}) for p in points],
                 }
 
                 return formatted
             else:
                 logger.error(f"Qdrant peek failed: {response.status_code}")
-                return {
-                    "ids": [],
-                    "documents": [],
-                    "metadatas": []
-                }
+                return {"ids": [], "documents": [], "metadatas": []}
 
         except Exception as e:
             logger.error(f"Error peeking Qdrant collection: {e}")
-            return {
-                "ids": [],
-                "documents": [],
-                "metadatas": []
-            }
+            return {"ids": [], "documents": [], "metadatas": []}

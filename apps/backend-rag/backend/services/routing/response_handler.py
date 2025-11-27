@@ -6,14 +6,11 @@ Applies response sanitization and quality enforcement
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
 
 # Add utils to path for response_sanitizer import
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from utils.response_sanitizer import (
-    process_zantara_response,
-    classify_query_type as classify_query_for_rag
-)
+from utils.response_sanitizer import classify_query_type as classify_query_for_rag
+from utils.response_sanitizer import process_zantara_response
 
 logger = logging.getLogger(__name__)
 
@@ -45,11 +42,7 @@ class ResponseHandler:
         return classify_query_for_rag(message)
 
     def sanitize_response(
-        self,
-        response: str,
-        query_type: str,
-        apply_santai: bool = True,
-        add_contact: bool = True
+        self, response: str, query_type: str, apply_santai: bool = True, add_contact: bool = True
     ) -> str:
         """
         Sanitize and enforce quality standards on response
@@ -68,10 +61,7 @@ class ResponseHandler:
 
         try:
             sanitized = process_zantara_response(
-                response,
-                query_type,
-                apply_santai=apply_santai,
-                add_contact=add_contact
+                response, query_type, apply_santai=apply_santai, add_contact=add_contact
             )
 
             logger.info(f"✨ [ResponseHandler] Sanitized response (type: {query_type})")

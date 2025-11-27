@@ -160,12 +160,26 @@ class UnifiedAuth {
   async loginTeam(email, pin) {
     try {
       console.log('🔐 Team login attempt:', email);
-      const baseUrl = API_CONFIG.backend.url;
+      const baseUrl = API_CONFIG.backend.url || '/api';
       const endpoint = API_ENDPOINTS.auth.teamLogin || '/api/auth/team/login';
+      
+      // Build URL: if baseUrl is /api and endpoint starts with /api, use endpoint directly
+      // This prevents /api + /api/auth/team/login = /api/api/auth/team/login
+      let fullUrl;
+      if (baseUrl === '/api' && endpoint.startsWith('/api')) {
+        // baseUrl is /api, endpoint is /api/auth/team/login -> use endpoint directly
+        fullUrl = endpoint;
+      } else if (baseUrl.endsWith('/api') && endpoint.startsWith('/api/')) {
+        // baseUrl ends with /api, endpoint starts with /api/ -> use endpoint directly
+        fullUrl = endpoint;
+      } else {
+        // Normal concatenation
+        fullUrl = `${baseUrl}${endpoint}`;
+      }
 
       let response;
       try {
-        response = await fetch(`${baseUrl}${endpoint}`, {
+        response = await fetch(fullUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

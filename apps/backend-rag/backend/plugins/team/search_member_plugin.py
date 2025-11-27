@@ -4,11 +4,13 @@ Team Member Search Plugin
 Migrated from: backend/services/zantara_tools.py -> _search_team_member
 """
 
-from typing import Optional, List, Dict, Any
-from pydantic import Field
-from core.plugins import Plugin, PluginMetadata, PluginInput, PluginOutput, PluginCategory
-from services.collaborator_service import CollaboratorService
 import logging
+from typing import Any
+
+from core.plugins import Plugin, PluginCategory, PluginInput, PluginMetadata, PluginOutput
+from pydantic import Field
+
+from services.collaborator_service import CollaboratorService
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +24,10 @@ class TeamSearchInput(PluginInput):
 class TeamSearchOutput(PluginOutput):
     """Output schema for team member search"""
 
-    count: Optional[int] = Field(None, description="Number of results found")
-    results: Optional[List[Dict[str, Any]]] = Field(None, description="List of matching team members")
-    message: Optional[str] = Field(None, description="Message if no results found")
-    suggestion: Optional[str] = Field(None, description="Suggestion if no results found")
+    count: int | None = Field(None, description="Number of results found")
+    results: list[dict[str, Any]] | None = Field(None, description="List of matching team members")
+    message: str | None = Field(None, description="Message if no results found")
+    suggestion: str | None = Field(None, description="Suggestion if no results found")
 
 
 class TeamMemberSearchPlugin(Plugin):
@@ -35,7 +37,7 @@ class TeamMemberSearchPlugin(Plugin):
     Returns contact info, role, department, expertise level, and language.
     """
 
-    def __init__(self, config: Optional[dict] = None):
+    def __init__(self, config: dict | None = None):
         super().__init__(config)
         self.collaborator_service = CollaboratorService()
 

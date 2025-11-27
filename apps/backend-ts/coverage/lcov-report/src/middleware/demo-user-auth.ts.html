@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-    
+
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../index.html">All files</a> / <a href="index.html">src/middleware</a> demo-user-auth.ts</h1>
         <div class='clearfix'>
-            
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/49</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/57</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/5</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/49</span>
             </div>
-        
-            
+
+
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -789,7 +789,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Demo User Authentication
- * 
+ *
  * Creates a secure demo user with limited permissions for public access
  * Allows frontend to access handlers without exposing real credentials
  */
@@ -828,41 +828,41 @@ const TEAM_MEMBER_HANDLERS = <span class="cstat-no" title="statement not covered
   'system.handlers.get',
   'system.handlers.tools',
   'system.handler.execute',
-  
+
   // === AI SERVICES ===
   'ai.chat',
   'ai.chat.stream',
   'ai-services.chat',
   'ai-services.anticipate',
   'ai-services.learn',
-  
+
   // === RAG &amp; SEARCH ===
   'rag.query',
   'rag.search',
   'rag.health',
   'bali.zero.chat',
-  
+
   // === PRICING (Read-only) ===
   'bali.zero.pricing',
   'bali.zero.price',
   'pricing.official',
   'pricing.search',
   'price.lookup',
-  
+
   // === TEAM MANAGEMENT ===
   'team.list',
   'team.members',
   'team.login',
   'team.logout',
   'team.token.verify',
-  
+
   // === ORACLE SYSTEM ===
   'oracle.query',
   'oracle.search',
   'oracle.simulate',
   'oracle.analyze',
   'oracle.predict',
-  
+
   // === MEMORY (Read &amp; Write own data) ===
   'memory.retrieve',
   'memory.search',
@@ -872,29 +872,29 @@ const TEAM_MEMBER_HANDLERS = <span class="cstat-no" title="statement not covered
   'user.memory.retrieve',
   'user.memory.search',
   'user.memory.save',
-  
+
   // === IDENTITY &amp; ONBOARDING ===
   'identity.resolve',
   'onboarding.start',
-  
+
   // === BUSINESS OPERATIONS ===
   'kbli.lookup',
   'kbli.requirements',
   'kbli.search',
-  
+
   // === ANALYTICS (Read-only) ===
   'analytics.overview',
   'analytics.weekly',
   'activity.track',
-  
+
   // === COMMUNICATION (Send messages) ===
   'whatsapp.send.text',
   'email.send',
-  
+
   // === INTEL &amp; NEWS ===
   'intel.news.search',
   'intel.news.latest',
-  
+
   // === LOCATION &amp; MAPS ===
   'location.geocode',
   'location.reverse',
@@ -916,21 +916,21 @@ const DEMO_ALLOWED_HANDLERS = <span class="cstat-no" title="statement not covere
   'system.handlers.list',
   'system.handlers.category',
   'system.handlers.get',
-  
+
   // Basic AI chat
   'ai.chat',
   'bali.zero.chat',
-  
+
   // Search &amp; RAG (read-only)
   'rag.query',
   'rag.search',
-  
+
   // Pricing (PUBLIC - tutti devono avere accesso ai prezzi ufficiali Bali Zero)
   'bali.zero.pricing',        // Prezzi ufficiali Bali Zero
   'bali.zero.price',           // Quick price lookup Bali Zero
   'pricing.official',          // Official pricelist
   'price.lookup',              // Price lookup
-  
+
   // Team authentication
   'team.login',
   'team.logout',
@@ -953,7 +953,7 @@ const DEMO_FORBIDDEN_HANDLERS = <span class="cstat-no" title="statement not cove
   'team.delete',
   'team.update',
   'admin.*',
-  
+
   // Data modification
   'gmail.send',
   'gmail.delete',
@@ -961,18 +961,18 @@ const DEMO_FORBIDDEN_HANDLERS = <span class="cstat-no" title="statement not cove
   'sheets.update',
   'calendar.create',
   'calendar.delete',
-  
+
   // Memory write
   'memory.save',
   'memory.delete',
-  
+
   // CRM operations
   'crm.*',
-  
+
   // Work sessions
   'session.end',
   'end_user_session',
-  
+
   // Sensitive data
   'client.*',
   'practice.*',
@@ -987,19 +987,19 @@ export function <span class="fstat-no" title="function not covered" >isHandlerAl
 <span class="cstat-no" title="statement not covered" >  if (role === 'admin' || role === 'AI Bridge/Tech Lead' || role === 'tech') {</span>
 <span class="cstat-no" title="statement not covered" >    return true;</span>
   }
-  
+
   // Team members get expanded access
 <span class="cstat-no" title="statement not covered" >  if (role === 'member' || role === 'collaborator' || role === 'developer') {</span>
 <span class="cstat-no" title="statement not covered" >    if (TEAM_MEMBER_HANDLERS.has(handlerKey)) {</span>
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     }
   }
-  
+
   // Demo users get basic access
 <span class="cstat-no" title="statement not covered" >  if (DEMO_ALLOWED_HANDLERS.has(handlerKey)) {</span>
 <span class="cstat-no" title="statement not covered" >    return true;</span>
   }
-  
+
   // Check forbidden patterns
 <span class="cstat-no" title="statement not covered" >  for (const pattern of Array.from(DEMO_FORBIDDEN_HANDLERS)) {</span>
 <span class="cstat-no" title="statement not covered" >    if (pattern.endsWith('.*')) {</span>
@@ -1012,7 +1012,7 @@ export function <span class="fstat-no" title="function not covered" >isHandlerAl
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
-  
+
   // Default: deny (safe by default)
 <span class="cstat-no" title="statement not covered" >  return false;</span>
 }
@@ -1026,21 +1026,21 @@ export function <span class="fstat-no" title="function not covered" >isDemoAllow
 &nbsp;
 /**
  * Demo user authentication middleware
- * 
+ *
  * Allows public demo access with limited permissions
  */
 export function <span class="fstat-no" title="function not covered" >demoUserAuth(r</span>eq: RequestWithDemo, res: Response, next: NextFunction) {
 <span class="cstat-no" title="statement not covered" >  try {</span>
     const authHeader = <span class="cstat-no" title="statement not covered" >req.headers.authorization;</span>
-    
+
     // Check for JWT token
 <span class="cstat-no" title="statement not covered" >    if (authHeader &amp;&amp; authHeader.startsWith('Bearer ')) {</span>
       const token = <span class="cstat-no" title="statement not covered" >authHeader.substring(7);</span>
       const jwtSecret = <span class="cstat-no" title="statement not covered" >process.env.JWT_SECRET || 'zantara-jwt-secret-2025';</span>
-      
+
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const decoded = <span class="cstat-no" title="statement not covered" >jwt.verify(token, jwtSecret) as any;</span>
-        
+
         // Set user from JWT
 <span class="cstat-no" title="statement not covered" >        req.user = {</span>
           userId: decoded.userId || 'unknown',
@@ -1048,22 +1048,22 @@ export function <span class="fstat-no" title="function not covered" >demoUserAut
           role: decoded.role || 'member',
           isDemo: decoded.email === DEMO_USER.email
         };
-        
+
         // Special case: Zero is always admin
 <span class="cstat-no" title="statement not covered" >        if (decoded.email === 'zero@balizero.com' || decoded.userId === 'zero') {</span>
 <span class="cstat-no" title="statement not covered" >          req.user.role = 'admin';</span>
 <span class="cstat-no" title="statement not covered" >          req.user.isDemo = false;</span>
         }
-        
+
         // Check handler permissions for authenticated user
         const { handler, key } = <span class="cstat-no" title="statement not covered" >req.body || {};</span>
         const handlerKey = <span class="cstat-no" title="statement not covered" >handler || key;</span>
-        
+
         // For SSE streaming endpoints (GET requests), skip handler check
 <span class="cstat-no" title="statement not covered" >        if (req.method === 'GET' &amp;&amp; req.path.includes('stream')) {</span>
 <span class="cstat-no" title="statement not covered" >          return next();</span>
         }
-        
+
 <span class="cstat-no" title="statement not covered" >        if (handlerKey &amp;&amp; !isHandlerAllowed(handlerKey, req.user.role)) {</span>
 <span class="cstat-no" title="statement not covered" >          return res.status(403).json({</span>
             ok: false,
@@ -1073,18 +1073,18 @@ export function <span class="fstat-no" title="function not covered" >demoUserAut
             contact: 'Contact admin for elevated permissions'
           });
         }
-        
+
 <span class="cstat-no" title="statement not covered" >        return next();</span>
       } catch (jwtError: any) {
         // Invalid JWT, fall through to demo user check
         // JWT error handled silently, falls through to demo user
       }
     }
-    
+
     // No valid JWT - check for demo credentials in body
     const { handler, key } = <span class="cstat-no" title="statement not covered" >req.body;</span>
     const handlerKey = <span class="cstat-no" title="statement not covered" >handler || key;</span>
-    
+
     // Create demo user context
 <span class="cstat-no" title="statement not covered" >    req.user = {</span>
       userId: DEMO_USER.userId,
@@ -1092,7 +1092,7 @@ export function <span class="fstat-no" title="function not covered" >demoUserAut
       role: DEMO_USER.role,
       isDemo: true
     };
-    
+
     // Check if handler is allowed for demo
 <span class="cstat-no" title="statement not covered" >    if (handlerKey &amp;&amp; !isDemoAllowed(handlerKey)) {</span>
 <span class="cstat-no" title="statement not covered" >      return res.status(403).json({</span>
@@ -1103,9 +1103,9 @@ export function <span class="fstat-no" title="function not covered" >demoUserAut
         allowed_handlers: Array.from(DEMO_ALLOWED_HANDLERS).slice(0, 10)
       });
     }
-    
+
 <span class="cstat-no" title="statement not covered" >    next();</span>
-    
+
   } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >    console.error('Demo auth error:', error);</span>
 <span class="cstat-no" title="statement not covered" >    return res.status(500).json({</span>
@@ -1120,7 +1120,7 @@ export function <span class="fstat-no" title="function not covered" >demoUserAut
  */
 export function <span class="fstat-no" title="function not covered" >createDemoToken(): string {</span>
   const jwtSecret = <span class="cstat-no" title="statement not covered" >process.env.JWT_SECRET || 'zantara-jwt-secret-2025';</span>
-  
+
 <span class="cstat-no" title="statement not covered" >  return jwt.sign(</span>
     {
       userId: DEMO_USER.userId,
@@ -1168,4 +1168,3 @@ export default demoUserAuth;
         <script src="../../block-navigation.js"></script>
     </body>
 </html>
-    

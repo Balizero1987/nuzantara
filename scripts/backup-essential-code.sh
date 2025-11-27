@@ -79,4 +79,3 @@ tree -L 3 "$BACKUP_DIR" 2>/dev/null || find "$BACKUP_DIR" -type f | head -20
 echo ""
 echo "🚀 Prossimo passo: caricare $ARCHIVE_NAME su Google Drive"
 echo "   Folder ID: 1jAGhx7MjWtT0u3vfMRga2sTreV3815ZC"
-

@@ -4,17 +4,19 @@ Core Plugin Base Classes
 Defines the base plugin interface that all ZANTARA plugins must implement.
 """
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Type
-from pydantic import BaseModel, Field, validator
-from enum import Enum
 import logging
+from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Any
+
+from pydantic import BaseModel, Field, validator
 
 logger = logging.getLogger(__name__)
 
 
 class PluginCategory(str, Enum):
     """Plugin categories matching existing handler structure"""
+
     AI_SERVICES = "ai-services"
     ANALYTICS = "analytics"
     AUTH = "auth"
@@ -47,30 +49,29 @@ class PluginMetadata(BaseModel):
     description: str = Field(..., description="What this plugin does")
     category: PluginCategory = Field(..., description="Plugin category")
     author: str = Field(default="Bali Zero", description="Plugin author")
-    tags: List[str] = Field(default_factory=list, description="Searchable tags")
+    tags: list[str] = Field(default_factory=list, description="Searchable tags")
 
     # Dependencies
     requires_auth: bool = Field(default=False, description="Requires user authentication")
     requires_admin: bool = Field(default=False, description="Admin only")
-    dependencies: List[str] = Field(default_factory=list, description="Other plugins needed")
+    dependencies: list[str] = Field(default_factory=list, description="Other plugins needed")
 
     # Configuration
-    config_schema: Optional[Dict[str, Any]] = Field(None, description="JSON schema for config")
+    config_schema: dict[str, Any] | None = Field(None, description="JSON schema for config")
 
     # Performance
     estimated_time: float = Field(1.0, description="Estimated execution time (seconds)")
-    rate_limit: Optional[int] = Field(None, description="Max calls per minute")
+    rate_limit: int | None = Field(None, description="Max calls per minute")
 
     # Model filtering (for Haiku vs Sonnet)
-    allowed_models: List[str] = Field(
+    allowed_models: list[str] = Field(
         default_factory=lambda: ["haiku", "sonnet", "opus"],
-        description="Which AI models can use this plugin"
+        description="Which AI models can use this plugin",
     )
 
     # Backward compatibility
-    legacy_handler_key: Optional[str] = Field(
-        None,
-        description="Original handler key for backward compatibility (e.g., 'gmail.send')"
+    legacy_handler_key: str | None = Field(
+        None, description="Original handler key for backward compatibility (e.g., 'gmail.send')"
     )
 
     @validator("version")
@@ -100,11 +101,11 @@ class PluginOutput(BaseModel):
 
     success: bool = Field(..., description="Whether execution succeeded")
     data: Any = Field(None, description="Result data")
-    error: Optional[str] = Field(None, description="Error message if failed")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Execution metadata")
+    error: str | None = Field(None, description="Error message if failed")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Execution metadata")
 
     # Backward compatibility
-    ok: Optional[bool] = Field(None, description="Legacy success field")
+    ok: bool | None = Field(None, description="Legacy success field")
 
     def __init__(self, **data):
         """Initialize and set ok field for backward compatibility"""
@@ -154,7 +155,7 @@ class Plugin(ABC):
                 pass
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """Initialize plugin with optional configuration"""
         self.config = config or {}
         self._validate_config()
@@ -168,13 +169,13 @@ class Plugin(ABC):
 
     @property
     @abstractmethod
-    def input_schema(self) -> Type[PluginInput]:
+    def input_schema(self) -> type[PluginInput]:
         """Return Pydantic model for inputs"""
         pass
 
     @property
     @abstractmethod
-    def output_schema(self) -> Type[PluginOutput]:
+    def output_schema(self) -> type[PluginOutput]:
         """Return Pydantic model for outputs"""
         pass
 
@@ -230,7 +231,7 @@ class Plugin(ABC):
         """
         logger.debug(f"Unloading plugin: {self.metadata.name}")
 
-    def to_anthropic_tool_definition(self) -> Dict[str, Any]:
+    def to_anthropic_tool_definition(self) -> dict[str, Any]:
         """
         Convert plugin to ZANTARA AI tool definition format (legacy Anthropic format for compatibility).
         Used for ZANTARA AI integration.
@@ -241,7 +242,7 @@ class Plugin(ABC):
             "input_schema": self.input_schema.schema(),
         }
 
-    def to_handler_format(self) -> Dict[str, Any]:
+    def to_handler_format(self) -> dict[str, Any]:
         """
         Convert plugin to legacy handler format for backward compatibility.
         """
