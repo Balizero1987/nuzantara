@@ -23,9 +23,8 @@ REFACTORED (2025-12-01):
 """
 
 import logging
-import time
 import asyncio
-from typing import Any, AsyncIterator
+from typing import Any
 
 # Import modular components
 from .classification import IntentClassifier

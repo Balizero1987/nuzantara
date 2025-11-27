@@ -110,7 +110,7 @@ async def semantic_search(query: SearchQuery):
 async def search_health():
     """Quick health check for search service"""
     try:
-        service = SearchService()
+        SearchService()  # Verify service is available
         return {
             "status": "operational",
             "service": "search",

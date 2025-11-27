@@ -122,7 +122,7 @@ async def semantic_search(query: SearchQuery) -> SearchResponse:
 async def search_health() -> dict[str, Any]:
     """Quick health check for search service"""
     try:
-        service = get_knowledge_service()
+        get_knowledge_service()  # Verify service is available
         return {
             "status": "operational",
             "service": "knowledge",
