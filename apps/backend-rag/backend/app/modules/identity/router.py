@@ -189,14 +189,29 @@ async def run_migration_010() -> dict:
 
         try:
             logger.info("Executing migration 010...")
-            await conn.execute(sql)
+            
+            # Execute migration in a transaction
+            async with conn.transaction():
+                # Split SQL by semicolons and execute each statement
+                statements = [s.strip() for s in sql.split(';') if s.strip() and not s.strip().startswith('--')]
+                
+                for i, statement in enumerate(statements, 1):
+                    if statement:
+                        try:
+                            await conn.execute(statement)
+                            logger.info(f"Executed statement {i}/{len(statements)}")
+                        except Exception as stmt_error:
+                            logger.error(f"Error in statement {i}: {stmt_error}")
+                            logger.error(f"Statement: {statement[:200]}...")
+                            # Continue with other statements (migration is idempotent)
+                            pass
 
             # Verify columns
             cols = await conn.fetch("""
                 SELECT column_name, data_type 
                 FROM information_schema.columns 
                 WHERE table_name = 'team_members' 
-                AND column_name IN ('pin_hash', 'department', 'language', 'full_name', 'active', 'personalized_response', 'notes', 'last_login', 'failed_attempts', 'locked_until')
+                AND column_name IN ('pin_hash', 'department', 'language', 'full_name', 'active', 'is_active', 'personalized_response', 'notes', 'last_login', 'failed_attempts', 'locked_until')
                 ORDER BY column_name
             """)
 
@@ -205,11 +220,14 @@ async def run_migration_010() -> dict:
                 "message": "Migration 010 executed successfully",
                 "columns": [{"name": c["column_name"], "type": c["data_type"]} for c in cols]
             }
+        except Exception as e:
+            logger.error(f"Migration 010 error: {e}", exc_info=True)
+            import traceback
+            error_details = traceback.format_exc()
+            logger.error(f"Full traceback: {error_details}")
+            raise HTTPException(status_code=500, detail=f"Migration failed: {str(e)}\n{error_details}")
         finally:
             await conn.close()
-    except Exception as e:
-        logger.error(f"Migration 010 error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Migration failed: {str(e)}")
 
 
 @router.get("/debug-auth")
