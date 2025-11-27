@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import json
 import logging
-import asyncio
 from collections.abc import AsyncIterator
 
 import httpx
