@@ -65,7 +65,7 @@ class MetricsCollector:
 
             start = time.time()
             cache.set("metrics_ping", "pong", ttl=1)
-            result = cache.get("metrics_ping")
+            cache.get("metrics_ping")  # Verify cache works
             latency = (time.time() - start) * 1000
             redis_latency.set(latency)
             self.last_redis_check = latency
@@ -95,7 +95,7 @@ class MetricsCollector:
         try:
             cpu_percent = psutil.cpu_percent(interval=0.1)
             cpu_usage.set(cpu_percent)
-        except:
+        except Exception:
             pass
 
         # Memory usage
@@ -103,7 +103,7 @@ class MetricsCollector:
             memory = psutil.virtual_memory()
             memory_mb = memory.used / 1024 / 1024
             memory_usage.set(memory_mb)
-        except:
+        except Exception:
             pass
 
     def record_request(self, method: str, endpoint: str, status: int, duration: float):

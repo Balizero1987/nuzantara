@@ -246,10 +246,6 @@ async def health_check():
         "status": "healthy",
         "plugins_loaded": stats["total_plugins"],
     }
-ZANTARA Plugin API
-REST endpoints for plugin management
-"""
-from fastapi import APIRouter, HTTPException
 from typing import List, Dict, Any
 import logging
 from plugins.registry import plugin_registry

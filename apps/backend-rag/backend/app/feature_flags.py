@@ -41,9 +41,9 @@ def should_enable_collective_memory() -> bool:
 
     # Check if langgraph is available
     try:
-        import langgraph
-
-        return True
+        import importlib.util
+        spec = importlib.util.find_spec("langgraph")
+        return spec is not None
     except ImportError:
         return False
 
