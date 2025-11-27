@@ -328,10 +328,10 @@ class SpecializedServiceRouter:
             return False
 
         message_lower = message.lower()
-        
+
         # Check for explicit start keywords
         has_start_keyword = any(kw in message_lower for kw in JOURNEY_KEYWORDS)
-        
+
         # Check for specific journey types mentioned
         journey_types = ["pt pma", "kitas", "visa", "property", "land"]
         has_journey_type = any(jt in message_lower for jt in journey_types)
@@ -340,7 +340,7 @@ class SpecializedServiceRouter:
 
         if needs_journey:
             logger.info("🛣️ [SpecializedServiceRouter] CLIENT JOURNEY detected")
-        
+
         return needs_journey
 
     async def route_client_journey(self, query: str, user_id: str) -> dict[str, Any] | None:
@@ -354,14 +354,14 @@ class SpecializedServiceRouter:
             # Simple heuristic to determine type (in real app, use LLM extraction)
             query_lower = query.lower()
             journey_type = None
-            
+
             if "pt pma" in query_lower or "company" in query_lower:
                 journey_type = "pt_pma_setup"
             elif "kitas" in query_lower or "visa" in query_lower:
                 journey_type = "kitas_application"
             elif "property" in query_lower or "land" in query_lower:
                 journey_type = "property_purchase"
-            
+
             if not journey_type:
                 return None
 

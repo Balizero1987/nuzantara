@@ -4,11 +4,12 @@ Plugin API Routes - FastAPI
 Provides REST API for plugin management and execution.
 """
 
-from fastapi import APIRouter, HTTPException, Header
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel
-from core.plugins import registry, executor, PluginCategory
 import logging
+from typing import Any, Optional
+
+from core.plugins import PluginCategory, executor, registry
+from fastapi import APIRouter, Header, HTTPException
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ router = APIRouter(prefix="/api/plugins", tags=["plugins"])
 class PluginExecuteRequest(BaseModel):
     """Request to execute a plugin"""
 
-    input_data: Dict[str, Any]
+    input_data: dict[str, Any]
     use_cache: bool = True
     user_id: Optional[str] = None
 
@@ -28,16 +29,16 @@ class PluginListFilters(BaseModel):
     """Filters for listing plugins"""
 
     category: Optional[PluginCategory] = None
-    tags: Optional[List[str]] = None
-    allowed_models: Optional[List[str]] = None
+    tags: Optional[list[str]] = None
+    allowed_models: Optional[list[str]] = None
 
 
 # Endpoints
 @router.get("/list")
 async def list_plugins(
     category: Optional[str] = None,
-    tags: Optional[List[str]] = None,
-    allowed_models: Optional[List[str]] = None,
+    tags: Optional[list[str]] = None,
+    allowed_models: Optional[list[str]] = None,
 ):
     """
     List all available plugins

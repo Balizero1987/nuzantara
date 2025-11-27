@@ -245,16 +245,16 @@ async def store_collective_memory(
         try:
             content = state["memory_to_store"].get("content")
             user_id = state.get("user_id")
-            
+
             if content and user_id:
                 # Save as fact
                 await memory_service.add_fact(user_id, content)
                 logger.info(f"💾 Stored collective memory fact for {user_id}: {content}")
-                
+
                 # Also update summary if needed (simplified logic)
                 # In a real scenario, we'd append to summary or re-summarize
-                # await memory_service.update_summary(user_id, content) 
-                
+                # await memory_service.update_summary(user_id, content)
+
         except Exception as e:
             logger.error(f"❌ Failed to store collective memory: {e}")
 

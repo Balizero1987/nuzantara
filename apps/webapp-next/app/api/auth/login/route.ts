@@ -1,35 +1,47 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server"
 
-export async function POST(req: Request) {
+// Mock user database
+const MOCK_USERS = {
+  "zero@balizero.com": {
+    pin: "010719",
+    user: {
+      id: "1",
+      email: "zero@balizero.com",
+      name: "Zero Balizero",
+      tier: "S",
+      tier_display: "Executive",
+    },
+  },
+}
+
+export async function POST(request: Request) {
   try {
-    const { email, pin } = await req.json();
+    const { email, pin } = await request.json()
 
-    // Get backend URL from environment
-    const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
+    console.log("[v0] Mock login attempt:", { email, pin })
 
-    // Call backend authentication endpoint
-    const response = await fetch(`${RAG_BACKEND_URL}/api/auth/team/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, pin }),
-    });
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: 'Authentication failed' }));
-      return NextResponse.json(
-        { error: errorData.detail || 'Authentication failed' },
-        { status: response.status }
-      );
+    // Check credentials
+    const user = MOCK_USERS[email as keyof typeof MOCK_USERS]
+
+    if (!user || user.pin !== pin) {
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
-    const data = await response.json();
+    // Generate mock JWT token
+    const token = `mock_jwt_token_${Date.now()}`
 
-    // Return the authentication response
-    return NextResponse.json(data);
+    console.log("[v0] Mock login success:", user.user)
+
+    return NextResponse.json({
+      token,
+      user: user.user,
+      message: "Login successful",
+    })
   } catch (error) {
-    console.error('Login error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("[v0] Mock login error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

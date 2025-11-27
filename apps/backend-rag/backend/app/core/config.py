@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     # ========================================
     embedding_provider: str = "openai"  # OpenAI for production (1536-dim)
     openai_api_key: str | None = None  # Set via OPENAI_API_KEY env var
+    google_api_key: str | None = None  # Set via GOOGLE_API_KEY env var
     embedding_model: str = "text-embedding-3-small"
     embedding_dimensions: int = 1536  # Matches migrated collections
 
@@ -30,10 +31,9 @@ class Settings(BaseSettings):
     # ========================================
     # ZANTARA AI CONFIGURATION (PRIMARY)
     # ========================================
-    zantara_ai_model: str = "meta-llama/llama-4-scout"  # Set via ZANTARA_AI_MODEL
-    openrouter_api_key: str | None = None  # Set via OPENROUTER_API_KEY_LLAMA
-    zantara_ai_cost_input: float = 0.20  # Cost per 1M input tokens
-    zantara_ai_cost_output: float = 0.20  # Cost per 1M output tokens
+    zantara_ai_model: str = "gpt-4o-mini"  # Set via ZANTARA_AI_MODEL
+    zantara_ai_cost_input: float = 0.15  # Cost per 1M input tokens (GPT-4o-mini)
+    zantara_ai_cost_output: float = 0.60  # Cost per 1M output tokens (GPT-4o-mini)
 
     # ========================================
     # QDRANT VECTOR DATABASE
@@ -154,13 +154,13 @@ class Settings(BaseSettings):
     # ========================================
     zantara_oracle_url: str = Field(
         default="http://localhost:11434/api/generate",
-        description="ZANTARA Oracle API URL (local development default)"
+        description="ZANTARA Oracle API URL (set via ZANTARA_ORACLE_URL env var)"
     )
 
     # Development origins (for local testing)
     dev_origins: str = Field(
         default="http://localhost:4173,http://127.0.0.1:4173,http://localhost:3000,http://127.0.0.1:3000",
-        description="Comma-separated list of development origins for CORS"
+        description="Comma-separated list of development origins for CORS (set via DEV_ORIGINS env var)"
     )
     oracle_api_key: str | None = None  # Set via ORACLE_API_KEY env var
 

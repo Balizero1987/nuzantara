@@ -560,42 +560,42 @@ async def sync_gmail_interactions(
     """
     Manually trigger Gmail sync to Auto-CRM
     """
-    from services.gmail_service import get_gmail_service
     from services.auto_crm_service import get_auto_crm_service
+    from services.gmail_service import get_gmail_service
 
     try:
         gmail = get_gmail_service()
         auto_crm = get_auto_crm_service()
-        
+
         # 1. List unread messages
         messages = gmail.list_messages(query='is:unread', max_results=limit)
-        
+
         results = []
-        
+
         # 2. Process each message
         for msg_summary in messages:
             msg_id = msg_summary['id']
-            
+
             # Get full details
             details = gmail.get_message_details(msg_id)
             if not details:
                 continue
-                
+
             # Process with AutoCRM
             result = await auto_crm.process_email_interaction(
                 email_data=details,
                 team_member=team_member
             )
-            
+
             results.append({
                 "message_id": msg_id,
                 "subject": details.get('subject'),
                 "crm_result": result
             })
-            
+
             # Mark as read (optional, maybe later)
             # gmail.mark_as_read(msg_id)
-            
+
         return {
             "success": True,
             "processed_count": len(results),

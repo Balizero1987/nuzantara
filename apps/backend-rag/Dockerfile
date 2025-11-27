@@ -66,4 +66,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 # Start uvicorn from root directory using module path
 # This matches the PYTHONPATH configuration and works both locally and in Docker
 # Use 0.0.0.0 (IPv4) for reliable binding (Fly.io proxy handles IPv6/IPv4 translation)
-CMD ["uvicorn", "backend.app.main_cloud:app", "--host", "0.0.0.0", "--port", "8080"]
+# Use shell script to properly expand $PORT environment variable
+CMD ["sh", "-c", "uvicorn backend.app.main_cloud:app --host 0.0.0.0 --port ${PORT:-8080}"]

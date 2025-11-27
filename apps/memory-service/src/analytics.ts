@@ -4,7 +4,7 @@
  * Tracks and provides insights on memory usage, performance, and effectiveness
  */
 
-/* eslint-disable no-console */ // Console statements appropriate for analytics module
+  // Console statements appropriate for analytics module
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Pool } from 'pg';

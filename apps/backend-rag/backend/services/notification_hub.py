@@ -118,6 +118,7 @@ class NotificationHub:
             if self.channels_config["email"]["provider"] == "sendgrid":
                 try:
                     from sendgrid import SendGridAPIClient
+
                     from app.core.config import settings
 
                     self.sendgrid_client = SendGridAPIClient(settings.sendgrid_api_key)
@@ -129,6 +130,7 @@ class NotificationHub:
         if self.channels_config["whatsapp"]["enabled"] or self.channels_config["sms"]["enabled"]:
             try:
                 from twilio.rest import Client
+
                 from app.core.config import settings
 
                 self.twilio_client = Client(

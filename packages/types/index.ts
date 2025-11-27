@@ -7,8 +7,10 @@
 export type UUID = string;
 export type Timestamp = number;
 export type JSONValue = string | number | boolean | null | JSONObject | JSONArray;
-export interface JSONObject { [key: string]: JSONValue; }
-export interface JSONArray extends Array<JSONValue> {}
+export interface JSONObject {
+  [key: string]: JSONValue;
+}
+export type JSONArray = Array<JSONValue>;
 
 // API types
 export interface APIResponse<T = unknown> {

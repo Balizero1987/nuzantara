@@ -6,9 +6,10 @@ Handles event listing and scheduling using Google API.
 import logging
 import os
 from datetime import datetime, timedelta
-from typing import List, Dict, Any
-from google.oauth2.credentials import Credentials
+from typing import Any
+
 from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ class CalendarService:
         try:
             if os.path.exists('token.json'):
                 self.creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-            
+
             if not self.creds or not self.creds.valid:
                 if self.creds and self.creds.expired and self.creds.refresh_token:
                     self.creds.refresh(Request())
@@ -49,7 +50,7 @@ class CalendarService:
         except Exception as e:
             logger.error(f"❌ Calendar authentication failed: {e}")
 
-    def list_upcoming_events(self, max_results: int = 10) -> List[Dict[str, Any]]:
+    def list_upcoming_events(self, max_results: int = 10) -> list[dict[str, Any]]:
         """List upcoming events"""
         if not self.service:
             # Mock behavior
@@ -84,7 +85,7 @@ class CalendarService:
             logger.error(f"❌ Failed to list events: {e}")
             return []
 
-    def create_event(self, summary: str, start_time: str, end_time: str, description: str = "") -> Dict[str, Any]:
+    def create_event(self, summary: str, start_time: str, end_time: str, description: str = "") -> dict[str, Any]:
         """Create a new event"""
         if not self.service:
             logger.info(f"📅 [MOCK] Event created: {summary} at {start_time}")

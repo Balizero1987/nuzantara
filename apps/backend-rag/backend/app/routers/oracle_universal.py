@@ -89,7 +89,7 @@ class Configuration:
         """Validate required environment variables"""
         from app.core.config import settings
         missing_vars = []
-        
+
         if not settings.database_url:
             missing_vars.append("DATABASE_URL")
         # Note: GOOGLE_API_KEY and GOOGLE_CREDENTIALS_JSON are not in settings yet

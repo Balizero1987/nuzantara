@@ -5,7 +5,7 @@
  * and stores them in collective_memory for team-wide use.
  */
 
-/* eslint-disable no-console */
+ 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Pool } from 'pg';
@@ -111,7 +111,7 @@ ${conversationText}
 Return JSON array of extracted facts:`;
 
       // Call OpenAI
-      // eslint-disable-next-line no-undef
+       
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -203,8 +203,16 @@ Return JSON array of extracted facts:`;
   async storeFact(fact: ExtractedFact, createdBy: string): Promise<void> {
     try {
       // Determine if this is a personal fact or shared knowledge
-      const personalTypes = ['client_preference', 'specific_requirement', 'verified_information', 'personal_detail'];
-      const isPersonal = personalTypes.includes(fact.memory_type) || fact.content.toLowerCase().includes('client') || fact.content.toLowerCase().includes('user');
+      const personalTypes = [
+        'client_preference',
+        'specific_requirement',
+        'verified_information',
+        'personal_detail',
+      ];
+      const isPersonal =
+        personalTypes.includes(fact.memory_type) ||
+        fact.content.toLowerCase().includes('client') ||
+        fact.content.toLowerCase().includes('user');
 
       if (isPersonal) {
         // Store in Personal Memory (memory_facts)
@@ -221,11 +229,13 @@ Return JSON array of extracted facts:`;
             JSON.stringify({
               importance: fact.importance_score,
               tags: fact.tags,
-              extracted_at: new Date().toISOString()
-            })
+              extracted_at: new Date().toISOString(),
+            }),
           ]
         );
-        console.log(`👤 Stored PERSONAL fact for user ${createdBy}: ${fact.content.substring(0, 50)}...`);
+        console.log(
+          `👤 Stored PERSONAL fact for user ${createdBy}: ${fact.content.substring(0, 50)}...`
+        );
       } else {
         // Store in Collective Memory (collective_memory)
         await this.postgres.query(

@@ -59,7 +59,7 @@ class GmailService:
     def list_messages(self, query='is:unread', max_results=5):
         # Returns list of message summaries
         pass
-    
+
     def get_message_details(self, message_id):
         # Returns {subject, sender, body, date, snippet}
         pass

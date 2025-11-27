@@ -5,9 +5,9 @@
  * while maintaining context and key information.
  */
 
-/* eslint-disable no-console */
+ 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-undef */ // fetch is built-in in Node 18+
+  // fetch is built-in in Node 18+
 
 import { Pool } from 'pg';
 
