@@ -173,6 +173,10 @@ class AuditTrailService {
       await this.ensureTableExists();
 
       const pool = getDatabasePool();
+      if (!pool) {
+        logger.warn('Audit trail: Database pool not available, skipping event storage');
+        return;
+      }
       await pool.query(
         `INSERT INTO audit_events (
           timestamp, event_type, user_id, ip_address, user_agent,
@@ -213,6 +217,10 @@ class AuditTrailService {
 
     try {
       const pool = getDatabasePool();
+      if (!pool) {
+        logger.warn('Audit trail: Database pool not available, cannot create table');
+        return;
+      }
       await pool.query(`
         CREATE TABLE IF NOT EXISTS audit_events (
           id SERIAL PRIMARY KEY,
@@ -258,6 +266,10 @@ class AuditTrailService {
     try {
       await this.ensureTableExists();
       const pool = getDatabasePool();
+      if (!pool) {
+        logger.warn('Audit trail: Database pool not available');
+        return [];
+      }
 
       let query = 'SELECT * FROM audit_events WHERE 1=1';
       const params: any[] = [];
@@ -310,6 +322,10 @@ class AuditTrailService {
     try {
       await this.ensureTableExists();
       const pool = getDatabasePool();
+      if (!pool) {
+        logger.warn('Audit trail: Database pool not available');
+        return 0;
+      }
 
       const result = await pool.query(`
         DELETE FROM audit_events

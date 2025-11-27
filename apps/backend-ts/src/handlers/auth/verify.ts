@@ -26,7 +26,7 @@ function getJwtSecret(): string {
 export async function verifyToken(req: Request, res: Response) {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json(err('No token provided'));
     }
@@ -60,7 +60,7 @@ export async function verifyToken(req: Request, res: Response) {
       logger.warn('Token expired');
       return res.status(401).json(err('Token expired'));
     }
-    
+
     if (error.name === 'JsonWebTokenError') {
       logger.warn('Invalid token');
       return res.status(401).json(err('Invalid token'));
@@ -70,4 +70,3 @@ export async function verifyToken(req: Request, res: Response) {
     return res.status(500).json(err('Token verification failed'));
   }
 }
-

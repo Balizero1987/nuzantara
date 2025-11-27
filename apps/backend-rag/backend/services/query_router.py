@@ -9,17 +9,28 @@ Phase 3 Enhancement: Smart Fallback Chain Agent
 - Detailed logging and metrics
 """
 
-from typing import Literal, Tuple, Optional, List
 import logging
-import re
+from typing import Literal
 
 logger = logging.getLogger(__name__)
 
 # Phase 2/3: Extended collection support (5 → 15 collections with Oracle + expanded KBLI/Legal/Tax + Team)
 CollectionName = Literal[
-    "visa_oracle", "kbli_eye", "kbli_comprehensive", "tax_genius", "legal_architect", "zantara_books",
-    "tax_updates", "tax_knowledge", "property_listings", "property_knowledge", "legal_updates",
-    "bali_zero_pricing", "kb_indonesian", "cultural_insights", "bali_zero_team"
+    "visa_oracle",
+    "kbli_eye",
+    "kbli_comprehensive",
+    "tax_genius",
+    "legal_architect",
+    "zantara_books",
+    "tax_updates",
+    "tax_knowledge",
+    "property_listings",
+    "property_knowledge",
+    "legal_updates",
+    "bali_zero_pricing",
+    "kb_indonesian",
+    "cultural_insights",
+    "bali_zero_team",
 ]
 
 
@@ -36,117 +47,313 @@ class QueryRouter:
     # Domain-specific keywords for multi-collection routing
     # Generic patterns only - no specific codes (B211, C1, E23, etc. are in database)
     VISA_KEYWORDS = [
-        "visa", "immigration", "imigrasi", "passport", "paspor", "sponsor",
-        "stay permit", "tourist visa", "social visa", "work permit", "visit visa",
-        "long stay", "permit", "residence", "immigration office", "dirjen imigrasi"
+        "visa",
+        "immigration",
+        "imigrasi",
+        "passport",
+        "paspor",
+        "sponsor",
+        "stay permit",
+        "tourist visa",
+        "social visa",
+        "work permit",
+        "visit visa",
+        "long stay",
+        "permit",
+        "residence",
+        "immigration office",
+        "dirjen imigrasi",
     ]
 
     KBLI_KEYWORDS = [
-        "kbli", "business classification", "klasifikasi baku", "oss", "nib",
-        "risk-based", "berbasis risiko", "business license", "izin usaha",
-        "standard industrial", "kode usaha", "sektor", "sector",
-        "foreign ownership", "kepemilikan asing", "negative list", "dnpi",
-        "business activity", "kegiatan usaha"
+        "kbli",
+        "business classification",
+        "klasifikasi baku",
+        "oss",
+        "nib",
+        "risk-based",
+        "berbasis risiko",
+        "business license",
+        "izin usaha",
+        "standard industrial",
+        "kode usaha",
+        "sektor",
+        "sector",
+        "foreign ownership",
+        "kepemilikan asing",
+        "negative list",
+        "dnpi",
+        "business activity",
+        "kegiatan usaha",
     ]
 
     TAX_KEYWORDS = [
-        "tax", "pajak", "tax reporting", "withholding tax", "vat", "income tax",
-        "corporate tax", "fiscal", "tax compliance", "tax calculation",
-        "tax registration", "tax filing", "tax office", "direktorat jenderal pajak"
+        "tax",
+        "pajak",
+        "tax reporting",
+        "withholding tax",
+        "vat",
+        "income tax",
+        "corporate tax",
+        "fiscal",
+        "tax compliance",
+        "tax calculation",
+        "tax registration",
+        "tax filing",
+        "tax office",
+        "direktorat jenderal pajak",
     ]
 
     # Tax Genius specific keywords (for procedural/calculation queries)
     TAX_GENIUS_KEYWORDS = [
-        "tax calculation", "calculate tax", "tax rate", "how to calculate",
-        "tax example", "example", "tax procedure", "step by step",
-        "menghitung pajak", "perhitungan pajak", "cara menghitung",
-        "tax service", "bali zero service", "pricelist", "tarif pajak"
+        "tax calculation",
+        "calculate tax",
+        "tax rate",
+        "how to calculate",
+        "tax example",
+        "example",
+        "tax procedure",
+        "step by step",
+        "menghitung pajak",
+        "perhitungan pajak",
+        "cara menghitung",
+        "tax service",
+        "bali zero service",
+        "pricelist",
+        "tarif pajak",
     ]
 
     LEGAL_KEYWORDS = [
-        "company", "foreign investment", "limited liability", "company formation",
-        "incorporation", "deed", "notary", "notaris", "shareholder",
-        "business entity", "legal entity", "law", "hukum", "regulation",
-        "peraturan", "legal compliance", "contract", "perjanjian"
+        "company",
+        "foreign investment",
+        "limited liability",
+        "company formation",
+        "incorporation",
+        "deed",
+        "notary",
+        "notaris",
+        "shareholder",
+        "business entity",
+        "legal entity",
+        "law",
+        "hukum",
+        "regulation",
+        "peraturan",
+        "legal compliance",
+        "contract",
+        "perjanjian",
     ]
 
     # Property-related keywords (generic patterns only - no specific locations)
     PROPERTY_KEYWORDS = [
-        "property", "properti", "villa", "land", "tanah", "house", "rumah",
-        "apartment", "apartemen", "real estate", "listing", "for sale", "dijual",
-        "lease", "sewa", "rent", "rental", "leasehold", "freehold",
-        "investment property", "development", "land bank", "zoning", "setback",
-        "due diligence", "title deed", "sertipikat", "ownership structure"
+        "property",
+        "properti",
+        "villa",
+        "land",
+        "tanah",
+        "house",
+        "rumah",
+        "apartment",
+        "apartemen",
+        "real estate",
+        "listing",
+        "for sale",
+        "dijual",
+        "lease",
+        "sewa",
+        "rent",
+        "rental",
+        "leasehold",
+        "freehold",
+        "investment property",
+        "development",
+        "land bank",
+        "zoning",
+        "setback",
+        "due diligence",
+        "title deed",
+        "sertipikat",
+        "ownership structure",
     ]
 
     # Team-specific keywords (generic patterns only - no specific names)
     TEAM_KEYWORDS = [
-        "team", "tim", "staff", "employee", "karyawan", "personil",
-        "team member", "colleague", "consultant", "specialist",
-        "setup specialist", "tax specialist", "consulting", "accounting",
-        "founder", "ceo", "director", "manager", "lead",
-        "contact", "contattare", "contatta", "whatsapp", "email",
-        "dipartimento", "division", "department",
-        "professionista", "expert", "consulente"
+        "team",
+        "tim",
+        "staff",
+        "employee",
+        "karyawan",
+        "personil",
+        "team member",
+        "colleague",
+        "consultant",
+        "specialist",
+        "setup specialist",
+        "tax specialist",
+        "consulting",
+        "accounting",
+        "founder",
+        "ceo",
+        "director",
+        "manager",
+        "lead",
+        "contact",
+        "contattare",
+        "contatta",
+        "whatsapp",
+        "email",
+        "dipartimento",
+        "division",
+        "department",
+        "professionista",
+        "expert",
+        "consulente",
     ]
 
     # NEW: Enumeration keywords that trigger team data retrieval
     TEAM_ENUMERATION_KEYWORDS = [
-        "lista", "elenco", "tutti", "complete", "completa", "intero",
-        "mostrami", "mostra", "mostrare", "elenca", "elenchiamo", "elenca",
-        "chi sono", "chi lavora", "quante persone", "quanti membri",
-        "chi fa parte", "chi c'è", "in totale", "insieme",
-        "tutti i membri", "l'intero team", "il team completo"
+        "lista",
+        "elenco",
+        "tutti",
+        "complete",
+        "completa",
+        "intero",
+        "mostrami",
+        "mostra",
+        "mostrare",
+        "elenca",
+        "elenchiamo",
+        "elenca",
+        "chi sono",
+        "chi lavora",
+        "quante persone",
+        "quanti membri",
+        "chi fa parte",
+        "chi c'è",
+        "in totale",
+        "insieme",
+        "tutti i membri",
+        "l'intero team",
+        "il team completo",
     ]
 
     # Phase 2: Update/news keywords (for tax_updates & legal_updates)
     UPDATE_KEYWORDS = [
-        "update", "updates", "pembaruan", "recent", "terbaru", "latest", "new",
-        "news", "berita", "announcement", "pengumuman", "change", "perubahan",
-        "amendment", "revisi", "revision", "effective date", "berlaku",
-        "regulation update", "policy change", "what's new", "latest news"
+        "update",
+        "updates",
+        "pembaruan",
+        "recent",
+        "terbaru",
+        "latest",
+        "new",
+        "news",
+        "berita",
+        "announcement",
+        "pengumuman",
+        "change",
+        "perubahan",
+        "amendment",
+        "revisi",
+        "revision",
+        "effective date",
+        "berlaku",
+        "regulation update",
+        "policy change",
+        "what's new",
+        "latest news",
     ]
 
     # Consolidated high-signal keywords frequently used by Bali Zero users
     # Used for lightweight diagnostics in get_routing_stats()
     BALI_ZERO_KEYWORDS = [
         # Core brands/terms
-        "bali", "zero", "bali zero", "zantara",
+        "bali",
+        "zero",
+        "bali zero",
+        "zantara",
         # Immigration
-        "visa", "kitas", "kitap", "imigrasi", "immigration",
+        "visa",
+        "kitas",
+        "kitap",
+        "imigrasi",
+        "immigration",
         # Business/KBLI
-        "kbli", "oss", "nib", "pt pma", "bkpm",
+        "kbli",
+        "oss",
+        "nib",
+        "pt pma",
+        "bkpm",
         # Tax
-        "tax", "pajak", "npwp", "pph", "ppn",
+        "tax",
+        "pajak",
+        "npwp",
+        "pph",
+        "ppn",
         # Legal
-        "legal", "notary", "notaris", "akta"
+        "legal",
+        "notary",
+        "notaris",
+        "akta",
     ]
 
     # Keywords that indicate philosophical/technical knowledge
     BOOKS_KEYWORDS = [
         # Philosophy
-        "plato", "aristotle", "socrates", "philosophy", "filsafat",
-        "republic", "ethics", "metaphysics", "guénon", "traditionalism",
-
+        "plato",
+        "aristotle",
+        "socrates",
+        "philosophy",
+        "filsafat",
+        "republic",
+        "ethics",
+        "metaphysics",
+        "guénon",
+        "traditionalism",
         # Religious/Spiritual texts
-        "zohar", "kabbalah", "mahabharata", "ramayana", "bhagavad gita",
-        "rumi", "sufi", "dante", "divine comedy",
-
+        "zohar",
+        "kabbalah",
+        "mahabharata",
+        "ramayana",
+        "bhagavad gita",
+        "rumi",
+        "sufi",
+        "dante",
+        "divine comedy",
         # Indonesian Culture
-        "geertz", "religion of java", "kartini", "anderson", "imagined communities",
-        "javanese culture", "indonesian culture",
-
+        "geertz",
+        "religion of java",
+        "kartini",
+        "anderson",
+        "imagined communities",
+        "javanese culture",
+        "indonesian culture",
         # Computer Science
-        "sicp", "design patterns", "code complete", "programming",
-        "software engineering", "algorithms", "data structures",
-        "recursion", "functional programming", "lambda calculus", "oop",
-
+        "sicp",
+        "design patterns",
+        "code complete",
+        "programming",
+        "software engineering",
+        "algorithms",
+        "data structures",
+        "recursion",
+        "functional programming",
+        "lambda calculus",
+        "oop",
         # Machine Learning
-        "machine learning", "deep learning", "neural networks", "ml", "ai theory",
-        "probabilistic", "murphy", "goodfellow",
-
+        "machine learning",
+        "deep learning",
+        "neural networks",
+        "ml",
+        "ai theory",
+        "probabilistic",
+        "murphy",
+        "goodfellow",
         # Literature
-        "shakespeare", "homer", "iliad", "odyssey", "literature"
+        "shakespeare",
+        "homer",
+        "iliad",
+        "odyssey",
+        "literature",
     ]
 
     # Phase 3: Smart Fallback Chains
@@ -156,7 +363,11 @@ class QueryRouter:
         "visa_oracle": ["legal_architect", "tax_genius", "property_knowledge"],
         "kbli_eye": ["legal_architect", "tax_genius", "visa_oracle"],
         "kbli_comprehensive": ["kbli_eye", "legal_architect", "tax_genius"],
-        "tax_genius": ["tax_knowledge", "tax_updates", "legal_architect"],  # NEW: Tax Genius fallback chain
+        "tax_genius": [
+            "tax_knowledge",
+            "tax_updates",
+            "legal_architect",
+        ],  # NEW: Tax Genius fallback chain
         "tax_knowledge": ["tax_genius", "tax_updates", "legal_architect"],
         "tax_updates": ["tax_genius", "tax_knowledge", "legal_updates"],
         "legal_architect": ["legal_updates", "kbli_eye", "tax_genius"],
@@ -164,12 +375,16 @@ class QueryRouter:
         "property_knowledge": ["property_listings", "legal_architect", "visa_oracle"],
         "property_listings": ["property_knowledge", "legal_architect", "tax_knowledge"],
         "zantara_books": ["visa_oracle"],  # Books is standalone, default fallback
-        "bali_zero_team": ["visa_oracle", "legal_architect", "kbli_eye"]  # Team fallback to main company collections
+        "bali_zero_team": [
+            "visa_oracle",
+            "legal_architect",
+            "kbli_eye",
+        ],  # Team fallback to main company collections
     }
 
     # Confidence thresholds
     CONFIDENCE_THRESHOLD_HIGH = 0.7  # High confidence - use primary only
-    CONFIDENCE_THRESHOLD_LOW = 0.3   # Low confidence - try up to 3 fallbacks
+    CONFIDENCE_THRESHOLD_LOW = 0.3  # Low confidence - try up to 3 fallbacks
 
     def __init__(self):
         """Initialize the router with fallback chain support"""
@@ -179,7 +394,7 @@ class QueryRouter:
             "high_confidence": 0,
             "medium_confidence": 0,
             "low_confidence": 0,
-            "fallbacks_used": 0
+            "fallbacks_used": 0,
         }
 
     def route(self, query: str) -> CollectionName:
@@ -230,7 +445,7 @@ class QueryRouter:
             "legal": legal_score,
             "property": property_score,
             "books": books_score,
-            "team": team_score + team_enum_score
+            "team": team_score + team_enum_score,
         }
 
         primary_domain = max(domain_scores, key=domain_scores.get)
@@ -246,10 +461,14 @@ class QueryRouter:
             # Priority: tax_genius (calculations/procedures) > tax_updates > tax_knowledge
             if tax_genius_score > 0:
                 collection = "tax_genius"
-                logger.info(f"🧭 Route: {collection} (tax genius: tax={tax_score}, genius={tax_genius_score})")
+                logger.info(
+                    f"🧭 Route: {collection} (tax genius: tax={tax_score}, genius={tax_genius_score})"
+                )
             elif update_score > 0:
                 collection = "tax_updates"
-                logger.info(f"🧭 Route: {collection} (tax + updates: tax={tax_score}, update={update_score})")
+                logger.info(
+                    f"🧭 Route: {collection} (tax + updates: tax={tax_score}, update={update_score})"
+                )
             else:
                 collection = "tax_knowledge"
                 logger.info(f"🧭 Route: {collection} (tax knowledge: tax={tax_score})")
@@ -257,20 +476,34 @@ class QueryRouter:
             # Legal domain: route to updates vs general legal_architect
             if update_score > 0:
                 collection = "legal_updates"
-                logger.info(f"🧭 Route: {collection} (legal + updates: legal={legal_score}, update={update_score})")
+                logger.info(
+                    f"🧭 Route: {collection} (legal + updates: legal={legal_score}, update={update_score})"
+                )
             else:
                 collection = "legal_architect"
                 logger.info(f"🧭 Route: {collection} (legal general: legal={legal_score})")
         elif primary_domain == "property":
             # Property domain: route to listings vs knowledge
-            listing_keywords = ["for sale", "dijual", "listing", "available", "rent", "sewa", "lease"]
+            listing_keywords = [
+                "for sale",
+                "dijual",
+                "listing",
+                "available",
+                "rent",
+                "sewa",
+                "lease",
+            ]
             has_listing_intent = any(kw in query_lower for kw in listing_keywords)
             if has_listing_intent:
                 collection = "property_listings"
-                logger.info(f"🧭 Route: {collection} (property listings: property={property_score})")
+                logger.info(
+                    f"🧭 Route: {collection} (property listings: property={property_score})"
+                )
             else:
                 collection = "property_knowledge"
-                logger.info(f"🧭 Route: {collection} (property knowledge: property={property_score})")
+                logger.info(
+                    f"🧭 Route: {collection} (property knowledge: property={property_score})"
+                )
         elif primary_domain == "visa":
             collection = "visa_oracle"
             logger.info(f"🧭 Route: {collection} (visa: score={visa_score})")
@@ -332,7 +565,9 @@ class QueryRouter:
         if total_matches == 0:
             specificity_confidence = 0.0
         else:
-            second_max = sorted(domain_scores.values(), reverse=True)[1] if len(domain_scores) > 1 else 0
+            second_max = (
+                sorted(domain_scores.values(), reverse=True)[1] if len(domain_scores) > 1 else 0
+            )
             if max_score > second_max * 2:  # Clear winner
                 specificity_confidence = 0.2
             elif max_score > second_max:
@@ -344,11 +579,8 @@ class QueryRouter:
         return min(total_confidence, 1.0)  # Cap at 1.0
 
     def get_fallback_collections(
-        self,
-        primary_collection: CollectionName,
-        confidence: float,
-        max_fallbacks: int = 3
-    ) -> List[CollectionName]:
+        self, primary_collection: CollectionName, confidence: float, max_fallbacks: int = 3
+    ) -> list[CollectionName]:
         """
         Get list of collections to try based on confidence (Phase 3).
 
@@ -386,10 +618,8 @@ class QueryRouter:
         return collections
 
     def route_with_confidence(
-        self,
-        query: str,
-        return_fallbacks: bool = True
-    ) -> Tuple[CollectionName, float, List[CollectionName]]:
+        self, query: str, return_fallbacks: bool = True
+    ) -> tuple[CollectionName, float, list[CollectionName]]:
         """
         Route query with confidence scoring and fallback suggestions (Phase 3).
 
@@ -424,7 +654,7 @@ class QueryRouter:
             "tax": tax_score,
             "legal": legal_score,
             "property": property_score,
-            "books": books_score
+            "books": books_score,
         }
 
         primary_domain = max(domain_scores, key=domain_scores.get)
@@ -443,7 +673,15 @@ class QueryRouter:
         elif primary_domain == "legal":
             collection = "legal_updates" if update_score > 0 else "legal_architect"
         elif primary_domain == "property":
-            listing_keywords = ["for sale", "dijual", "listing", "available", "rent", "sewa", "lease"]
+            listing_keywords = [
+                "for sale",
+                "dijual",
+                "listing",
+                "available",
+                "rent",
+                "sewa",
+                "lease",
+            ]
             has_listing_intent = any(kw in query_lower for kw in listing_keywords)
             collection = "property_listings" if has_listing_intent else "property_knowledge"
         elif primary_domain == "visa":
@@ -527,11 +765,9 @@ class QueryRouter:
                 "tax": tax_score,
                 "legal": legal_score,
                 "property": property_score,
-                "books": books_score
+                "books": books_score,
             },
-            "modifier_scores": {
-                "updates": update_score
-            },
+            "modifier_scores": {"updates": update_score},
             "matched_keywords": {
                 "visa": visa_matches,
                 "kbli": kbli_matches,
@@ -539,10 +775,15 @@ class QueryRouter:
                 "legal": legal_matches,
                 "property": property_matches,
                 "books": books_matches,
-                "updates": update_matches
+                "updates": update_matches,
             },
             "routing_method": "keyword_layer_1_phase_2",
-            "total_matches": visa_score + kbli_score + tax_score + legal_score + property_score + books_score
+            "total_matches": visa_score
+            + kbli_score
+            + tax_score
+            + legal_score
+            + property_score
+            + books_score,
         }
 
     def get_fallback_stats(self) -> dict:
@@ -559,11 +800,7 @@ class QueryRouter:
             - fallback_rate: Percentage of routes using fallbacks
         """
         total = self.fallback_stats["total_routes"]
-        fallback_rate = (
-            (self.fallback_stats["fallbacks_used"] / total * 100)
-            if total > 0
-            else 0.0
-        )
+        fallback_rate = (self.fallback_stats["fallbacks_used"] / total * 100) if total > 0 else 0.0
 
         return {
             **self.fallback_stats,
@@ -571,6 +808,6 @@ class QueryRouter:
             "confidence_distribution": {
                 "high": f"{(self.fallback_stats['high_confidence'] / total * 100) if total > 0 else 0:.1f}%",
                 "medium": f"{(self.fallback_stats['medium_confidence'] / total * 100) if total > 0 else 0:.1f}%",
-                "low": f"{(self.fallback_stats['low_confidence'] / total * 100) if total > 0 else 0:.1f}%"
-            }
+                "low": f"{(self.fallback_stats['low_confidence'] / total * 100) if total > 0 else 0:.1f}%",
+            },
         }

@@ -3,8 +3,8 @@ ZANTARA RAG - Local Embeddings with Sentence Transformers
 FREE, no API key needed, runs locally
 """
 
-from typing import List
 import logging
+
 from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ class LocalEmbeddingsGenerator:
             logger.error(f"Failed to load model: {e}")
             raise
 
-    def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
+    def generate_embeddings(self, texts: list[str]) -> list[list[float]]:
         """
         Generate embeddings for a list of texts.
 
@@ -61,9 +61,7 @@ class LocalEmbeddingsGenerator:
 
             # Generate embeddings
             embeddings = self.model.encode(
-                texts,
-                convert_to_numpy=True,
-                show_progress_bar=len(texts) > 10
+                texts, convert_to_numpy=True, show_progress_bar=len(texts) > 10
             )
 
             # Convert to list of lists
@@ -76,7 +74,7 @@ class LocalEmbeddingsGenerator:
             logger.error(f"Error generating embeddings: {e}")
             raise
 
-    def generate_single_embedding(self, text: str) -> List[float]:
+    def generate_single_embedding(self, text: str) -> list[float]:
         """
         Generate embedding for a single text.
 
@@ -89,7 +87,7 @@ class LocalEmbeddingsGenerator:
         embeddings = self.generate_embeddings([text])
         return embeddings[0] if embeddings else []
 
-    def generate_query_embedding(self, query: str) -> List[float]:
+    def generate_query_embedding(self, query: str) -> list[float]:
         """
         Generate embedding optimized for query/search.
 
@@ -112,5 +110,5 @@ class LocalEmbeddingsGenerator:
             "model": self.model_name,
             "dimensions": self.dimensions,
             "provider": "sentence-transformers (local)",
-            "cost": "FREE"
+            "cost": "FREE",
         }

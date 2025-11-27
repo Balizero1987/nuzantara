@@ -14,7 +14,7 @@ COMMENT ON COLUMN users.profile_photo_url IS 'URL or base64 data of the user''s 
 COMMENT ON COLUMN users.profile_photo_updated_at IS 'Timestamp of the last profile photo update';
 
 -- Verify the migration
-SELECT column_name, data_type, is_nullable 
-FROM information_schema.columns 
-WHERE table_name = 'users' 
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'users'
 AND column_name IN ('profile_photo_url', 'profile_photo_updated_at');

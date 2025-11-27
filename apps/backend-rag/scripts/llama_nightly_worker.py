@@ -12,29 +12,24 @@ Runs daily at 2 AM UTC (10 AM Jakarta) to:
 This is the main entry point scheduled by Fly.io Cron Jobs.
 """
 
-import os
-import sys
 import asyncio
 import logging
-from datetime import datetime, timedelta
+import os
+import sys
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
 
 # Add modules directory to path
 sys.path.insert(0, str(Path(__file__).parent / "modules"))
 
+import asyncpg
+from cultural_knowledge_generator import CulturalKnowledgeGenerator
+from golden_answer_generator import GoldenAnswerGenerator
 from query_analyzer import QueryAnalyzer
 from query_clustering import QueryClusterer
-from golden_answer_generator import GoldenAnswerGenerator
-from cultural_knowledge_generator import CulturalKnowledgeGenerator
-
-import asyncpg
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -46,9 +41,9 @@ class NightlyWorker:
     def __init__(
         self,
         database_url: str,
-        runpod_endpoint: Optional[str] = None,
-        runpod_api_key: Optional[str] = None,
-        rag_backend_url: Optional[str] = None
+        runpod_endpoint: str | None = None,
+        runpod_api_key: str | None = None,
+        rag_backend_url: str | None = None,
     ):
         """
         Initialize worker
@@ -68,28 +63,20 @@ class NightlyWorker:
         self.query_analyzer = QueryAnalyzer(database_url)
         self.clusterer = QueryClusterer()
         self.golden_generator = GoldenAnswerGenerator(
-            database_url,
-            runpod_endpoint,
-            runpod_api_key,
-            rag_backend_url
+            database_url, runpod_endpoint, runpod_api_key, rag_backend_url
         )
         self.cultural_generator = CulturalKnowledgeGenerator(
-            database_url,
-            runpod_endpoint,
-            runpod_api_key
+            database_url, runpod_endpoint, runpod_api_key
         )
 
-        self.pool: Optional[asyncpg.Pool] = None
-        self.run_id: Optional[int] = None
+        self.pool: asyncpg.Pool | None = None
+        self.run_id: int | None = None
 
     async def connect(self):
         """Initialize PostgreSQL connection"""
         try:
             self.pool = await asyncpg.create_pool(
-                self.database_url,
-                min_size=2,
-                max_size=10,
-                command_timeout=60
+                self.database_url, min_size=2, max_size=10, command_timeout=60
             )
             logger.info("✅ NightlyWorker connected to PostgreSQL")
         except Exception as e:
@@ -115,14 +102,16 @@ class NightlyWorker:
             await self.connect()
 
         async with self.pool.acquire() as conn:
-            run_id = await conn.fetchval("""
+            run_id = await conn.fetchval(
+                """
                 INSERT INTO nightly_worker_runs (
                     run_date,
                     start_time,
                     status
                 ) VALUES (CURRENT_DATE, NOW(), 'running')
                 RETURNING id
-            """)
+            """
+            )
 
         logger.info(f"📊 Started nightly run ID: {run_id}")
         return run_id
@@ -135,14 +124,15 @@ class NightlyWorker:
         cultural_chunks_generated: int = 0,
         llama_tokens_used: int = 0,
         status: str = "running",
-        error_message: Optional[str] = None
+        error_message: str | None = None,
     ):
         """Update nightly_worker_runs with statistics"""
         if not self.pool or not self.run_id:
             return
 
         async with self.pool.acquire() as conn:
-            await conn.execute("""
+            await conn.execute(
+                """
                 UPDATE nightly_worker_runs
                 SET
                     intel_classification_count = $2,
@@ -162,7 +152,7 @@ class NightlyWorker:
                 cultural_chunks_generated,
                 llama_tokens_used,
                 status,
-                error_message
+                error_message,
             )
 
     async def _warmup_llama(self):
@@ -177,20 +167,15 @@ class NightlyWorker:
 
         try:
             import httpx
+
             async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     self.runpod_endpoint,
                     headers={
                         "Authorization": f"Bearer {self.runpod_api_key}",
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
-                    json={
-                        "input": {
-                            "prompt": "Hello",
-                            "max_tokens": 5,
-                            "temperature": 0.1
-                        }
-                    }
+                    json={"input": {"prompt": "Hello", "max_tokens": 5, "temperature": 0.1}},
                 )
 
                 if response.status_code == 200:
@@ -205,8 +190,8 @@ class NightlyWorker:
         self,
         days_lookback: int = 7,
         max_golden_answers: int = 50,
-        regenerate_cultural: bool = False
-    ) -> Dict:
+        regenerate_cultural: bool = False,
+    ) -> dict:
         """
         Execute nightly worker tasks
 
@@ -236,7 +221,7 @@ class NightlyWorker:
             "total_queries_analyzed": 0,
             "clusters_found": 0,
             "llama_tokens_used": 0,
-            "status": "running"
+            "status": "running",
         }
 
         try:
@@ -263,9 +248,7 @@ class NightlyWorker:
             else:
                 # Cluster similar queries
                 clusters = await self.clusterer.cluster_queries(
-                    queries,
-                    min_cluster_size=3,
-                    similarity_threshold=0.75
+                    queries, min_cluster_size=3, similarity_threshold=0.75
                 )
                 stats["clusters_found"] = len(clusters)
 
@@ -285,11 +268,12 @@ class NightlyWorker:
 
                     # Get top clusters
                     top_clusters = await self.clusterer.get_top_clusters(
-                        clusters,
-                        limit=max_golden_answers
+                        clusters, limit=max_golden_answers
                     )
 
-                    logger.info(f"   Generating golden answers for top {len(top_clusters)} clusters")
+                    logger.info(
+                        f"   Generating golden answers for top {len(top_clusters)} clusters"
+                    )
 
                     # Generate golden answers
                     golden_stats = await self.golden_generator.batch_generate_golden_answers(
@@ -298,7 +282,9 @@ class NightlyWorker:
 
                     stats["golden_answers_generated"] = golden_stats["successful"]
                     stats["llama_tokens_used"] += golden_stats.get("tokens_used", 0)
-                    logger.info(f"   ✅ Generated {golden_stats['successful']} golden answers ({golden_stats.get('tokens_used', 0)} tokens)")
+                    logger.info(
+                        f"   ✅ Generated {golden_stats['successful']} golden answers ({golden_stats.get('tokens_used', 0)} tokens)"
+                    )
 
             # ========================================
             # TASK 3: Cultural Knowledge Generation
@@ -312,9 +298,13 @@ class NightlyWorker:
                 cultural_stats = await self.cultural_generator.batch_generate_cultural_chunks()
                 stats["cultural_chunks_generated"] = cultural_stats["successful"]
                 stats["llama_tokens_used"] += cultural_stats.get("tokens_used", 0)
-                logger.info(f"   ✅ Generated {cultural_stats['successful']} cultural chunks ({cultural_stats.get('tokens_used', 0)} tokens)")
+                logger.info(
+                    f"   ✅ Generated {cultural_stats['successful']} cultural chunks ({cultural_stats.get('tokens_used', 0)} tokens)"
+                )
             else:
-                logger.info("   Skipping cultural regeneration (use --regenerate-cultural to force)")
+                logger.info(
+                    "   Skipping cultural regeneration (use --regenerate-cultural to force)"
+                )
                 stats["cultural_chunks_generated"] = 0
 
             # ========================================
@@ -331,7 +321,7 @@ class NightlyWorker:
                 golden_answers_updated=0,
                 cultural_chunks_generated=stats["cultural_chunks_generated"],
                 llama_tokens_used=stats["llama_tokens_used"],
-                status="completed"
+                status="completed",
             )
 
             logger.info("")
@@ -354,10 +344,7 @@ class NightlyWorker:
             stats["error"] = str(e)
 
             # Update run record
-            await self._update_run_stats(
-                status="failed",
-                error_message=str(e)
-            )
+            await self._update_run_stats(status="failed", error_message=str(e))
 
             raise
 
@@ -372,7 +359,9 @@ async def main():
     parser = argparse.ArgumentParser(description="LLAMA Nightly Worker")
     parser.add_argument("--days", type=int, default=7, help="Days of queries to analyze")
     parser.add_argument("--max-golden", type=int, default=50, help="Max golden answers to generate")
-    parser.add_argument("--regenerate-cultural", action="store_true", help="Regenerate all cultural chunks")
+    parser.add_argument(
+        "--regenerate-cultural", action="store_true", help="Regenerate all cultural chunks"
+    )
     parser.add_argument("--dry-run", action="store_true", help="Test run without saving")
     args = parser.parse_args()
 
@@ -380,10 +369,7 @@ async def main():
     database_url = os.getenv("DATABASE_URL")
     runpod_endpoint = os.getenv("RUNPOD_LLAMA_ENDPOINT")
     runpod_api_key = os.getenv("RUNPOD_API_KEY")
-    rag_backend_url = os.getenv(
-        "RAG_BACKEND_URL",
-        "https://nuzantara-rag.fly.dev"
-    )
+    rag_backend_url = os.getenv("RAG_BACKEND_URL", "https://nuzantara-rag.fly.dev")
 
     if not database_url:
         logger.error("❌ DATABASE_URL not set")
@@ -397,7 +383,7 @@ async def main():
         database_url=database_url,
         runpod_endpoint=runpod_endpoint,
         runpod_api_key=runpod_api_key,
-        rag_backend_url=rag_backend_url
+        rag_backend_url=rag_backend_url,
     )
 
     # Run
@@ -405,7 +391,7 @@ async def main():
         stats = await worker.run(
             days_lookback=args.days,
             max_golden_answers=args.max_golden,
-            regenerate_cultural=args.regenerate_cultural
+            regenerate_cultural=args.regenerate_cultural,
         )
 
         logger.info("✅ Nightly worker completed successfully")

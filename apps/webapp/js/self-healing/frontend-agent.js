@@ -14,7 +14,7 @@
 
 class ZantaraFrontendAgent {
   constructor(config = {}) {
-    this.orchestratorUrl = config.orchestratorUrl || 'https://nuzantara-orchestrator.fly.dev';
+    this.orchestratorUrl = config.orchestratorUrl || window.ENV?.API_URL || '/api';
     this.errorHistory = [];
     this.fixHistory = [];
     this.maxHistorySize = 100;

@@ -2,9 +2,11 @@
 """
 Check PostgreSQL schema to see what tables exist and their columns
 """
-import os
 import asyncio
+import os
+
 import asyncpg
+
 
 async def check_schema():
     """Check existing PostgreSQL schema"""
@@ -24,7 +26,7 @@ async def check_schema():
         print("✅ Connected to PostgreSQL\n")
 
         # Check what tables exist
-        tables_to_check = ['memory_facts', 'user_stats', 'conversations', 'users']
+        tables_to_check = ["memory_facts", "user_stats", "conversations", "users"]
 
         for table_name in tables_to_check:
             # Check if table exists
@@ -35,7 +37,7 @@ async def check_schema():
                     WHERE table_name = $1
                 )
                 """,
-                table_name
+                table_name,
             )
 
             if exists:
@@ -47,16 +49,18 @@ async def check_schema():
                     WHERE table_name = $1
                     ORDER BY ordinal_position
                     """,
-                    table_name
+                    table_name,
                 )
 
                 # Get row count
                 count = await conn.fetchval(f"SELECT COUNT(*) FROM {table_name}")
 
                 print(f"✅ {table_name}: EXISTS ({count} rows)")
-                print(f"   Columns:")
+                print("   Columns:")
                 for col in columns:
-                    print(f"     - {col['column_name']}: {col['data_type']} {'NULL' if col['is_nullable'] == 'YES' else 'NOT NULL'}")
+                    print(
+                        f"     - {col['column_name']}: {col['data_type']} {'NULL' if col['is_nullable'] == 'YES' else 'NOT NULL'}"
+                    )
                 print()
             else:
                 print(f"❌ {table_name}: NOT FOUND\n")
@@ -70,7 +74,9 @@ async def check_schema():
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     asyncio.run(check_schema())

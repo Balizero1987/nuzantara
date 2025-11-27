@@ -4,9 +4,8 @@ ZANTARA Conversation Service - Conversation History Persistence
 Manages conversation storage and retrieval with PostgreSQL.
 """
 
-from typing import Dict, List, Optional
-from datetime import datetime
 import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -25,15 +24,12 @@ class ConversationService:
         """
         Initialize ConversationService.
         """
-        self.conversations_cache: List[Dict] = []  # In-memory cache
+        self.conversations_cache: list[dict] = []  # In-memory cache
         # TODO: Add PostgreSQL persistence when needed
         logger.info("✅ ConversationService initialized (in-memory only)")
 
     async def save_conversation(
-        self,
-        user_id: str,
-        messages: List[Dict],
-        metadata: Optional[Dict] = None
+        self, user_id: str, messages: list[dict], metadata: dict | None = None
     ) -> bool:
         """
         Save conversation to PostgreSQL (currently in-memory cache).
@@ -51,7 +47,7 @@ class ConversationService:
             "messages": messages,
             "metadata": metadata or {},
             "timestamp": datetime.now(),
-            "message_count": len(messages)
+            "message_count": len(messages),
         }
 
         # Save to cache (PostgreSQL integration pending)
@@ -59,11 +55,7 @@ class ConversationService:
         logger.debug(f"💾 Conversation saved to cache for {user_id} ({len(messages)} messages)")
         return True
 
-    async def get_recent_conversations(
-        self,
-        user_id: str,
-        limit: int = 10
-    ) -> List[Dict]:
+    async def get_recent_conversations(self, user_id: str, limit: int = 10) -> list[dict]:
         """
         Retrieve recent conversations for a user.
 
@@ -79,10 +71,10 @@ class ConversationService:
         user_convos.sort(key=lambda x: x.get("timestamp", datetime.now()), reverse=True)
         return user_convos[:limit]
 
-    async def get_stats(self) -> Dict:
+    async def get_stats(self) -> dict:
         """Get conversation statistics"""
         return {
             "total_conversations": len(self.conversations_cache),
             "postgresql_enabled": False,
-            "cached_conversations": len(self.conversations_cache)
+            "cached_conversations": len(self.conversations_cache),
         }

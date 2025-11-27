@@ -3,15 +3,16 @@ ZANTARA CRM - Practices Management Router
 Endpoints for managing practices (KITAS, PT PMA, Visas, etc.)
 """
 
-from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
-from typing import List, Dict, Optional
-from decimal import Decimal
-from datetime import datetime, date, timedelta
 import logging
-import os
+from datetime import date, datetime, timedelta
+from decimal import Decimal
+
 import psycopg2
-from psycopg2.extras import RealDictCursor, Json
+from fastapi import APIRouter, HTTPException, Query
+from psycopg2.extras import Json, RealDictCursor
+from pydantic import BaseModel
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -22,32 +23,33 @@ router = APIRouter(prefix="/api/crm/practices", tags=["crm-practices"])
 # PYDANTIC MODELS
 # ================================================
 
+
 class PracticeCreate(BaseModel):
     client_id: int
     practice_type_code: str  # Practice type code retrieved from database
     status: str = "inquiry"
     priority: str = "normal"  # 'low', 'normal', 'high', 'urgent'
-    quoted_price: Optional[Decimal] = None
-    assigned_to: Optional[str] = None  # team member email
-    notes: Optional[str] = None
-    internal_notes: Optional[str] = None
+    quoted_price: Decimal | None = None
+    assigned_to: str | None = None  # team member email
+    notes: str | None = None
+    internal_notes: str | None = None
 
 
 class PracticeUpdate(BaseModel):
-    status: Optional[str] = None
-    priority: Optional[str] = None
-    quoted_price: Optional[Decimal] = None
-    actual_price: Optional[Decimal] = None
-    payment_status: Optional[str] = None
-    paid_amount: Optional[Decimal] = None
-    assigned_to: Optional[str] = None
-    start_date: Optional[datetime] = None
-    completion_date: Optional[datetime] = None
-    expiry_date: Optional[date] = None
-    notes: Optional[str] = None
-    internal_notes: Optional[str] = None
-    documents: Optional[List[Dict]] = None
-    missing_documents: Optional[List[str]] = None
+    status: str | None = None
+    priority: str | None = None
+    quoted_price: Decimal | None = None
+    actual_price: Decimal | None = None
+    payment_status: str | None = None
+    paid_amount: Decimal | None = None
+    assigned_to: str | None = None
+    start_date: datetime | None = None
+    completion_date: datetime | None = None
+    expiry_date: date | None = None
+    notes: str | None = None
+    internal_notes: str | None = None
+    documents: list[dict] | None = None
+    missing_documents: list[str] | None = None
 
 
 class PracticeResponse(BaseModel):
@@ -57,13 +59,13 @@ class PracticeResponse(BaseModel):
     practice_type_id: int
     status: str
     priority: str
-    quoted_price: Optional[Decimal]
-    actual_price: Optional[Decimal]
+    quoted_price: Decimal | None
+    actual_price: Decimal | None
     payment_status: str
-    assigned_to: Optional[str]
-    start_date: Optional[datetime]
-    completion_date: Optional[datetime]
-    expiry_date: Optional[date]
+    assigned_to: str | None
+    start_date: datetime | None
+    completion_date: datetime | None
+    expiry_date: date | None
     created_at: datetime
 
 
@@ -71,9 +73,10 @@ class PracticeResponse(BaseModel):
 # DATABASE CONNECTION
 # ================================================
 
+
 def get_db_connection():
     """Get PostgreSQL connection"""
-    database_url = os.getenv("DATABASE_URL")
+    database_url = settings.database_url
     if not database_url:
         raise Exception("DATABASE_URL environment variable not set")
     return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
@@ -83,10 +86,11 @@ def get_db_connection():
 # ENDPOINTS
 # ================================================
 
+
 @router.post("/", response_model=PracticeResponse)
 async def create_practice(
     practice: PracticeCreate,
-    created_by: str = Query(..., description="Team member creating this practice")
+    created_by: str = Query(..., description="Team member creating this practice"),
 ):
     """
     Create a new practice for a client
@@ -105,21 +109,21 @@ async def create_practice(
         # Get practice_type_id from code
         cursor.execute(
             "SELECT id, base_price FROM practice_types WHERE code = %s",
-            (practice.practice_type_code,)
+            (practice.practice_type_code,),
         )
         practice_type = cursor.fetchone()
 
         if not practice_type:
             raise HTTPException(
-                status_code=404,
-                detail=f"Practice type '{practice.practice_type_code}' not found"
+                status_code=404, detail=f"Practice type '{practice.practice_type_code}' not found"
             )
 
         # Use base_price if no quoted price provided
-        quoted_price = practice.quoted_price or practice_type['base_price']
+        quoted_price = practice.quoted_price or practice_type["base_price"]
 
         # Insert practice
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO practices (
                 client_id, practice_type_id, status, priority,
                 quoted_price, assigned_to, notes, internal_notes,
@@ -128,46 +132,56 @@ async def create_practice(
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )
             RETURNING *
-        """, (
-            practice.client_id,
-            practice_type['id'],
-            practice.status,
-            practice.priority,
-            quoted_price,
-            practice.assigned_to,
-            practice.notes,
-            practice.internal_notes,
-            datetime.now(),
-            created_by
-        ))
+        """,
+            (
+                practice.client_id,
+                practice_type["id"],
+                practice.status,
+                practice.priority,
+                quoted_price,
+                practice.assigned_to,
+                practice.notes,
+                practice.internal_notes,
+                datetime.now(),
+                created_by,
+            ),
+        )
 
         new_practice = cursor.fetchone()
 
         # Update client's last_interaction_date
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE clients
             SET last_interaction_date = NOW()
             WHERE id = %s
-        """, (practice.client_id,))
+        """,
+            (practice.client_id,),
+        )
 
         # Log activity
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description)
             VALUES (%s, %s, %s, %s, %s)
-        """, (
-            'practice',
-            new_practice['id'],
-            'created',
-            created_by,
-            f"New {practice.practice_type_code} practice created"
-        ))
+        """,
+            (
+                "practice",
+                new_practice["id"],
+                "created",
+                created_by,
+                f"New {practice.practice_type_code} practice created",
+            ),
+        )
 
         conn.commit()
 
         cursor.close()
         conn.close()
 
-        logger.info(f"✅ Created practice: {practice.practice_type_code} for client {practice.client_id}")
+        logger.info(
+            f"✅ Created practice: {practice.practice_type_code} for client {practice.client_id}"
+        )
 
         return PracticeResponse(**new_practice)
 
@@ -178,15 +192,15 @@ async def create_practice(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/", response_model=List[Dict])
+@router.get("/", response_model=list[dict])
 async def list_practices(
-    client_id: Optional[int] = Query(None, description="Filter by client ID"),
-    status: Optional[str] = Query(None, description="Filter by status"),
-    assigned_to: Optional[str] = Query(None, description="Filter by assigned team member"),
-    practice_type: Optional[str] = Query(None, description="Filter by practice type code"),
-    priority: Optional[str] = Query(None, description="Filter by priority"),
+    client_id: int | None = Query(None, description="Filter by client ID"),
+    status: str | None = Query(None, description="Filter by status"),
+    assigned_to: str | None = Query(None, description="Filter by assigned team member"),
+    practice_type: str | None = Query(None, description="Filter by practice type code"),
+    priority: str | None = Query(None, description="Filter by priority"),
     limit: int = Query(50, le=200),
-    offset: int = Query(0)
+    offset: int = Query(0),
 ):
     """
     List practices with optional filtering
@@ -252,7 +266,7 @@ async def list_practices(
 
 
 @router.get("/active")
-async def get_active_practices(assigned_to: Optional[str] = Query(None)):
+async def get_active_practices(assigned_to: str | None = Query(None)):
     """
     Get all active practices (in progress, not completed/cancelled)
 
@@ -321,7 +335,8 @@ async def get_practice(practice_id: int):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 p.*,
                 c.full_name as client_name,
@@ -335,7 +350,9 @@ async def get_practice(practice_id: int):
             JOIN clients c ON p.client_id = c.id
             JOIN practice_types pt ON p.practice_type_id = pt.id
             WHERE p.id = %s
-        """, (practice_id,))
+        """,
+            (practice_id,),
+        )
 
         practice = cursor.fetchone()
 
@@ -358,7 +375,7 @@ async def get_practice(practice_id: int):
 async def update_practice(
     practice_id: int,
     updates: PracticeUpdate,
-    updated_by: str = Query(..., description="Team member making the update")
+    updated_by: str = Query(..., description="Team member making the update"),
 ):
     """
     Update practice information
@@ -385,7 +402,7 @@ async def update_practice(
 
         for field, value in updates.dict(exclude_unset=True).items():
             if value is not None:
-                if field in ['documents', 'missing_documents']:
+                if field in ["documents", "missing_documents"]:
                     update_fields.append(f"{field} = %s")
                     params.append(Json(value))
                 else:
@@ -397,7 +414,7 @@ async def update_practice(
 
         query = f"""
             UPDATE practices
-            SET {', '.join(update_fields)}, updated_at = NOW()
+            SET {", ".join(update_fields)}, updated_at = NOW()
             WHERE id = %s
             RETURNING *
         """
@@ -411,23 +428,27 @@ async def update_practice(
 
         # Log activity
         changed_fields = list(updates.dict(exclude_unset=True).keys())
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description, changes)
             VALUES (%s, %s, %s, %s, %s, %s)
-        """, (
-            'practice',
-            practice_id,
-            'updated',
-            updated_by,
-            f"Updated: {', '.join(changed_fields)}",
-            Json(updates.dict(exclude_unset=True))
-        ))
+        """,
+            (
+                "practice",
+                practice_id,
+                "updated",
+                updated_by,
+                f"Updated: {', '.join(changed_fields)}",
+                Json(updates.dict(exclude_unset=True)),
+            ),
+        )
 
         # If status changed to 'completed' and there's an expiry date, create renewal alert
-        if updates.status == 'completed' and updates.expiry_date:
+        if updates.status == "completed" and updates.expiry_date:
             alert_date = updates.expiry_date - timedelta(days=60)  # 60 days before expiry
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO renewal_alerts (
                     practice_id, client_id, alert_type, description,
                     target_date, alert_date, notify_team_member
@@ -438,7 +459,9 @@ async def update_practice(
                     %s, %s, assigned_to
                 FROM practices
                 WHERE id = %s
-            """, (practice_id, updates.expiry_date, alert_date, practice_id))
+            """,
+                (practice_id, updates.expiry_date, alert_date, practice_id),
+            )
 
         conn.commit()
 
@@ -461,7 +484,7 @@ async def add_document_to_practice(
     practice_id: int,
     document_name: str = Query(...),
     drive_file_id: str = Query(...),
-    uploaded_by: str = Query(...)
+    uploaded_by: str = Query(...),
 ):
     """
     Add a document to a practice
@@ -482,7 +505,7 @@ async def add_document_to_practice(
         if not result:
             raise HTTPException(status_code=404, detail="Practice not found")
 
-        documents = result['documents'] or []
+        documents = result["documents"] or []
 
         # Add new document
         new_doc = {
@@ -490,17 +513,20 @@ async def add_document_to_practice(
             "drive_file_id": drive_file_id,
             "uploaded_at": datetime.now().isoformat(),
             "uploaded_by": uploaded_by,
-            "status": "received"
+            "status": "received",
         }
 
         documents.append(new_doc)
 
         # Update practice
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE practices
             SET documents = %s, updated_at = NOW()
             WHERE id = %s
-        """, (Json(documents), practice_id))
+        """,
+            (Json(documents), practice_id),
+        )
 
         conn.commit()
 
@@ -533,51 +559,59 @@ async def get_practices_stats():
         cursor = conn.cursor()
 
         # By status
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT status, COUNT(*) as count
             FROM practices
             GROUP BY status
-        """)
+        """
+        )
         by_status = cursor.fetchall()
 
         # By practice type
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT pt.code, pt.name, COUNT(p.id) as count
             FROM practices p
             JOIN practice_types pt ON p.practice_type_id = pt.id
             GROUP BY pt.code, pt.name
             ORDER BY count DESC
-        """)
+        """
+        )
         by_type = cursor.fetchall()
 
         # Revenue stats
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 SUM(actual_price) as total_revenue,
                 SUM(CASE WHEN payment_status = 'paid' THEN actual_price ELSE 0 END) as paid_revenue,
                 SUM(CASE WHEN payment_status IN ('unpaid', 'partial') THEN actual_price - COALESCE(paid_amount, 0) ELSE 0 END) as outstanding_revenue
             FROM practices
             WHERE actual_price IS NOT NULL
-        """)
+        """
+        )
         revenue = cursor.fetchone()
 
         # Active practices count
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT COUNT(*) as count
             FROM practices
             WHERE status IN ('inquiry', 'in_progress', 'waiting_documents', 'submitted_to_gov')
-        """)
-        active_count = cursor.fetchone()['count']
+        """
+        )
+        active_count = cursor.fetchone()["count"]
 
         cursor.close()
         conn.close()
 
         return {
-            "total_practices": sum(row['count'] for row in by_status),
+            "total_practices": sum(row["count"] for row in by_status),
             "active_practices": active_count,
-            "by_status": {row['status']: row['count'] for row in by_status},
+            "by_status": {row["status"]: row["count"] for row in by_status},
             "by_type": [dict(row) for row in by_type],
-            "revenue": dict(revenue)
+            "revenue": dict(revenue),
         }
 
     except Exception as e:

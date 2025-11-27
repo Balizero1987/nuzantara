@@ -69,14 +69,14 @@ try {
       }
     });
     console.error('Server cannot start without valid environment variables. Exiting...');
-    
+
     // Also log via logger
     logger.error('❌ Environment variable validation failed');
     error.errors.forEach((err) => {
       const path = err.path.join('.');
       logger.error(`  - ${path}: ${err.message}`);
     });
-    
+
     // Give time for logs to flush before exiting
     setTimeout(() => {
       process.exit(1);

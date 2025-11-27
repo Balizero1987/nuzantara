@@ -1,15 +1,15 @@
 # ZANTARA Handler Execution API v1.0
 # Endpoints for handler registry and execution
 
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.responses import JSONResponse
-from typing import Dict, List, Any, Optional
-from pydantic import BaseModel, Field
 import asyncio
-import aiohttp
-import os
 import logging
+import os
 from datetime import datetime
+from typing import Any
+
+import aiohttp
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 # Import registry
 from ..handlers_registry import AVAILABLE_HANDLERS, HANDLER_CATEGORIES, HANDLER_STATS
@@ -20,29 +20,34 @@ router = APIRouter(prefix="/api/handlers", tags=["handlers"])
 # Setup logging
 logger = logging.getLogger(__name__)
 
+
 # Pydantic models
 class HandlerRequest(BaseModel):
     handler_name: str
-    params: Dict[str, Any] = {}
-    timeout: Optional[int] = 30
+    params: dict[str, Any] = {}
+    timeout: int | None = 30
+
 
 class BatchHandlerRequest(BaseModel):
-    calls: List[HandlerRequest]
-    timeout: Optional[int] = 30
+    calls: list[HandlerRequest]
+    timeout: int | None = 30
+
 
 class HandlerResponse(BaseModel):
     handler_name: str
     success: bool
     data: Any = None
-    error: Optional[str] = None
+    error: str | None = None
     execution_time: float
     timestamp: str
+
 
 # Backend URLs
 TS_BACKEND_URL = os.getenv("TS_BACKEND_URL", "https://nuzantara.fly.dev")
 RAG_BACKEND_URL = os.getenv("RAG_BACKEND_URL", "https://nuzantara-rag.fly.dev")
 
-@router.get("/list", response_model=Dict[str, Any])
+
+@router.get("/list", response_model=dict[str, Any])
 async def list_handlers():
     """
     List all available handlers with their configurations
@@ -55,16 +60,14 @@ async def list_handlers():
             "categories": HANDLER_CATEGORIES,
             "handlers": AVAILABLE_HANDLERS,
             "statistics": HANDLER_STATS,
-            "backend_urls": {
-                "ts": TS_BACKEND_URL,
-                "rag": RAG_BACKEND_URL
-            }
+            "backend_urls": {"ts": TS_BACKEND_URL, "rag": RAG_BACKEND_URL},
         }
     except Exception as e:
         logger.error(f"Error listing handlers: {e}")
         raise HTTPException(500, f"Failed to list handlers: {str(e)}")
 
-@router.get("/{handler_name}", response_model=Dict[str, Any])
+
+@router.get("/{handler_name}", response_model=dict[str, Any])
 async def get_handler_info(handler_name: str):
     """
     Get detailed information about a specific handler
@@ -77,13 +80,10 @@ async def get_handler_info(handler_name: str):
 
     return {
         "success": True,
-        "handler": {
-            "name": handler_name,
-            **handler,
-            "category_info": category
-        },
-        "timestamp": datetime.utcnow().isoformat()
+        "handler": {"name": handler_name, **handler, "category_info": category},
+        "timestamp": datetime.utcnow().isoformat(),
     }
+
 
 @router.post("/execute", response_model=HandlerResponse)
 async def execute_handler(request: HandlerRequest):
@@ -106,11 +106,7 @@ async def execute_handler(request: HandlerRequest):
             raise HTTPException(400, f"Missing required parameters: {missing_params}")
 
         # Execute handler based on backend
-        result = await execute_handler_by_backend(
-            handler_config,
-            request.params,
-            request.timeout
-        )
+        result = await execute_handler_by_backend(handler_config, request.params, request.timeout)
 
         execution_time = (datetime.utcnow() - start_time).total_seconds()
 
@@ -119,7 +115,7 @@ async def execute_handler(request: HandlerRequest):
             success=True,
             data=result,
             execution_time=execution_time,
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.utcnow().isoformat(),
         )
 
     except asyncio.TimeoutError:
@@ -129,7 +125,7 @@ async def execute_handler(request: HandlerRequest):
             success=False,
             error=f"Handler execution timed out after {request.timeout}s",
             execution_time=execution_time,
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.utcnow().isoformat(),
         )
     except HTTPException:
         raise
@@ -141,10 +137,11 @@ async def execute_handler(request: HandlerRequest):
             success=False,
             error=str(e),
             execution_time=execution_time,
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.utcnow().isoformat(),
         )
 
-@router.post("/batch-execute", response_model=List[HandlerResponse])
+
+@router.post("/batch-execute", response_model=list[HandlerResponse])
 async def batch_execute_handlers(request: BatchHandlerRequest):
     """
     Execute multiple handlers in parallel
@@ -161,23 +158,27 @@ async def batch_execute_handlers(request: BatchHandlerRequest):
     final_results = []
     for i, result in enumerate(results):
         if isinstance(result, Exception):
-            final_results.append(HandlerResponse(
-                handler_name=request.calls[i].handler_name,
-                success=False,
-                error=str(result),
-                execution_time=0.0,
-                timestamp=datetime.utcnow().isoformat()
-            ))
+            final_results.append(
+                HandlerResponse(
+                    handler_name=request.calls[i].handler_name,
+                    success=False,
+                    error=str(result),
+                    execution_time=0.0,
+                    timestamp=datetime.utcnow().isoformat(),
+                )
+            )
         else:
             final_results.append(result)
 
     return final_results
 
+
 class ChatRequest(BaseModel):
     query: str
-    session_id: Optional[str] = None
-    context_filter: Optional[str] = None
-    limit: Optional[int] = None
+    session_id: str | None = None
+    context_filter: str | None = None
+    limit: int | None = None
+
 
 @router.post("/bali-zero/chat")
 async def bali_zero_chat_endpoint(request: ChatRequest):
@@ -190,13 +191,14 @@ async def bali_zero_chat_endpoint(request: ChatRequest):
         params={
             "query": request.query,
             "context_filter": request.context_filter,
-            "limit": request.limit
-        }
+            "limit": request.limit,
+        },
     )
     response = await execute_handler(handler_request)
     return response
 
-@router.get("/categories", response_model=Dict[str, Any])
+
+@router.get("/categories", response_model=dict[str, Any])
 async def list_categories():
     """
     List handler categories with their handlers
@@ -212,19 +214,22 @@ async def list_categories():
             categories_with_handlers[category_name] = {
                 **category_info,
                 "handlers": handlers,
-                "count": len(handlers)
+                "count": len(handlers),
             }
 
         return {
             "success": True,
             "categories": categories_with_handlers,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
     except Exception as e:
         logger.error(f"Error listing categories: {e}")
         raise HTTPException(500, f"Failed to list categories: {str(e)}")
 
-async def execute_handler_by_backend(handler_config: Dict[str, Any], params: Dict[str, Any], timeout: int) -> Any:
+
+async def execute_handler_by_backend(
+    handler_config: dict[str, Any], params: dict[str, Any], timeout: int
+) -> Any:
     """
     Route handler execution to appropriate backend
     """
@@ -266,6 +271,7 @@ async def execute_handler_by_backend(handler_config: Dict[str, Any], params: Dic
         else:
             raise HTTPException(400, f"Unsupported method: {method}")
 
+
 @router.get("/health")
 async def handlers_health():
     """
@@ -282,16 +288,13 @@ async def handlers_health():
             "handlers_total": HANDLER_STATS["total_handlers"],
             "backends": {
                 "ts": {"url": TS_BACKEND_URL, "status": ts_health},
-                "rag": {"url": RAG_BACKEND_URL, "status": rag_health}
-            }
+                "rag": {"url": RAG_BACKEND_URL, "status": rag_health},
+            },
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        return {
-            "status": "unhealthy",
-            "error": str(e),
-            "timestamp": datetime.utcnow().isoformat()
-        }
+        return {"status": "unhealthy", "error": str(e), "timestamp": datetime.utcnow().isoformat()}
+
 
 async def test_backend_health(url: str) -> str:
     """

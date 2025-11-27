@@ -3,22 +3,23 @@ ZANTARA RAG - Ingestion Router
 Book ingestion endpoints
 """
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks
-from pathlib import Path
-import os
 import logging
-from typing import Optional
+import os
 import time
+from pathlib import Path
+
+from core.qdrant_db import QdrantClient
+from fastapi import APIRouter, BackgroundTasks, File, HTTPException, UploadFile
+
+from services.ingestion_service import IngestionService
 
 from ..models import (
-    BookIngestionRequest,
-    BookIngestionResponse,
     BatchIngestionRequest,
     BatchIngestionResponse,
-    TierLevel
+    BookIngestionRequest,
+    BookIngestionResponse,
+    TierLevel,
 )
-from services.ingestion_service import IngestionService
-from core.qdrant_db import QdrantClient
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
@@ -27,9 +28,9 @@ router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
 @router.post("/upload", response_model=BookIngestionResponse)
 async def upload_and_ingest(
     file: UploadFile = File(...),
-    title: Optional[str] = None,
-    author: Optional[str] = None,
-    tier_override: Optional[TierLevel] = None
+    title: str | None = None,
+    author: str | None = None,
+    tier_override: TierLevel | None = None,
 ):
     """
     Upload and ingest a single book.
@@ -41,11 +42,8 @@ async def upload_and_ingest(
     """
     try:
         # Validate file type
-        if not file.filename.endswith(('.pdf', '.epub')):
-            raise HTTPException(
-                status_code=400,
-                detail="Only PDF and EPUB files are supported"
-            )
+        if not file.filename.endswith((".pdf", ".epub")):
+            raise HTTPException(status_code=400, detail="Only PDF and EPUB files are supported")
 
         # Save uploaded file temporarily
         temp_dir = Path("data/temp")
@@ -61,10 +59,7 @@ async def upload_and_ingest(
         # Ingest book
         service = IngestionService()
         result = await service.ingest_book(
-            file_path=str(temp_path),
-            title=title,
-            author=author,
-            tier_override=tier_override
+            file_path=str(temp_path), title=title, author=author, tier_override=tier_override
         )
 
         # Clean up temp file
@@ -75,10 +70,7 @@ async def upload_and_ingest(
 
     except Exception as e:
         logger.error(f"Upload ingestion error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Ingestion failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
 
 @router.post("/file", response_model=BookIngestionResponse)
@@ -94,10 +86,7 @@ async def ingest_local_file(request: BookIngestionRequest):
     try:
         # Validate file exists
         if not os.path.exists(request.file_path):
-            raise HTTPException(
-                status_code=404,
-                detail=f"File not found: {request.file_path}"
-            )
+            raise HTTPException(status_code=404, detail=f"File not found: {request.file_path}")
 
         # Ingest
         service = IngestionService()
@@ -106,24 +95,18 @@ async def ingest_local_file(request: BookIngestionRequest):
             title=request.title,
             author=request.author,
             language=request.language,
-            tier_override=request.tier_override
+            tier_override=request.tier_override,
         )
 
         return BookIngestionResponse(**result)
 
     except Exception as e:
         logger.error(f"File ingestion error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Ingestion failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
 
 @router.post("/batch", response_model=BatchIngestionResponse)
-async def batch_ingest(
-    request: BatchIngestionRequest,
-    background_tasks: BackgroundTasks
-):
+async def batch_ingest(request: BatchIngestionRequest, background_tasks: BackgroundTasks):
     """
     Process all books in a directory.
 
@@ -137,8 +120,7 @@ async def batch_ingest(
         directory = Path(request.directory_path)
         if not directory.exists():
             raise HTTPException(
-                status_code=404,
-                detail=f"Directory not found: {request.directory_path}"
+                status_code=404, detail=f"Directory not found: {request.directory_path}"
             )
 
         # Get all matching files
@@ -148,8 +130,7 @@ async def batch_ingest(
 
         if not book_files:
             raise HTTPException(
-                status_code=400,
-                detail=f"No books found in {request.directory_path}"
+                status_code=400, detail=f"No books found in {request.directory_path}"
             )
 
         logger.info(f"Found {len(book_files)} books to ingest")
@@ -172,15 +153,17 @@ async def batch_ingest(
 
             except Exception as e:
                 logger.error(f"Error ingesting {book_path}: {e}")
-                results.append(BookIngestionResponse(
-                    success=False,
-                    book_title=book_path.stem,
-                    book_author="Unknown",
-                    tier="Unknown",
-                    chunks_created=0,
-                    message="Ingestion failed",
-                    error=str(e)
-                ))
+                results.append(
+                    BookIngestionResponse(
+                        success=False,
+                        book_title=book_path.stem,
+                        book_author="Unknown",
+                        tier="Unknown",
+                        chunks_created=0,
+                        message="Ingestion failed",
+                        error=str(e),
+                    )
+                )
                 failed += 1
 
         execution_time = time.time() - start_time
@@ -195,17 +178,14 @@ async def batch_ingest(
             successful=successful,
             failed=failed,
             results=results,
-            execution_time_seconds=round(execution_time, 2)
+            execution_time_seconds=round(execution_time, 2),
         )
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Batch ingestion error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Batch ingestion failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Batch ingestion failed: {str(e)}")
 
 
 @router.get("/stats")
@@ -224,12 +204,9 @@ async def get_ingestion_stats():
             "collection": stats["collection_name"],
             "total_documents": stats["total_documents"],
             "tiers_distribution": stats.get("tiers_distribution", {}),
-            "persist_directory": stats["persist_directory"]
+            "persist_directory": stats["persist_directory"],
         }
 
     except Exception as e:
         logger.error(f"Stats error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get stats: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get stats: {str(e)}")

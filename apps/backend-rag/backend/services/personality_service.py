@@ -10,23 +10,22 @@ Gestisce le diverse personalità dell'AI system:
 Integra Gemini 1.5 (RAG research) + Zantara Oracle Cloud (personality voice)
 """
 
-import os
-import json
 import logging
-import asyncio
-import aiohttp
-from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime
-from pathlib import Path
+import os
 
 # Note: Google services will be injected to avoid circular imports
-
 # Team members database
 import sys
+from pathlib import Path
+from typing import Any
+
+import aiohttp
+
 sys.path.append(str(Path(__file__).parent.parent))
 from data.team_members import TEAM_MEMBERS
 
 logger = logging.getLogger(__name__)
+
 
 class PersonalityService:
     """
@@ -36,7 +35,8 @@ class PersonalityService:
 
     def __init__(self):
         # Usa Zantara locale tramite SSH tunnel per Jaksel personality
-        self.zantara_oracle_url = os.getenv("ZANTARA_ORACLE_URL", "http://localhost:11434/api/generate")
+        from app.core.config import settings
+        self.zantara_oracle_url = settings.zantara_oracle_url
         self.oracle_api_key = os.getenv("ORACLE_API_KEY", "")
         self.team_members = TEAM_MEMBERS
         self.personality_profiles = self._build_personality_profiles()
@@ -47,16 +47,29 @@ class PersonalityService:
         logger.info(f"   Team members loaded: {len(self.team_members)}")
         logger.info(f"   Personality profiles: {len(self.personality_profiles)}")
 
-    def _build_personality_profiles(self) -> Dict[str, Dict]:
+    def _build_personality_profiles(self) -> dict[str, dict]:
         """Costruisce i profili di personalità basati sui team members"""
 
         profiles = {}
 
         # JAKSEL PERSONALITY (Indonesian slang users)
         jaksel_members = [
-            "amanda", "anton", "krisna", "adi", "ari", "dea",
-            "vino", "surya", "damar", "veronika", "angel",
-            "kadek", "dewaayu", "faisha", "rina", "sahira"
+            "amanda",
+            "anton",
+            "krisna",
+            "adi",
+            "ari",
+            "dea",
+            "vino",
+            "surya",
+            "damar",
+            "veronika",
+            "angel",
+            "kadek",
+            "dewaayu",
+            "faisha",
+            "rina",
+            "sahira",
         ]
 
         profiles["jaksel"] = {
@@ -80,7 +93,7 @@ Examples:
 
 Be helpful but speak in authentic Jaksel style!""",
             "team_members": jaksel_members,
-            "traits": ["friendly", "trendy", "knowledgeable", "helpful"]
+            "traits": ["friendly", "trendy", "knowledgeable", "helpful"],
         }
 
         # ZERO PERSONALITY (Italian style)
@@ -107,7 +120,7 @@ Examples:
 
 Be the trusted Italian advisor who combines expertise with human understanding.""",
             "team_members": zero_members,
-            "traits": ["strategic", "direct", "deep", "analytical"]
+            "traits": ["strategic", "direct", "deep", "analytical"],
         }
 
         # PROFESSIONAL PERSONALITY (Standard multilingual)
@@ -129,12 +142,12 @@ STYLE:
 
 Be the expert consultant who provides reliable professional guidance.""",
             "team_members": professional_members,
-            "traits": ["professional", "reliable", "knowledgeable", "structured"]
+            "traits": ["professional", "reliable", "knowledgeable", "structured"],
         }
 
         return profiles
 
-    def get_user_personality(self, user_email: str) -> Dict[str, Any]:
+    def get_user_personality(self, user_email: str) -> dict[str, Any]:
         """
         Determina la personalità da usare basata sull'utente
 
@@ -156,7 +169,7 @@ Be the expert consultant who provides reliable professional guidance.""",
             return {
                 "personality_type": "professional",
                 "personality": self.personality_profiles["professional"],
-                "user": {"email": user_email, "name": "Guest"}
+                "user": {"email": user_email, "name": "Guest"},
             }
 
         # Determine personality type based on team member
@@ -172,15 +185,12 @@ Be the expert consultant who provides reliable professional guidance.""",
         return {
             "personality_type": personality_type,
             "personality": self.personality_profiles[personality_type],
-            "user": team_member
+            "user": team_member,
         }
 
     async def translate_to_personality(
-        self,
-        gemini_response: str,
-        user_email: str,
-        original_query: str
-    ) -> Dict[str, Any]:
+        self, gemini_response: str, user_email: str, original_query: str
+    ) -> dict[str, Any]:
         """
         Traduce la risposta di Gemini nella personalità appropriata
 
@@ -197,11 +207,17 @@ Be the expert consultant who provides reliable professional guidance.""",
             user_context = self.get_user_personality(user_email)
             personality = user_context["personality"]
             user = user_context["user"]
+            user_language = user.get("preferred_language", "en")
 
-            logger.info(f"🎭 Applying {personality['name']} personality for {user['name']}")
+            logger.info(f"🎭 Applying {personality['name']} personality for {user['name']} (Lang: {user_language})")
+
+            # Build dynamic prompt
+            system_prompt = self.get_personality_system_prompt(
+                user_context["personality_type"], user_language
+            )
 
             # Build prompt for Zantara local model
-            zantara_prompt = f"""{personality['system_prompt']}
+            zantara_prompt = f"""{system_prompt}
 
 USER QUERY: {original_query}
 
@@ -219,25 +235,23 @@ Your response:"""
             # Use different approach for Jaksel (real Zantara) vs others (Gemini)
             if user_context["personality_type"] == "jaksel":
                 try:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(
+                    async with (
+                        aiohttp.ClientSession() as session,
+                        session.post(
                             self.zantara_oracle_url,
-                            json={
-                                "model": "zantara",
-                                "prompt": zantara_prompt,
-                                "stream": False
-                            },
+                            json={"model": "zantara", "prompt": zantara_prompt, "stream": False},
                             headers=headers,
-                            timeout=aiohttp.ClientTimeout(total=30)
-                        ) as response:
-                            if response.status == 200:
-                                result = await response.json()
-                                personalized_response = result.get("response", gemini_response)
-                                model_used = "zantara-oracle"
-                            else:
-                                logger.warning(f"⚠️ Zantara model failed: {response.status}")
-                                personalized_response = gemini_response
-                                model_used = "gemini-fallback"
+                            timeout=aiohttp.ClientTimeout(total=30),
+                        ) as response,
+                    ):
+                        if response.status == 200:
+                            result = await response.json()
+                            personalized_response = result.get("response", gemini_response)
+                            model_used = "zantara-oracle"
+                        else:
+                            logger.warning(f"⚠️ Zantara model failed: {response.status}")
+                            personalized_response = gemini_response
+                            model_used = "gemini-fallback"
                 except Exception as zantara_error:
                     logger.warning(f"⚠️ Zantara Oracle unavailable: {zantara_error}")
                     personalized_response = gemini_response
@@ -255,7 +269,7 @@ Your response:"""
                 "personality_type": user_context["personality_type"],
                 "user": user,
                 "model_used": model_used,
-                "original_gemini_response": gemini_response
+                "original_gemini_response": gemini_response,
             }
 
         except Exception as e:
@@ -265,26 +279,28 @@ Your response:"""
                 "response": gemini_response,  # Fallback to original
                 "error": str(e),
                 "personality_used": "fallback",
-                "model_used": "gemini-only"
+                "model_used": "gemini-only",
             }
 
-    def get_available_personalities(self) -> List[Dict[str, Any]]:
+    def get_available_personalities(self) -> list[dict[str, Any]]:
         """Restituisce la lista delle personalità disponibili"""
         personalities = []
 
         for profile_id, profile in self.personality_profiles.items():
-            personalities.append({
-                "id": profile_id,
-                "name": profile["name"],
-                "language": profile["language"],
-                "style": profile["style"],
-                "team_count": len(profile["team_members"]),
-                "traits": profile["traits"]
-            })
+            personalities.append(
+                {
+                    "id": profile_id,
+                    "name": profile["name"],
+                    "language": profile["language"],
+                    "style": profile["style"],
+                    "team_count": len(profile["team_members"]),
+                    "traits": profile["traits"],
+                }
+            )
 
         return personalities
 
-    async def test_personality(self, personality_type: str, test_message: str) -> Dict[str, Any]:
+    async def test_personality(self, personality_type: str, test_message: str) -> dict[str, Any]:
         """
         Testa una personalità specifica
 
@@ -311,33 +327,26 @@ Your response:"""
                     json={
                         "model": "zantara",
                         "prompt": f"{personality['system_prompt']}\n\nUser: {test_message}\n\nResponse:",
-                        "stream": False
+                        "stream": False,
                     },
                     headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=30)
+                    timeout=aiohttp.ClientTimeout(total=30),
                 ) as response:
                     if response.status == 200:
                         result = await response.json()
                         return {
                             "success": True,
                             "personality": personality["name"],
-                            "response": result.get("response", "")
+                            "response": result.get("response", ""),
                         }
                     else:
-                        return {
-                            "success": False,
-                            "error": f"Model failed: {response.status}"
-                        }
+                        return {"success": False, "error": f"Model failed: {response.status}"}
         except Exception as e:
             return {"success": False, "error": str(e)}
 
     async def translate_to_personality_gemini_only(
-        self,
-        gemini_response: str,
-        user_email: str,
-        original_query: str,
-        gemini_model_getter=None
-    ) -> Dict[str, Any]:
+        self, gemini_response: str, user_email: str, original_query: str, gemini_model_getter=None
+    ) -> dict[str, Any]:
         """
         Versione che usa solo Gemini PRO per personality translation (Oracle non accessibile)
 
@@ -355,13 +364,21 @@ Your response:"""
             user_context = self.get_user_personality(user_email)
             personality = user_context["personality"]
             user = user_context["user"]
+            user_language = user.get("preferred_language", "en")
 
-            logger.info(f"🎭 Gemini-only personality translation for {user['name']} ({personality['name']})")
+            logger.info(
+                f"🎭 Gemini-only personality translation for {user['name']} ({personality['name']}) [Lang: {user_language}]"
+            )
 
             # Use Gemini PRO for personality translation
             if gemini_model_getter:
                 try:
                     gemini_pro_model = gemini_model_getter("personality_translation")
+
+                    # Get dynamic system prompt
+                    system_prompt = self.get_personality_system_prompt(
+                        user_context["personality_type"], user_language
+                    )
 
                     # Build sophisticated translation prompt for Gemini
                     translation_prompt = f"""
@@ -369,13 +386,13 @@ You are ZANTARA AI with multiple personalities. You translate professional legal
 into authentic personality voices while preserving ALL legal accuracy.
 
 USER PROFILE:
-- Name: {user['name']}
-- Language: {personality['language']}
-- Personality: {personality['name']}
-- Traits: {', '.join(personality['traits'])}
+- Name: {user["name"]}
+- Language: {user_language}
+- Personality: {personality["name"]}
+- Traits: {", ".join(personality["traits"])}
 
 PERSONALITY STYLE GUIDE:
-{personality['system_prompt']}
+{system_prompt}
 
 ORIGINAL QUERY: {original_query}
 
@@ -393,10 +410,12 @@ IMPORTANT:
 Your response:"""
 
                     # Get personality-translated response from Gemini PRO
-                    gemini_translated = await gemini_pro_model.generate_content_async(translation_prompt)
+                    gemini_translated = await gemini_pro_model.generate_content_async(
+                        translation_prompt
+                    )
                     final_response = gemini_translated.text
 
-                    logger.info(f"✅ Gemini PRO personality translation completed")
+                    logger.info("✅ Gemini PRO personality translation completed")
 
                     return {
                         "success": True,
@@ -406,7 +425,7 @@ Your response:"""
                         "user": user,
                         "model_used": "gemini-pro-personality",
                         "oracle_status": "unavailable",
-                        "original_gemini_response": gemini_response
+                        "original_gemini_response": gemini_response,
                     }
 
                 except Exception as gemini_error:
@@ -420,7 +439,7 @@ Your response:"""
                         "user": user,
                         "model_used": "gemini-pro-raw",
                         "oracle_status": "unavailable",
-                        "original_gemini_response": gemini_response
+                        "original_gemini_response": gemini_response,
                     }
             else:
                 # No model getter provided, return original
@@ -431,7 +450,7 @@ Your response:"""
                     "personality_type": user_context["personality_type"],
                     "user": user,
                     "model_used": "gemini-pro-raw",
-                    "oracle_status": "unavailable"
+                    "oracle_status": "unavailable",
                 }
 
         except Exception as e:
@@ -441,10 +460,10 @@ Your response:"""
                 "response": gemini_response,
                 "error": str(e),
                 "personality_used": "error",
-                "model_used": "gemini-pro-fallback"
+                "model_used": "gemini-pro-fallback",
             }
 
-    async def _enhance_with_zantara_model(self, text: str, personality: Dict) -> str:
+    async def _enhance_with_zantara_model(self, text: str, personality: dict) -> str:
         """Enhance text with Zantara local model for authentic slang"""
         try:
             headers = {}
@@ -452,29 +471,162 @@ Your response:"""
                 headers["Authorization"] = f"Bearer {self.oracle_api_key}"
 
             enhancement_prompt = f"""
-Make this response more authentic {personality['name']} style. Add natural slang and expressions.
+Make this response more authentic {personality["name"]} style. Add natural slang and expressions.
 
 Text: {text}
 
 Enhanced text:"""
+
+            async with (
+                aiohttp.ClientSession() as session,
+                session.post(
+                    self.zantara_oracle_url,
+                    json={"model": "zantara", "prompt": enhancement_prompt, "stream": False},
+                    headers=headers,
+                    timeout=aiohttp.ClientTimeout(total=15),
+                ) as response,
+            ):
+                if response.status == 200:
+                    result = await response.json()
+                    return result.get("response", text)
+                else:
+                    return text
+
+        except Exception as e:
+            logger.warning(f"⚠️ Zantara enhancement failed: {e}")
+            return text
+    def get_personality_system_prompt(self, personality_type: str, user_language: str = "en") -> str:
+        """
+        Generates a dynamic system prompt based on personality and user language.
+
+        Args:
+            personality_type: Type of personality (jaksel, zero, professional)
+            user_language: User's preferred language (id, it, en, ua, etc.)
+
+        Returns:
+            Dynamic system prompt string
+        """
+        base_profile = self.personality_profiles.get(personality_type)
+        if not base_profile:
+            # Fallback to professional if not found
+            base_profile = self.personality_profiles["professional"]
+        
+        base_prompt = base_profile["system_prompt"]
+        
+        # Dynamic Language Logic
+        lang_instruction = ""
+        
+        if user_language == "id":
+            lang_instruction = (
+                "LANGUAGE: BAHASA INDONESIA (JAKSEL STYLE).\n"
+                "Use South Jakarta slang. Use words like 'gue' (me), 'lo' (you), 'santuy' (chill).\n"
+                "Mix English terms naturally (Code Switching) like a true Jaksel executive."
+            )
+        elif user_language == "it":
+            lang_instruction = (
+                "LANGUAGE: ITALIAN.\n"
+                "Tone: Professional yet warm and friendly. Direct and efficient.\n"
+                "Do NOT use Indonesian slang. Use natural Italian idioms."
+            )
+        elif user_language == "en":
+            lang_instruction = (
+                "LANGUAGE: ENGLISH.\n"
+                "Tone: Global professional, clear and concise."
+            )
+        elif user_language == "ua" or user_language == "uk":
+            lang_instruction = (
+                "LANGUAGE: UKRAINIAN.\n"
+                "Tone: Professional, direct, and supportive.\n"
+                "Use standard business Ukrainian."
+            )
+        else:
+            lang_instruction = f"LANGUAGE: {user_language}.\nRespond fluently in this language."
+
+        # Assemble the prompt
+        return f"{base_prompt}\n\n[CRITICAL INSTRUCTION]\n{lang_instruction}"
+
+    async def fast_chat(self, user_email: str, message: str) -> dict[str, Any]:
+        """
+        Fast Track chat bypassing Gemini/RAG for simple queries (greetings/casual).
+        Uses Zantara Oracle directly for personality response.
+
+        Args:
+            user_email: User email
+            message: User message
+
+        Returns:
+            Dict with response and metadata
+        """
+        try:
+            # Get user personality
+            user_context = self.get_user_personality(user_email)
+            personality = user_context["personality"]
+            user = user_context["user"]
+            user_language = user.get("preferred_language", "en")
+
+            logger.info(f"🚀 [Fast Track] Using {personality['name']} for {user['name']} (Lang: {user_language})")
+
+            # Build dynamic prompt
+            system_prompt = self.get_personality_system_prompt(
+                user_context["personality_type"], user_language
+            )
+            
+            prompt = f"""{system_prompt}
+
+USER: {message}
+
+RESPONSE:"""
+
+            # Call Zantara model via SSH tunnel
+            headers = {}
+            if self.oracle_api_key:
+                headers["Authorization"] = f"Bearer {self.oracle_api_key}"
 
             async with aiohttp.ClientSession() as session:
                 async with session.post(
                     self.zantara_oracle_url,
                     json={
                         "model": "zantara",
-                        "prompt": enhancement_prompt,
-                        "stream": False
+                        "prompt": prompt,
+                        "stream": False,
+                        "temperature": 0.7,
                     },
                     headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=15)
+                    timeout=aiohttp.ClientTimeout(total=10),
                 ) as response:
                     if response.status == 200:
                         result = await response.json()
-                        return result.get("response", text)
+                        response_text = result.get("response", "")
+                        return {
+                            "response": response_text,
+                            "ai_used": "zantara-oracle-fast",
+                            "category": "fast_track",
+                            "model": "zantara-7b",
+                            "tokens": {"total": 0},  # Not tracked for fast track
+                            "used_rag": False,
+                            "used_tools": False,
+                        }
                     else:
-                        return text
+                        logger.warning(f"⚠️ Fast Track failed: {response.status}")
+                        # Fallback to simple response if model fails
+                        return {
+                            "response": "Hello! I'm having a bit of trouble connecting to my brain right now, but I'm here!",
+                            "ai_used": "fallback",
+                            "category": "error",
+                            "model": "none",
+                            "tokens": {},
+                            "used_rag": False,
+                            "used_tools": False,
+                        }
 
         except Exception as e:
-            logger.warning(f"⚠️ Zantara enhancement failed: {e}")
-            return text
+            logger.error(f"❌ Fast Track error: {e}")
+            return {
+                "response": "Hello! I'm here.",
+                "ai_used": "fallback",
+                "category": "error",
+                "model": "none",
+                "tokens": {},
+                "used_rag": False,
+                "used_tools": False,
+            }

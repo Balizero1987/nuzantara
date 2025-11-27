@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-    
+
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../index.html">All files</a> / <a href="index.html">src/middleware</a> ip-defense.ts</h1>
         <div class='clearfix'>
-            
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/59</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/36</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/9</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/59</span>
             </div>
-        
-            
+
+
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -518,23 +518,23 @@ const defaultConfig: IPDefenseOptions = <span class="cstat-no" title="statement 
 &nbsp;
 export function <span class="fstat-no" title="function not covered" >createIPDefense(o</span>ptions: Partial&lt;IPDefenseOptions&gt; = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
   const config = <span class="cstat-no" title="statement not covered" >{ ...defaultConfig, ...options };</span>
-  
+
 <span class="cstat-no" title="statement not covered" >  return <span class="fstat-no" title="function not covered" >(r</span>eq: Request, res: Response, next: NextFunction) =&gt; {</span>
     const clientIP = <span class="cstat-no" title="statement not covered" >getClientIP(req);</span>
     const now = <span class="cstat-no" title="statement not covered" >Date.now();</span>
     const hourAgo = <span class="cstat-no" title="statement not covered" >now - (60 * 60 * 1000);</span>
     // const minuteAgo = now - (60 * 1000); // Declared but not used
-    
+
     // Check whitelist first
 <span class="cstat-no" title="statement not covered" >    if (isWhitelisted(clientIP, config.whitelistedIPs)) {</span>
 <span class="cstat-no" title="statement not covered" >      return next();</span>
     }
-    
+
     // Check blacklist
 <span class="cstat-no" title="statement not covered" >    if (config.blacklistedIPs.includes(clientIP)) {</span>
 <span class="cstat-no" title="statement not covered" >      return blockRequest(res, 'IP blacklisted', 403);</span>
     }
-    
+
     // Get or create IP stats
     let stats = <span class="cstat-no" title="statement not covered" >ipStats.get(clientIP);</span>
 <span class="cstat-no" title="statement not covered" >    if (!stats) {</span>
@@ -548,61 +548,61 @@ export function <span class="fstat-no" title="function not covered" >createIPDef
       };
 <span class="cstat-no" title="statement not covered" >      ipStats.set(clientIP, stats);</span>
     }
-    
+
     // Check if currently blocked
 <span class="cstat-no" title="statement not covered" >    if (stats.blockedUntil &amp;&amp; now &lt; stats.blockedUntil) {</span>
       const remainingTime = <span class="cstat-no" title="statement not covered" >Math.ceil((stats.blockedUntil - now) / 1000);</span>
 <span class="cstat-no" title="statement not covered" >      return blockRequest(res, `IP blocked for ${remainingTime} seconds`, 429);</span>
     }
-    
+
     // Reset hourly counter if needed
 <span class="cstat-no" title="statement not covered" >    if (stats.firstRequest &lt; hourAgo) {</span>
 <span class="cstat-no" title="statement not covered" >      stats.requestCount = 0;</span>
 <span class="cstat-no" title="statement not covered" >      stats.firstRequest = now;</span>
 <span class="cstat-no" title="statement not covered" >      stats.suspicious = false;</span>
     }
-    
+
     // Increment counter and update stats
 <span class="cstat-no" title="statement not covered" >    stats.requestCount++;</span>
 <span class="cstat-no" title="statement not covered" >    stats.lastRequest = now;</span>
 <span class="cstat-no" title="statement not covered" >    stats.userAgents.add(req.get('User-Agent') || 'unknown');</span>
 <span class="cstat-no" title="statement not covered" >    stats.endpoints.add(req.path);</span>
-    
+
     // Check for auto-block threshold
 <span class="cstat-no" title="statement not covered" >    if (stats.requestCount &gt;= config.autoBlockThreshold) {</span>
 <span class="cstat-no" title="statement not covered" >      stats.blockedUntil = now + (24 * 60 * 60 * 1000); /</span>/ Block for 24 hours
 <span class="cstat-no" title="statement not covered" >      logSuspiciousActivity(clientIP, stats, 'AUTO-BLOCKED');</span>
 <span class="cstat-no" title="statement not covered" >      return blockRequest(res, 'IP auto-blocked due to excessive requests', 429);</span>
     }
-    
+
     // Check for suspicious threshold
 <span class="cstat-no" title="statement not covered" >    if (stats.requestCount &gt;= config.suspiciousThreshold &amp;&amp; !stats.suspicious) {</span>
 <span class="cstat-no" title="statement not covered" >      stats.suspicious = true;</span>
 <span class="cstat-no" title="statement not covered" >      logSuspiciousActivity(clientIP, stats, 'SUSPICIOUS');</span>
     }
-    
+
     // Check minute-based rate limit
     const recentRequests = <span class="cstat-no" title="statement not covered" >stats.requestCount;</span> // Simplified for demo
 <span class="cstat-no" title="statement not covered" >    if (recentRequests &gt; config.maxRequestsPerMinute) {</span>
 <span class="cstat-no" title="statement not covered" >      return blockRequest(res, 'Rate limit exceeded', 429);</span>
     }
-    
+
     // Add defense headers
 <span class="cstat-no" title="statement not covered" >    res.set({</span>
       'X-IP-Defense': 'active',
       'X-Requests-Remaining': (config.maxRequestsPerHour - stats.requestCount).toString(),
       'X-Reset-Time': new Date(stats.firstRequest + 60 * 60 * 1000).toISOString()
     });
-    
+
 <span class="cstat-no" title="statement not covered" >    next();</span>
   };
 }
 &nbsp;
 function <span class="fstat-no" title="function not covered" >getClientIP(r</span>eq: Request): string {
 <span class="cstat-no" title="statement not covered" >  return req.ip || </span>
-         req.get('X-Forwarded-For')?.split(',')[0] || 
-         req.get('X-Real-IP') || 
-         req.connection.remoteAddress || 
+         req.get('X-Forwarded-For')?.split(',')[0] ||
+         req.get('X-Real-IP') ||
+         req.connection.remoteAddress ||
          'unknown';
 }
 &nbsp;
@@ -635,7 +635,7 @@ function <span class="fstat-no" title="function not covered" >logSuspiciousActiv
     endpoints: Array.from(stats.endpoints),
     suspicious: stats.suspicious
   });
-  
+
   // Could send to external monitoring service here
 <span class="cstat-no" title="statement not covered" >  sendToMonitoring(ip, stats, level);</span>
 }
@@ -650,7 +650,7 @@ function <span class="fstat-no" title="function not covered" >sendToMonitoring(i
     userAgents: Array.from(stats.userAgents).slice(0, 3),
     endpoints: Array.from(stats.endpoints).slice(0, 5)
   };
-  
+
   // Would send to webhook here
 <span class="cstat-no" title="statement not covered" >  console.log('📊 Monitoring alert:', alertMessage);</span>
 }
@@ -659,7 +659,7 @@ function <span class="fstat-no" title="function not covered" >sendToMonitoring(i
 <span class="cstat-no" title="statement not covered" >setInterval(<span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
   const now = <span class="cstat-no" title="statement not covered" >Date.now();</span>
   const dayAgo = <span class="cstat-no" title="statement not covered" >now - (24 * 60 * 60 * 1000);</span>
-  
+
 <span class="cstat-no" title="statement not covered" >  for (const [ip, stats] of ipStats.entries()) {</span>
 <span class="cstat-no" title="statement not covered" >    if (stats.lastRequest &lt; dayAgo) {</span>
 <span class="cstat-no" title="statement not covered" >      ipStats.delete(ip);</span>
@@ -706,4 +706,3 @@ export const publicIPDefense = <span class="cstat-no" title="statement not cover
         <script src="../../block-navigation.js"></script>
     </body>
 </html>
-    

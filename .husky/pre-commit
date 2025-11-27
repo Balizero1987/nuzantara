@@ -22,4 +22,3 @@ npm run test -- --onlyChanged --passWithNoTests || {
 }
 
 echo "✅ Pre-commit checks passed"
-

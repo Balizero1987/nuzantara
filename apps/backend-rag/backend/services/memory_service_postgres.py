@@ -5,13 +5,13 @@ Manages user memory (profile facts, conversation summary, counters) with Postgre
 Replaces Firestore with PostgreSQL for Fly.io deployment.
 """
 
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass
-from datetime import datetime
 import logging
 import os
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
+
 import asyncpg
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -19,20 +19,23 @@ logger = logging.getLogger(__name__)
 @dataclass
 class UserMemory:
     """User memory structure"""
+
     user_id: str
-    profile_facts: List[str]  # Max 10 facts
+    profile_facts: list[str]  # Max 10 facts
     summary: str  # Max 500 characters
-    counters: Dict[str, int]  # conversations, searches, tasks
+    counters: dict[str, int]  # conversations, searches, tasks
     updated_at: datetime
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary for database"""
         return {
             "user_id": self.user_id,
             "profile_facts": self.profile_facts,
             "summary": self.summary,
             "counters": self.counters,
-            "updated_at": self.updated_at.isoformat() if isinstance(self.updated_at, datetime) else self.updated_at
+            "updated_at": self.updated_at.isoformat()
+            if isinstance(self.updated_at, datetime)
+            else self.updated_at,
         }
 
 
@@ -50,7 +53,7 @@ class MemoryServicePostgres:
     MAX_FACTS = 10
     MAX_SUMMARY_LENGTH = 500
 
-    def __init__(self, database_url: Optional[str] = None):
+    def __init__(self, database_url: str | None = None):
         """
         Initialize MemoryService with PostgreSQL.
 
@@ -58,8 +61,8 @@ class MemoryServicePostgres:
             database_url: PostgreSQL connection string (from Fly.io DATABASE_URL)
         """
         self.database_url = database_url or os.getenv("DATABASE_URL")
-        self.pool: Optional[asyncpg.Pool] = None
-        self.memory_cache: Dict[str, UserMemory] = {}  # In-memory fallback
+        self.pool: asyncpg.Pool | None = None
+        self.memory_cache: dict[str, UserMemory] = {}  # In-memory fallback
         self.use_postgres = bool(self.database_url)
 
         logger.info("✅ MemoryServicePostgres initialized")
@@ -72,10 +75,7 @@ class MemoryServicePostgres:
 
         try:
             self.pool = await asyncpg.create_pool(
-                self.database_url,
-                min_size=2,
-                max_size=10,
-                command_timeout=60
+                self.database_url, min_size=2, max_size=10, command_timeout=60
             )
             logger.info("✅ PostgreSQL connection pool created")
         except Exception as e:
@@ -122,7 +122,7 @@ class MemoryServicePostgres:
                         LIMIT $2
                         """,
                         user_id,
-                        self.MAX_FACTS
+                        self.MAX_FACTS,
                     )
 
                     # Get user stats
@@ -132,27 +132,27 @@ class MemoryServicePostgres:
                         FROM user_stats
                         WHERE user_id = $1
                         """,
-                        user_id
+                        user_id,
                     )
 
                     # Build UserMemory
-                    profile_facts = [row['content'] for row in rows if row['content']]
+                    profile_facts = [row["content"] for row in rows if row["content"]]
 
                     counters = {
-                        "conversations": stats_row['conversations_count'] if stats_row else 0,
-                        "searches": stats_row['searches_count'] if stats_row else 0,
-                        "tasks": 0  # Not tracked in user_stats yet
+                        "conversations": stats_row["conversations_count"] if stats_row else 0,
+                        "searches": stats_row["searches_count"] if stats_row else 0,
+                        "tasks": 0,  # Not tracked in user_stats yet
                     }
 
-                    summary = stats_row['summary'] if stats_row else ""
-                    updated_at = stats_row['updated_at'] if stats_row else datetime.now()
+                    summary = stats_row["summary"] if stats_row else ""
+                    updated_at = stats_row["updated_at"] if stats_row else datetime.now()
 
                     memory = UserMemory(
                         user_id=user_id,
                         profile_facts=profile_facts,
                         summary=summary,
                         counters=counters,
-                        updated_at=updated_at
+                        updated_at=updated_at,
                     )
 
                     self.memory_cache[user_id] = memory
@@ -167,12 +167,8 @@ class MemoryServicePostgres:
             user_id=user_id,
             profile_facts=[],
             summary="",
-            counters={
-                "conversations": 0,
-                "searches": 0,
-                "tasks": 0
-            },
-            updated_at=datetime.now()
+            counters={"conversations": 0, "searches": 0, "tasks": 0},
+            updated_at=datetime.now(),
         )
         self.memory_cache[user_id] = memory
         logger.info(f"📝 Created new memory for {user_id}")
@@ -210,10 +206,10 @@ class MemoryServicePostgres:
                             last_activity = EXCLUDED.last_activity
                         """,
                         memory.user_id,
-                        memory.counters.get('conversations', 0),
-                        memory.counters.get('searches', 0),
+                        memory.counters.get("conversations", 0),
+                        memory.counters.get("searches", 0),
                         memory.summary,
-                        memory.updated_at
+                        memory.updated_at,
                     )
 
                     logger.info(f"✅ Memory saved to PostgreSQL for {memory.user_id}")
@@ -261,10 +257,10 @@ class MemoryServicePostgres:
                         """,
                         user_id,
                         fact,
-                        'profile_fact',
+                        "profile_fact",
                         1.0,
-                        'system',
-                        datetime.now()
+                        "system",
+                        datetime.now(),
                     )
 
                     logger.info(f"✅ Added fact to PostgreSQL for {user_id}: {fact}")
@@ -276,7 +272,7 @@ class MemoryServicePostgres:
         # Add to memory and trim
         memory.profile_facts.append(fact)
         if len(memory.profile_facts) > self.MAX_FACTS:
-            memory.profile_facts = memory.profile_facts[-self.MAX_FACTS:]
+            memory.profile_facts = memory.profile_facts[-self.MAX_FACTS :]
             logger.info(f"⚠️ Trimmed facts to {self.MAX_FACTS} for {user_id}")
 
         # Update cache
@@ -300,7 +296,7 @@ class MemoryServicePostgres:
 
         # Truncate if needed
         if len(summary) > self.MAX_SUMMARY_LENGTH:
-            summary = summary[:self.MAX_SUMMARY_LENGTH - 3] + "..."
+            summary = summary[: self.MAX_SUMMARY_LENGTH - 3] + "..."
             logger.warning(f"⚠️ Summary truncated to {self.MAX_SUMMARY_LENGTH} chars for {user_id}")
 
         memory.summary = summary
@@ -332,10 +328,12 @@ class MemoryServicePostgres:
         # Save
         success = await self.save_memory(memory)
         if success:
-            logger.debug(f"✅ Incremented {counter_name} for {user_id}: {memory.counters[counter_name]}")
+            logger.debug(
+                f"✅ Incremented {counter_name} for {user_id}: {memory.counters[counter_name]}"
+            )
         return success
 
-    async def save_fact(self, user_id: str, content: str, fact_type: str = 'general') -> bool:
+    async def save_fact(self, user_id: str, content: str, fact_type: str = "general") -> bool:
         """
         Save a fact to memory_facts table (alias for add_fact).
 
@@ -349,11 +347,7 @@ class MemoryServicePostgres:
         """
         return await self.add_fact(user_id, content)
 
-    async def retrieve(
-        self,
-        user_id: str,
-        category: Optional[str] = None
-    ) -> Dict[str, Any]:
+    async def retrieve(self, user_id: str, category: str | None = None) -> dict[str, Any]:
         """
         Retrieve user memory in format expected by ZantaraTools.
 
@@ -387,45 +381,43 @@ class MemoryServicePostgres:
                 # Simple keyword matching (case-insensitive)
                 category_lower = category.lower()
                 facts = [f for f in facts if category_lower in f.lower()]
-                logger.info(f"Filtered {len(memory.profile_facts)} facts to {len(facts)} for category '{category}'")
+                logger.info(
+                    f"Filtered {len(memory.profile_facts)} facts to {len(facts)} for category '{category}'"
+                )
 
             # Determine if user has any data
-            has_data = bool(facts) or bool(memory.summary) or any(v > 0 for v in memory.counters.values())
+            has_data = (
+                bool(facts) or bool(memory.summary) or any(v > 0 for v in memory.counters.values())
+            )
 
             result = {
-                'user_id': user_id,
-                'profile_facts': facts,
-                'summary': memory.summary or '',
-                'counters': memory.counters,
-                'has_data': has_data,
-                'category_filter': category
+                "user_id": user_id,
+                "profile_facts": facts,
+                "summary": memory.summary or "",
+                "counters": memory.counters,
+                "has_data": has_data,
+                "category_filter": category,
             }
 
-            logger.info(f"✅ Retrieved memory for {user_id}: {len(facts)} facts, has_data={has_data}")
+            logger.info(
+                f"✅ Retrieved memory for {user_id}: {len(facts)} facts, has_data={has_data}"
+            )
             return result
 
         except Exception as e:
             logger.error(f"❌ Memory retrieve failed for {user_id}: {e}")
             # Return empty structure on error - graceful degradation
             return {
-                'user_id': user_id,
-                'profile_facts': [],
-                'summary': '',
-                'counters': {
-                    'conversations': 0,
-                    'searches': 0,
-                    'tasks': 0
-                },
-                'has_data': False,
-                'category_filter': category,
-                'error': str(e)
+                "user_id": user_id,
+                "profile_facts": [],
+                "summary": "",
+                "counters": {"conversations": 0, "searches": 0, "tasks": 0},
+                "has_data": False,
+                "category_filter": category,
+                "error": str(e),
             }
 
-    async def search(
-        self,
-        query: str,
-        limit: int = 5
-    ) -> List[Dict[str, Any]]:
+    async def search(self, query: str, limit: int = 5) -> list[dict[str, Any]]:
         """
         Search across all user memories for specific information.
 
@@ -464,17 +456,23 @@ class MemoryServicePostgres:
                         LIMIT $2
                         """,
                         f"%{query}%",
-                        limit
+                        limit,
                     )
 
                     results = []
                     for row in rows:
-                        results.append({
-                            'user_id': row['user_id'],
-                            'fact': row['content'],
-                            'confidence': float(row['confidence']) if row['confidence'] else 1.0,
-                            'created_at': row['created_at'].isoformat() if row['created_at'] else datetime.now().isoformat()
-                        })
+                        results.append(
+                            {
+                                "user_id": row["user_id"],
+                                "fact": row["content"],
+                                "confidence": float(row["confidence"])
+                                if row["confidence"]
+                                else 1.0,
+                                "created_at": row["created_at"].isoformat()
+                                if row["created_at"]
+                                else datetime.now().isoformat(),
+                            }
+                        )
 
                     logger.info(f"✅ PostgreSQL search for '{query}' found {len(results)} results")
                     return results
@@ -496,23 +494,35 @@ class MemoryServicePostgres:
                 # Search in profile facts
                 for fact in memory.profile_facts:
                     if query_lower in fact.lower():
-                        results.append({
-                            'user_id': user_id,
-                            'fact': fact,
-                            'confidence': 1.0,  # Cache results have default confidence
-                            'created_at': memory.updated_at.isoformat() if isinstance(memory.updated_at, datetime) else memory.updated_at
-                        })
+                        results.append(
+                            {
+                                "user_id": user_id,
+                                "fact": fact,
+                                "confidence": 1.0,  # Cache results have default confidence
+                                "created_at": memory.updated_at.isoformat()
+                                if isinstance(memory.updated_at, datetime)
+                                else memory.updated_at,
+                            }
+                        )
                         if len(results) >= limit:
                             break
 
                 # Also search in summary if not enough results
-                if len(results) < limit and memory.summary and query_lower in memory.summary.lower():
-                    results.append({
-                        'user_id': user_id,
-                        'fact': f"[Summary] {memory.summary[:100]}...",
-                        'confidence': 0.8,  # Lower confidence for summary matches
-                        'created_at': memory.updated_at.isoformat() if isinstance(memory.updated_at, datetime) else memory.updated_at
-                    })
+                if (
+                    len(results) < limit
+                    and memory.summary
+                    and query_lower in memory.summary.lower()
+                ):
+                    results.append(
+                        {
+                            "user_id": user_id,
+                            "fact": f"[Summary] {memory.summary[:100]}...",
+                            "confidence": 0.8,  # Lower confidence for summary matches
+                            "created_at": memory.updated_at.isoformat()
+                            if isinstance(memory.updated_at, datetime)
+                            else memory.updated_at,
+                        }
+                    )
 
                 if len(results) >= limit:
                     break
@@ -524,7 +534,7 @@ class MemoryServicePostgres:
             logger.error(f"❌ Cache search failed: {e}")
             return []
 
-    async def get_stats(self) -> Dict:
+    async def get_stats(self) -> dict:
         """Get memory system statistics"""
         postgres_stats = {}
 
@@ -543,10 +553,10 @@ class MemoryServicePostgres:
                     )
 
                     postgres_stats = {
-                        "total_users": stats['total_users'],
-                        "total_facts": stats['total_facts'],
-                        "total_conversations": stats['total_conversations'],
-                        "total_conv_count": stats['total_conv_count'] or 0
+                        "total_users": stats["total_users"],
+                        "total_facts": stats["total_facts"],
+                        "total_conversations": stats["total_conversations"],
+                        "total_conv_count": stats["total_conv_count"] or 0,
                     }
 
             except Exception as e:
@@ -557,5 +567,5 @@ class MemoryServicePostgres:
             "postgres_enabled": self.use_postgres,
             "max_facts": self.MAX_FACTS,
             "max_summary_length": self.MAX_SUMMARY_LENGTH,
-            **postgres_stats
+            **postgres_stats,
         }

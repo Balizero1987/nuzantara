@@ -20,8 +20,7 @@ Key Features:
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, field
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -30,26 +29,28 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ResearchStep:
     """Single step in research process"""
+
     step_number: int
     collection: str
     query: str
     rationale: str  # Why this search was performed
     results_found: int
     confidence: float
-    key_findings: List[str]
+    key_findings: list[str]
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
 @dataclass
 class ResearchResult:
     """Final result of autonomous research"""
+
     original_query: str
     total_steps: int
-    collections_explored: List[str]
-    research_steps: List[ResearchStep]
+    collections_explored: list[str]
+    research_steps: list[ResearchStep]
     final_answer: str
     confidence: float
-    reasoning_chain: List[str]  # Explanation of research process
+    reasoning_chain: list[str]  # Explanation of research process
     sources_consulted: int
     duration_ms: float
 
@@ -72,12 +73,7 @@ class AutonomousResearchService:
     CONFIDENCE_THRESHOLD = 0.7  # Stop if confidence >= this
     MIN_RESULTS_THRESHOLD = 3  # Minimum results to consider
 
-    def __init__(
-        self,
-        search_service,
-        query_router,
-        zantara_ai_service
-    ):
+    def __init__(self, search_service, query_router, zantara_ai_service):
         """
         Initialize Autonomous Research Agent.
 
@@ -94,7 +90,7 @@ class AutonomousResearchService:
             "total_researches": 0,
             "avg_iterations": 0.0,
             "avg_confidence": 0.0,
-            "max_iterations_reached": 0
+            "max_iterations_reached": 0,
         }
 
         logger.info("✅ AutonomousResearchService initialized")
@@ -102,11 +98,8 @@ class AutonomousResearchService:
         logger.info(f"   Confidence threshold: {self.CONFIDENCE_THRESHOLD}")
 
     async def analyze_gaps(
-        self,
-        query: str,
-        results: List[Dict],
-        collections_searched: List[str]
-    ) -> Tuple[bool, List[str], str]:
+        self, query: str, results: list[dict], collections_searched: list[str]
+    ) -> tuple[bool, list[str], str]:
         """
         Analyze search results for information gaps.
 
@@ -124,7 +117,7 @@ class AutonomousResearchService:
             return (
                 True,
                 [query],  # Try same query in different collection
-                "Insufficient results found"
+                "Insufficient results found",
             )
 
         # Check for low confidence scores
@@ -133,14 +126,21 @@ class AutonomousResearchService:
             return (
                 True,
                 [query, f"{query} requirements", f"{query} process"],
-                "Low confidence in current results"
+                "Low confidence in current results",
             )
 
         # Check if results contain uncertainty keywords
         all_text = " ".join(r.get("text", "") for r in results).lower()
         uncertainty_keywords = [
-            "not clear", "uncertain", "depends", "varies", "may", "might",
-            "tidak jelas", "tergantung", "mungkin"
+            "not clear",
+            "uncertain",
+            "depends",
+            "varies",
+            "may",
+            "might",
+            "tidak jelas",
+            "tergantung",
+            "mungkin",
         ]
 
         has_uncertainty = any(kw in all_text for kw in uncertainty_keywords)
@@ -148,25 +148,17 @@ class AutonomousResearchService:
             return (
                 True,
                 [f"{query} specific requirements", f"{query} regulations"],
-                "Results contain uncertainty - need more specific info"
+                "Results contain uncertainty - need more specific info",
             )
 
         # If we've only searched 1-2 collections, try more
         if len(collections_searched) < 3:
-            return (
-                True,
-                [query],
-                "Limited collection coverage - expanding search"
-            )
+            return (True, [query], "Limited collection coverage - expanding search")
 
         # No gaps detected
         return (False, [], "Sufficient information gathered")
 
-    def select_next_collection(
-        self,
-        query: str,
-        collections_searched: List[str]
-    ) -> Optional[str]:
+    def select_next_collection(self, query: str, collections_searched: list[str]) -> str | None:
         """
         Select next collection to search.
 
@@ -179,8 +171,7 @@ class AutonomousResearchService:
         """
         # Use query router with fallback chain
         primary, confidence, all_collections = self.router.route_with_confidence(
-            query,
-            return_fallbacks=True
+            query, return_fallbacks=True
         )
 
         # Filter out already searched
@@ -193,11 +184,7 @@ class AutonomousResearchService:
         logger.info("   No more collections to search")
         return None
 
-    async def expand_query(
-        self,
-        original_query: str,
-        findings_so_far: List[str]
-    ) -> List[str]:
+    async def expand_query(self, original_query: str, findings_so_far: list[str]) -> list[str]:
         """
         Generate expanded queries based on findings.
 
@@ -221,13 +208,22 @@ class AutonomousResearchService:
 
             # Common Indonesian business terms
             business_terms = [
-                "PT", "PMA", "KBLI", "NIB", "OSS", "NPWP", "KITAS",
-                "visa", "tax", "license", "permit", "regulation"
+                "PT",
+                "PMA",
+                "KBLI",
+                "NIB",
+                "OSS",
+                "NPWP",
+                "KITAS",
+                "visa",
+                "tax",
+                "license",
+                "permit",
+                "regulation",
             ]
 
             mentioned_terms = [
-                term for term in business_terms
-                if term.lower() in all_findings_text.lower()
+                term for term in business_terms if term.lower() in all_findings_text.lower()
             ]
 
             for term in mentioned_terms[:2]:  # Max 2 expansions
@@ -236,11 +232,7 @@ class AutonomousResearchService:
         return expansions[:3]  # Max 3 query variants
 
     async def research_iteration(
-        self,
-        query: str,
-        step_number: int,
-        collections_searched: List[str],
-        user_level: int = 3
+        self, query: str, step_number: int, collections_searched: list[str], user_level: int = 3
     ) -> ResearchStep:
         """
         Perform single research iteration.
@@ -268,7 +260,7 @@ class AutonomousResearchService:
                 rationale="No more collections available",
                 results_found=0,
                 confidence=0.0,
-                key_findings=[]
+                key_findings=[],
             )
 
         collections_searched.append(collection)
@@ -276,10 +268,7 @@ class AutonomousResearchService:
         # Search
         try:
             search_results = await self.search.search(
-                query=query,
-                user_level=user_level,
-                limit=5,
-                collection_override=collection
+                query=query, user_level=user_level, limit=5, collection_override=collection
             )
 
             results = search_results.get("results", [])
@@ -309,7 +298,7 @@ class AutonomousResearchService:
                 rationale=rationale,
                 results_found=results_found,
                 confidence=confidence,
-                key_findings=key_findings
+                key_findings=key_findings,
             )
 
             logger.info(
@@ -328,14 +317,12 @@ class AutonomousResearchService:
                 rationale=f"Search failed: {e}",
                 results_found=0,
                 confidence=0.0,
-                key_findings=[]
+                key_findings=[],
             )
 
     async def synthesize_research(
-        self,
-        original_query: str,
-        research_steps: List[ResearchStep]
-    ) -> Tuple[str, float]:
+        self, original_query: str, research_steps: list[ResearchStep]
+    ) -> tuple[str, float]:
         """
         Synthesize findings from all research steps into final answer.
 
@@ -353,14 +340,16 @@ class AutonomousResearchService:
 
         for step in research_steps:
             if step.results_found > 0:
-                context_parts.append(f"\n=== {step.collection.upper()} (Step {step.step_number}) ===")
+                context_parts.append(
+                    f"\n=== {step.collection.upper()} (Step {step.step_number}) ==="
+                )
                 for finding in step.key_findings:
                     context_parts.append(f"- {finding}")
 
         if not context_parts:
             return (
                 f"I searched {len(research_steps)} collections but couldn't find sufficient information about: {original_query}",
-                0.1
+                0.1,
             )
 
         context = "\n".join(context_parts)
@@ -391,7 +380,7 @@ Format:
                 message=prompt,
                 user_id="autonomous_research",
                 conversation_history=[],
-                max_tokens=1000
+                max_tokens=1000,
             )
 
             synthesis = response.get("text", "")
@@ -399,7 +388,9 @@ Format:
             # Calculate overall confidence
             # Base on: avg step confidence, number of steps, results coverage
             step_confidences = [s.confidence for s in research_steps if s.confidence > 0]
-            avg_confidence = sum(step_confidences) / len(step_confidences) if step_confidences else 0.0
+            avg_confidence = (
+                sum(step_confidences) / len(step_confidences) if step_confidences else 0.0
+            )
 
             total_results = sum(s.results_found for s in research_steps)
             coverage_bonus = min(total_results / 10, 0.2)  # Up to +0.2 for good coverage
@@ -421,11 +412,7 @@ Format:
 
             return fallback, 0.5
 
-    async def research(
-        self,
-        query: str,
-        user_level: int = 3
-    ) -> ResearchResult:
+    async def research(self, query: str, user_level: int = 3) -> ResearchResult:
         """
         Perform autonomous research to answer a query.
 
@@ -437,6 +424,7 @@ Format:
             ResearchResult with complete research process
         """
         import time
+
         start_time = time.time()
 
         self.research_stats["total_researches"] += 1
@@ -459,7 +447,7 @@ Format:
                 query=current_query,
                 step_number=iteration,
                 collections_searched=collections_searched,
-                user_level=user_level
+                user_level=user_level,
             )
 
             research_steps.append(step)
@@ -472,7 +460,9 @@ Format:
 
             # Check termination conditions
             if step.confidence >= self.CONFIDENCE_THRESHOLD:
-                reasoning_chain.append(f"Terminating: High confidence achieved ({step.confidence:.2f})")
+                reasoning_chain.append(
+                    f"Terminating: High confidence achieved ({step.confidence:.2f})"
+                )
                 logger.info(f"   High confidence reached at step {iteration}")
                 break
 
@@ -486,13 +476,11 @@ Format:
                 all_findings.extend(s.key_findings)
 
             has_gaps, expanded_queries, gap_rationale = await self.analyze_gaps(
-                query,
-                [{"text": f, "score": 0.5} for f in all_findings],
-                collections_searched
+                query, [{"text": f, "score": 0.5} for f in all_findings], collections_searched
             )
 
             if not has_gaps:
-                reasoning_chain.append(f"Terminating: Sufficient information gathered")
+                reasoning_chain.append("Terminating: Sufficient information gathered")
                 logger.info(f"   Sufficient info at step {iteration}")
                 break
 
@@ -508,13 +496,10 @@ Format:
         if iteration >= self.MAX_ITERATIONS:
             reasoning_chain.append(f"Terminating: Max iterations ({self.MAX_ITERATIONS}) reached")
             self.research_stats["max_iterations_reached"] += 1
-            logger.warning(f"   Max iterations reached")
+            logger.warning("   Max iterations reached")
 
         # Synthesize findings
-        final_answer, overall_confidence = await self.synthesize_research(
-            query,
-            research_steps
-        )
+        final_answer, overall_confidence = await self.synthesize_research(query, research_steps)
 
         duration_ms = (time.time() - start_time) * 1000
 
@@ -527,21 +512,19 @@ Format:
             confidence=overall_confidence,
             reasoning_chain=reasoning_chain,
             sources_consulted=sum(s.results_found for s in research_steps),
-            duration_ms=duration_ms
+            duration_ms=duration_ms,
         )
 
         # Update stats
         self.research_stats["avg_iterations"] = (
-            (self.research_stats["avg_iterations"] * (self.research_stats["total_researches"] - 1)
-             + len(research_steps))
-            / self.research_stats["total_researches"]
-        )
+            self.research_stats["avg_iterations"] * (self.research_stats["total_researches"] - 1)
+            + len(research_steps)
+        ) / self.research_stats["total_researches"]
 
         self.research_stats["avg_confidence"] = (
-            (self.research_stats["avg_confidence"] * (self.research_stats["total_researches"] - 1)
-             + overall_confidence)
-            / self.research_stats["total_researches"]
-        )
+            self.research_stats["avg_confidence"] * (self.research_stats["total_researches"] - 1)
+            + overall_confidence
+        ) / self.research_stats["total_researches"]
 
         logger.info(
             f"✅ Research complete: {len(research_steps)} steps, "
@@ -552,9 +535,9 @@ Format:
 
         return result
 
-    def get_research_stats(self) -> Dict:
+    def get_research_stats(self) -> dict:
         """Get research statistics"""
         return {
             **self.research_stats,
-            "max_iterations_rate": f"{(self.research_stats['max_iterations_reached'] / max(self.research_stats['total_researches'], 1) * 100):.1f}%"
+            "max_iterations_rate": f"{(self.research_stats['max_iterations_reached'] / max(self.research_stats['total_researches'], 1) * 100):.1f}%",
         }

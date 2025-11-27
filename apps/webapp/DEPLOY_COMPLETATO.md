@@ -1,6 +1,6 @@
 # ✅ Deploy Webapp Completato
 
-**Data:** 2025-01-27  
+**Data:** 2025-01-27
 **Status:** ✅ **DEPLOY COMPLETATO**
 
 ---
@@ -109,7 +109,6 @@
 
 ---
 
-**Deploy eseguito:** 2025-01-27  
-**Status:** ✅ **COMPLETATO**  
+**Deploy eseguito:** 2025-01-27
+**Status:** ✅ **COMPLETATO**
 **URL:** https://zantara.balizero.com
-

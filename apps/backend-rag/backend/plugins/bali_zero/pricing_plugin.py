@@ -4,11 +4,12 @@ Pricing Plugin - Official Bali Zero Pricing
 Migrated from: backend/services/zantara_tools.py -> _get_pricing
 """
 
-from typing import Optional, List
-from pydantic import Field
-from core.plugins import Plugin, PluginMetadata, PluginInput, PluginOutput, PluginCategory
-from services.pricing_service import get_pricing_service
 import logging
+
+from core.plugins import Plugin, PluginCategory, PluginInput, PluginMetadata, PluginOutput
+from pydantic import Field
+
+from services.pricing_service import get_pricing_service
 
 logger = logging.getLogger(__name__)
 
@@ -20,16 +21,17 @@ class PricingQueryInput(PluginInput):
         default="all",
         description="Type of service: visa, kitas, business_setup, tax_consulting, legal, or all",
     )
-    query: Optional[str] = Field(
-        None, description="Optional: specific search query (e.g. 'long-stay permit', 'company setup')"
+    query: str | None = Field(
+        None,
+        description="Optional: specific search query (e.g. 'long-stay permit', 'company setup')",
     )
 
 
 class PricingQueryOutput(PluginOutput):
     """Output schema for pricing queries"""
 
-    prices: Optional[List[dict]] = Field(None, description="List of pricing items")
-    fallback_contact: Optional[dict] = Field(None, description="Contact info if prices not available")
+    prices: list[dict] | None = Field(None, description="List of pricing items")
+    fallback_contact: dict | None = Field(None, description="Contact info if prices not available")
 
 
 class PricingPlugin(Plugin):
@@ -47,7 +49,7 @@ class PricingPlugin(Plugin):
     - Bali Zero service margins and government fee breakdowns
     """
 
-    def __init__(self, config: Optional[dict] = None):
+    def __init__(self, config: dict | None = None):
         super().__init__(config)
         self.pricing_service = get_pricing_service()
 
@@ -103,6 +105,4 @@ class PricingPlugin(Plugin):
 
         except Exception as e:
             logger.error(f"❌ Pricing plugin error: {e}")
-            return PricingQueryOutput(
-                success=False, error=f"Pricing lookup failed: {str(e)}"
-            )
+            return PricingQueryOutput(success=False, error=f"Pricing lookup failed: {str(e)}")

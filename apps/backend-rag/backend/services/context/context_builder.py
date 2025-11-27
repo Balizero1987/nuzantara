@@ -4,7 +4,7 @@ Builds combined context from memory, RAG, team, and cultural sources
 """
 
 import logging
-from typing import Optional, Any, Dict
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class ContextBuilder:
         """Initialize context builder"""
         logger.info("📚 [ContextBuilder] Initialized")
 
-    def build_memory_context(self, memory: Optional[Any]) -> Optional[str]:
+    def build_memory_context(self, memory: Any | None) -> str | None:
         """
         Build memory context from user memory
 
@@ -37,7 +37,7 @@ class ContextBuilder:
         if not memory:
             return None
 
-        facts_count = len(memory.profile_facts) if hasattr(memory, 'profile_facts') else 0
+        facts_count = len(memory.profile_facts) if hasattr(memory, "profile_facts") else 0
 
         if facts_count == 0:
             return None
@@ -52,8 +52,12 @@ class ContextBuilder:
 
         # Group facts by type
         personal_facts = [
-            f for f in top_facts
-            if any(word in f.lower() for word in ["talking to", "role:", "level:", "language:", "colleague"])
+            f
+            for f in top_facts
+            if any(
+                word in f.lower()
+                for word in ["talking to", "role:", "level:", "language:", "colleague"]
+            )
         ]
         other_facts = [f for f in top_facts if f not in personal_facts]
 
@@ -64,14 +68,14 @@ class ContextBuilder:
         if other_facts:
             memory_context += f"You also know that: {', '.join(other_facts[:5])}. "
 
-        if hasattr(memory, 'summary') and memory.summary:
+        if hasattr(memory, "summary") and memory.summary:
             memory_context += f"\nPrevious conversation context: {memory.summary[:500]}"
 
         logger.info(f"📚 [ContextBuilder] Built memory context: {len(memory_context)} chars")
 
         return memory_context
 
-    def build_team_context(self, collaborator: Optional[Any]) -> Optional[str]:
+    def build_team_context(self, collaborator: Any | None) -> str | None:
         """
         Build team context from collaborator profile
 
@@ -81,7 +85,7 @@ class ContextBuilder:
         Returns:
             Natural-language team context string or None
         """
-        if not collaborator or not hasattr(collaborator, 'id') or collaborator.id == "anonymous":
+        if not collaborator or not hasattr(collaborator, "id") or collaborator.id == "anonymous":
             return None
 
         logger.info(f"📚 [ContextBuilder] Building team context for {collaborator.name}")
@@ -89,12 +93,7 @@ class ContextBuilder:
         team_parts = []
 
         # LANGUAGE REQUIREMENT (ABSOLUTE - MUST BE FIRST)
-        language_map = {
-            "it": "Italian",
-            "id": "Indonesian",
-            "en": "English",
-            "ua": "Ukrainian"
-        }
+        language_map = {"it": "Italian", "id": "Indonesian", "en": "English", "ua": "Ukrainian"}
         lang_full = language_map.get(collaborator.language, collaborator.language.upper())
         team_parts.append(f"IMPORTANT: You MUST respond ONLY in {lang_full} language")
 
@@ -109,17 +108,20 @@ class ContextBuilder:
             "beginner": "Explain concepts simply and clearly",
             "intermediate": "Balance clarity with detail",
             "advanced": "You can use technical language",
-            "expert": "Discuss at a sophisticated level"
+            "expert": "Discuss at a sophisticated level",
         }
-        if hasattr(collaborator, 'expertise_level') and collaborator.expertise_level in expertise_instructions:
+        if (
+            hasattr(collaborator, "expertise_level")
+            and collaborator.expertise_level in expertise_instructions
+        ):
             team_parts.append(expertise_instructions[collaborator.expertise_level])
 
         # Emotional preferences
-        if hasattr(collaborator, 'emotional_preferences') and collaborator.emotional_preferences:
+        if hasattr(collaborator, "emotional_preferences") and collaborator.emotional_preferences:
             prefs = collaborator.emotional_preferences
-            tone = prefs.get('tone', 'professional')
-            formality = prefs.get('formality', 'medium')
-            humor = prefs.get('humor', 'light')
+            tone = prefs.get("tone", "professional")
+            formality = prefs.get("formality", "medium")
+            humor = prefs.get("humor", "light")
 
             tone_instructions = {
                 "professional_warm": "Be professional but warm and approachable",
@@ -132,20 +134,20 @@ class ContextBuilder:
                 "collaborative": "Be collaborative and supportive",
                 "eager_learning": "Be encouraging and educational",
                 "strategic_visionary": "Be strategic and forward-thinking",
-                "sacred_semar_energy": "Be playful, wise, and deeply intuitive"
+                "sacred_semar_energy": "Be playful, wise, and deeply intuitive",
             }
 
             formality_instructions = {
                 "casual": "Use casual, friendly language",
                 "medium": "Use balanced professional language",
-                "high": "Use formal, polished language"
+                "high": "Use formal, polished language",
             }
 
             humor_instructions = {
                 "minimal": "Keep humor minimal",
                 "light": "Light humor is welcome",
                 "intelligent": "Use intelligent, subtle humor",
-                "sacred_semar_energy": "Use profound, playful wisdom"
+                "sacred_semar_energy": "Use profound, playful wisdom",
             }
 
             instruction_parts = []
@@ -159,7 +161,6 @@ class ContextBuilder:
             if instruction_parts:
                 team_parts.append(". ".join(instruction_parts))
 
-
         # Build natural sentence
         team_context = ". ".join(team_parts) + "."
 
@@ -169,11 +170,11 @@ class ContextBuilder:
 
     def combine_contexts(
         self,
-        memory_context: Optional[str],
-        team_context: Optional[str],
-        rag_context: Optional[str],
-        cultural_context: Optional[str] = None
-    ) -> Optional[str]:
+        memory_context: str | None,
+        team_context: str | None,
+        rag_context: str | None,
+        cultural_context: str | None = None,
+    ) -> str | None:
         """
         Combine all context sources into single context string
 
@@ -209,6 +210,8 @@ class ContextBuilder:
 
         combined = "\n\n".join(contexts)
 
-        logger.info(f"📚 [ContextBuilder] Combined context: {len(combined)} chars from {len(contexts)} sources")
+        logger.info(
+            f"📚 [ContextBuilder] Combined context: {len(combined)} chars from {len(contexts)} sources"
+        )
 
         return combined

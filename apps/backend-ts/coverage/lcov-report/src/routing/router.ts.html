@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-    
+
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../index.html">All files</a> / <a href="index.html">src/routing</a> router.ts</h1>
         <div class='clearfix'>
-            
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/598</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/336</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/113</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/546</span>
             </div>
-        
-            
+
+
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -4639,7 +4639,7 @@ const handlers: Record&lt;string, Handler&gt; = <span class="cstat-no" title="st
   // Creative &amp; Artistic AI handlers - NEW!
   ...creativeHandlers,
 &nbsp;
-  // DevAI (Qwen 2.5 Coder) - Internal Developer AI  
+  // DevAI (Qwen 2.5 Coder) - Internal Developer AI
   // ...devaiHandlers, // REMOVED - DevAI no longer used
 &nbsp;
   // Google Analytics handlers - NEW!
@@ -4944,14 +4944,14 @@ export function <span class="fstat-no" title="function not covered" >attachRoute
 <span class="cstat-no" title="statement not covered" >  app.post("/auth/login", <span class="fstat-no" title="function not covered" >async (r</span>eq: RequestWithCtx, res: Response) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const { email, password } = <span class="cstat-no" title="statement not covered" >req.body;</span>
-      
+
 <span class="cstat-no" title="statement not covered" >      if (!email || !password) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(400).json(err("Email and password are required"));</span>
       }
 &nbsp;
       // Validate credentials (integrate with existing team login)
       const loginResult = <span class="cstat-no" title="statement not covered" >await teamLogin({ email, pin: password });</span>
-      
+
 <span class="cstat-no" title="statement not covered" >      if (!loginResult.data.success) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(401).json(err("Invalid credentials"));</span>
       }
@@ -4959,21 +4959,21 @@ export function <span class="fstat-no" title="function not covered" >attachRoute
       // Generate JWT tokens
       const jwt = <span class="cstat-no" title="statement not covered" >require('jsonwebtoken');</span>
       const jwtSecret = <span class="cstat-no" title="statement not covered" >process.env.JWT_SECRET || 'zantara-jwt-secret-2025';</span>
-      
+
       const accessToken = <span class="cstat-no" title="statement not covered" >jwt.sign(</span>
-        { 
+        {
           userId: loginResult.data.user.id,
           email: loginResult.data.user.email,
-          role: loginResult.data.user.role 
+          role: loginResult.data.user.role
         },
         jwtSecret,
         { expiresIn: '15m' }
       );
 &nbsp;
       const refreshToken = <span class="cstat-no" title="statement not covered" >jwt.sign(</span>
-        { 
+        {
           userId: loginResult.data.user.id,
-          type: 'refresh' 
+          type: 'refresh'
         },
         jwtSecret,
         { expiresIn: '7d' }
@@ -5002,17 +5002,17 @@ export function <span class="fstat-no" title="function not covered" >attachRoute
 <span class="cstat-no" title="statement not covered" >  app.post("/auth/refresh", <span class="fstat-no" title="function not covered" >async (r</span>eq: RequestWithCtx, res: Response) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const { refreshToken } = <span class="cstat-no" title="statement not covered" >req.body;</span>
-      
+
 <span class="cstat-no" title="statement not covered" >      if (!refreshToken) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(400).json(err("Refresh token is required"));</span>
       }
 &nbsp;
       const jwt = <span class="cstat-no" title="statement not covered" >require('jsonwebtoken');</span>
       const jwtSecret = <span class="cstat-no" title="statement not covered" >process.env.JWT_SECRET || 'zantara-jwt-secret-2025';</span>
-      
+
       // Verify refresh token
       const decoded = <span class="cstat-no" title="statement not covered" >jwt.verify(refreshToken, jwtSecret);</span>
-      
+
 <span class="cstat-no" title="statement not covered" >      if (decoded.type !== 'refresh') {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(401).json(err("Invalid token type"));</span>
       }
@@ -5020,17 +5020,17 @@ export function <span class="fstat-no" title="function not covered" >attachRoute
       // Get user data
       const teamMembers = <span class="cstat-no" title="statement not covered" >getTeamMembers();</span>
       const user = <span class="cstat-no" title="statement not covered" >teamMembers.find(<span class="fstat-no" title="function not covered" >m =&gt; <span class="cstat-no" title="statement not covered" >m</span>.id === decoded.userId)</span>;</span>
-      
+
 <span class="cstat-no" title="statement not covered" >      if (!user) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(401).json(err("User not found"));</span>
       }
 &nbsp;
       // Generate new access token
       const newAccessToken = <span class="cstat-no" title="statement not covered" >jwt.sign(</span>
-        { 
+        {
           userId: user.id,
           email: user.email,
-          role: user.role 
+          role: user.role
         },
         jwtSecret,
         { expiresIn: '15m' }
@@ -5061,10 +5061,10 @@ export function <span class="fstat-no" title="function not covered" >attachRoute
 <span class="cstat-no" title="statement not covered" >  app.post("/auth/logout", <span class="fstat-no" title="function not covered" >async (r</span>eq: RequestWithCtx, res: Response) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const { refreshToken } = <span class="cstat-no" title="statement not covered" >req.body;</span>
-      
+
       // In a production system, you would blacklist the refresh token
       // For now, we just return success
-      
+
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json(ok({</span>
         success: true,
         message: "Logged out successfully"
@@ -5270,7 +5270,7 @@ export function <span class="fstat-no" title="function not covered" >attachRoute
 <span class="cstat-no" title="statement not covered" >  app.post("/handler", apiKeyAuth, selectiveRateLimiter, <span class="fstat-no" title="function not covered" >async (r</span>eq: RequestWithCtx, res: Response) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const { handler, params = <span class="branch-0 cbranch-no" title="branch not covered" >{} </span>} = <span class="cstat-no" title="statement not covered" >req.body;</span>
-      
+
 <span class="cstat-no" title="statement not covered" >      if (!handler) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(400).json(err('Handler name required'));</span>
       }
@@ -5281,10 +5281,10 @@ export function <span class="fstat-no" title="function not covered" >attachRoute
       }
 &nbsp;
       let result: any;
-      
+
       // Try static handlers map first
       const handlerFunc = <span class="cstat-no" title="statement not covered" >handlers[handler];</span>
-      
+
 <span class="cstat-no" title="statement not covered" >      if (handlerFunc) {</span>
 <span class="cstat-no" title="statement not covered" >        result = await handlerFunc(params, req);</span>
       } else {
@@ -5299,7 +5299,7 @@ export function <span class="fstat-no" title="function not covered" >attachRoute
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json(ok(result?.data ?? result));</span>
-      
+
     } catch (e: any) {
 <span class="cstat-no" title="statement not covered" >      if (e instanceof BadRequestError) <span class="cstat-no" title="statement not covered" >return res.status(400).json(err(e.message));</span></span>
 <span class="cstat-no" title="statement not covered" >      if (e instanceof UnauthorizedError) <span class="cstat-no" title="statement not covered" >return res.status(401).json(err(e.message));</span></span>
@@ -5744,7 +5744,7 @@ export function <span class="fstat-no" title="function not covered" >attachRoute
 &nbsp;
   // Protected Dashboard Routes
   // ========================================
-  
+
   // Main dashboard overview
 <span class="cstat-no" title="statement not covered" >  router.get('/admin/dashboard/main', jwtAuth, adminAuth, <span class="fstat-no" title="function not covered" >async (r</span>eq, res) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
@@ -5848,4 +5848,3 @@ export function <span class="fstat-no" title="function not covered" >createRoute
         <script src="../../block-navigation.js"></script>
     </body>
 </html>
-    

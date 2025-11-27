@@ -20,7 +20,7 @@ const errorHandler = new ErrorHandler();
 
 // Global client reference (state managed by StateManager)
 let zantaraClient;
-let availableTools = []; 
+let availableTools = [];
 let currentStreamingMessage = null;
 
 // DOM elements
@@ -42,9 +42,9 @@ document.addEventListener('DOMContentLoaded', async function () {
   displayUserInfo();
 
   const API_CONFIG = window.API_CONFIG || {
-    backend: { url: 'https://nuzantara-backend.fly.dev' },
-    rag: { url: 'https://nuzantara-rag.fly.dev' },
-    memory: { url: 'https://nuzantara-memory.fly.dev' },
+    backend: { url: window.ENV?.API_URL || '/api' },
+    rag: { url: window.ENV?.API_URL || '/api' },
+    memory: { url: window.ENV?.API_URL || '/api' },
   };
 
   if (typeof window.ZantaraClient === 'undefined') {
@@ -80,13 +80,13 @@ document.addEventListener('DOMContentLoaded', async function () {
 async function setupLazyLoading() {
   // Load clients only when their functionality is accessed
   // This improves initial page load performance
-  
+
   // Example: Load CRM client when CRM features are accessed
   // Example: Load Agents client when agent features are accessed
   // Example: Load System Handlers when tools are needed
   // Example: Load Collective Memory when memory features are accessed
   // Example: Load Timesheet when timesheet widget is needed
-  
+
   // For now, we keep the clients available but they can be loaded on-demand
   // when specific features are triggered
 }
@@ -116,12 +116,15 @@ function createThinkingElement() {
 // EVENT HANDLERS
 // ========================================================================
 
+// Event listeners storage for cleanup
+const eventListeners = {};
+
 function setupEventListeners() {
   // Store handlers for cleanup
   eventListeners.input = handleInputChange;
   eventListeners.keydown = handleKeyDown;
   eventListeners.click = handleSend;
-  
+
   messageInput.addEventListener('input', eventListeners.input);
   messageInput.addEventListener('keydown', eventListeners.keydown);
   sendButton.addEventListener('click', eventListeners.click);
@@ -141,7 +144,7 @@ function cleanupEventListeners() {
   if (sendButton && eventListeners.click) {
     sendButton.removeEventListener('click', eventListeners.click);
   }
-  
+
   // Clear references
   eventListeners.input = null;
   eventListeners.keydown = null;
@@ -239,13 +242,13 @@ function renderMessage(msg, saveToHistory = true) {
   // ... (Standard rendering logic, same as before) ...
   const messageEl = document.createElement('div');
   messageEl.className = `message ${msg.type}`;
-  
+
   const contentEl = document.createElement('div');
   contentEl.className = 'message-content';
-  
+
   const textEl = document.createElement('div');
   textEl.className = 'message-text';
-  
+
   if (msg.type === 'ai') {
     // Sanitize markdown output to prevent XSS
     const sanitizedContent = DOMPurify.sanitize(zantaraClient.renderMarkdown(msg.content));
@@ -253,7 +256,7 @@ function renderMessage(msg, saveToHistory = true) {
   } else {
     textEl.textContent = msg.content;
   }
-  
+
   contentEl.appendChild(textEl);
   messageEl.appendChild(contentEl);
   messageSpace.appendChild(messageEl);
@@ -269,25 +272,25 @@ function createLiveMessage() {
   const messageEl = document.createElement('div');
   messageEl.className = 'message ai live-message';
   messageEl.id = 'liveMessage';
-  
+
   const contentEl = document.createElement('div');
   contentEl.className = 'message-content';
-  
+
   const textEl = document.createElement('div');
   textEl.className = 'message-text';
-  
+
   contentEl.appendChild(textEl);
   messageEl.appendChild(contentEl);
   messageSpace.appendChild(messageEl);
   scrollToBottom();
-  
+
   return messageEl;
 }
 
 function updateLiveMessage(messageEl, text) {
   if (!messageEl) messageEl = document.getElementById('liveMessage');
   if (!messageEl) return;
-  
+
   const textEl = messageEl.querySelector('.message-text');
   if (textEl) textEl.textContent = text; // Raw text during stream
   scrollToBottom();
@@ -327,7 +330,7 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
           </div>
         `).join('')}
       </div>
-    `;
+    `);
     messageEl.querySelector('.message-content').appendChild(sourcesEl);
   }
 
@@ -385,7 +388,7 @@ function updateThinking(text) {
     el.innerHTML = DOMPurify.sanitize(`
       <div class="spinner-pulse"></div>
       <span class="thought-text">Thinking...</span>
-    `;
+    `);
     messageSpace.appendChild(el);
   }
 

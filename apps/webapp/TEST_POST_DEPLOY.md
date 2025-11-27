@@ -1,7 +1,7 @@
 # 🧪 Test Post-Deploy - Webapp
 
-**Data:** 2025-01-27  
-**Deploy:** GitHub Pages  
+**Data:** 2025-01-27
+**Deploy:** GitHub Pages
 **URL:** https://zantara.balizero.com
 
 ---
@@ -161,8 +161,8 @@ curl -I https://zantara.balizero.com/chat.html
 
 ## ✅ CONCLUSIONE
 
-**Deploy Status:** ✅ / ❌  
-**Test Status:** ✅ / ❌  
+**Deploy Status:** ✅ / ❌
+**Test Status:** ✅ / ❌
 **Pronto per Production:** ✅ / ❌
 
 **Note:**
@@ -170,7 +170,6 @@ curl -I https://zantara.balizero.com/chat.html
 
 ---
 
-**Test eseguiti da:** [Nome]  
-**Data:** 2025-01-27  
+**Test eseguiti da:** [Nome]
+**Data:** 2025-01-27
 **Versione:** [Commit SHA]
-

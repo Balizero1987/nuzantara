@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 from core.embeddings import EmbeddingsGenerator
 from core.qdrant_db import QdrantClient
@@ -17,14 +17,14 @@ class PoliticsIngestionService:
     Stores in collection 'politics_id'.
     """
 
-    def __init__(self, qdrant_url: Optional[str] = None):
+    def __init__(self, qdrant_url: str | None = None):
         self.embedder = EmbeddingsGenerator()
         self.vector_db = QdrantClient(
             qdrant_url=qdrant_url,
             collection_name="politics_id",
         )
 
-    def _build_text(self, record: Dict[str, Any]) -> str:
+    def _build_text(self, record: dict[str, Any]) -> str:
         t = record.get("type")
         if t == "person":
             name = record.get("name", "")
@@ -34,17 +34,20 @@ class PoliticsIngestionService:
             office_lines = []
             for o in offices:
                 office_lines.append(
-                    f"- {o.get('office','')} ({o.get('from','?')}→{o.get('to','?')}) @ {o.get('jurisdiction_id','')}"
+                    f"- {o.get('office', '')} ({o.get('from', '?')}→{o.get('to', '?')}) @ {o.get('jurisdiction_id', '')}"
                 )
             parties = record.get("party_memberships", [])
             party_lines = [
-                f"- {p.get('party_id','')} ({p.get('from','?')}→{p.get('to','?')})" for p in parties
+                f"- {p.get('party_id', '')} ({p.get('from', '?')}→{p.get('to', '?')})"
+                for p in parties
             ]
             text = (
                 f"Tokoh: {name}\n"
                 f"Lahir: {dob} | {pob}\n"
-                f"Keanggotaan partai:\n" + ("\n".join(party_lines) if party_lines else "- tidak ada") + "\n"
-                f"Jabatan:\n" + ("\n".join(office_lines) if office_lines else "- tidak ada")
+                f"Keanggotaan partai:\n"
+                + ("\n".join(party_lines) if party_lines else "- tidak ada")
+                + "\n"
+                "Jabatan:\n" + ("\n".join(office_lines) if office_lines else "- tidak ada")
             )
             return text
 
@@ -53,11 +56,12 @@ class PoliticsIngestionService:
             ideol = ", ".join(record.get("ideology", []) or [])
             leaders = record.get("leaders", [])
             leader_lines = [
-                f"- {l.get('person_id','')} ({l.get('from','?')}→{l.get('to','?')})" for l in leaders
+                f"- {l.get('person_id', '')} ({l.get('from', '?')}→{l.get('to', '?')})"
+                for l in leaders
             ]
             text = (
-                f"Partai: {name} ({record.get('abbrev','')})\n"
-                f"Berdiri: {record.get('founded','')} | Bubaran: {record.get('dissolved','')}\n"
+                f"Partai: {name} ({record.get('abbrev', '')})\n"
+                f"Berdiri: {record.get('founded', '')} | Bubaran: {record.get('dissolved', '')}\n"
                 f"Ideologi: {ideol or 'tidak ada'}\n"
                 f"Pimpinan:\n" + ("\n".join(leader_lines) if leader_lines else "- tidak ada")
             )
@@ -65,37 +69,37 @@ class PoliticsIngestionService:
 
         if t == "election":
             text = (
-                f"Pemilu: {record.get('id','')} pada {record.get('date','')}\n"
-                f"Level: {record.get('level','')} | Ruang lingkup: {record.get('scope','')} | Yurisdiksi: {record.get('jurisdiction_id','')}\n"
+                f"Pemilu: {record.get('id', '')} pada {record.get('date', '')}\n"
+                f"Level: {record.get('level', '')} | Ruang lingkup: {record.get('scope', '')} | Yurisdiksi: {record.get('jurisdiction_id', '')}\n"
             )
             contests = record.get("contests", [])
             for c in contests:
-                text += f"Kontes: {c.get('office','')} | Daerah: {c.get('district','')}\n"
+                text += f"Kontes: {c.get('office', '')} | Daerah: {c.get('district', '')}\n"
                 for r in c.get("results", []):
                     text += (
-                        f"- calon={r.get('candidate_id','')}, partai={r.get('party_id','')}, "
-                        f"suara={r.get('votes',0)}, persen={r.get('pct',0.0)}\n"
+                        f"- calon={r.get('candidate_id', '')}, partai={r.get('party_id', '')}, "
+                        f"suara={r.get('votes', 0)}, persen={r.get('pct', 0.0)}\n"
                     )
             return text
 
         if t == "jurisdiction":
             return (
-                f"Yurisdiksi: {record.get('id','')} {record.get('name','')} ({record.get('kind','')})\n"
-                f"Induk: {record.get('parent_id','')} | Berlaku: {record.get('valid_from','?')}→{record.get('valid_to','?')}\n"
+                f"Yurisdiksi: {record.get('id', '')} {record.get('name', '')} ({record.get('kind', '')})\n"
+                f"Induk: {record.get('parent_id', '')} | Berlaku: {record.get('valid_from', '?')}→{record.get('valid_to', '?')}\n"
             )
 
         if t == "law":
             return (
-                f"Regulasi: {record.get('number','')} {record.get('title','')} ({record.get('date','')})\n"
-                f"Subjek: {record.get('subject','')}\n"
+                f"Regulasi: {record.get('number', '')} {record.get('title', '')} ({record.get('date', '')})\n"
+                f"Subjek: {record.get('subject', '')}\n"
             )
 
         return json.dumps(record, ensure_ascii=False)
 
-    def ingest_jsonl_files(self, paths: List[Path]) -> Dict[str, Any]:
-        documents: List[str] = []
-        metadatas: List[Dict[str, Any]] = []
-        ids: List[str] = []
+    def ingest_jsonl_files(self, paths: list[Path]) -> dict[str, Any]:
+        documents: list[str] = []
+        metadatas: list[dict[str, Any]] = []
+        ids: list[str] = []
 
         for p in paths:
             try:
@@ -119,7 +123,7 @@ class PoliticsIngestionService:
                             }
                         )
                         rid = rec.get("id") or f"record:{p.stem}:{line_idx}"
-                        ids.append(f"pol:{rec.get('type','record')}:{rid}:{line_idx}")
+                        ids.append(f"pol:{rec.get('type', 'record')}:{rid}:{line_idx}")
             except Exception as e:
                 logger.error(f"Failed to read {p}: {e}")
 
@@ -127,11 +131,13 @@ class PoliticsIngestionService:
             return {"success": False, "documents_added": 0, "message": "No records found"}
 
         embeddings = self.embedder.generate_embeddings(documents)
-        self.vector_db.upsert_documents(chunks=documents, embeddings=embeddings, metadatas=metadatas, ids=ids)
+        self.vector_db.upsert_documents(
+            chunks=documents, embeddings=embeddings, metadatas=metadatas, ids=ids
+        )
 
         return {"success": True, "documents_added": len(documents)}
 
-    def ingest_dir(self, root: Path) -> Dict[str, Any]:
+    def ingest_dir(self, root: Path) -> dict[str, Any]:
         root = Path(root)
         jsonl_files = []
         for sub in ["persons", "parties", "elections", "jurisdictions"]:
@@ -144,11 +150,18 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(description="Ingest Indonesian politics KB into Qdrant")
-    parser.add_argument("--kb-root", type=str, required=False,
-                        default=str(Path(__file__).parent.parent / "kb" / "politics" / "id"))
+    parser.add_argument(
+        "--kb-root",
+        type=str,
+        required=False,
+        default=str(Path(__file__).parent.parent / "kb" / "politics" / "id"),
+    )
     parser.add_argument("--chroma", type=str, required=False, default="/tmp/chroma_db")
     args = parser.parse_args()
 
+    import logging
+    logger = logging.getLogger(__name__)
+
     svc = PoliticsIngestionService(persist_directory=args.chroma)
     result = svc.ingest_dir(Path(args.kb_root))
-    print(result)
+    logger.info(result)

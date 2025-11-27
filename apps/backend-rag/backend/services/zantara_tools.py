@@ -5,9 +5,10 @@ LEGACY CODE CLEANED: Claude references removed - using ZANTARA AI only
 """
 
 import logging
-from typing import Dict, Any, List, Optional
-from services.pricing_service import get_pricing_service
+from typing import Any
+
 from services.collaborator_service import CollaboratorService
+from services.pricing_service import get_pricing_service
 
 logger = logging.getLogger(__name__)
 
@@ -26,11 +27,8 @@ class ZantaraTools:
         logger.info("✅ ZantaraTools initialized")
 
     async def execute_tool(
-        self,
-        tool_name: str,
-        tool_input: Dict[str, Any],
-        user_id: str = "system"
-    ) -> Dict[str, Any]:
+        self, tool_name: str, tool_input: dict[str, Any], user_id: str = "system"
+    ) -> dict[str, Any]:
         """
         Execute a Zantara tool
 
@@ -52,19 +50,13 @@ class ZantaraTools:
             elif tool_name == "get_team_members_list":
                 return await self._get_team_members_list(tool_input)
             else:
-                return {
-                    "success": False,
-                    "error": f"Unknown tool: {tool_name}"
-                }
+                return {"success": False, "error": f"Unknown tool: {tool_name}"}
 
         except Exception as e:
             logger.error(f"❌ Error executing {tool_name}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
-    async def _get_pricing(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _get_pricing(self, params: dict[str, Any]) -> dict[str, Any]:
         """
         Get official Bali Zero pricing
 
@@ -93,23 +85,17 @@ class ZantaraTools:
                     "error": "Official prices not loaded",
                     "fallback_contact": {
                         "email": "info@balizero.com",
-                        "whatsapp": "+62 813 3805 1876"
-                    }
+                        "whatsapp": "+62 813 3805 1876",
+                    },
                 }
 
-            return {
-                "success": True,
-                "data": result
-            }
+            return {"success": True, "data": result}
 
         except Exception as e:
             logger.error(f"❌ get_pricing error: {e}")
-            return {
-                "success": False,
-                "error": f"Pricing lookup failed: {str(e)}"
-            }
+            return {"success": False, "error": f"Pricing lookup failed: {str(e)}"}
 
-    async def _search_team_member(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _search_team_member(self, params: dict[str, Any]) -> dict[str, Any]:
         """
         Search team member by name
 
@@ -119,10 +105,7 @@ class ZantaraTools:
         query = params.get("query", "").lower().strip()
 
         if not query:
-            return {
-                "success": False,
-                "error": "Please provide a name to search for"
-            }
+            return {"success": False, "error": "Please provide a name to search for"}
 
         logger.info(f"👥 search_team_member: query={query}")
 
@@ -133,8 +116,8 @@ class ZantaraTools:
                 "success": True,
                 "data": {
                     "message": f"No team member found matching '{query}'",
-                    "suggestion": "Try searching by first name or department"
-                }
+                    "suggestion": "Try searching by first name or department",
+                },
             }
 
         results = [
@@ -146,27 +129,23 @@ class ZantaraTools:
                 "expertise_level": profile.expertise_level,
                 "language": profile.language,
                 "notes": profile.notes,
-                "traits": profile.traits
+                "traits": profile.traits,
             }
             for profile in profiles
         ]
 
-        return {
-            "success": True,
-            "data": {
-                "count": len(results),
-                "results": results
-            }
-        }
+        return {"success": True, "data": {"count": len(results), "results": results}}
 
-    async def _get_team_members_list(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _get_team_members_list(self, params: dict[str, Any]) -> dict[str, Any]:
         """
         Get full team roster, optionally filtered by department
 
         Args:
             params: {"department": str (optional)}
         """
-        department = params.get("department", "").lower().strip() if params.get("department") else None
+        department = (
+            params.get("department", "").lower().strip() if params.get("department") else None
+        )
 
         logger.info(f"👥 get_team_members_list: department={department}")
 
@@ -181,7 +160,7 @@ class ZantaraTools:
                 "expertise_level": profile.expertise_level,
                 "language": profile.language,
                 "traits": profile.traits,
-                "notes": profile.notes
+                "notes": profile.notes,
             }
             for profile in profiles
         ]
@@ -203,11 +182,11 @@ class ZantaraTools:
                 "total_members": len(roster),
                 "by_department": by_department,
                 "roster": roster,
-                "stats": stats
-            }
+                "stats": stats,
+            },
         }
 
-    def get_tool_definitions(self, include_admin_tools: bool = False) -> List[Dict[str, Any]]:
+    def get_tool_definitions(self, include_admin_tools: bool = False) -> list[dict[str, Any]]:
         """
         Get ZANTARA AI-compatible tool definitions
 
@@ -242,16 +221,23 @@ DO NOT generate prices from memory - prices change and must be accurate. All pri
                     "properties": {
                         "service_type": {
                             "type": "string",
-                            "enum": ["visa", "kitas", "business_setup", "tax_consulting", "legal", "all"],
-                            "description": "Type of service to get pricing for (use 'all' to see everything)"
+                            "enum": [
+                                "visa",
+                                "kitas",
+                                "business_setup",
+                                "tax_consulting",
+                                "legal",
+                                "all",
+                            ],
+                            "description": "Type of service to get pricing for (use 'all' to see everything)",
                         },
                         "query": {
                             "type": "string",
-                            "description": "Optional: specific search query (e.g. 'long-stay permit', 'company setup', 'visa')"
-                        }
+                            "description": "Optional: specific search query (e.g. 'long-stay permit', 'company setup', 'visa')",
+                        },
                     },
-                    "required": ["service_type"]
-                }
+                    "required": ["service_type"],
+                },
             },
             {
                 "name": "search_team_member",
@@ -261,11 +247,11 @@ DO NOT generate prices from memory - prices change and must be accurate. All pri
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "Name to search for (e.g. 'Dea', 'Zero', 'Krisna')"
+                            "description": "Name to search for (e.g. 'Dea', 'Zero', 'Krisna')",
                         }
                     },
-                    "required": ["query"]
-                }
+                    "required": ["query"],
+                },
             },
             {
                 "name": "get_team_members_list",
@@ -275,11 +261,11 @@ DO NOT generate prices from memory - prices change and must be accurate. All pri
                     "properties": {
                         "department": {
                             "type": "string",
-                            "description": "Optional: filter by department (technology, operations, creative, etc.)"
+                            "description": "Optional: filter by department (technology, operations, creative, etc.)",
                         }
-                    }
-                }
-            }
+                    },
+                },
+            },
         ]
 
         logger.info(f"📋 Returning {len(tools)} ZantaraTool definitions")
@@ -287,7 +273,7 @@ DO NOT generate prices from memory - prices change and must be accurate. All pri
 
 
 # Global singleton
-_zantara_tools: Optional[ZantaraTools] = None
+_zantara_tools: ZantaraTools | None = None
 
 
 def get_zantara_tools() -> ZantaraTools:

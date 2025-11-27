@@ -80,8 +80,8 @@ class CRMClient {
 
             // Ensure required fields
             if (!payload.client_id && data.user_email) {
-                // Note: Backend handles client lookup via email in specialized endpoints, 
-                // but for standard create we might need client_id. 
+                // Note: Backend handles client lookup via email in specialized endpoints,
+                // but for standard create we might need client_id.
                 // We proceed with what we have.
             }
 

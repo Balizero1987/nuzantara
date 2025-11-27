@@ -36,10 +36,10 @@
     const searchHTML = `
             <div id="messageSearchPanel" class="message-search-panel" style="display:none;">
                 <div class="search-panel-content">
-                    <input 
-                        type="text" 
-                        id="messageSearchInput" 
-                        class="search-input" 
+                    <input
+                        type="text"
+                        id="messageSearchInput"
+                        class="search-input"
                         placeholder="Search messages... (Ctrl+F)"
                         autocomplete="off"
                     >

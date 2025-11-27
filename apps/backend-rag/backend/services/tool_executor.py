@@ -7,7 +7,8 @@ LEGACY CODE CLEANED: Anthropic references removed - using ZANTARA AI only
 
 import json
 import logging
-from typing import Dict, Any, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
+
 from services.handler_proxy import HandlerProxyService
 
 if TYPE_CHECKING:
@@ -26,8 +27,8 @@ class ToolExecutor:
     def __init__(
         self,
         handler_proxy: HandlerProxyService,
-        internal_key: Optional[str] = None,
-        zantara_tools: Optional['ZantaraTools'] = None
+        internal_key: str | None = None,
+        zantara_tools: Optional["ZantaraTools"] = None,
     ):
         """
         Initialize tool executor
@@ -43,22 +44,24 @@ class ToolExecutor:
 
         # ZantaraTools function names (Python - executed directly)
         self.zantara_tool_names = {
-            'get_team_logins_today',
-            'get_team_active_sessions',
-            'get_team_member_stats',
-            'get_team_overview',
-            'get_team_members_list',    # Team roster (public)
-            'search_team_member',        # Team search (public)
-            'get_session_details',
-            'end_user_session',
-            'retrieve_user_memory',
-            'search_memory',
-            'get_pricing'
+            "get_team_logins_today",
+            "get_team_active_sessions",
+            "get_team_member_stats",
+            "get_team_overview",
+            "get_team_members_list",  # Team roster (public)
+            "search_team_member",  # Team search (public)
+            "get_session_details",
+            "end_user_session",
+            "retrieve_user_memory",
+            "search_memory",
+            "get_pricing",
         }
 
-        logger.info(f"🔧 ToolExecutor initialized (ZantaraTools: {'✅' if zantara_tools else '❌'})")
+        logger.info(
+            f"🔧 ToolExecutor initialized (ZantaraTools: {'✅' if zantara_tools else '❌'})"
+        )
 
-    async def execute_tool_calls(self, tool_uses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def execute_tool_calls(self, tool_uses: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Execute multiple tool calls from ZANTARA AI response
 
@@ -91,7 +94,7 @@ class ToolExecutor:
 
         for tool_use in tool_uses:
             # Handle both dict and ToolUseBlock objects
-            if hasattr(tool_use, 'id'):
+            if hasattr(tool_use, "id"):
                 # Pydantic ToolUseBlock object (legacy Anthropic SDK format)
                 tool_id = tool_use.id
                 tool_name = tool_use.name
@@ -109,90 +112,85 @@ class ToolExecutor:
 
                     # Execute ZantaraTools directly
                     result = await self.zantara_tools.execute_tool(
-                        tool_name=tool_name,
-                        tool_input=tool_input,
-                        user_id="system"
+                        tool_name=tool_name, tool_input=tool_input, user_id="system"
                     )
 
                     if not result.get("success"):
                         error_message = result.get("error", "Unknown error")
                         logger.error(f"❌ [ZantaraTools] {tool_name} failed: {error_message}")
-                        results.append({
-                            "type": "tool_result",
-                            "tool_use_id": tool_id,
-                            "is_error": True,
-                            "content": f"Error: {error_message}"
-                        })
+                        results.append(
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": tool_id,
+                                "is_error": True,
+                                "content": f"Error: {error_message}",
+                            }
+                        )
                         continue
 
                     # Extract data from ZantaraTools result
-                    payload = result.get('data', result)
+                    payload = result.get("data", result)
                     if isinstance(payload, (dict, list)):
                         content_text = json.dumps(payload, ensure_ascii=False)
                     else:
                         content_text = str(payload)
 
                     logger.info(f"✅ [ZantaraTools] {tool_name} executed successfully")
-                    results.append({
-                        "type": "tool_result",
-                        "tool_use_id": tool_id,
-                        "content": content_text
-                    })
+                    results.append(
+                        {"type": "tool_result", "tool_use_id": tool_id, "content": content_text}
+                    )
 
                 else:
                     # TypeScript handler via HTTP proxy
-                    handler_key = tool_name.replace('_', '.')
+                    handler_key = tool_name.replace("_", ".")
                     logger.info(f"🔧 [TypeScript] Executing: {tool_name} → {handler_key} (HTTP)")
 
                     # Execute handler via proxy
                     result = await self.handler_proxy.execute_handler(
-                        handler_key=handler_key,
-                        params=tool_input,
-                        internal_key=self.internal_key
+                        handler_key=handler_key, params=tool_input, internal_key=self.internal_key
                     )
 
                     # Format result for ZANTARA AI (legacy Anthropic format)
                     if result.get("error"):
                         error_message = f"Error executing {handler_key}: {result['error']}"
                         logger.error(f"❌ [TypeScript] {tool_name} failed: {result['error']}")
-                        results.append({
-                            "type": "tool_result",
-                            "tool_use_id": tool_id,
-                            "is_error": True,
-                            "content": error_message
-                        })
+                        results.append(
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": tool_id,
+                                "is_error": True,
+                                "content": error_message,
+                            }
+                        )
                         continue
 
-                    payload = result.get('result', result)
+                    payload = result.get("result", result)
                     if isinstance(payload, (dict, list)):
                         content_text = json.dumps(payload)
                     else:
                         content_text = str(payload)
 
                     logger.info(f"✅ [TypeScript] {tool_name} executed successfully")
-                    results.append({
-                        "type": "tool_result",
-                        "tool_use_id": tool_id,
-                        "content": content_text
-                    })
+                    results.append(
+                        {"type": "tool_result", "tool_use_id": tool_id, "content": content_text}
+                    )
 
             except Exception as e:
                 logger.error(f"❌ Tool execution failed for {tool_name}: {e}")
-                results.append({
-                    "type": "tool_result",
-                    "tool_use_id": tool_id,
-                    "is_error": True,
-                    "content": f"Tool execution error: {str(e)}"
-                })
+                results.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": tool_id,
+                        "is_error": True,
+                        "content": f"Tool execution error: {str(e)}",
+                    }
+                )
 
         return results
 
     async def execute_tool(
-        self,
-        tool_name: str,
-        tool_input: Dict[str, Any],
-        user_id: str = "system"
-    ) -> Dict[str, Any]:
+        self, tool_name: str, tool_input: dict[str, Any], user_id: str = "system"
+    ) -> dict[str, Any]:
         """
         Execute a single tool (for prefetch system)
 
@@ -215,62 +213,45 @@ class ToolExecutor:
 
                 # Execute ZantaraTools directly
                 result = await self.zantara_tools.execute_tool(
-                    tool_name=tool_name,
-                    tool_input=tool_input,
-                    user_id=user_id
+                    tool_name=tool_name, tool_input=tool_input, user_id=user_id
                 )
 
                 if not result.get("success"):
                     error_message = result.get("error", "Unknown error")
                     logger.error(f"❌ [ZantaraTools/Prefetch] {tool_name} failed: {error_message}")
-                    return {
-                        "success": False,
-                        "error": error_message
-                    }
+                    return {"success": False, "error": error_message}
 
                 # Extract data from ZantaraTools result
-                payload = result.get('data', result)
+                payload = result.get("data", result)
                 logger.info(f"✅ [ZantaraTools/Prefetch] {tool_name} executed successfully")
-                return {
-                    "success": True,
-                    "result": payload
-                }
+                return {"success": True, "result": payload}
 
             else:
                 # TypeScript handler via HTTP proxy
-                handler_key = tool_name.replace('_', '.')
-                logger.info(f"🔧 [TypeScript/Prefetch] Executing: {tool_name} → {handler_key} (HTTP)")
+                handler_key = tool_name.replace("_", ".")
+                logger.info(
+                    f"🔧 [TypeScript/Prefetch] Executing: {tool_name} → {handler_key} (HTTP)"
+                )
 
                 # Execute handler via proxy
                 result = await self.handler_proxy.execute_handler(
-                    handler_key=handler_key,
-                    params=tool_input,
-                    internal_key=self.internal_key
+                    handler_key=handler_key, params=tool_input, internal_key=self.internal_key
                 )
 
                 if result.get("error"):
                     error_message = f"Error executing {handler_key}: {result['error']}"
                     logger.error(f"❌ [TypeScript/Prefetch] {tool_name} failed: {result['error']}")
-                    return {
-                        "success": False,
-                        "error": error_message
-                    }
+                    return {"success": False, "error": error_message}
 
-                payload = result.get('result', result)
+                payload = result.get("result", result)
                 logger.info(f"✅ [TypeScript/Prefetch] {tool_name} executed successfully")
-                return {
-                    "success": True,
-                    "result": payload
-                }
+                return {"success": True, "result": payload}
 
         except Exception as e:
             logger.error(f"❌ [Prefetch] Tool execution failed for {tool_name}: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
-    async def get_available_tools(self) -> List[Dict[str, Any]]:
+    async def get_available_tools(self) -> list[dict[str, Any]]:
         """
         Get ZANTARA AI-compatible tool definitions
 
@@ -282,15 +263,21 @@ class ToolExecutor:
         # CRITICAL FIX: Always load ZantaraTools first (Python - always available)
         if self.zantara_tools:
             try:
-                zantara_tool_defs = self.zantara_tools.get_tool_definitions(include_admin_tools=False)
+                zantara_tool_defs = self.zantara_tools.get_tool_definitions(
+                    include_admin_tools=False
+                )
                 tools.extend(zantara_tool_defs)
-                logger.info(f"📋 Loaded {len(zantara_tool_defs)} ZantaraTools (Python): {[t['name'] for t in zantara_tool_defs]}")
+                logger.info(
+                    f"📋 Loaded {len(zantara_tool_defs)} ZantaraTools (Python): {[t['name'] for t in zantara_tool_defs]}"
+                )
             except Exception as e:
                 logger.error(f"❌ Failed to load ZantaraTools: {e}")
 
         # Try to load TypeScript tools (may fail if backend is offline)
         try:
-            ts_tools = await self.handler_proxy.get_anthropic_tools(self.internal_key)  # LEGACY: Actually ZANTARA AI tools
+            ts_tools = await self.handler_proxy.get_anthropic_tools(
+                self.internal_key
+            )  # LEGACY: Actually ZANTARA AI tools
             tools.extend(ts_tools)
             logger.info(f"📋 Loaded {len(ts_tools)} TypeScript tools")
         except Exception as e:

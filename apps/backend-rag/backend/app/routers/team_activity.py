@@ -3,11 +3,12 @@ Team Activity API Router
 Endpoints for team timesheet and activity tracking
 """
 
-from datetime import datetime, date
-from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, Depends, HTTPException, Query, Header
-from pydantic import BaseModel, EmailStr, Field
 import logging
+from datetime import datetime
+from typing import Any
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from pydantic import BaseModel, EmailStr, Field
 
 logger = logging.getLogger(__name__)
 
@@ -18,37 +19,42 @@ router = APIRouter(prefix="/api/team", tags=["team-activity"])
 # Pydantic Models
 # ============================================================================
 
+
 class ClockInRequest(BaseModel):
     """Clock-in request"""
+
     user_id: str = Field(..., description="User identifier")
     email: EmailStr = Field(..., description="User email")
-    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Optional metadata")
+    metadata: dict[str, Any] | None = Field(default=None, description="Optional metadata")
 
 
 class ClockOutRequest(BaseModel):
     """Clock-out request"""
+
     user_id: str = Field(..., description="User identifier")
     email: EmailStr = Field(..., description="User email")
-    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Optional metadata")
+    metadata: dict[str, Any] | None = Field(default=None, description="Optional metadata")
 
 
 class ClockResponse(BaseModel):
     """Clock-in/out response"""
+
     success: bool
-    action: Optional[str] = None
-    timestamp: Optional[str] = None
-    bali_time: Optional[str] = None
+    action: str | None = None
+    timestamp: str | None = None
+    bali_time: str | None = None
     message: str
-    error: Optional[str] = None
-    hours_worked: Optional[float] = None
+    error: str | None = None
+    hours_worked: float | None = None
 
 
 class UserStatusResponse(BaseModel):
     """User work status response"""
+
     user_id: str
     is_online: bool
-    last_action: Optional[str]
-    last_action_type: Optional[str]
+    last_action: str | None
+    last_action_type: str | None
     today_hours: float
     week_hours: float
     week_days: int
@@ -56,6 +62,7 @@ class UserStatusResponse(BaseModel):
 
 class TeamMemberStatus(BaseModel):
     """Team member status"""
+
     user_id: str
     email: str
     is_online: bool
@@ -65,6 +72,7 @@ class TeamMemberStatus(BaseModel):
 
 class DailyHours(BaseModel):
     """Daily work hours"""
+
     user_id: str
     email: str
     date: str
@@ -75,6 +83,7 @@ class DailyHours(BaseModel):
 
 class WeeklySummary(BaseModel):
     """Weekly work summary"""
+
     user_id: str
     email: str
     week_start: str
@@ -85,6 +94,7 @@ class WeeklySummary(BaseModel):
 
 class MonthlySummary(BaseModel):
     """Monthly work summary"""
+
     user_id: str
     email: str
     month_start: str
@@ -97,11 +107,7 @@ class MonthlySummary(BaseModel):
 # Admin Authorization
 # ============================================================================
 
-ADMIN_EMAILS = [
-    "zero@balizero.com",
-    "admin@zantara.io",
-    "admin@balizero.com"
-]
+ADMIN_EMAILS = ["zero@balizero.com", "admin@zantara.io", "admin@balizero.com"]
 
 
 def verify_admin(email: str) -> bool:
@@ -110,8 +116,7 @@ def verify_admin(email: str) -> bool:
 
 
 async def get_admin_email(
-    authorization: Optional[str] = Header(None),
-    x_user_email: Optional[str] = Header(None)
+    authorization: str | None = Header(None), x_user_email: str | None = Header(None)
 ) -> str:
     """
     Extract and verify admin email from headers
@@ -125,10 +130,7 @@ async def get_admin_email(
         email = x_user_email.lower()
         if verify_admin(email):
             return email
-        raise HTTPException(
-            status_code=403,
-            detail="Admin access required"
-        )
+        raise HTTPException(status_code=403, detail="Admin access required")
 
     # TODO: Add JWT token parsing when real auth is implemented
     # if authorization and authorization.startswith("Bearer "):
@@ -138,14 +140,14 @@ async def get_admin_email(
     #         return email
 
     raise HTTPException(
-        status_code=401,
-        detail="Authentication required. Provide X-User-Email header."
+        status_code=401, detail="Authentication required. Provide X-User-Email header."
     )
 
 
 # ============================================================================
 # Team Member Endpoints (All team members can use)
 # ============================================================================
+
 
 @router.post("/clock-in", response_model=ClockResponse)
 async def clock_in(request: ClockInRequest):
@@ -163,9 +165,7 @@ async def clock_in(request: ClockInRequest):
 
     try:
         result = await service.clock_in(
-            user_id=request.user_id,
-            email=request.email,
-            metadata=request.metadata
+            user_id=request.user_id, email=request.email, metadata=request.metadata
         )
         return ClockResponse(**result)
     except Exception as e:
@@ -189,9 +189,7 @@ async def clock_out(request: ClockOutRequest):
 
     try:
         result = await service.clock_out(
-            user_id=request.user_id,
-            email=request.email,
-            metadata=request.metadata
+            user_id=request.user_id, email=request.email, metadata=request.metadata
         )
         return ClockResponse(**result)
     except Exception as e:
@@ -200,9 +198,7 @@ async def clock_out(request: ClockOutRequest):
 
 
 @router.get("/my-status", response_model=UserStatusResponse)
-async def get_my_status(
-    user_id: str = Query(..., description="User ID")
-):
+async def get_my_status(user_id: str = Query(..., description="User ID")):
     """
     Get my current work status
 
@@ -229,10 +225,9 @@ async def get_my_status(
 # Admin-Only Endpoints
 # ============================================================================
 
-@router.get("/status", response_model=List[TeamMemberStatus])
-async def get_team_status(
-    admin_email: str = Depends(get_admin_email)
-):
+
+@router.get("/status", response_model=list[TeamMemberStatus])
+async def get_team_status(admin_email: str = Depends(get_admin_email)):
     """
     Get current online status of all team members (ADMIN ONLY)
 
@@ -252,10 +247,10 @@ async def get_team_status(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/hours", response_model=List[DailyHours])
+@router.get("/hours", response_model=list[DailyHours])
 async def get_daily_hours(
-    date: Optional[str] = Query(None, description="Date (YYYY-MM-DD, defaults to today)"),
-    admin_email: str = Depends(get_admin_email)
+    date: str | None = Query(None, description="Date (YYYY-MM-DD, defaults to today)"),
+    admin_email: str = Depends(get_admin_email),
 ):
     """
     Get work hours for a specific date (ADMIN ONLY)
@@ -282,10 +277,10 @@ async def get_daily_hours(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/activity/weekly", response_model=List[WeeklySummary])
+@router.get("/activity/weekly", response_model=list[WeeklySummary])
 async def get_weekly_summary(
-    week_start: Optional[str] = Query(None, description="Week start date (YYYY-MM-DD)"),
-    admin_email: str = Depends(get_admin_email)
+    week_start: str | None = Query(None, description="Week start date (YYYY-MM-DD)"),
+    admin_email: str = Depends(get_admin_email),
 ):
     """
     Get weekly work summary (ADMIN ONLY)
@@ -312,10 +307,10 @@ async def get_weekly_summary(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/activity/monthly", response_model=List[MonthlySummary])
+@router.get("/activity/monthly", response_model=list[MonthlySummary])
 async def get_monthly_summary(
-    month_start: Optional[str] = Query(None, description="Month start date (YYYY-MM-DD)"),
-    admin_email: str = Depends(get_admin_email)
+    month_start: str | None = Query(None, description="Month start date (YYYY-MM-DD)"),
+    admin_email: str = Depends(get_admin_email),
 ):
     """
     Get monthly work summary (ADMIN ONLY)
@@ -347,15 +342,16 @@ async def export_timesheet(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     format: str = Query("csv", description="Export format (csv only for now)"),
-    admin_email: str = Depends(get_admin_email)
+    admin_email: str = Depends(get_admin_email),
 ):
     """
     Export timesheet data (ADMIN ONLY)
 
     Returns CSV file with all work hours in the specified date range.
     """
-    from services.team_timesheet_service import get_timesheet_service
     from fastapi.responses import Response
+
+    from services.team_timesheet_service import get_timesheet_service
 
     service = get_timesheet_service()
     if not service:
@@ -375,7 +371,7 @@ async def export_timesheet(
             media_type="text/csv",
             headers={
                 "Content-Disposition": f"attachment; filename=timesheet_{start_date}_to_{end_date}.csv"
-            }
+            },
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid date format: {e}")
@@ -388,6 +384,7 @@ async def export_timesheet(
 # Health Check
 # ============================================================================
 
+
 @router.get("/health")
 async def health_check():
     """Health check for team activity service"""
@@ -398,5 +395,5 @@ async def health_check():
     return {
         "service": "team-activity",
         "status": "healthy" if service else "unavailable",
-        "auto_logout_enabled": service.running if service else False
+        "auto_logout_enabled": service.running if service else False,
     }

@@ -1,7 +1,7 @@
 # ADR-002: Migrate from localStorage to httpOnly Cookies
 
-**Date:** 2025-01-20  
-**Status:** Accepted  
+**Date:** 2025-01-20
+**Status:** Accepted
 **Deciders:** Development Team
 
 ## Context
@@ -36,4 +36,3 @@ Migrate to httpOnly cookies for token storage. Cookies are automatically sent wi
 ## References
 - OWASP: https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html
 - MDN: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
-

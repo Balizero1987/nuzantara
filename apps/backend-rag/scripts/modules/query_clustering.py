@@ -14,14 +14,14 @@ Usage:
     clusters = await clusterer.cluster_queries(query_records)
 """
 
+import hashlib
 import logging
-from typing import List, Dict, Optional
 from dataclasses import dataclass
+
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import DBSCAN
 from sklearn.metrics.pairwise import cosine_similarity
-import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +29,11 @@ logger = logging.getLogger(__name__)
 @dataclass
 class QueryCluster:
     """A cluster of similar queries"""
+
     cluster_id: str
     canonical_question: str  # Most representative query
-    variations: List[str]  # All query variations in cluster
-    query_hashes: List[str]  # MD5 hashes of queries
+    variations: list[str]  # All query variations in cluster
+    query_hashes: list[str]  # MD5 hashes of queries
     avg_similarity: float  # Average cosine similarity within cluster
     total_frequency: int  # Sum of all query frequencies
 
@@ -42,7 +43,7 @@ class QueryClusterer:
     Semantic clustering of user queries using sentence embeddings
     """
 
-    def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
         """
         Initialize clusterer with sentence-transformers model
 
@@ -50,7 +51,7 @@ class QueryClusterer:
             model_name: HuggingFace model for embeddings
         """
         self.model_name = model_name
-        self.model: Optional[SentenceTransformer] = None
+        self.model: SentenceTransformer | None = None
         logger.info(f"QueryClusterer initialized (model: {model_name})")
 
     def _load_model(self):
@@ -62,10 +63,10 @@ class QueryClusterer:
 
     async def cluster_queries(
         self,
-        query_records: List,  # List[QueryRecord] from query_analyzer
+        query_records: list,  # List[QueryRecord] from query_analyzer
         min_cluster_size: int = 3,
-        similarity_threshold: float = 0.75
-    ) -> List[QueryCluster]:
+        similarity_threshold: float = 0.75,
+    ) -> list[QueryCluster]:
         """
         Cluster similar queries using semantic embeddings
 
@@ -89,7 +90,9 @@ class QueryClusterer:
             if record.query_hash not in unique_queries:
                 unique_queries[record.query_hash] = record
 
-        logger.info(f"📊 Clustering {len(unique_queries)} unique queries (from {len(query_records)} total)")
+        logger.info(
+            f"📊 Clustering {len(unique_queries)} unique queries (from {len(query_records)} total)"
+        )
 
         # Generate embeddings
         query_texts = [record.query_text for record in unique_queries.values()]
@@ -105,11 +108,7 @@ class QueryClusterer:
         # Cosine similarity: 0.75 → distance: 1 - 0.75 = 0.25
         eps = 1 - similarity_threshold
 
-        clustering = DBSCAN(
-            eps=eps,
-            min_samples=min_cluster_size,
-            metric='cosine'
-        ).fit(embeddings)
+        clustering = DBSCAN(eps=eps, min_samples=min_cluster_size, metric="cosine").fit(embeddings)
 
         labels = clustering.labels_
         n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
@@ -137,7 +136,9 @@ class QueryClusterer:
 
             # Calculate average similarity within cluster
             similarity_matrix = cosine_similarity(cluster_embeddings)
-            avg_similarity = np.mean(similarity_matrix[np.triu_indices_from(similarity_matrix, k=1)])
+            avg_similarity = np.mean(
+                similarity_matrix[np.triu_indices_from(similarity_matrix, k=1)]
+            )
 
             # Calculate total frequency (sum of individual query frequencies)
             total_frequency = sum(
@@ -154,7 +155,7 @@ class QueryClusterer:
                 variations=cluster_queries,
                 query_hashes=cluster_hashes,
                 avg_similarity=float(avg_similarity),
-                total_frequency=total_frequency
+                total_frequency=total_frequency,
             )
 
             clusters.append(cluster)
@@ -164,7 +165,9 @@ class QueryClusterer:
 
         logger.info(f"📊 Created {len(clusters)} clusters")
         if clusters:
-            logger.info(f"   Top cluster: '{clusters[0].canonical_question}' (freq: {clusters[0].total_frequency})")
+            logger.info(
+                f"   Top cluster: '{clusters[0].canonical_question}' (freq: {clusters[0].total_frequency})"
+            )
 
         return clusters
 
@@ -182,7 +185,7 @@ class QueryClusterer:
         prefix = "_".join(keywords) if keywords else "query"
 
         # Add unique hash suffix (first 6 chars of MD5)
-        hash_suffix = hashlib.md5(canonical_question.encode('utf-8')).hexdigest()[:6]
+        hash_suffix = hashlib.md5(canonical_question.encode("utf-8")).hexdigest()[:6]
 
         cluster_id = f"{prefix}_{hash_suffix}"
 
@@ -190,10 +193,8 @@ class QueryClusterer:
         return cluster_id[:100]
 
     async def get_top_clusters(
-        self,
-        clusters: List[QueryCluster],
-        limit: int = 50
-    ) -> List[QueryCluster]:
+        self, clusters: list[QueryCluster], limit: int = 50
+    ) -> list[QueryCluster]:
         """
         Get top N clusters by frequency
 
@@ -204,19 +205,11 @@ class QueryClusterer:
         Returns:
             Top N clusters sorted by frequency
         """
-        sorted_clusters = sorted(
-            clusters,
-            key=lambda c: c.total_frequency,
-            reverse=True
-        )
+        sorted_clusters = sorted(clusters, key=lambda c: c.total_frequency, reverse=True)
 
         return sorted_clusters[:limit]
 
-    async def calculate_coverage(
-        self,
-        clusters: List[QueryCluster],
-        total_queries: int
-    ) -> Dict:
+    async def calculate_coverage(self, clusters: list[QueryCluster], total_queries: int) -> dict:
         """
         Calculate what % of total queries are covered by clusters
 
@@ -233,7 +226,7 @@ class QueryClusterer:
                 "clustered_queries": 0,
                 "coverage_pct": 0.0,
                 "top_10_coverage_pct": 0.0,
-                "top_50_coverage_pct": 0.0
+                "top_50_coverage_pct": 0.0,
             }
 
         clustered_queries = sum(c.total_frequency for c in clusters)
@@ -249,7 +242,7 @@ class QueryClusterer:
         top_50_queries = sum(c.total_frequency for c in top_50)
         top_50_coverage_pct = (top_50_queries / total_queries * 100) if total_queries > 0 else 0
 
-        logger.info(f"📊 Coverage Analysis:")
+        logger.info("📊 Coverage Analysis:")
         logger.info(f"   Total queries: {total_queries}")
         logger.info(f"   Clustered: {clustered_queries} ({coverage_pct:.1f}%)")
         logger.info(f"   Top 10 clusters: {top_10_queries} ({top_10_coverage_pct:.1f}%)")
@@ -260,36 +253,58 @@ class QueryClusterer:
             "clustered_queries": clustered_queries,
             "coverage_pct": round(coverage_pct, 2),
             "top_10_coverage_pct": round(top_10_coverage_pct, 2),
-            "top_50_coverage_pct": round(top_50_coverage_pct, 2)
+            "top_50_coverage_pct": round(top_50_coverage_pct, 2),
         }
 
 
 # Convenience function for testing
 async def test_clustering():
     """Test query clustering with sample data"""
-    from query_analyzer import QueryRecord
     from datetime import datetime
+
+    from query_analyzer import QueryRecord
 
     # Sample queries (simulating real data)
     sample_queries = [
-        QueryRecord("How to get KITAS?", "hash1", "sonnet", "...", datetime.now(), "user1", 100, 200),
-        QueryRecord("KITAS requirements?", "hash2", "sonnet", "...", datetime.now(), "user2", 100, 200),
-        QueryRecord("What is KITAS cost?", "hash3", "sonnet", "...", datetime.now(), "user3", 100, 200),
-        QueryRecord("How to apply for KITAS", "hash4", "sonnet", "...", datetime.now(), "user4", 100, 200),
-        QueryRecord("How to start PT PMA?", "hash5", "sonnet", "...", datetime.now(), "user5", 100, 200),
-        QueryRecord("PT PMA requirements", "hash6", "sonnet", "...", datetime.now(), "user6", 100, 200),
-        QueryRecord("Company registration Indonesia", "hash7", "sonnet", "...", datetime.now(), "user7", 100, 200),
+        QueryRecord(
+            "How to get KITAS?", "hash1", "sonnet", "...", datetime.now(), "user1", 100, 200
+        ),
+        QueryRecord(
+            "KITAS requirements?", "hash2", "sonnet", "...", datetime.now(), "user2", 100, 200
+        ),
+        QueryRecord(
+            "What is KITAS cost?", "hash3", "sonnet", "...", datetime.now(), "user3", 100, 200
+        ),
+        QueryRecord(
+            "How to apply for KITAS", "hash4", "sonnet", "...", datetime.now(), "user4", 100, 200
+        ),
+        QueryRecord(
+            "How to start PT PMA?", "hash5", "sonnet", "...", datetime.now(), "user5", 100, 200
+        ),
+        QueryRecord(
+            "PT PMA requirements", "hash6", "sonnet", "...", datetime.now(), "user6", 100, 200
+        ),
+        QueryRecord(
+            "Company registration Indonesia",
+            "hash7",
+            "sonnet",
+            "...",
+            datetime.now(),
+            "user7",
+            100,
+            200,
+        ),
     ]
 
     clusterer = QueryClusterer()
     clusters = await clusterer.cluster_queries(sample_queries, min_cluster_size=2)
 
-    print(f"\n📊 CLUSTERING RESULTS")
-    print(f"=" * 60)
+    print("\n📊 CLUSTERING RESULTS")
+    print("=" * 60)
     print(f"Total queries: {len(sample_queries)}")
     print(f"Clusters found: {len(clusters)}")
 
-    print(f"\n🔝 TOP CLUSTERS:")
+    print("\n🔝 TOP CLUSTERS:")
     for i, cluster in enumerate(clusters, 1):
         print(f"\n{i}. Cluster: {cluster.cluster_id}")
         print(f"   Canonical: {cluster.canonical_question}")
@@ -301,10 +316,13 @@ async def test_clustering():
 
     # Coverage analysis
     coverage = await clusterer.calculate_coverage(clusters, len(sample_queries))
-    print(f"\n📈 COVERAGE:")
-    print(f"   Clustered: {coverage['clustered_queries']}/{coverage['total_queries']} ({coverage['coverage_pct']}%)")
+    print("\n📈 COVERAGE:")
+    print(
+        f"   Clustered: {coverage['clustered_queries']}/{coverage['total_queries']} ({coverage['coverage_pct']}%)"
+    )
 
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(test_clustering())

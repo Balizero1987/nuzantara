@@ -3,7 +3,6 @@ ZANTARA RAG - Embeddings Generation
 Supports both OpenAI and Sentence Transformers
 """
 
-from typing import List
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,6 +14,7 @@ except ImportError:
     try:
         import sys
         from pathlib import Path
+
         # Add parent dir to path for imports
         sys.path.insert(0, str(Path(__file__).parent.parent))
         from app.config import settings
@@ -51,7 +51,7 @@ class EmbeddingsGenerator:
         # Singleton check
         if getattr(self, "_initialized", False):
             return
-            
+
         self._initialized = True
 
         # Determine provider from settings or parameter
@@ -83,13 +83,19 @@ class EmbeddingsGenerator:
             raise ValueError("OpenAI API key is required for OpenAI provider")
 
         self.client = OpenAI(api_key=self.api_key)
-        logger.info(f"🔌 [EmbeddingsGenerator] Initialized with OpenAI: {self.model} ({self.dimensions} dims)")
+        logger.info(
+            f"🔌 [EmbeddingsGenerator] Initialized with OpenAI: {self.model} ({self.dimensions} dims)"
+        )
 
     def _init_sentence_transformers(self, model: str = None):
         """Initialize Sentence Transformers local embeddings provider"""
-        self.model = model or (settings.embedding_model if settings else "sentence-transformers/all-MiniLM-L6-v2")
+        self.model = model or (
+            settings.embedding_model if settings else "sentence-transformers/all-MiniLM-L6-v2"
+        )
 
-        logger.info(f"🔌 [EmbeddingsGenerator] Attempting to load Sentence Transformers: {self.model}")
+        logger.info(
+            f"🔌 [EmbeddingsGenerator] Attempting to load Sentence Transformers: {self.model}"
+        )
 
         try:
             from sentence_transformers import SentenceTransformer
@@ -97,14 +103,20 @@ class EmbeddingsGenerator:
             logger.info("   This may take a moment on first run (downloads model)...")
             self.transformer = SentenceTransformer(self.model)
             self.dimensions = self.transformer.get_sentence_embedding_dimension()
-            logger.info(f"🔌 [EmbeddingsGenerator] Initialized with Sentence Transformers: {self.model} ({self.dimensions} dims)")
+            logger.info(
+                f"🔌 [EmbeddingsGenerator] Initialized with Sentence Transformers: {self.model} ({self.dimensions} dims)"
+            )
 
         except ImportError:
             # Sentence transformers not available (size constraint on Fly.io)
             # Fallback to OpenAI
-            logger.warning("🔌 [EmbeddingsGenerator] Sentence Transformers not available (size constraint)")
+            logger.warning(
+                "🔌 [EmbeddingsGenerator] Sentence Transformers not available (size constraint)"
+            )
             logger.warning("   Falling back to OpenAI (text-embedding-3-small)")
-            logger.warning("   ⚠️ NOTE: This may cause dimension mismatch if Qdrant collections expect 384 dims")
+            logger.warning(
+                "   ⚠️ NOTE: This may cause dimension mismatch if Qdrant collections expect 384 dims"
+            )
             self._init_openai(model=None)
 
         except Exception as e:
@@ -116,7 +128,7 @@ class EmbeddingsGenerator:
                 logger.error(f"🔌 [EmbeddingsGenerator] Both providers failed: {openai_error}")
                 raise
 
-    def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
+    def generate_embeddings(self, texts: list[str]) -> list[list[float]]:
         """
         Generate embeddings for a list of texts.
 
@@ -143,31 +155,28 @@ class EmbeddingsGenerator:
             logger.error(f"Error generating embeddings: {e}")
             raise
 
-    def _generate_embeddings_openai(self, texts: List[str]) -> List[List[float]]:
+    def _generate_embeddings_openai(self, texts: list[str]) -> list[list[float]]:
         """Generate embeddings using OpenAI API"""
         logger.info(f"Generating embeddings for {len(texts)} texts using OpenAI")
 
         # Call OpenAI API
         # Note: dimensions parameter removed - text-embedding-3-small defaults to 1536 dims
         # which matches our Qdrant collections configuration
-        response = self.client.embeddings.create(
-            model=self.model,
-            input=texts
-        )
+        response = self.client.embeddings.create(model=self.model, input=texts)
 
         embeddings = [item.embedding for item in response.data]
-        logger.info(f"✅ Generated {len(embeddings)} embeddings (OpenAI, {len(embeddings[0]) if embeddings else 0} dims)")
+        logger.info(
+            f"✅ Generated {len(embeddings)} embeddings (OpenAI, {len(embeddings[0]) if embeddings else 0} dims)"
+        )
         return embeddings
 
-    def _generate_embeddings_sentence_transformers(self, texts: List[str]) -> List[List[float]]:
+    def _generate_embeddings_sentence_transformers(self, texts: list[str]) -> list[list[float]]:
         """Generate embeddings using Sentence Transformers"""
         logger.info(f"Generating embeddings for {len(texts)} texts using Sentence Transformers")
 
         try:
             embeddings = self.transformer.encode(
-                texts,
-                convert_to_numpy=True,
-                show_progress_bar=len(texts) > 10
+                texts, convert_to_numpy=True, show_progress_bar=len(texts) > 10
             )
 
             # Convert numpy array to list of lists
@@ -179,7 +188,7 @@ class EmbeddingsGenerator:
             logger.error(f"Sentence Transformers error: {e}")
             raise
 
-    def generate_single_embedding(self, text: str) -> List[float]:
+    def generate_single_embedding(self, text: str) -> list[float]:
         """
         Generate embedding for a single text.
 
@@ -192,7 +201,7 @@ class EmbeddingsGenerator:
         embeddings = self.generate_embeddings([text])
         return embeddings[0] if embeddings else []
 
-    def generate_query_embedding(self, query: str) -> List[float]:
+    def generate_query_embedding(self, query: str) -> list[float]:
         """
         Generate embedding optimized for query/search.
 
@@ -217,12 +226,12 @@ class EmbeddingsGenerator:
             "model": self.model,
             "dimensions": self.dimensions,
             "provider": self.provider,
-            "cost": cost_info
+            "cost": cost_info,
         }
 
 
 # Convenience function
-def generate_embeddings(texts: List[str], api_key: str = None) -> List[List[float]]:
+def generate_embeddings(texts: list[str], api_key: str = None) -> list[list[float]]:
     """
     Quick function to generate embeddings without instantiating class.
 

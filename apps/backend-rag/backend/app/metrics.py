@@ -3,12 +3,11 @@ Enhanced Prometheus Metrics for ZANTARA-PERFECT-100
 Provides detailed system monitoring and performance tracking
 """
 
-from prometheus_client import Gauge, Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
-import time
-import psutil
-import asyncio
-from typing import Optional
 import logging
+import time
+
+import psutil
+from prometheus_client import Counter, Gauge, Histogram, generate_latest
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +20,12 @@ cpu_usage = Gauge("zantara_cpu_usage_percent", "CPU usage percentage")
 memory_usage = Gauge("zantara_memory_usage_mb", "Memory usage in MB")
 
 # Request Metrics
-http_requests_total = Counter("zantara_http_requests_total", "Total HTTP requests", ["method", "endpoint", "status"])
-request_duration = Histogram("zantara_request_duration_seconds", "Request duration in seconds", ["method", "endpoint"])
+http_requests_total = Counter(
+    "zantara_http_requests_total", "Total HTTP requests", ["method", "endpoint", "status"]
+)
+request_duration = Histogram(
+    "zantara_request_duration_seconds", "Request duration in seconds", ["method", "endpoint"]
+)
 
 # Cache Metrics
 cache_hits = Counter("zantara_cache_hits_total", "Total cache hits")
@@ -59,6 +62,7 @@ class MetricsCollector:
         """Measure Redis latency in milliseconds"""
         try:
             from core.cache import cache
+
             start = time.time()
             cache.set("metrics_ping", "pong", ttl=1)
             result = cache.get("metrics_ping")
@@ -160,8 +164,9 @@ async def collect_all_metrics():
 
 def get_metrics_middleware():
     """Middleware to track request metrics"""
-    from fastapi import Request
     import time
+
+    from fastapi import Request
 
     async def metrics_middleware(request: Request, call_next):
         start_time = time.time()
@@ -173,7 +178,7 @@ def get_metrics_middleware():
             method=request.method,
             endpoint=request.url.path,
             status=response.status_code,
-            duration=duration
+            duration=duration,
         )
 
         return response

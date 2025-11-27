@@ -3,10 +3,9 @@ ZANTARA RAG - Document Parsers
 Extract text from PDF and EPUB files
 """
 
-import os
-from typing import Optional
-from pathlib import Path
 import logging
+import os
+from pathlib import Path
 
 try:
     from PyPDF2 import PdfReader
@@ -14,14 +13,15 @@ except ImportError:
     from pypdf import PdfReader
 
 import ebooklib
-from ebooklib import epub
 from bs4 import BeautifulSoup
+from ebooklib import epub
 
 logger = logging.getLogger(__name__)
 
 
 class DocumentParseError(Exception):
     """Custom exception for document parsing errors"""
+
     pass
 
 
@@ -88,9 +88,9 @@ def extract_text_from_epub(file_path: str) -> str:
         for item in book.get_items():
             if item.get_type() == ebooklib.ITEM_DOCUMENT:
                 try:
-                    content = item.get_content().decode('utf-8')
-                    soup = BeautifulSoup(content, 'html.parser')
-                    text = soup.get_text(separator='\n', strip=True)
+                    content = item.get_content().decode("utf-8")
+                    soup = BeautifulSoup(content, "html.parser")
+                    text = soup.get_text(separator="\n", strip=True)
 
                     if text:
                         text_parts.append(text)
@@ -128,14 +128,13 @@ def auto_detect_and_parse(file_path: str) -> str:
 
     file_ext = Path(file_path).suffix.lower()
 
-    if file_ext == '.pdf':
+    if file_ext == ".pdf":
         return extract_text_from_pdf(file_path)
-    elif file_ext == '.epub':
+    elif file_ext == ".epub":
         return extract_text_from_epub(file_path)
     else:
         raise DocumentParseError(
-            f"Unsupported file type: {file_ext}. "
-            "Supported formats: .pdf, .epub"
+            f"Unsupported file type: {file_ext}. Supported formats: .pdf, .epub"
         )
 
 
@@ -153,7 +152,7 @@ def get_document_info(file_path: str) -> dict:
         "file_name": Path(file_path).name,
         "file_size_mb": os.path.getsize(file_path) / (1024 * 1024),
         "file_type": Path(file_path).suffix.lower(),
-        "file_path": file_path
+        "file_path": file_path,
     }
 
     try:
@@ -168,8 +167,14 @@ def get_document_info(file_path: str) -> dict:
 
         elif info["file_type"] == ".epub":
             book = epub.read_epub(file_path)
-            info["title"] = book.get_metadata('DC', 'title')[0][0] if book.get_metadata('DC', 'title') else ""
-            info["author"] = book.get_metadata('DC', 'creator')[0][0] if book.get_metadata('DC', 'creator') else ""
+            info["title"] = (
+                book.get_metadata("DC", "title")[0][0] if book.get_metadata("DC", "title") else ""
+            )
+            info["author"] = (
+                book.get_metadata("DC", "creator")[0][0]
+                if book.get_metadata("DC", "creator")
+                else ""
+            )
 
     except Exception as e:
         logger.warning(f"Could not extract metadata from {file_path}: {e}")

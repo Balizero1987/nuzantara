@@ -3,10 +3,10 @@ ZANTARA CRM - AI Entity Extraction Service
 Uses ZANTARA AI to extract structured data from conversations for CRM auto-population
 """
 
-import os
 import json
 import logging
-from typing import Dict, List, Optional
+from typing import Optional
+
 from llm.zantara_ai_client import ZantaraAIClient
 
 logger = logging.getLogger(__name__)
@@ -18,20 +18,18 @@ class AICRMExtractor:
     Extracts: client info, practice intent, sentiment, urgency, action items
     """
 
-    def __init__(self):
+    def __init__(self, ai_client=None):
         """Initialize with ZANTARA AI client"""
         try:
-            self.client = ZantaraAIClient()
+            self.client = ai_client if ai_client else ZantaraAIClient()
             logger.info("✅ AICRMExtractor initialized with ZANTARA AI")
         except Exception as e:
             logger.error(f"❌ Failed to initialize ZANTARA AI: {e}")
             raise
 
     async def extract_from_conversation(
-        self,
-        messages: List[Dict],
-        existing_client_data: Optional[Dict] = None
-    ) -> Dict:
+        self, messages: list[dict], existing_client_data: Optional[dict] = None
+    ) -> dict:
         """
         Extract structured CRM data from conversation messages
 
@@ -70,10 +68,13 @@ class AICRMExtractor:
         """
 
         # Build conversation text
-        conversation_text = "\n\n".join([
-            f"{msg['role'].upper()}: {msg['content']}"
-            for msg in messages
-        ])
+        conversation_text = "\n\n".join(
+            [f"{msg['role'].upper()}: {msg['content']}" for msg in messages]
+        )
+
+        existing_data_str = "NO EXISTING CLIENT DATA"
+        if existing_client_data:
+            existing_data_str = "EXISTING CLIENT DATA:\\n" + json.dumps(existing_client_data, indent=2)
 
         # Extraction prompt
         extraction_prompt = f"""You are an AI assistant analyzing a customer service conversation for Bali Zero, a company providing immigration, visa, company setup, and tax services in Bali, Indonesia.
@@ -92,7 +93,7 @@ BALI ZERO SERVICES (practice_type_code):
 CONVERSATION:
 {conversation_text}
 
-{"EXISTING CLIENT DATA:\n" + json.dumps(existing_client_data, indent=2) if existing_client_data else "NO EXISTING CLIENT DATA"}
+{existing_data_str}
 
 Extract the following information and return ONLY valid JSON (no markdown, no extra text):
 
@@ -138,7 +139,7 @@ RULES:
             content = await self.client.generate_text(
                 prompt=extraction_prompt,
                 max_tokens=1500,
-                temperature=0.1  # Low temperature for consistent extraction
+                temperature=0.1,  # Low temperature for consistent extraction
             )
             content = content.strip()
 
@@ -152,7 +153,9 @@ RULES:
             # Parse JSON
             extracted_data = json.loads(content)
 
-            logger.info(f"✅ Extracted CRM data with {extracted_data['client']['confidence']:.2f} client confidence")
+            logger.info(
+                f"✅ Extracted CRM data with {extracted_data['client']['confidence']:.2f} client confidence"
+            )
 
             return extracted_data
 
@@ -166,7 +169,7 @@ RULES:
             logger.error(f"❌ Extraction failed: {e}")
             return self._get_empty_extraction()
 
-    def _get_empty_extraction(self) -> Dict:
+    def _get_empty_extraction(self) -> dict:
         """Return empty extraction structure"""
         return {
             "client": {
@@ -175,13 +178,13 @@ RULES:
                 "phone": None,
                 "whatsapp": None,
                 "nationality": None,
-                "confidence": 0.0
+                "confidence": 0.0,
             },
             "practice_intent": {
                 "detected": False,
                 "practice_type_code": None,
                 "confidence": 0.0,
-                "details": ""
+                "details": "",
             },
             "sentiment": "neutral",
             "urgency": "normal",
@@ -192,15 +195,13 @@ RULES:
                 "dates": [],
                 "amounts": [],
                 "locations": [],
-                "documents_mentioned": []
-            }
+                "documents_mentioned": [],
+            },
         }
 
     async def enrich_client_data(
-        self,
-        extracted: Dict,
-        existing_client: Optional[Dict] = None
-    ) -> Dict:
+        self, extracted: dict, existing_client: Optional[dict] = None
+    ) -> dict:
         """
         Merge extracted data with existing client data (prefer non-null values)
 
@@ -226,7 +227,7 @@ RULES:
 
         return merged
 
-    async def should_create_practice(self, extracted: Dict) -> bool:
+    async def should_create_practice(self, extracted: dict) -> bool:
         """
         Determine if we should auto-create a practice based on extraction
 
@@ -239,9 +240,9 @@ RULES:
         practice = extracted.get("practice_intent", {})
 
         return (
-            practice.get("detected", False) and
-            practice.get("confidence", 0) >= 0.7 and
-            practice.get("practice_type_code") is not None
+            practice.get("detected", False)
+            and practice.get("confidence", 0) >= 0.7
+            and practice.get("practice_type_code") is not None
         )
 
 
@@ -249,13 +250,13 @@ RULES:
 _extractor_instance: Optional[AICRMExtractor] = None
 
 
-def get_extractor() -> AICRMExtractor:
+def get_extractor(ai_client=None) -> AICRMExtractor:
     """Get or create singleton extractor instance"""
     global _extractor_instance
 
     if _extractor_instance is None:
         try:
-            _extractor_instance = AICRMExtractor()
+            _extractor_instance = AICRMExtractor(ai_client=ai_client)
             logger.info("✅ AI CRM Extractor initialized")
         except Exception as e:
             logger.warning(f"⚠️  AI CRM Extractor not available: {e}")

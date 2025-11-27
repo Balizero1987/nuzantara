@@ -16,7 +16,7 @@ export class OracleClient {
 
   constructor() {
     // Default to local tunnel if env not set
-    this.baseUrl = process.env.ORACLE_LLM_URL || 'http://168.110.196.106:11434/v1'; 
+    this.baseUrl = process.env.ORACLE_LLM_URL || 'http://168.110.196.106:11434/v1';
     this.apiKey = process.env.ORACLE_LLM_KEY || 'ollama'; // Ollama doesn't enforce keys usually
   }
 
@@ -26,7 +26,7 @@ export class OracleClient {
   async chat(params: OracleChatParams): Promise<string> {
     try {
       logger.info(`🔮 [ORACLE] Calling Zantara Jaksel at ${this.baseUrl}...`);
-      
+
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {

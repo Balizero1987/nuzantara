@@ -10,7 +10,7 @@ import UnifiedAPIClient from './core/unified-api-client.js';
 class SystemHandlersClient {
     constructor() {
         // Use backend TypeScript service (nuzantara-backend) for handlers
-        const backendUrl = API_CONFIG.backend?.url || 'https://nuzantara-backend.fly.dev';
+        const backendUrl = API_CONFIG.backend?.url || window.ENV?.API_URL || '/api';
         this.baseURL = backendUrl; // Store for logging
         this.api = new UnifiedAPIClient({ baseURL: backendUrl });
         this.config = {
@@ -22,7 +22,7 @@ class SystemHandlersClient {
         };
         this.tools = [];
         this.lastFetch = null;
-        
+
         console.log(`🔧 SystemHandlersClient initialized with backend: ${backendUrl}`);
     }
 
@@ -56,7 +56,7 @@ class SystemHandlersClient {
             // Backend returns { ok: true, tools: [...] } or { tools: [...] }
             this.tools = data.tools || data.data?.tools || [];
             this.lastFetch = Date.now();
-            
+
             console.log(`✅ Received ${this.tools.length} tools from backend`);
             if (this.tools.length > 0) {
                 console.log(`📋 Sample tools:`, this.tools.slice(0, 3).map(t => t.name || t.key || t.handler));

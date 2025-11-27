@@ -222,7 +222,7 @@ export class MemoryAnalyticsClient {
         recommendations,
       };
     } catch (_error) {
-       
+
       return {
         status: 'unhealthy',
         metrics: {} as ComprehensiveAnalytics,

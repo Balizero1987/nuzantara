@@ -48,17 +48,16 @@ const options = {
 try {
   const specs = swaggerJsdoc(options);
   const outputPath = path.join(projectRoot, 'docs/openapi.json');
-  
+
   // Ensure docs directory exists
   const docsDir = path.dirname(outputPath);
   if (!fs.existsSync(docsDir)) {
     fs.mkdirSync(docsDir, { recursive: true });
   }
-  
+
   fs.writeFileSync(outputPath, JSON.stringify(specs, null, 2));
   console.log('✅ OpenAPI spec generated:', outputPath);
 } catch (error) {
   console.error('❌ Error generating OpenAPI spec:', error);
   process.exit(1);
 }
-

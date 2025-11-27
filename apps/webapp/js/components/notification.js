@@ -1,6 +1,6 @@
 /**
  * ZANTARA Unified Notification System
- * 
+ *
  * Centralized notification component with consistent styling and behavior.
  * Replaces 3 different implementations across the codebase.
  */
@@ -11,10 +11,10 @@ export class NotificationManager {
     this.maxNotifications = 5;
     this.defaultDuration = 5000;
     this.container = null;
-    
+
     // Initialize container
     this.initContainer();
-    
+
     // Add CSS styles
     this.injectStyles();
   }
@@ -42,7 +42,7 @@ export class NotificationManager {
    */
   show(message, type = 'info', duration = null, options = {}) {
     const id = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Remove oldest if max reached
     if (this.notifications.size >= this.maxNotifications) {
       const firstKey = this.notifications.keys().next().value;
@@ -51,7 +51,7 @@ export class NotificationManager {
 
     // Create notification element
     const notification = this.createNotification(id, message, type, options);
-    
+
     // Add to container
     this.container.appendChild(notification);
     this.notifications.set(id, notification);
@@ -289,7 +289,7 @@ const notificationManager = new NotificationManager();
 // Expose globally
 if (typeof window !== 'undefined') {
   window.notificationManager = notificationManager;
-  
+
   // Backward compatibility: expose simple function
   window.showNotification = (message, type = 'info', duration = null) => {
     return notificationManager.show(message, type, duration);

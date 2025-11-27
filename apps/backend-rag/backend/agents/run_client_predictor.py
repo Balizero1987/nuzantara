@@ -4,10 +4,10 @@ Client Value Predictor - Standalone Runner
 Usage: python run_client_predictor.py
 """
 
-import sys
-import os
 import asyncio
 import logging
+import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -16,8 +16,7 @@ from agents.client_value_predictor import ClientValuePredictor
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -38,8 +37,8 @@ async def main():
         logger.info(f"   Total Messages Sent: {results['total_messages_sent']}")
         logger.info(f"   Errors: {len(results['errors'])}")
 
-        if results['errors']:
-            for error in results['errors'][:5]:  # Show first 5 errors
+        if results["errors"]:
+            for error in results["errors"][:5]:  # Show first 5 errors
                 logger.error(f"   - {error}")
 
         logger.info("🎉 Client Value Predictor completed successfully!")
@@ -50,6 +49,6 @@ async def main():
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit_code = asyncio.run(main())
     sys.exit(exit_code)

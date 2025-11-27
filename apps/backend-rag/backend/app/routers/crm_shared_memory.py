@@ -4,13 +4,13 @@ Team-wide memory access for AI and team members
 Enables queries like "clients with upcoming renewals", "active practices for John Smith", etc.
 """
 
-from fastapi import APIRouter, HTTPException, Query
-from typing import List, Dict, Optional
 import logging
-import os
+
 import psycopg2
+from fastapi import APIRouter, HTTPException, Query
 from psycopg2.extras import RealDictCursor
-from datetime import datetime, timedelta
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +21,10 @@ router = APIRouter(prefix="/api/crm/shared-memory", tags=["crm-shared-memory"])
 # DATABASE CONNECTION
 # ================================================
 
+
 def get_db_connection():
     """Get PostgreSQL connection"""
-    database_url = os.getenv("DATABASE_URL")
+    database_url = settings.database_url
     if not database_url:
         raise Exception("DATABASE_URL environment variable not set")
     return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
@@ -33,10 +34,10 @@ def get_db_connection():
 # ENDPOINTS
 # ================================================
 
+
 @router.get("/search")
 async def search_shared_memory(
-    q: str = Query(..., description="Natural language query"),
-    limit: int = Query(20, le=100)
+    q: str = Query(..., description="Natural language query"), limit: int = Query(20, le=100)
 ):
     """
     Natural language search across CRM data
@@ -61,7 +62,7 @@ async def search_shared_memory(
             "clients": [],
             "practices": [],
             "interactions": [],
-            "interpretation": []
+            "interpretation": [],
         }
 
         # Detect intent and search accordingly
@@ -70,7 +71,8 @@ async def search_shared_memory(
         if any(word in query_lower for word in ["expir", "renewal", "renew", "scaden"]):
             results["interpretation"].append("Detected: Renewal/Expiry query")
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT
                     c.full_name as client_name,
                     c.email,
@@ -90,7 +92,9 @@ async def search_shared_memory(
                 AND p.status = 'completed'
                 ORDER BY p.expiry_date ASC
                 LIMIT %s
-            """, (limit,))
+            """,
+                (limit,),
+            )
 
             results["practices"] = [dict(row) for row in cursor.fetchall()]
 
@@ -101,12 +105,15 @@ async def search_shared_memory(
             name_parts = [w for w in words if w[0].isupper() and len(w) > 2]
 
             if name_parts:
-                results["interpretation"].append(f"Detected: Client search for '{' '.join(name_parts)}'")
+                results["interpretation"].append(
+                    f"Detected: Client search for '{' '.join(name_parts)}'"
+                )
 
                 search_pattern = f"%{' '.join(name_parts)}%"
 
                 # Search clients
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT
                         c.*,
                         COUNT(DISTINCT p.id) as total_practices,
@@ -116,7 +123,9 @@ async def search_shared_memory(
                     WHERE c.full_name ILIKE %s OR c.email ILIKE %s
                     GROUP BY c.id
                     LIMIT %s
-                """, (search_pattern, search_pattern, limit))
+                """,
+                    (search_pattern, search_pattern, limit),
+                )
 
                 results["clients"] = [dict(row) for row in cursor.fetchall()]
 
@@ -124,7 +133,8 @@ async def search_shared_memory(
                 if results["clients"]:
                     client_ids = [c["id"] for c in results["clients"]]
 
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         SELECT
                             p.*,
                             pt.name as practice_type_name,
@@ -135,7 +145,9 @@ async def search_shared_memory(
                         JOIN clients c ON p.client_id = c.id
                         WHERE p.client_id = ANY(%s)
                         ORDER BY p.created_at DESC
-                    """, (client_ids,))
+                    """,
+                        (client_ids,),
+                    )
 
                     results["practices"] = [dict(row) for row in cursor.fetchall()]
 
@@ -150,18 +162,33 @@ async def search_shared_memory(
                 break
 
         if detected_practice_type and not results["practices"]:
-            results["interpretation"].append(f"Detected: Practice type search for '{detected_practice_type}'")
+            results["interpretation"].append(
+                f"Detected: Practice type search for '{detected_practice_type}'"
+            )
 
             # Determine status filter
             status_filter = []
             if "active" in query_lower or "in progress" in query_lower:
-                status_filter = ['inquiry', 'quotation_sent', 'payment_pending', 'in_progress', 'waiting_documents', 'submitted_to_gov']
+                status_filter = [
+                    "inquiry",
+                    "quotation_sent",
+                    "payment_pending",
+                    "in_progress",
+                    "waiting_documents",
+                    "submitted_to_gov",
+                ]
             elif "completed" in query_lower:
-                status_filter = ['completed']
+                status_filter = ["completed"]
             else:
-                status_filter = ['inquiry', 'in_progress', 'waiting_documents', 'submitted_to_gov']  # default to active
+                status_filter = [
+                    "inquiry",
+                    "in_progress",
+                    "waiting_documents",
+                    "submitted_to_gov",
+                ]  # default to active
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT
                     p.*,
                     pt.name as practice_type_name,
@@ -176,7 +203,9 @@ async def search_shared_memory(
                 AND p.status = ANY(%s)
                 ORDER BY p.created_at DESC
                 LIMIT %s
-            """, (detected_practice_type, status_filter, limit))
+            """,
+                (detected_practice_type, status_filter, limit),
+            )
 
             results["practices"] = [dict(row) for row in cursor.fetchall()]
 
@@ -184,7 +213,8 @@ async def search_shared_memory(
         if any(word in query_lower for word in ["urgent", "priority", "asap", "quickly"]):
             results["interpretation"].append("Detected: Urgency/Priority filter")
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT
                     p.*,
                     pt.name as practice_type_name,
@@ -203,12 +233,17 @@ async def search_shared_memory(
                     END,
                     p.created_at DESC
                 LIMIT %s
-            """, (limit,))
+            """,
+                (limit,),
+            )
 
             results["practices"] = [dict(row) for row in cursor.fetchall()]
 
         # 5. Recent interactions
-        if any(word in query_lower for word in ["recent", "last", "latest", "interaction", "communication"]):
+        if any(
+            word in query_lower
+            for word in ["recent", "last", "latest", "interaction", "communication"]
+        ):
             results["interpretation"].append("Detected: Recent interactions query")
 
             # Extract days if mentioned ("last 7 days", "last week", etc.)
@@ -220,7 +255,8 @@ async def search_shared_memory(
             elif "today" in query_lower:
                 days = 1
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT
                     i.*,
                     c.full_name as client_name,
@@ -230,7 +266,9 @@ async def search_shared_memory(
                 WHERE i.interaction_date >= NOW() - INTERVAL '%s days'
                 ORDER BY i.interaction_date DESC
                 LIMIT %s
-            """, (days, limit))
+            """,
+                (days, limit),
+            )
 
             results["interactions"] = [dict(row) for row in cursor.fetchall()]
 
@@ -241,7 +279,7 @@ async def search_shared_memory(
         results["summary"] = {
             "clients_found": len(results["clients"]),
             "practices_found": len(results["practices"]),
-            "interactions_found": len(results["interactions"])
+            "interactions_found": len(results["interactions"]),
         }
 
         return results
@@ -263,7 +301,8 @@ async def get_upcoming_renewals(days: int = Query(90, description="Look ahead da
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 c.full_name as client_name,
                 c.email,
@@ -283,18 +322,16 @@ async def get_upcoming_renewals(days: int = Query(90, description="Look ahead da
             AND p.expiry_date > CURRENT_DATE
             AND p.expiry_date <= CURRENT_DATE + INTERVAL '%s days'
             ORDER BY p.expiry_date ASC
-        """, (days,))
+        """,
+            (days,),
+        )
 
         renewals = [dict(row) for row in cursor.fetchall()]
 
         cursor.close()
         conn.close()
 
-        return {
-            "total_renewals": len(renewals),
-            "days_ahead": days,
-            "renewals": renewals
-        }
+        return {"total_renewals": len(renewals), "days_ahead": days, "renewals": renewals}
 
     except Exception as e:
         logger.error(f"❌ Failed to get upcoming renewals: {e}")
@@ -327,7 +364,8 @@ async def get_client_full_context(client_id: int):
             raise HTTPException(status_code=404, detail="Client not found")
 
         # Practices
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 p.*,
                 pt.name as practice_type_name,
@@ -336,20 +374,26 @@ async def get_client_full_context(client_id: int):
             JOIN practice_types pt ON p.practice_type_id = pt.id
             WHERE p.client_id = %s
             ORDER BY p.created_at DESC
-        """, (client_id,))
+        """,
+            (client_id,),
+        )
         practices = [dict(row) for row in cursor.fetchall()]
 
         # Recent interactions
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM interactions
             WHERE client_id = %s
             ORDER BY interaction_date DESC
             LIMIT 20
-        """, (client_id,))
+        """,
+            (client_id,),
+        )
         interactions = [dict(row) for row in cursor.fetchall()]
 
         # Upcoming renewals
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 p.*,
                 pt.name as practice_type_name,
@@ -359,7 +403,9 @@ async def get_client_full_context(client_id: int):
             WHERE p.client_id = %s
             AND p.expiry_date > CURRENT_DATE
             ORDER BY p.expiry_date ASC
-        """, (client_id,))
+        """,
+            (client_id,),
+        )
         renewals = [dict(row) for row in cursor.fetchall()]
 
         # Aggregate action items from interactions
@@ -375,14 +421,18 @@ async def get_client_full_context(client_id: int):
             "client": dict(client),
             "practices": {
                 "total": len(practices),
-                "active": len([p for p in practices if p["status"] in ['inquiry', 'in_progress', 'waiting_documents', 'submitted_to_gov']]),
-                "completed": len([p for p in practices if p["status"] == 'completed']),
-                "list": practices
+                "active": len(
+                    [
+                        p
+                        for p in practices
+                        if p["status"]
+                        in ["inquiry", "in_progress", "waiting_documents", "submitted_to_gov"]
+                    ]
+                ),
+                "completed": len([p for p in practices if p["status"] == "completed"]),
+                "list": practices,
             },
-            "interactions": {
-                "total": len(interactions),
-                "recent": interactions
-            },
+            "interactions": {"total": len(interactions), "recent": interactions},
             "renewals": renewals,
             "action_items": action_items[:10],  # top 10
             "summary": {
@@ -390,8 +440,8 @@ async def get_client_full_context(client_id: int):
                 "last_interaction": client["last_interaction_date"],
                 "total_practices": len(practices),
                 "total_interactions": len(interactions),
-                "upcoming_renewals": len(renewals)
-            }
+                "upcoming_renewals": len(renewals),
+            },
         }
 
     except HTTPException:
@@ -423,44 +473,53 @@ async def get_team_overview():
         overview["total_active_clients"] = cursor.fetchone()["count"]
 
         # Total practices by status
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT status, COUNT(*) as count
             FROM practices
             GROUP BY status
-        """)
+        """
+        )
         overview["practices_by_status"] = {row["status"]: row["count"] for row in cursor.fetchall()}
 
         # Practices by team member
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT assigned_to, COUNT(*) as count
             FROM practices
             WHERE assigned_to IS NOT NULL
             AND status IN ('inquiry', 'in_progress', 'waiting_documents', 'submitted_to_gov')
             GROUP BY assigned_to
             ORDER BY count DESC
-        """)
+        """
+        )
         overview["active_practices_by_team_member"] = [dict(row) for row in cursor.fetchall()]
 
         # Upcoming renewals (next 30 days)
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT COUNT(*) as count
             FROM practices
             WHERE expiry_date IS NOT NULL
             AND expiry_date > CURRENT_DATE
             AND expiry_date <= CURRENT_DATE + INTERVAL '30 days'
-        """)
+        """
+        )
         overview["renewals_next_30_days"] = cursor.fetchone()["count"]
 
         # Recent interactions (last 7 days)
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT COUNT(*) as count
             FROM interactions
             WHERE interaction_date >= NOW() - INTERVAL '7 days'
-        """)
+        """
+        )
         overview["interactions_last_7_days"] = cursor.fetchone()["count"]
 
         # Practice types distribution
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 pt.code,
                 pt.name,
@@ -470,7 +529,8 @@ async def get_team_overview():
             WHERE p.status IN ('inquiry', 'in_progress', 'waiting_documents', 'submitted_to_gov')
             GROUP BY pt.code, pt.name
             ORDER BY count DESC
-        """)
+        """
+        )
         overview["active_practices_by_type"] = [dict(row) for row in cursor.fetchall()]
 
         cursor.close()

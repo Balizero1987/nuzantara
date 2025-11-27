@@ -67,6 +67,3 @@ flyctl secrets set FF_ENABLE_CIRCUIT_BREAKER_PERCENTAGE=10
 ## 🎯 Ready for Staging
 
 Il sistema è pronto per deployment su staging environment.
-
-
-

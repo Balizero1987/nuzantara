@@ -7,15 +7,17 @@ This module provides intelligent document analysis by:
 3. Providing accurate answers based on full document content
 """
 
-import os
-import json
 import io
-import asyncio
+import json
+import logging
+import os
+
+import google.generativeai as genai
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
-import google.generativeai as genai
 
+logger = logging.getLogger(__name__)
 
 # --- CONFIGURATION ---
 
@@ -30,22 +32,22 @@ def get_drive_service():
     """Initialize Google Drive service using service account credentials"""
     creds_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
     if not creds_json:
-        print("❌ ERROR: Missing GOOGLE_CREDENTIALS_JSON secret!")
+        logger.error("Missing GOOGLE_CREDENTIALS_JSON secret!")
         return None
 
     try:
         creds_dict = json.loads(creds_json)
         creds = service_account.Credentials.from_service_account_info(
-            creds_dict,
-            scopes=['https://www.googleapis.com/auth/drive.readonly']
+            creds_dict, scopes=["https://www.googleapis.com/auth/drive.readonly"]
         )
-        return build('drive', 'v3', credentials=creds)
+        return build("drive", "v3", credentials=creds)
     except Exception as e:
-        print(f"❌ Error initializing Drive credentials: {e}")
+        logger.error(f"Error initializing Drive credentials: {e}")
         return None
 
 
 # --- OPERATIONAL FUNCTIONS ---
+
 
 def download_pdf_from_drive(filename_from_qdrant):
     """
@@ -65,33 +67,41 @@ def download_pdf_from_drive(filename_from_qdrant):
         # Cerca file PDF che contengono quella parola chiave nel nome
         query = f"name contains '{clean_name}' and mimeType = 'application/pdf' and trashed = false"
 
-        print(f"🔍 Cerco su Drive qualcosa simile a: {clean_name}...")
+        logger.debug(f"Searching Drive for: {clean_name}")
 
-        results = service.files().list(
-            q=query,
-            fields="files(id, name)",
-            pageSize=1 # Prendiamo solo il candidato migliore
-        ).execute()
+        results = (
+            service.files()
+            .list(
+                q=query,
+                fields="files(id, name)",
+                pageSize=1,  # Prendiamo solo il candidato migliore
+            )
+            .execute()
+        )
 
-        items = results.get('files', [])
+        items = results.get("files", [])
 
         if not items:
             # TENTATIVO DISPERATO: Sostituisci underscore con spazi (es. "tasse_2024" -> "tasse 2024")
-            alt_name = clean_name.replace('_', ' ')
-            query_alt = f"name contains '{alt_name}' and mimeType = 'application/pdf' and trashed = false"
-            results = service.files().list(q=query_alt, fields="files(id, name)", pageSize=1).execute()
-            items = results.get('files', [])
+            alt_name = clean_name.replace("_", " ")
+            query_alt = (
+                f"name contains '{alt_name}' and mimeType = 'application/pdf' and trashed = false"
+            )
+            results = (
+                service.files().list(q=query_alt, fields="files(id, name)", pageSize=1).execute()
+            )
+            items = results.get("files", [])
 
         if not items:
-            print(f"⚠️ Nessun file trovato su Drive per: {filename_from_qdrant}")
+            logger.warning(f"No file found on Drive for: {filename_from_qdrant}")
             return None
 
         # 3. TROVATO! (Anche se il nome non è identico)
         found_file = items[0]
-        print(f"✅ Trovato match: '{found_file['name']}' (ID: {found_file['id']})")
+        logger.info(f"Found match: '{found_file['name']}' (ID: {found_file['id']})")
 
         # Scarica
-        request = service.files().get_media(fileId=found_file['id'])
+        request = service.files().get_media(fileId=found_file["id"])
         fh = io.BytesIO()
         downloader = MediaIoBaseDownload(fh, request)
         done = False
@@ -106,11 +116,12 @@ def download_pdf_from_drive(filename_from_qdrant):
         return temp_path
 
     except Exception as e:
-        print(f"❌ Errore Ricerca Drive: {e}")
+        logger.error(f"Drive search error: {e}")
         return None
 
 
 # --- MAIN ORACLE LOGIC ---
+
 
 async def smart_oracle(query, best_filename_from_qdrant):
     """
@@ -138,23 +149,24 @@ async def smart_oracle(query, best_filename_from_qdrant):
             # Select Model (Use 'gemini-2.5-flash' - unlimited on ULTRA plan)
             model = genai.GenerativeModel("gemini-2.5-flash")
 
-            print(f"🧠 Analyzing document: {best_filename_from_qdrant}...")
+            logger.info(f"Analyzing document: {best_filename_from_qdrant}")
 
             # Generate content using the uploaded file and the user query
-            response = model.generate_content([
-                "You are an expert consultant. Answer the user query based ONLY on the provided document.",
-                gemini_file,
-                f"User Query: {query}"
-            ])
+            response = model.generate_content(
+                [
+                    "You are an expert consultant. Answer the user query based ONLY on the provided document.",
+                    gemini_file,
+                    f"User Query: {query}",
+                ]
+            )
 
             # Cleanup: Remove local temp file to save space
             os.remove(pdf_path)
 
             return response.text
-            # ---------------------------------------------------
 
         except Exception as ai_error:
-            print(f"❌ AI Processing Error: {ai_error}")
+            logger.error(f"AI Processing Error: {ai_error}")
             return "Error processing the document with AI."
     else:
         # Fallback if the file is missing from Drive
@@ -163,27 +175,25 @@ async def smart_oracle(query, best_filename_from_qdrant):
 
 # --- UTILITY FUNCTIONS ---
 
+
 def test_drive_connection():
     """Test connection to Google Drive service"""
     service = get_drive_service()
     if service:
         try:
             # List first 5 files to test connection
-            results = service.files().list(
-                pageSize=5,
-                fields="files(id, name, mimeType)"
-            ).execute()
+            results = service.files().list(pageSize=5, fields="files(id, name, mimeType)").execute()
 
-            files = results.get('files', [])
-            print(f"✅ Drive connection successful. Found {len(files)} files.")
+            files = results.get("files", [])
+            logger.info(f"Drive connection successful. Found {len(files)} files.")
             for file in files:
-                print(f"  - {file['name']} ({file['mimeType']})")
+                logger.debug(f"  - {file['name']} ({file['mimeType']})")
             return True
         except Exception as e:
-            print(f"❌ Drive connection test failed: {e}")
+            logger.error(f"Drive connection test failed: {e}")
             return False
     else:
-        print("❌ Could not initialize Drive service")
+        logger.error("Could not initialize Drive service")
         return False
 
 

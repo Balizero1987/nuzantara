@@ -4,7 +4,7 @@ Handles Qdrant search and result formatting
 """
 
 import logging
-from typing import Optional, Dict, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -30,12 +30,8 @@ class RAGManager:
         logger.info(f"🔍 [RAGManager] Initialized (search: {'✅' if search_service else '❌'})")
 
     async def retrieve_context(
-        self,
-        query: str,
-        query_type: str,
-        user_level: int = 0,
-        limit: int = 5
-    ) -> Dict[str, Any]:
+        self, query: str, query_type: str, user_level: int = 0, limit: int = 5
+    ) -> dict[str, Any]:
         """
         Retrieve RAG context for query
 
@@ -55,37 +51,23 @@ class RAGManager:
         # Skip RAG for greetings and casual queries
         if query_type not in ["business", "emergency"]:
             logger.info(f"🔍 [RAGManager] Skipping for {query_type} query")
-            return {
-                "context": None,
-                "used_rag": False,
-                "document_count": 0
-            }
+            return {"context": None, "used_rag": False, "document_count": 0}
 
         if not self.search:
             logger.warning("🔍 [RAGManager] SearchService not available")
-            return {
-                "context": None,
-                "used_rag": False,
-                "document_count": 0
-            }
+            return {"context": None, "used_rag": False, "document_count": 0}
 
         try:
             logger.info(f"🔍 [RAGManager] Fetching context for {query_type} query")
 
             # Retrieve relevant documents from Qdrant
             search_results = await self.search.search(
-                query=query,
-                user_level=user_level,
-                limit=limit
+                query=query, user_level=user_level, limit=limit
             )
 
             if not search_results.get("results"):
                 logger.info("🔍 [RAGManager] No results found")
-                return {
-                    "context": None,
-                    "used_rag": False,
-                    "document_count": 0
-                }
+                return {"context": None, "used_rag": False, "document_count": 0}
 
             # Build RAG context from search results
             rag_docs = []
@@ -96,18 +78,12 @@ class RAGManager:
 
             rag_context = "\n\n".join(rag_docs)
 
-            logger.info(f"🔍 [RAGManager] Retrieved {len(rag_docs)} documents ({len(rag_context)} chars)")
+            logger.info(
+                f"🔍 [RAGManager] Retrieved {len(rag_docs)} documents ({len(rag_context)} chars)"
+            )
 
-            return {
-                "context": rag_context,
-                "used_rag": True,
-                "document_count": len(rag_docs)
-            }
+            return {"context": rag_context, "used_rag": True, "document_count": len(rag_docs)}
 
         except Exception as e:
             logger.warning(f"🔍 [RAGManager] Retrieval failed: {e}")
-            return {
-                "context": None,
-                "used_rag": False,
-                "document_count": 0
-            }
+            return {"context": None, "used_rag": False, "document_count": 0}

@@ -10,10 +10,14 @@ AI engine is fully configurable via environment variables:
 Change AI model by updating ZANTARA_AI_MODEL env var - no code changes required.
 """
 
-import os
 import logging
-from typing import List, Dict, Optional, Any
+import os
+import asyncio
+from typing import Any
+
 from openai import AsyncOpenAI
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -26,38 +30,45 @@ class ZantaraAIClient:
     - ZANTARA_AI_MODEL: Model identifier (e.g., meta-llama/llama-4-scout)
     - Provider: OpenRouter (configurable via base_url)
     - Costs: Configurable via ZANTARA_AI_COST_INPUT/OUTPUT env vars
-    
+
     Change AI model by updating environment variables - no code changes required.
     """
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         base_url: str = "https://openrouter.ai/api/v1",
-        model: Optional[str] = None,
+        model: str | None = None,
     ):
         self.api_key = api_key or os.getenv("OPENROUTER_API_KEY_LLAMA", "").strip()
+        self.mock_mode = False
+        
         if not self.api_key:
-            raise ValueError("ZantaraAIClient requires OPENROUTER_API_KEY_LLAMA")
+            logger.warning("⚠️ OPENROUTER_API_KEY_LLAMA missing. ZantaraAIClient running in MOCK MODE.")
+            self.mock_mode = True
+            # raise ValueError("ZantaraAIClient requires OPENROUTER_API_KEY_LLAMA")
 
         self.model = model or os.getenv("ZANTARA_AI_MODEL", "meta-llama/llama-4-scout")
         self.base_url = base_url
 
-        self.client = AsyncOpenAI(
-            base_url=base_url,
-            api_key=self.api_key,
-        )
+        if not self.mock_mode:
+            self.client = AsyncOpenAI(
+                base_url=base_url,
+                api_key=self.api_key,
+            )
+        else:
+            self.client = None
 
         self.pricing = {
-            "input": float(os.getenv("ZANTARA_AI_COST_INPUT", "0.20")),
-            "output": float(os.getenv("ZANTARA_AI_COST_OUTPUT", "0.20")),
+            "input": settings.zantara_ai_cost_input,
+            "output": settings.zantara_ai_cost_output,
         }
 
         logger.info("✅ ZantaraAIClient initialized")
         logger.info(f"   Engine model: {self.model}")
-        logger.info(f"   Provider: OpenRouter")
+        logger.info(f"   Provider: {'MOCK' if self.mock_mode else 'OpenRouter'}")
 
-    def get_model_info(self) -> Dict[str, Any]:
+    def get_model_info(self) -> dict[str, Any]:
         """Get current model information"""
         return {
             "model": self.model,
@@ -65,7 +76,9 @@ class ZantaraAIClient:
             "pricing": self.pricing,
         }
 
-    def _build_system_prompt(self, memory_context: Optional[str] = None, use_v6_optimized: bool = True) -> str:
+    def _build_system_prompt(
+        self, memory_context: str | None = None, use_v6_optimized: bool = True
+    ) -> str:
         """
         Build ZANTARA system prompt
 
@@ -101,7 +114,6 @@ TOOL USAGE:
 - For pricing/services: MANDATORY use get_pricing tool
 - NEVER state facts from memory - all data comes from tools or context."""
 
-
         else:
             # Legacy prompt - also cleaned to pure behavioral
             base_prompt = """You are ZANTARA, an intelligent AI assistant.
@@ -135,12 +147,12 @@ CRITICAL PROHIBITIONS:
 
     async def chat_async(
         self,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         max_tokens: int = 1500,
         temperature: float = 0.7,
-        system: Optional[str] = None,
-        memory_context: Optional[str] = None,
-    ) -> Dict:
+        system: str | None = None,
+        memory_context: str | None = None,
+    ) -> dict:
         """
         Generate chat response using ZANTARA AI
 
@@ -170,11 +182,21 @@ CRITICAL PROHIBITIONS:
         full_messages.extend(messages)
 
         # Call OpenRouter
+        if self.mock_mode:
+            answer = "This is a MOCK response from ZantaraAIClient (Mock Mode)."
+            tokens_input = 10
+            tokens_output = 10
+            cost = 0.0
+            return {
+                "text": answer,
+                "model": self.model,
+                "provider": "mock",
+                "tokens": {"input": int(tokens_input), "output": int(tokens_output)},
+                "cost": cost,
+            }
+
         response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=full_messages,
-            max_tokens=max_tokens,
-            temperature=temperature
+            model=self.model, messages=full_messages, max_tokens=max_tokens, temperature=temperature
         )
 
         # Extract response
@@ -185,26 +207,24 @@ CRITICAL PROHIBITIONS:
         tokens_output = len(answer.split()) * 1.3
 
         # Calculate cost
-        cost = (tokens_input / 1_000_000 * self.pricing["input"]) + \
-               (tokens_output / 1_000_000 * self.pricing["output"])
+        cost = (tokens_input / 1_000_000 * self.pricing["input"]) + (
+            tokens_output / 1_000_000 * self.pricing["output"]
+        )
 
         return {
             "text": answer,
             "model": self.model,
             "provider": "openrouter",
-            "tokens": {
-                "input": int(tokens_input),
-                "output": int(tokens_output)
-            },
-            "cost": cost
+            "tokens": {"input": int(tokens_input), "output": int(tokens_output)},
+            "cost": cost,
         }
 
     async def stream(
         self,
         message: str,
         user_id: str,
-        conversation_history: Optional[List[Dict[str, str]]] = None,
-        memory_context: Optional[str] = None,
+        conversation_history: list[dict[str, str]] | None = None,
+        memory_context: str | None = None,
         max_tokens: int = 150,
     ):
         """
@@ -236,12 +256,20 @@ CRITICAL PROHIBITIONS:
         full_messages.extend(messages)
 
         # Stream from OpenRouter
+        if self.mock_mode:
+            response = f"This is a MOCK stream response to: {message}"
+            words = response.split()
+            for word in words:
+                yield word + " "
+                await asyncio.sleep(0.05)
+            return
+
         stream = await self.client.chat.completions.create(
             model=self.model,
             messages=full_messages,
             max_tokens=max_tokens,
             temperature=0.7,
-            stream=True
+            stream=True,
         )
 
         async for chunk in stream:
@@ -254,10 +282,10 @@ CRITICAL PROHIBITIONS:
         self,
         message: str,
         user_id: str,
-        conversation_history: Optional[List[Dict[str, str]]] = None,
-        memory_context: Optional[str] = None,
+        conversation_history: list[dict[str, str]] | None = None,
+        memory_context: str | None = None,
         max_tokens: int = 150,
-    ) -> Dict:
+    ) -> dict:
         """
         Compatible interface for IntelligentRouter - simple conversational response
 
@@ -285,9 +313,7 @@ CRITICAL PROHIBITIONS:
 
         # Call underlying chat_async
         result = await self.chat_async(
-            messages=messages,
-            max_tokens=max_tokens,
-            memory_context=memory_context
+            messages=messages, max_tokens=max_tokens, memory_context=memory_context
         )
 
         # Transform to expected format
@@ -296,20 +322,20 @@ CRITICAL PROHIBITIONS:
             "model": result["model"],
             "provider": result["provider"],
             "ai_used": "zantara-ai",
-            "tokens": result["tokens"]
+            "tokens": result["tokens"],
         }
 
     async def conversational_with_tools(
         self,
         message: str,
         user_id: str,
-        conversation_history: Optional[List[Dict[str, str]]] = None,
-        memory_context: Optional[str] = None,
-        tools: Optional[List[Dict[str, Any]]] = None,
-        tool_executor: Optional[Any] = None,
+        conversation_history: list[dict[str, str]] | None = None,
+        memory_context: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_executor: Any | None = None,
         max_tokens: int = 150,
-        max_tool_iterations: int = 2
-    ) -> Dict:
+        max_tool_iterations: int = 2,
+    ) -> dict:
         """
         Compatible interface for IntelligentRouter - conversational WITH tool calling
 
@@ -361,7 +387,7 @@ CRITICAL PROHIBITIONS:
                     messages=full_messages,
                     tools=tools if tools else None,
                     max_tokens=max_tokens,
-                    temperature=0.7
+                    temperature=0.7,
                 )
 
                 # Extract response
@@ -382,23 +408,22 @@ CRITICAL PROHIBITIONS:
                     "model": self.model,
                     "provider": "openrouter",
                     "ai_used": "zantara-ai",
-                    "tokens": {
-                        "input": int(tokens_input),
-                        "output": int(tokens_output)
-                    },
+                    "tokens": {"input": int(tokens_input), "output": int(tokens_output)},
                     "tools_called": tools_called,
-                    "used_tools": len(tools_called) > 0
+                    "used_tools": len(tools_called) > 0,
                 }
 
             except Exception as e:
-                logger.warning(f"⚠️ [ZantaraAI] Tool calling failed: {e}, falling back to regular conversational")
+                logger.warning(
+                    f"⚠️ [ZantaraAI] Tool calling failed: {e}, falling back to regular conversational"
+                )
                 # Fall back to regular conversational
                 result = await self.conversational(
                     message=message,
                     user_id=user_id,
                     conversation_history=conversation_history,
                     memory_context=memory_context,
-                    max_tokens=max_tokens
+                    max_tokens=max_tokens,
                 )
                 result["tools_called"] = []
                 result["used_tools"] = False
@@ -410,7 +435,7 @@ CRITICAL PROHIBITIONS:
             user_id=user_id,
             conversation_history=conversation_history,
             memory_context=memory_context,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
         )
         result["tools_called"] = []
         result["used_tools"] = False
@@ -419,4 +444,3 @@ CRITICAL PROHIBITIONS:
     def is_available(self) -> bool:
         """Check if ZANTARA AI is configured and available"""
         return bool(self.api_key and self.client)
-

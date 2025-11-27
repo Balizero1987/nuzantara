@@ -101,7 +101,6 @@
 
 ---
 
-**Generato da:** Rimozione completa feature feedback  
-**Versione:** 1.0  
+**Generato da:** Rimozione completa feature feedback
+**Versione:** 1.0
 **Data:** 2025-01-27
-

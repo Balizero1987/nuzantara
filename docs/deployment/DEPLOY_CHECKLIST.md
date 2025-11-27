@@ -78,12 +78,12 @@ URL="https://nuzantara-backend.fly.dev/health"  # O nuzantara-rag.fly.dev/health
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || echo "000")
-  
+
   if [ "$HTTP_CODE" = "200" ]; then
     echo "✅ Health check passed"
     exit 0
   fi
-  
+
   RETRY_COUNT=$((RETRY_COUNT + 1))
   echo "⏳ Attempt $RETRY_COUNT/$MAX_RETRIES: HTTP $HTTP_CODE"
   sleep 10
@@ -119,4 +119,3 @@ flyctl releases rollback <release-id> --app <app-name>
 ## 📚 Documentazione Completa
 
 Vedi [DEPLOYMENT_STRATEGY_SUCCESS.md](./DEPLOYMENT_STRATEGY_SUCCESS.md) per dettagli completi.
-

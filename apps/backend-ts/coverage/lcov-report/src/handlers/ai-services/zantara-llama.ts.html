@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-    
+
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/handlers/ai-services</a> zantara-llama.ts</h1>
         <div class='clearfix'>
-            
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/43</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/42</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/4</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/42</span>
             </div>
-        
-            
+
+
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -427,7 +427,7 @@ export async function <span class="fstat-no" title="function not covered" >zanta
       }),
       signal: controller.signal
     });
-    
+
 <span class="cstat-no" title="statement not covered" >    clearTimeout(timeoutId);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (!response.ok) {</span>
@@ -435,7 +435,7 @@ export async function <span class="fstat-no" title="function not covered" >zanta
     }
 &nbsp;
     const data = <span class="cstat-no" title="statement not covered" >await response.json() as any;</span>
-    
+
 <span class="cstat-no" title="statement not covered" >    if (!data.success) {</span>
 <span class="cstat-no" title="statement not covered" >      throw new Error(`RAG Backend failed: ${data.response || 'Unknown error'}`);</span>
     }
@@ -453,10 +453,10 @@ export async function <span class="fstat-no" title="function not covered" >zanta
 &nbsp;
   } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >    logger.error(`❌ [ZANTARA RAG] Error: ${error.message}`);</span>
-    
+
     // FALLBACK: Direct RunPod call if RAG backend fails
 <span class="cstat-no" title="statement not covered" >    logger.info(`🔄 [ZANTARA FALLBACK] Trying direct RunPod...`);</span>
-    
+
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const fallbackResponse = <span class="cstat-no" title="statement not covered" >await fetch('https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync', {</span>
         method: 'POST',
@@ -472,14 +472,14 @@ export async function <span class="fstat-no" title="function not covered" >zanta
           }
         })
       });
-      
+
 <span class="cstat-no" title="statement not covered" >      if (fallbackResponse.ok) {</span>
         const fallbackData = <span class="cstat-no" title="statement not covered" >await fallbackResponse.json() as any;</span>
 <span class="cstat-no" title="statement not covered" >        logger.info(`✅ [ZANTARA FALLBACK] Direct RunPod success`);</span>
-        
+
         // Clean up response formatting
         let cleanAnswer = <span class="cstat-no" title="statement not covered" >'ZANTARA is thinking...';</span>
-        
+
 <span class="cstat-no" title="statement not covered" >        if (fallbackData.output) {</span>
 <span class="cstat-no" title="statement not covered" >          if (Array.isArray(fallbackData.output)) {</span>
             // Handle array of tokens/choices
@@ -501,14 +501,14 @@ export async function <span class="fstat-no" title="function not covered" >zanta
 <span class="cstat-no" title="statement not covered" >            cleanAnswer = fallbackData.output.trim();</span>
           }
         }
-        
+
         // Clean up any remaining formatting issues
 <span class="cstat-no" title="statement not covered" >        cleanAnswer = cleanAnswer</span>
           .replace(/\[PRICE\]/g, '')
           .replace(/\[PRICE\]/g, '')
           .replace(/\n\n+/g, '\n')
           .trim();
-        
+
 <span class="cstat-no" title="statement not covered" >        return ok({</span>
           answer: cleanAnswer || 'ZANTARA is thinking...',
           model: 'zantara-llama-3.1-8b-fallback',
@@ -521,7 +521,7 @@ export async function <span class="fstat-no" title="function not covered" >zanta
     } catch (fallbackError: any) {
 <span class="cstat-no" title="statement not covered" >      logger.error(`❌ [ZANTARA FALLBACK] Failed: ${fallbackError.message}`);</span>
     }
-    
+
 <span class="cstat-no" title="statement not covered" >    throw new Error(`RAG Backend unavailable: ${error.message}`);</span>
   }
 }
@@ -544,4 +544,3 @@ export async function <span class="fstat-no" title="function not covered" >zanta
         <script src="../../../block-navigation.js"></script>
     </body>
 </html>
-    

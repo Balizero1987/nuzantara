@@ -1,6 +1,6 @@
 # 🔧 Risoluzione Conflitti Merge - Guida
 
-**Data:** 2025-01-27  
+**Data:** 2025-01-27
 **Problema:** Push bloccato da conflitti di merge
 
 ---
@@ -98,4 +98,3 @@ git push origin main
 ---
 
 **Nota:** Le modifiche locali sono corrette (cleanup + ottimizzazioni), quindi accettare versioni locali è la soluzione più rapida.
-

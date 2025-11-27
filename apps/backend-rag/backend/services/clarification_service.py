@@ -10,14 +10,15 @@ Date: 2025-10-16
 """
 
 import logging
-from typing import Dict, Any, Optional, List
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 class AmbiguityType(Enum):
     """Types of ambiguity that require clarification"""
+
     VAGUE = "vague"  # "Tell me about visas" - which visa?
     INCOMPLETE = "incomplete"  # "How much does it cost?" - what costs?
     MULTIPLE_INTERPRETATIONS = "multiple"  # "Can I work?" - work where? as what?
@@ -41,12 +42,9 @@ class ClarificationService:
         self.ambiguity_threshold = 0.6  # Confidence threshold for triggering clarification
         logger.info("✅ ClarificationService initialized")
 
-
     def detect_ambiguity(
-        self,
-        query: str,
-        conversation_history: Optional[List[Dict]] = None
-    ) -> Dict[str, Any]:
+        self, query: str, conversation_history: list[dict] | None = None
+    ) -> dict[str, Any]:
         """
         Detect if a query is ambiguous and needs clarification
 
@@ -78,9 +76,19 @@ class ClarificationService:
             "info on",
             "information about",
             "explain",
-            "describe"
+            "describe",
         ]
-        vague_triggers = ["visa", "tax", "business", "company", "permit", "service", "it", "this", "that"]
+        vague_triggers = [
+            "visa",
+            "tax",
+            "business",
+            "company",
+            "permit",
+            "service",
+            "it",
+            "this",
+            "that",
+        ]
 
         for pattern in vague_patterns:
             if pattern in query_lower:
@@ -98,7 +106,7 @@ class ClarificationService:
             "how long",  # How long for what?
             "when can",  # When can what?
             "where is",  # Where is what?
-            "who can",   # Who can what?
+            "who can",  # Who can what?
         ]
 
         for pattern in incomplete_patterns:
@@ -124,18 +132,22 @@ class ClarificationService:
             "work": ["work visa", "work permit", "job", "employment"],  # Which aspect?
             "cost": ["registration cost", "service cost", "government fee", "annual cost"],
             "register": ["company registration", "tax registration", "visa registration"],
-            "open": ["open company", "open bank account", "open office"]
+            "open": ["open company", "open bank account", "open office"],
         }
 
         for keyword, interpretations in multi_interpretation_keywords.items():
             if keyword in query_lower and len(query.split()) <= 5:
                 # Short query with ambiguous keyword
                 confidence += 0.3
-                reasons.append(f"Keyword '{keyword}' has multiple interpretations: {', '.join(interpretations[:2])}")
+                reasons.append(
+                    f"Keyword '{keyword}' has multiple interpretations: {', '.join(interpretations[:2])}"
+                )
                 ambiguity_type = AmbiguityType.MULTIPLE_INTERPRETATIONS
 
         # 5. TOO SHORT (< 3 words) without clear intent
-        if len(query.split()) < 3 and not any(greeting in query_lower for greeting in ["hi", "hello", "ciao", "halo"]):
+        if len(query.split()) < 3 and not any(
+            greeting in query_lower for greeting in ["hi", "hello", "ciao", "halo"]
+        ):
             confidence += 0.2
             reasons.append(f"Very short query ({len(query.split())} words) - may need more detail")
 
@@ -148,11 +160,13 @@ class ClarificationService:
             "confidence": min(confidence, 1.0),
             "ambiguity_type": ambiguity_type.value,
             "reasons": reasons,
-            "clarification_needed": clarification_needed
+            "clarification_needed": clarification_needed,
         }
 
         if clarification_needed:
-            logger.info(f"🤔 [Clarification] Ambiguous query detected (confidence: {confidence:.2f}, type: {ambiguity_type.value})")
+            logger.info(
+                f"🤔 [Clarification] Ambiguous query detected (confidence: {confidence:.2f}, type: {ambiguity_type.value})"
+            )
             for reason in reasons:
                 logger.info(f"   - {reason}")
         else:
@@ -160,12 +174,8 @@ class ClarificationService:
 
         return result
 
-
     def generate_clarification_request(
-        self,
-        query: str,
-        ambiguity_info: Dict[str, Any],
-        language: str = "en"
+        self, query: str, ambiguity_info: dict[str, Any], language: str = "en"
     ) -> str:
         """
         Generate a natural clarification request
@@ -186,33 +196,30 @@ class ClarificationService:
             AmbiguityType.VAGUE.value: {
                 "en": "I'd be happy to help! Could you be more specific about what aspect of {topic} you're interested in?",
                 "it": "Sono felice di aiutarti! Potresti essere più specifico su quale aspetto di {topic} ti interessa?",
-                "id": "Senang bisa membantu! Bisakah Anda lebih spesifik tentang aspek {topic} yang Anda minati?"
+                "id": "Senang bisa membantu! Bisakah Anda lebih spesifik tentang aspek {topic} yang Anda minati?",
             },
             AmbiguityType.INCOMPLETE.value: {
                 "en": "I'd like to help, but I need a bit more information. Could you clarify what you're asking about?",
                 "it": "Vorrei aiutarti, ma ho bisogno di qualche informazione in più. Potresti chiarire cosa stai chiedendo?",
-                "id": "Saya ingin membantu, tapi butuh sedikit informasi tambahan. Bisakah Anda jelaskan lebih lanjut?"
+                "id": "Saya ingin membantu, tapi butuh sedikit informasi tambahan. Bisakah Anda jelaskan lebih lanjut?",
             },
             AmbiguityType.MULTIPLE_INTERPRETATIONS.value: {
                 "en": "I can help with that! To give you the most accurate answer, could you specify which {topic} you mean?",
                 "it": "Posso aiutarti! Per darti la risposta più accurata, potresti specificare quale {topic} intendi?",
-                "id": "Saya bisa bantu! Untuk jawaban yang akurat, bisa sebutkan {topic} yang mana?"
+                "id": "Saya bisa bantu! Untuk jawaban yang akurat, bisa sebutkan {topic} yang mana?",
             },
             AmbiguityType.UNCLEAR_CONTEXT.value: {
                 "en": "I'd love to help! Could you provide a bit more context about what you're referring to?",
                 "it": "Vorrei aiutarti! Potresti fornire un po' più di contesto su cosa ti riferisci?",
-                "id": "Senang membantu! Bisakah Anda kasih konteks lebih tentang yang Anda maksud?"
-            }
+                "id": "Senang membantu! Bisakah Anda kasih konteks lebih tentang yang Anda maksud?",
+            },
         }
 
         # Extract potential topic from query
         topic = self._extract_main_topic(query)
 
         # Get template
-        template = templates.get(
-            ambiguity_type,
-            templates[AmbiguityType.VAGUE.value]
-        )
+        template = templates.get(ambiguity_type, templates[AmbiguityType.VAGUE.value])
 
         message = template.get(language, template["en"])
 
@@ -234,8 +241,7 @@ class ClarificationService:
 
         return message
 
-
-    def _extract_main_topic(self, query: str) -> Optional[str]:
+    def _extract_main_topic(self, query: str) -> str | None:
         """Extract main topic from query"""
         query_lower = query.lower()
 
@@ -245,7 +251,7 @@ class ClarificationService:
             "tax": ["tax", "pajak", "tassa", "npwp"],
             "business": ["business", "company", "bisnis", "azienda", "pt pma"],
             "cost": ["cost", "price", "fee", "biaya", "costo"],
-            "registration": ["register", "registration", "daftar", "registrazione"]
+            "registration": ["register", "registration", "daftar", "registrazione"],
         }
 
         for topic, keywords in topics.items():
@@ -254,13 +260,9 @@ class ClarificationService:
 
         return None
 
-
     def _generate_clarification_options(
-        self,
-        query: str,
-        ambiguity_type: str,
-        language: str
-    ) -> Optional[str]:
+        self, query: str, ambiguity_type: str, language: str
+    ) -> str | None:
         """Generate specific clarification options based on query"""
         query_lower = query.lower()
 
@@ -293,12 +295,11 @@ class ClarificationService:
 
         return None
 
-
     def should_request_clarification(
         self,
         query: str,
-        conversation_history: Optional[List[Dict]] = None,
-        force_threshold: float = 0.7
+        conversation_history: list[dict] | None = None,
+        force_threshold: float = 0.7,
     ) -> bool:
         """
         Determine if clarification should be requested
@@ -325,8 +326,7 @@ class ClarificationService:
 
         return False
 
-
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """
         Health check for clarification service
 
@@ -343,9 +343,7 @@ class ClarificationService:
                 "pattern_based": True,
                 "context_aware": True,
                 "supported_languages": ["en", "it", "id"],
-                "ambiguity_types": [t.value for t in AmbiguityType]
+                "ambiguity_types": [t.value for t in AmbiguityType],
             },
-            "configuration": {
-                "ambiguity_threshold": self.ambiguity_threshold
-            }
+            "configuration": {"ambiguity_threshold": self.ambiguity_threshold},
         }

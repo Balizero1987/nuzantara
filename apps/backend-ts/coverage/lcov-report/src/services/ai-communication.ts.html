@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-    
+
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../index.html">All files</a> / <a href="index.html">src/services</a> ai-communication.ts</h1>
         <div class='clearfix'>
-            
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/61</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/29</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/13</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/58</span>
             </div>
-        
-            
+
+
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -840,7 +840,7 @@ class AICommunicationService {
           step: index,
           error: error.message
         });
-        
+
 <span class="cstat-no" title="statement not covered" >        results.push({</span>
           success: false,
           response: `Step ${index + 1} failed: ${error.message}`,
@@ -902,7 +902,7 @@ class AICommunicationService {
   private <span class="fstat-no" title="function not covered" >buildZantaraPrompt(r</span>equest: AIBridgeRequest, context: AICommunicationContext): string {
     const history = <span class="cstat-no" title="statement not covered" >context.conversationHistory.slice(-5); /</span>/ Last 5 messages
     const historyText = <span class="cstat-no" title="statement not covered" >history.map(<span class="fstat-no" title="function not covered" >h =&gt; <span class="cstat-no" title="statement not covered" >`</span>${h.ai}: ${h.content}`)</span>.join('\n');</span>
-    
+
 <span class="cstat-no" title="statement not covered" >    return `You are ZANTARA, an intelligent AI assistant. You are receiving a message from ${request.from} AI system.</span>
 &nbsp;
 Previous conversation context:
@@ -916,7 +916,7 @@ Please respond as ZANTARA, maintaining your helpful and professional personality
   private <span class="fstat-no" title="function not covered" >buildDevAIPrompt(r</span>equest: AIBridgeRequest, context: AICommunicationContext): string {
     const history = <span class="cstat-no" title="statement not covered" >context.conversationHistory.slice(-5);</span>
     const historyText = <span class="cstat-no" title="statement not covered" >history.map(<span class="fstat-no" title="function not covered" >h =&gt; <span class="cstat-no" title="statement not covered" >`</span>${h.ai}: ${h.content}`)</span>.join('\n');</span>
-    
+
 <span class="cstat-no" title="statement not covered" >    return `You are DevAI, a developer AI assistant. You are receiving a message from ${request.from} AI system.</span>
 &nbsp;
 Previous conversation context:
@@ -949,4 +949,3 @@ export default aiCommunicationService;
         <script src="../../block-navigation.js"></script>
     </body>
 </html>
-    

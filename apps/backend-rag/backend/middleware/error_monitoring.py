@@ -4,12 +4,13 @@ Captures 4xx/5xx HTTP errors and sends alerts
 """
 
 import logging
+import time
 import uuid
+from collections.abc import Callable
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
-from typing import Callable
-import time
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,9 @@ class ErrorMonitoringMiddleware(BaseHTTPMiddleware):
         if self.enabled:
             logger.info("✅ ErrorMonitoringMiddleware initialized with AlertService")
         else:
-            logger.warning("⚠️ ErrorMonitoringMiddleware initialized without AlertService (alerts disabled)")
+            logger.warning(
+                "⚠️ ErrorMonitoringMiddleware initialized without AlertService (alerts disabled)"
+            )
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
@@ -53,7 +56,7 @@ class ErrorMonitoringMiddleware(BaseHTTPMiddleware):
                     request=request,
                     response=response,
                     request_id=request_id,
-                    duration_ms=duration_ms
+                    duration_ms=duration_ms,
                 )
 
             # Add request ID to response headers
@@ -77,7 +80,7 @@ class ErrorMonitoringMiddleware(BaseHTTPMiddleware):
                         path=request.url.path,
                         error_detail=str(exc),
                         request_id=request_id,
-                        user_agent=request.headers.get("user-agent")
+                        user_agent=request.headers.get("user-agent"),
                     )
                 except Exception as alert_exc:
                     logger.error(f"Failed to send alert for exception: {alert_exc}")
@@ -88,17 +91,13 @@ class ErrorMonitoringMiddleware(BaseHTTPMiddleware):
                 content={
                     "detail": "Internal server error",
                     "request_id": request_id,
-                    "error": str(exc) if logger.level == logging.DEBUG else "Internal server error"
+                    "error": str(exc) if logger.level == logging.DEBUG else "Internal server error",
                 },
-                headers={"X-Request-ID": request_id}
+                headers={"X-Request-ID": request_id},
             )
 
     async def _handle_error_response(
-        self,
-        request: Request,
-        response: Response,
-        request_id: str,
-        duration_ms: float
+        self, request: Request, response: Response, request_id: str, duration_ms: float
     ):
         """
         Handle error response (4xx/5xx)
@@ -120,21 +119,18 @@ class ErrorMonitoringMiddleware(BaseHTTPMiddleware):
             # - All 5xx errors
             # - 429 (Too Many Requests) - potential DoS
             # - 403 (Forbidden) - potential security issue
-            should_alert = (
-                status_code >= 500 or
-                status_code == 429 or
-                status_code == 403
-            )
+            should_alert = status_code >= 500 or status_code == 429 or status_code == 403
 
             if should_alert:
                 try:
                     # Try to extract error detail from response body
                     error_detail = None
                     try:
-                        if hasattr(response, 'body'):
+                        if hasattr(response, "body"):
                             body = response.body
                             if isinstance(body, bytes):
                                 import json
+
                                 body_json = json.loads(body.decode())
                                 error_detail = body_json.get("detail", body_json.get("message"))
                     except Exception:
@@ -146,7 +142,7 @@ class ErrorMonitoringMiddleware(BaseHTTPMiddleware):
                         path=path,
                         error_detail=error_detail,
                         request_id=request_id,
-                        user_agent=user_agent
+                        user_agent=user_agent,
                     )
                 except Exception as exc:
                     logger.error(f"Failed to send error alert: {exc}")
@@ -162,6 +158,7 @@ def create_error_monitoring_middleware(alert_service=None):
     Returns:
         ErrorMonitoringMiddleware instance
     """
+
     def middleware_factory(app):
         return ErrorMonitoringMiddleware(app, alert_service)
 

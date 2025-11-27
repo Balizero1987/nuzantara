@@ -1,7 +1,7 @@
 # ADR-001: Migrate from Global Variables to StateManager
 
-**Date:** 2025-01-20  
-**Status:** Accepted  
+**Date:** 2025-01-20
+**Status:** Accepted
 **Deciders:** Development Team
 
 ## Context
@@ -40,4 +40,3 @@ Migrate to centralized StateManager (`js/core/state-manager.js`) using Proxy-bas
 ## References
 - `js/core/state-manager.js` (230 lines, production-ready)
 - Proxy pattern: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
-

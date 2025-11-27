@@ -9,15 +9,15 @@ This module provides the core plugin system for ZANTARA, enabling:
 - Caching and rate limiting
 """
 
+from .executor import PluginExecutor, executor
 from .plugin import (
     Plugin,
-    PluginMetadata,
-    PluginInput,
-    PluginOutput,
     PluginCategory,
+    PluginInput,
+    PluginMetadata,
+    PluginOutput,
 )
 from .registry import PluginRegistry, registry
-from .executor import PluginExecutor, executor
 
 __all__ = [
     "Plugin",

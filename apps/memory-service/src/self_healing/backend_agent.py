@@ -19,8 +19,7 @@ import os
 import sys
 import time
 import traceback
-from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 import psutil
 import httpx
 import redis
@@ -29,7 +28,7 @@ from dataclasses import dataclass, asdict
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='🤖 [Backend Agent] %(asctime)s - %(levelname)s - %(message)s'
+    format="🤖 [Backend Agent] %(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -37,6 +36,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class HealthMetrics:
     """Health metrics for the service"""
+
     timestamp: float
     cpu_usage: float
     memory_usage: float
@@ -52,6 +52,7 @@ class HealthMetrics:
 @dataclass
 class ErrorReport:
     """Error report to send to orchestrator"""
+
     agent: str
     service: str
     error_type: str
@@ -71,7 +72,7 @@ class BackendSelfHealingAgent:
         service_name: str,
         orchestrator_url: str = "https://nuzantara-orchestrator.fly.dev",
         check_interval: int = 30,
-        auto_fix_enabled: bool = True
+        auto_fix_enabled: bool = True,
     ):
         self.service_name = service_name
         self.orchestrator_url = orchestrator_url
@@ -87,9 +88,9 @@ class BackendSelfHealingAgent:
 
         # Health check URLs
         self.health_urls = {
-            'api': f'http://localhost:8000/health',
-            'db': None,  # Configured per service
-            'cache': None  # Configured per service
+            "api": "http://localhost:8000/health",
+            "db": None,  # Configured per service
+            "cache": None,  # Configured per service
         }
 
         # External clients
@@ -103,15 +104,17 @@ class BackendSelfHealingAgent:
         logger.info("🚀 Starting self-healing agent...")
 
         # Report startup to orchestrator
-        await self.report_to_orchestrator({
-            'type': 'agent_startup',
-            'severity': 'low',
-            'data': {
-                'service': self.service_name,
-                'hostname': os.getenv('HOSTNAME', 'unknown'),
-                'fly_region': os.getenv('FLY_REGION', 'unknown')
+        await self.report_to_orchestrator(
+            {
+                "type": "agent_startup",
+                "severity": "low",
+                "data": {
+                    "service": self.service_name,
+                    "hostname": os.getenv("HOSTNAME", "unknown"),
+                    "fly_region": os.getenv("FLY_REGION", "unknown"),
+                },
             }
-        })
+        )
 
         # Start monitoring loop
         await self.monitoring_loop()
@@ -144,7 +147,7 @@ class BackendSelfHealingAgent:
             # System metrics
             cpu = psutil.cpu_percent(interval=1)
             memory = psutil.virtual_memory().percent
-            disk = psutil.disk_usage('/').percent
+            disk = psutil.disk_usage("/").percent
 
             # API health
             api_healthy = await self.check_api_health()
@@ -165,7 +168,7 @@ class BackendSelfHealingAgent:
                 cache_healthy=cache_healthy,
                 error_count=self.error_count,
                 fix_count=self.fix_count,
-                uptime=time.time() - self.start_time
+                uptime=time.time() - self.start_time,
             )
 
             # Log metrics
@@ -177,11 +180,9 @@ class BackendSelfHealingAgent:
             )
 
             # Report to orchestrator
-            await self.report_to_orchestrator({
-                'type': 'health_check',
-                'severity': 'low',
-                'data': asdict(metrics)
-            })
+            await self.report_to_orchestrator(
+                {"type": "health_check", "severity": "low", "data": asdict(metrics)}
+            )
 
             return metrics
 
@@ -192,10 +193,7 @@ class BackendSelfHealingAgent:
     async def check_api_health(self) -> bool:
         """Check if API is responding"""
         try:
-            response = await self.http_client.get(
-                self.health_urls['api'],
-                timeout=5.0
-            )
+            response = await self.http_client.get(self.health_urls["api"], timeout=5.0)
             return response.status_code == 200
         except Exception as e:
             logger.warning(f"API health check failed: {e}")
@@ -211,7 +209,7 @@ class BackendSelfHealingAgent:
         """Check if Redis cache is accessible"""
         try:
             if not self.redis_client:
-                redis_url = os.getenv('REDIS_URL')
+                redis_url = os.getenv("REDIS_URL")
                 if redis_url:
                     self.redis_client = redis.from_url(redis_url)
 
@@ -232,59 +230,73 @@ class BackendSelfHealingAgent:
         # Check high CPU usage
         cpu = psutil.cpu_percent(interval=1)
         if cpu > 90:
-            issues.append({
-                'type': 'high_cpu',
-                'severity': 'high',
-                'value': cpu,
-                'message': f'CPU usage at {cpu:.1f}%'
-            })
+            issues.append(
+                {
+                    "type": "high_cpu",
+                    "severity": "high",
+                    "value": cpu,
+                    "message": f"CPU usage at {cpu:.1f}%",
+                }
+            )
 
         # Check high memory usage
         memory = psutil.virtual_memory().percent
         if memory > 90:
-            issues.append({
-                'type': 'high_memory',
-                'severity': 'critical',
-                'value': memory,
-                'message': f'Memory usage at {memory:.1f}%'
-            })
+            issues.append(
+                {
+                    "type": "high_memory",
+                    "severity": "critical",
+                    "value": memory,
+                    "message": f"Memory usage at {memory:.1f}%",
+                }
+            )
 
         # Check disk space
-        disk = psutil.disk_usage('/').percent
+        disk = psutil.disk_usage("/").percent
         if disk > 90:
-            issues.append({
-                'type': 'high_disk',
-                'severity': 'high',
-                'value': disk,
-                'message': f'Disk usage at {disk:.1f}%'
-            })
+            issues.append(
+                {
+                    "type": "high_disk",
+                    "severity": "high",
+                    "value": disk,
+                    "message": f"Disk usage at {disk:.1f}%",
+                }
+            )
 
         # Check API health
         if not await self.check_api_health():
-            issues.append({
-                'type': 'api_down',
-                'severity': 'critical',
-                'message': 'API health check failing'
-            })
+            issues.append(
+                {
+                    "type": "api_down",
+                    "severity": "critical",
+                    "message": "API health check failing",
+                }
+            )
 
         # Check DB health
         if not await self.check_db_health():
-            issues.append({
-                'type': 'db_down',
-                'severity': 'critical',
-                'message': 'Database health check failing'
-            })
+            issues.append(
+                {
+                    "type": "db_down",
+                    "severity": "critical",
+                    "message": "Database health check failing",
+                }
+            )
 
         # Check cache health
         if not await self.check_cache_health():
-            issues.append({
-                'type': 'cache_down',
-                'severity': 'medium',
-                'message': 'Cache health check failing'
-            })
+            issues.append(
+                {
+                    "type": "cache_down",
+                    "severity": "medium",
+                    "message": "Cache health check failing",
+                }
+            )
 
         if issues:
-            logger.warning(f"Detected {len(issues)} issue(s): {[i['type'] for i in issues]}")
+            logger.warning(
+                f"Detected {len(issues)} issue(s): {[i['type'] for i in issues]}"
+            )
 
         return issues
 
@@ -297,40 +309,43 @@ class BackendSelfHealingAgent:
             fix_strategy = None
 
             try:
-                if issue['type'] == 'high_memory':
+                if issue["type"] == "high_memory":
                     # Trigger garbage collection
                     import gc
+
                     gc.collect()
-                    fix_strategy = 'garbage_collection'
+                    fix_strategy = "garbage_collection"
                     fix_success = True
 
-                elif issue['type'] == 'high_cpu':
+                elif issue["type"] == "high_cpu":
                     # Log warning, may need manual intervention
-                    fix_strategy = 'monitor_only'
+                    fix_strategy = "monitor_only"
                     fix_success = False
 
-                elif issue['type'] == 'api_down':
+                elif issue["type"] == "api_down":
                     # Try to restart API (if we have the capability)
-                    fix_strategy = 'restart_api'
+                    fix_strategy = "restart_api"
                     fix_success = await self.restart_service()
 
-                elif issue['type'] == 'db_down':
+                elif issue["type"] == "db_down":
                     # Try to reconnect
-                    fix_strategy = 'reconnect_db'
+                    fix_strategy = "reconnect_db"
                     fix_success = await self.reconnect_database()
 
-                elif issue['type'] == 'cache_down':
+                elif issue["type"] == "cache_down":
                     # Try to reconnect
-                    fix_strategy = 'reconnect_cache'
+                    fix_strategy = "reconnect_cache"
                     fix_success = await self.reconnect_cache()
 
                 # Track fix attempt
-                self.fix_history.append({
-                    'timestamp': time.time(),
-                    'issue_type': issue['type'],
-                    'strategy': fix_strategy,
-                    'success': fix_success
-                })
+                self.fix_history.append(
+                    {
+                        "timestamp": time.time(),
+                        "issue_type": issue["type"],
+                        "strategy": fix_strategy,
+                        "success": fix_success,
+                    }
+                )
 
                 if fix_success:
                     self.fix_count += 1
@@ -340,29 +355,30 @@ class BackendSelfHealingAgent:
                     logger.warning(f"❌ Auto-fix failed for {issue['type']}")
 
                     # Escalate to orchestrator
-                    await self.report_to_orchestrator({
-                        'type': 'auto_fix_failed',
-                        'severity': issue['severity'],
-                        'data': {
-                            'issue': issue,
-                            'fix_strategy': fix_strategy
+                    await self.report_to_orchestrator(
+                        {
+                            "type": "auto_fix_failed",
+                            "severity": issue["severity"],
+                            "data": {"issue": issue, "fix_strategy": fix_strategy},
                         }
-                    })
+                    )
 
             except Exception as e:
                 logger.error(f"Error during auto-fix: {e}")
                 self.error_count += 1
 
                 # Report error
-                await self.report_to_orchestrator({
-                    'type': 'auto_fix_error',
-                    'severity': 'high',
-                    'data': {
-                        'issue': issue,
-                        'error': str(e),
-                        'traceback': traceback.format_exc()
+                await self.report_to_orchestrator(
+                    {
+                        "type": "auto_fix_error",
+                        "severity": "high",
+                        "data": {
+                            "issue": issue,
+                            "error": str(e),
+                            "traceback": traceback.format_exc(),
+                        },
                     }
-                })
+                )
 
     async def restart_service(self) -> bool:
         """Restart the service (if possible)"""
@@ -383,7 +399,7 @@ class BackendSelfHealingAgent:
         """Reconnect to cache"""
         logger.info("Attempting cache reconnection...")
         try:
-            redis_url = os.getenv('REDIS_URL')
+            redis_url = os.getenv("REDIS_URL")
             if redis_url:
                 self.redis_client = redis.from_url(redis_url)
                 self.redis_client.ping()
@@ -397,18 +413,16 @@ class BackendSelfHealingAgent:
         """Report event to Central Orchestrator"""
         try:
             payload = {
-                'agent': 'backend',
-                'service': self.service_name,
-                'hostname': os.getenv('HOSTNAME', 'unknown'),
-                'region': os.getenv('FLY_REGION', 'unknown'),
-                'event': event,
-                'timestamp': time.time()
+                "agent": "backend",
+                "service": self.service_name,
+                "hostname": os.getenv("HOSTNAME", "unknown"),
+                "region": os.getenv("FLY_REGION", "unknown"),
+                "event": event,
+                "timestamp": time.time(),
             }
 
             await self.http_client.post(
-                f"{self.orchestrator_url}/api/report",
-                json=payload,
-                timeout=5.0
+                f"{self.orchestrator_url}/api/report", json=payload, timeout=5.0
             )
 
         except Exception as e:
@@ -418,19 +432,19 @@ class BackendSelfHealingAgent:
     def get_status(self) -> Dict:
         """Get agent status"""
         return {
-            'service': self.service_name,
-            'uptime': time.time() - self.start_time,
-            'error_count': self.error_count,
-            'fix_count': self.fix_count,
-            'fix_success_rate': f"{(self.fix_count / max(self.error_count, 1) * 100):.1f}%",
-            'recent_errors': self.error_history[-10:],
-            'recent_fixes': self.fix_history[-10:]
+            "service": self.service_name,
+            "uptime": time.time() - self.start_time,
+            "error_count": self.error_count,
+            "fix_count": self.fix_count,
+            "fix_success_rate": f"{(self.fix_count / max(self.error_count, 1) * 100):.1f}%",
+            "recent_errors": self.error_history[-10:],
+            "recent_fixes": self.fix_history[-10:],
         }
 
 
 # Auto-start agent if run directly
 if __name__ == "__main__":
-    service_name = os.getenv('SERVICE_NAME', 'unknown')
+    service_name = os.getenv("SERVICE_NAME", "unknown")
     agent = BackendSelfHealingAgent(service_name=service_name)
 
     try:

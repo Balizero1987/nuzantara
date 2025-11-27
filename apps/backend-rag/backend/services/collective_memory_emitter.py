@@ -5,15 +5,15 @@ Emette eventi SSE per memoria collettiva al frontend
 
 import json
 import logging
-from typing import Dict, Any, Optional
 from datetime import datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 class CollectiveMemoryEmitter:
     """Emette eventi memoria collettiva via SSE"""
-    
+
     async def emit_memory_stored(
         self,
         event_source: Any,
@@ -21,7 +21,7 @@ class CollectiveMemoryEmitter:
         category: str,
         content: str,
         members: list,
-        importance: float
+        importance: float,
     ):
         """Emette evento memoria memorizzata"""
         try:
@@ -32,21 +32,21 @@ class CollectiveMemoryEmitter:
                 "content": content,
                 "members": members,
                 "importance": importance,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
-            
+
             await self._send_sse_event(event_source, event_data)
             logger.info(f"📤 Emitted collective_memory_stored: {memory_key}")
         except Exception as e:
             logger.error(f"❌ Failed to emit memory_stored: {e}")
-    
+
     async def emit_preference_detected(
         self,
         event_source: Any,
         member: str,
         preference: str,
         category: str,
-        context: Optional[str] = None
+        context: str | None = None,
     ):
         """Emette evento preferenza rilevata"""
         try:
@@ -56,22 +56,22 @@ class CollectiveMemoryEmitter:
                 "preference": preference,
                 "category": category,
                 "context": context,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
-            
+
             await self._send_sse_event(event_source, event_data)
             logger.info(f"📤 Emitted preference_detected: {member} -> {preference}")
         except Exception as e:
             logger.error(f"❌ Failed to emit preference_detected: {e}")
-    
+
     async def emit_milestone_detected(
         self,
         event_source: Any,
         member: str,
         milestone_type: str,
-        date: Optional[str],
+        date: str | None,
         message: str,
-        recurring: bool = False
+        recurring: bool = False,
     ):
         """Emette evento milestone rilevata"""
         try:
@@ -82,14 +82,14 @@ class CollectiveMemoryEmitter:
                 "date": date,
                 "message": message,
                 "recurring": recurring,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
-            
+
             await self._send_sse_event(event_source, event_data)
             logger.info(f"📤 Emitted milestone_detected: {member} -> {milestone_type}")
         except Exception as e:
             logger.error(f"❌ Failed to emit milestone_detected: {e}")
-    
+
     async def emit_relationship_updated(
         self,
         event_source: Any,
@@ -97,7 +97,7 @@ class CollectiveMemoryEmitter:
         member_b: str,
         relationship_type: str,
         strength: float,
-        context: Optional[str] = None
+        context: str | None = None,
     ):
         """Emette evento relazione aggiornata"""
         try:
@@ -108,21 +108,16 @@ class CollectiveMemoryEmitter:
                 "relationship_type": relationship_type,
                 "strength": strength,
                 "context": context,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
-            
+
             await self._send_sse_event(event_source, event_data)
             logger.info(f"📤 Emitted relationship_updated: {member_a} <-> {member_b}")
         except Exception as e:
             logger.error(f"❌ Failed to emit relationship_updated: {e}")
-    
+
     async def emit_memory_consolidated(
-        self,
-        event_source: Any,
-        action: str,
-        original_memories: list,
-        new_memory: str,
-        reason: str
+        self, event_source: Any, action: str, original_memories: list, new_memory: str, reason: str
     ):
         """Emette evento memoria consolidata"""
         try:
@@ -132,23 +127,23 @@ class CollectiveMemoryEmitter:
                 "original_memories": original_memories,
                 "new_memory": new_memory,
                 "reason": reason,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
-            
+
             await self._send_sse_event(event_source, event_data)
             logger.info(f"📤 Emitted memory_consolidated: {action}")
         except Exception as e:
             logger.error(f"❌ Failed to emit memory_consolidated: {e}")
-    
-    async def _send_sse_event(self, event_source: Any, data: Dict[str, Any]):
+
+    async def _send_sse_event(self, event_source: Any, data: dict[str, Any]):
         """Invia evento SSE"""
         try:
             # Formato SSE standard
             event_str = f"data: {json.dumps(data)}\n\n"
-            
-            if hasattr(event_source, 'send'):
+
+            if hasattr(event_source, "send"):
                 await event_source.send(event_str)
-            elif hasattr(event_source, 'write'):
+            elif hasattr(event_source, "write"):
                 await event_source.write(event_str)
             else:
                 # Fallback: usa yield se è un generator
@@ -159,4 +154,3 @@ class CollectiveMemoryEmitter:
 
 # Singleton globale
 collective_memory_emitter = CollectiveMemoryEmitter()
-

@@ -20,7 +20,7 @@ export function generateCsrfToken(req: Request, res: Response, next: NextFunctio
   try {
     const sessionId = req.headers['x-session-id'] as string || crypto.randomUUID();
     const token = crypto.randomBytes(32).toString('hex');
-    
+
     csrfTokens.set(sessionId, {
       token,
       expiresAt: Date.now() + TOKEN_EXPIRY,
@@ -65,9 +65,9 @@ export function validateCsrfToken(req: Request, res: Response, next: NextFunctio
 
     if (!sessionId || !token) {
       logger.warn('CSRF validation failed: Missing token or session');
-      return res.status(403).json({ 
-        ok: false, 
-        error: 'CSRF token required' 
+      return res.status(403).json({
+        ok: false,
+        error: 'CSRF token required'
       });
     }
 
@@ -75,26 +75,26 @@ export function validateCsrfToken(req: Request, res: Response, next: NextFunctio
 
     if (!stored) {
       logger.warn(`CSRF validation failed: Session ${sessionId} not found`);
-      return res.status(403).json({ 
-        ok: false, 
-        error: 'Invalid session' 
+      return res.status(403).json({
+        ok: false,
+        error: 'Invalid session'
       });
     }
 
     if (stored.expiresAt < Date.now()) {
       logger.warn(`CSRF validation failed: Token expired for session ${sessionId}`);
       csrfTokens.delete(sessionId);
-      return res.status(403).json({ 
-        ok: false, 
-        error: 'CSRF token expired' 
+      return res.status(403).json({
+        ok: false,
+        error: 'CSRF token expired'
       });
     }
 
     if (stored.token !== token) {
       logger.warn(`CSRF validation failed: Token mismatch for session ${sessionId}`);
-      return res.status(403).json({ 
-        ok: false, 
-        error: 'Invalid CSRF token' 
+      return res.status(403).json({
+        ok: false,
+        error: 'Invalid CSRF token'
       });
     }
 
@@ -158,4 +158,3 @@ csrfRoutes.get('/csrf-token', (req, res) => {
     res.status(500).json({ ok: false, error: 'Failed to generate CSRF token' });
   }
 });
-

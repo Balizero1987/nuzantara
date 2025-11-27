@@ -3,7 +3,7 @@ export const API_ENDPOINTS = {
   // Authentication
   auth: {
     // Primary login endpoint - consolidated from multiple redundant routes
-    // Frontend will call: https://nuzantara-backend.fly.dev/api/auth/team/login
+    // Frontend will call: /api/auth/team/login (proxied by nginx to backend)
     teamLogin: '/api/auth/team/login',
     check: '/api/user/profile',
     logout: '/api/auth/logout',
@@ -59,21 +59,51 @@ export const API_ENDPOINTS = {
   }
 };
 
+// Get API URL from environment config (injected by Docker) or fallback to defaults
+const getApiBaseUrl = () => {
+  // Priority 1: Use window.ENV.API_URL if set (from config.js injected by Docker)
+  // If API_URL is a relative path like "/api", use it as-is (will be relative to current origin)
+  // If API_URL is empty string, treat as "not set" and use fallback
+  if (typeof window !== 'undefined' && window.ENV && window.ENV.API_URL) {
+    const apiUrl = window.ENV.API_URL.trim();
+    // Empty string should be treated as "not set" - skip to fallback
+    if (apiUrl === '') {
+      // Skip to fallback below
+    } else if (apiUrl.startsWith('/')) {
+      // Relative path - use as-is (browser will resolve relative to origin)
+      return apiUrl; // Relative URL like "/api" - browser will make it relative to origin
+    } else if (apiUrl.startsWith('http://') || apiUrl.startsWith('https://')) {
+      // Full URL - use directly
+      return apiUrl;
+    } else if (apiUrl === '/') {
+      // Just "/" - use origin (though this is unusual)
+      return window.location.origin;
+    } else {
+      // Default: treat as relative path
+      return apiUrl.startsWith('/') ? apiUrl : `/${apiUrl}`;
+    }
+  }
+  
+  // Priority 2: Localhost detection for development
+  if (window.location.hostname === 'localhost') {
+    return window.location.origin; // Use same origin (localhost:port)
+  }
+  
+  // Priority 3: Default production (fallback) - use relative /api
+  return '/api'; // Relative URL, proxied by nginx
+};
+
+const apiBaseUrl = getApiBaseUrl();
+
 export const API_CONFIG = {
   backend: {
-    url: window.location.hostname === 'localhost'
-      ? 'http://localhost:8080'
-      : 'https://nuzantara-backend.fly.dev'  // FIXED: Use TypeScript backend for CRM, agents, etc.
+    url: apiBaseUrl
   },
   rag: {
-    url: window.location.hostname === 'localhost'
-      ? 'http://localhost:8000'
-      : 'https://nuzantara-rag.fly.dev'
+    url: apiBaseUrl
   },
   memory: {
-    url: window.location.hostname === 'localhost'
-      ? 'http://localhost:8080'
-      : 'https://nuzantara-memory.fly.dev'
+    url: apiBaseUrl
   },
   // Request configuration
   timeouts: {
@@ -94,7 +124,27 @@ export const API_CONFIG = {
 // Helper: Get full URL for endpoint
 export function getEndpointUrl(service, endpoint) {
   const baseUrl = API_CONFIG[service]?.url || API_CONFIG.backend.url;
-  return `${baseUrl}${endpoint}`;
+  
+  // If endpoint already starts with "/", it's an absolute path
+  // For relative baseUrls (starting with "/"), if endpoint is absolute, use it directly
+  if (endpoint.startsWith('/')) {
+    // If baseUrl is also a relative path (like "/api"), check if endpoint already includes it
+    if (baseUrl.startsWith('/')) {
+      // If endpoint starts with baseUrl, use endpoint as-is (already correct)
+      // Otherwise, endpoint is absolute from root, use it directly
+      return endpoint;
+    }
+    // baseUrl is a full URL, append endpoint
+    return `${baseUrl}${endpoint}`;
+  }
+  
+  // Endpoint is relative, append to baseUrl
+  if (baseUrl.startsWith('/')) {
+    return `${baseUrl}${baseUrl.endsWith('/') ? '' : '/'}${endpoint}`;
+  }
+  
+  // Full URL baseUrl with relative endpoint
+  return `${baseUrl}/${endpoint}`;
 }
 
 // CSRF Token Management
@@ -120,7 +170,10 @@ export function initializeCsrfTokens() {
 // Fetch new CSRF tokens from backend
 export async function fetchCsrfTokens() {
   try {
-    const response = await fetch(`${API_CONFIG.backend.url}/api/csrf-token`, {
+    // Build URL: if baseUrl already ends with /api, don't add it again
+    const baseUrl = API_CONFIG.backend.url || '/api';
+    const endpoint = baseUrl.endsWith('/api') ? '/csrf-token' : '/api/csrf-token';
+    const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     });

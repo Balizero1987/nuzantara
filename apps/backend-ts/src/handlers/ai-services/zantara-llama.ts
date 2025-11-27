@@ -45,16 +45,16 @@ export async function zantaraChat(params: ZantaraParams) {
     if (user_email !== 'guest') {
       const memoryResult = await memoryServiceClient.getUserFacts(user_email);
       const facts = memoryResult.facts || [];
-      
+
       if (facts.length > 0) {
         const factsBlock = facts
           .map((f: any) => `- ${f.fact_content}`)
           .join('\n');
-        
-        enrichedContext = enrichedContext 
+
+        enrichedContext = enrichedContext
           ? `${enrichedContext}\n\nUSER PERSONAL FACTS:\n${factsBlock}`
           : `USER PERSONAL FACTS:\n${factsBlock}`;
-          
+
         logger.info(`🧠 [ZANTARA MEMORY] Injected ${facts.length} personal facts for ${user_email}`);
       }
     }
@@ -114,10 +114,10 @@ export async function zantaraChat(params: ZantaraParams) {
 
     try {
       // Inject memory into fallback prompt too
-      const fallbackPrompt = `You are ZANTARA, Indonesian AI assistant for Bali Zero. Respond in the same language as the user. Mode: ${mode.toUpperCase()}. 
-      
+      const fallbackPrompt = `You are ZANTARA, Indonesian AI assistant for Bali Zero. Respond in the same language as the user. Mode: ${mode.toUpperCase()}.
+
       ${enrichedContext ? `CONTEXT:\n${enrichedContext}\n` : ''}
-      
+
       User message: ${message}`;
 
       const fallbackResponse = await fetch('https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync', {

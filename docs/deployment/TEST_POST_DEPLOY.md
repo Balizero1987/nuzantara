@@ -1,6 +1,6 @@
 # 🧪 Test Post-Deployment - Script Completo
 
-**Data:** 2025-01-27  
+**Data:** 2025-01-27
 **Commit:** Deploy optimizations
 
 ---
@@ -47,10 +47,10 @@ test_endpoint() {
   local name=$1
   local url=$2
   local expected_codes=$3
-  
+
   TOTAL=$((TOTAL + 1))
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
-  
+
   if echo "$expected_codes" | grep -q "$HTTP_CODE"; then
     echo -e "${GREEN}✅ $name: HTTP $HTTP_CODE${NC}"
     return 0
@@ -66,10 +66,10 @@ test_endpoint_json() {
   local name=$1
   local url=$2
   local expected_codes=$3
-  
+
   TOTAL=$((TOTAL + 1))
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
-  
+
   if echo "$expected_codes" | grep -q "$HTTP_CODE"; then
     echo -e "${GREEN}✅ $name: HTTP $HTTP_CODE${NC}"
     echo "Response:"
@@ -156,4 +156,3 @@ flyctl logs --app nuzantara-rag --since 5m &
 flyctl status --app nuzantara-backend
 flyctl status --app nuzantara-rag
 ```
-

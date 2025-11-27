@@ -24,4 +24,3 @@ find apps/backend-ts/src -name "*.ts" -type f -exec sed -i '' \
 
 echo "✅ Correzione completata!"
 echo "Esegui: npm run typecheck per verificare"
-

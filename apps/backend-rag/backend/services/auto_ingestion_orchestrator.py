@@ -27,18 +27,19 @@ Integration with bali-intel-scraper:
 - LEGACY CODE CLEANED: Claude references removed
 """
 
-import logging
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, timedelta
-from enum import Enum
 import hashlib
+import logging
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 class SourceType(str, Enum):
     """Types of external sources"""
+
     GOVERNMENT_WEBSITE = "government_website"
     RSS_FEED = "rss_feed"
     API_ENDPOINT = "api_endpoint"
@@ -48,6 +49,7 @@ class SourceType(str, Enum):
 
 class UpdateType(str, Enum):
     """Types of updates"""
+
     NEW_REGULATION = "new_regulation"
     AMENDED_REGULATION = "amended_regulation"
     POLICY_CHANGE = "policy_change"
@@ -59,6 +61,7 @@ class UpdateType(str, Enum):
 
 class IngestionStatus(str, Enum):
     """Status of ingestion job"""
+
     PENDING = "pending"
     SCRAPING = "scraping"
     FILTERING = "filtering"
@@ -72,44 +75,47 @@ class IngestionStatus(str, Enum):
 @dataclass
 class MonitoredSource:
     """External source to monitor"""
+
     source_id: str
     source_type: SourceType
     name: str
     url: str
     target_collection: str  # Which Qdrant collection to update
     scrape_frequency_hours: int = 24  # How often to check
-    last_scraped: Optional[str] = None
+    last_scraped: str | None = None
     enabled: bool = True
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class ScrapedContent:
     """Content scraped from source"""
+
     content_id: str
     source_id: str
     title: str
     content: str
     url: str
     scraped_at: str
-    update_type: Optional[UpdateType] = None
+    update_type: UpdateType | None = None
     relevance_score: float = 0.0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class IngestionJob:
     """Ingestion job tracking"""
+
     job_id: str
     source_id: str
     status: IngestionStatus
     started_at: str
-    completed_at: Optional[str] = None
+    completed_at: str | None = None
     items_scraped: int = 0
     items_filtered: int = 0
     items_ingested: int = 0
     items_failed: int = 0
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class AutoIngestionOrchestrator:
@@ -135,7 +141,7 @@ class AutoIngestionOrchestrator:
             name="OSS KBLI Database",
             url="https://oss.go.id/informasi/kbli-berbasis-risiko",
             target_collection="kbli_comprehensive",
-            scrape_frequency_hours=168  # Weekly
+            scrape_frequency_hours=168,  # Weekly
         ),
         "ditjen_imigrasi": MonitoredSource(
             source_id="ditjen_imigrasi",
@@ -143,7 +149,7 @@ class AutoIngestionOrchestrator:
             name="Ditjen Imigrasi Regulations",
             url="https://www.imigrasi.go.id/id/category/peraturan/",
             target_collection="visa_oracle",
-            scrape_frequency_hours=24  # Daily
+            scrape_frequency_hours=24,  # Daily
         ),
         "djp_tax": MonitoredSource(
             source_id="djp_tax",
@@ -151,7 +157,7 @@ class AutoIngestionOrchestrator:
             name="DJP Tax Regulations",
             url="https://www.pajak.go.id/id/peraturan-pajak",
             target_collection="tax_updates",
-            scrape_frequency_hours=24  # Daily
+            scrape_frequency_hours=24,  # Daily
         ),
         "bkpm_investment": MonitoredSource(
             source_id="bkpm_investment",
@@ -159,16 +165,11 @@ class AutoIngestionOrchestrator:
             name="BKPM Investment Regulations",
             url="https://www.bkpm.go.id/id/peraturan",
             target_collection="legal_updates",
-            scrape_frequency_hours=24  # Daily
-        )
+            scrape_frequency_hours=24,  # Daily
+        ),
     }
 
-    def __init__(
-        self,
-        search_service=None,
-        claude_service=None,
-        scraper_service=None
-    ):
+    def __init__(self, search_service=None, claude_service=None, scraper_service=None):
         """
         Initialize Auto-Ingestion Orchestrator.
 
@@ -182,8 +183,8 @@ class AutoIngestionOrchestrator:
         self.scraper = scraper_service
 
         # Storage
-        self.sources: Dict[str, MonitoredSource] = {}
-        self.jobs: Dict[str, IngestionJob] = {}
+        self.sources: dict[str, MonitoredSource] = {}
+        self.jobs: dict[str, IngestionJob] = {}
         self.content_hashes: set = set()  # For deduplication
 
         # Initialize default sources
@@ -196,21 +197,18 @@ class AutoIngestionOrchestrator:
             "failed_jobs": 0,
             "total_items_ingested": 0,
             "items_by_collection": {},
-            "last_run": None
+            "last_run": None,
         }
 
         logger.info("✅ AutoIngestionOrchestrator initialized")
         logger.info(f"   Monitored sources: {len(self.sources)}")
 
-    def add_source(
-        self,
-        source: MonitoredSource
-    ):
+    def add_source(self, source: MonitoredSource):
         """Add a new monitored source"""
         self.sources[source.source_id] = source
         logger.info(f"➕ Added source: {source.name} → {source.target_collection}")
 
-    def get_due_sources(self) -> List[MonitoredSource]:
+    def get_due_sources(self) -> list[MonitoredSource]:
         """
         Get sources that need scraping.
 
@@ -238,10 +236,7 @@ class AutoIngestionOrchestrator:
         logger.info(f"📋 {len(due_sources)} sources due for scraping")
         return due_sources
 
-    async def scrape_source(
-        self,
-        source: MonitoredSource
-    ) -> List[ScrapedContent]:
+    async def scrape_source(self, source: MonitoredSource) -> list[ScrapedContent]:
         """
         Scrape content from a source.
 
@@ -269,7 +264,7 @@ class AutoIngestionOrchestrator:
                         content=item.get("content", ""),
                         url=item.get("url", source.url),
                         scraped_at=datetime.now().isoformat(),
-                        metadata=item.get("metadata", {})
+                        metadata=item.get("metadata", {}),
                     )
                     scraped_items.append(content)
             except Exception as e:
@@ -285,7 +280,7 @@ class AutoIngestionOrchestrator:
                     title=f"Demo content from {source.name}",
                     content=f"This is simulated content from {source.url}",
                     url=source.url,
-                    scraped_at=datetime.now().isoformat()
+                    scraped_at=datetime.now().isoformat(),
                 )
             ]
 
@@ -295,10 +290,7 @@ class AutoIngestionOrchestrator:
         logger.info(f"   Scraped {len(scraped_items)} items")
         return scraped_items
 
-    async def filter_content(
-        self,
-        content_list: List[ScrapedContent]
-    ) -> List[ScrapedContent]:
+    async def filter_content(self, content_list: list[ScrapedContent]) -> list[ScrapedContent]:
         """
         Filter scraped content for relevance (2-tier filtering).
 
@@ -315,9 +307,18 @@ class AutoIngestionOrchestrator:
 
         # Tier 1: Keyword filter (fast)
         regulation_keywords = [
-            "regulation", "peraturan", "undang-undang", "keputusan",
-            "circular", "surat edaran", "policy", "kebijakan",
-            "amendment", "perubahan", "update", "pembaruan"
+            "regulation",
+            "peraturan",
+            "undang-undang",
+            "keputusan",
+            "circular",
+            "surat edaran",
+            "policy",
+            "kebijakan",
+            "amendment",
+            "perubahan",
+            "update",
+            "pembaruan",
         ]
 
         tier1_filtered = []
@@ -354,7 +355,7 @@ Answer with YES or NO and a brief reason."""
                     message=prompt,
                     user_id="auto_ingestion",
                     conversation_history=[],
-                    max_tokens=100
+                    max_tokens=100,
                 )
 
                 answer = response.get("text", "").lower()
@@ -378,14 +379,13 @@ Answer with YES or NO and a brief reason."""
                 # Include by default if error
                 tier2_filtered.append(content)
 
-        logger.info(f"   Tier 2: {len(tier2_filtered)}/{len(tier1_filtered)} passed ZANTARA AI filter")  # LEGACY: was Claude
+        logger.info(
+            f"   Tier 2: {len(tier2_filtered)}/{len(tier1_filtered)} passed ZANTARA AI filter"
+        )  # LEGACY: was Claude
 
         return tier2_filtered
 
-    async def ingest_content(
-        self,
-        content_list: List[ScrapedContent]
-    ) -> int:
+    async def ingest_content(self, content_list: list[ScrapedContent]) -> int:
         """
         Ingest filtered content into Qdrant collections.
 
@@ -424,7 +424,7 @@ Answer with YES or NO and a brief reason."""
                 "scraped_at": content.scraped_at,
                 "update_type": content.update_type.value if content.update_type else None,
                 "relevance_score": content.relevance_score,
-                **content.metadata
+                **content.metadata,
             }
 
             # Add to collection (using search_service ingestion method if available)
@@ -438,8 +438,9 @@ Answer with YES or NO and a brief reason."""
 
                 # Update stats
                 ingested_count += 1
-                self.orchestrator_stats["items_by_collection"][target_collection] = \
+                self.orchestrator_stats["items_by_collection"][target_collection] = (
                     self.orchestrator_stats["items_by_collection"].get(target_collection, 0) + 1
+                )
 
             except Exception as e:
                 logger.error(f"Ingestion error: {e}")
@@ -449,10 +450,7 @@ Answer with YES or NO and a brief reason."""
 
         return ingested_count
 
-    async def run_ingestion_job(
-        self,
-        source_id: str
-    ) -> IngestionJob:
+    async def run_ingestion_job(self, source_id: str) -> IngestionJob:
         """
         Run complete ingestion job for a source.
 
@@ -472,7 +470,7 @@ Answer with YES or NO and a brief reason."""
             job_id=job_id,
             source_id=source_id,
             status=IngestionStatus.PENDING,
-            started_at=datetime.now().isoformat()
+            started_at=datetime.now().isoformat(),
         )
 
         self.jobs[job_id] = job
@@ -523,7 +521,7 @@ Answer with YES or NO and a brief reason."""
 
         return job
 
-    async def run_scheduled_ingestion(self) -> List[IngestionJob]:
+    async def run_scheduled_ingestion(self) -> list[IngestionJob]:
         """
         Run ingestion for all due sources (called by cron job).
 
@@ -554,19 +552,21 @@ Answer with YES or NO and a brief reason."""
         """Generate unique content ID from hash"""
         return hashlib.md5(content.encode()).hexdigest()
 
-    def get_job_status(self, job_id: str) -> Optional[IngestionJob]:
+    def get_job_status(self, job_id: str) -> IngestionJob | None:
         """Get job status"""
         return self.jobs.get(job_id)
 
-    def get_orchestrator_stats(self) -> Dict:
+    def get_orchestrator_stats(self) -> dict:
         """Get orchestrator statistics"""
         success_rate = (
-            (self.orchestrator_stats["successful_jobs"] / max(self.orchestrator_stats["total_jobs"], 1) * 100)
+            self.orchestrator_stats["successful_jobs"]
+            / max(self.orchestrator_stats["total_jobs"], 1)
+            * 100
         )
 
         return {
             **self.orchestrator_stats,
             "success_rate": f"{success_rate:.1f}%",
             "sources_monitored": len(self.sources),
-            "sources_enabled": sum(1 for s in self.sources.values() if s.enabled)
+            "sources_enabled": sum(1 for s in self.sources.values() if s.enabled),
         }

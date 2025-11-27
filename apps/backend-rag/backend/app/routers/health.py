@@ -2,11 +2,11 @@
 ZANTARA RAG - Health Check Router
 """
 
-from fastapi import APIRouter
-from core.qdrant_db import QdrantClient
-from core.embeddings import EmbeddingsGenerator
-from ..models import HealthResponse
 import logging
+
+from fastapi import APIRouter
+
+from ..models import HealthResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/health", tags=["health"])
@@ -23,7 +23,7 @@ async def health_check():
     try:
         # Import global search service from dependencies
         from ..dependencies import search_service
-        
+
         # CRITICAL: Return "initializing" immediately if service not ready
         # This prevents Fly.io from killing container during model loading
         if not search_service:
@@ -32,15 +32,15 @@ async def health_check():
                 status="initializing",
                 version="v100-qdrant",
                 database={"status": "initializing", "message": "Warming up Qdrant connections"},
-                embeddings={"status": "initializing", "message": "Loading embedding model"}
+                embeddings={"status": "initializing", "message": "Loading embedding model"},
             )
 
         # Service is ready - perform lightweight check (no new instantiations)
         try:
             # Get model info without triggering heavy operations
-            model_info = getattr(search_service.embedder, 'model', 'unknown')
-            dimensions = getattr(search_service.embedder, 'dimensions', 0)
-            
+            model_info = getattr(search_service.embedder, "model", "unknown")
+            dimensions = getattr(search_service.embedder, "dimensions", 0)
+
             return HealthResponse(
                 status="healthy",
                 version="v100-qdrant",
@@ -48,14 +48,14 @@ async def health_check():
                     "status": "connected",
                     "type": "qdrant",
                     "collections": 16,
-                    "total_documents": 25415
+                    "total_documents": 25415,
                 },
                 embeddings={
                     "status": "operational",
-                    "provider": getattr(search_service.embedder, 'provider', 'unknown'),
+                    "provider": getattr(search_service.embedder, "provider", "unknown"),
                     "model": model_info,
-                    "dimensions": dimensions
-                }
+                    "dimensions": dimensions,
+                },
             )
         except AttributeError as ae:
             # Embedder not fully initialized yet
@@ -64,7 +64,7 @@ async def health_check():
                 status="initializing",
                 version="v100-qdrant",
                 database={"status": "partial", "message": "Services starting"},
-                embeddings={"status": "loading", "message": str(ae)}
+                embeddings={"status": "loading", "message": str(ae)},
             )
 
     except Exception as e:
@@ -74,5 +74,5 @@ async def health_check():
             status="degraded",
             version="v100-qdrant",
             database={"status": "error", "error": str(e)},
-            embeddings={"status": "error", "error": str(e)}
+            embeddings={"status": "error", "error": str(e)},
         )

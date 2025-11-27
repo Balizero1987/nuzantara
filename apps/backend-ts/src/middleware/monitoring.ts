@@ -137,7 +137,7 @@ export async function getHealthMetrics() {
 
   // Using PostgreSQL for database operations
   let serviceAccountStatus = { available: true, status: 'PostgreSQL connection active' } as any;
-  
+
   // PostgreSQL check could go here if needed
   // For now, just return static status for legacy compatibility
 

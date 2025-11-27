@@ -1,6 +1,6 @@
 # Pulizia Riferimenti a Moduli Inesistenti - Completata
 
-**Data:** 2025-01-27  
+**Data:** 2025-01-27
 **File modificato:** `apps/backend-rag/backend/app/main_cloud.py`
 
 ---
@@ -44,7 +44,7 @@
   - Branch per intent classification (sempre `None`)
   - Branch per "CHAT" mode con `zantara_voice` (mai eseguito)
   - Commenti su stili di risposta e routing complesso
-  
+
 - ✅ Dopo: Codice semplificato a ~8 righe dirette:
   ```python
   # Stream response using IntelligentRouter (RAG-based)
@@ -111,8 +111,7 @@ grep -r "IntentRouter\|ZantaraVoice\|intent_router\|zantara_voice" apps/backend-
 
 ---
 
-**Status:** ✅ COMPLETATO  
-**Tempo impiegato:** ~10 minuti  
-**Righe rimosse:** ~75 righe  
+**Status:** ✅ COMPLETATO
+**Tempo impiegato:** ~10 minuti
+**Righe rimosse:** ~75 righe
 **Codice migliorato:** Significativamente semplificato
-

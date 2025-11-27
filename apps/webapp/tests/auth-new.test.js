@@ -67,7 +67,7 @@ describe('Unified Authentication System', () => {
     const storedToken = JSON.parse(localStorage.getItem('zantara-token'));
     expect(storedToken.token).toBe('test-jwt-token');
     expect(storedToken.expiresAt).toBeGreaterThan(Date.now());
-    
+
     const storedUser = JSON.parse(localStorage.getItem('zantara-user'));
     expect(storedUser.name).toBe('Test User');
   });
@@ -79,10 +79,10 @@ describe('Unified Authentication System', () => {
     };
     localStorage.setItem('zantara-token', JSON.stringify(validToken));
     localStorage.setItem('zantara-user', JSON.stringify({ name: 'User' }));
-    
+
     // Reload from storage to update instance
     unifiedAuth.loadFromStorage();
-    
+
     expect(unifiedAuth.isAuthenticated()).toBe(true);
   });
 
@@ -92,9 +92,9 @@ describe('Unified Authentication System', () => {
       expiresAt: Date.now() - 100000 // Past
     };
     localStorage.setItem('zantara-token', JSON.stringify(expiredToken));
-    
+
     unifiedAuth.loadFromStorage();
-    
+
     expect(unifiedAuth.isAuthenticated()).toBe(false);
   });
 
@@ -104,15 +104,17 @@ describe('Unified Authentication System', () => {
       expiresAt: Date.now() + 100000
     };
     localStorage.setItem('zantara-token', JSON.stringify(validToken));
-    
+
     const headers = getAuthHeaders();
     expect(headers['Authorization']).toBe('Bearer json-token-123');
   });
 
-  test('getAuthHeaders should handle legacy string token', () => {
+  test('getAuthHeaders should clear invalid legacy string token', () => {
     localStorage.setItem('zantara-token', 'legacy-string-token');
-    
+
     const headers = getAuthHeaders();
-    expect(headers['Authorization']).toBe('Bearer legacy-string-token');
+    // Legacy string tokens are cleared for security - should not have Authorization header
+    expect(headers['Authorization']).toBeUndefined();
+    expect(localStorage.getItem('zantara-token')).toBeNull();
   });
 });

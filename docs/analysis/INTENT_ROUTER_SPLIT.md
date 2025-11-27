@@ -123,6 +123,5 @@ curl -X GET "http://localhost:8000/bali-zero/chat-stream?query=Hello%20how%20are
 
 ---
 
-**Documentato da:** Analisi codebase  
+**Documentato da:** Analisi codebase
 **Ultimo aggiornamento:** 2025-01-27
-

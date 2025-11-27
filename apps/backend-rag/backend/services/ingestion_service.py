@@ -3,15 +3,16 @@ ZANTARA RAG - Ingestion Service
 Book processing pipeline: parse → chunk → embed → store
 """
 
-from typing import Dict, Any, Optional
 import logging
 from pathlib import Path
+from typing import Any
 
-from core.parsers import auto_detect_and_parse, get_document_info
 from core.chunker import TextChunker
 from core.embeddings import EmbeddingsGenerator
+from core.parsers import auto_detect_and_parse, get_document_info
 from core.qdrant_db import QdrantClient
 from utils.tier_classifier import TierClassifier
+
 from app.models import TierLevel
 
 logger = logging.getLogger(__name__)
@@ -35,11 +36,11 @@ class IngestionService:
     async def ingest_book(
         self,
         file_path: str,
-        title: Optional[str] = None,
-        author: Optional[str] = None,
+        title: str | None = None,
+        author: str | None = None,
         language: str = "en",
-        tier_override: Optional[TierLevel] = None
-    ) -> Dict[str, Any]:
+        tier_override: TierLevel | None = None,
+    ) -> dict[str, Any]:
         """
         Ingest a single book through the complete pipeline.
 
@@ -74,11 +75,7 @@ class IngestionService:
             else:
                 # Use first 2000 chars as content sample for classification
                 content_sample = text[:2000]
-                tier = self.classifier.classify_book_tier(
-                    book_title,
-                    book_author,
-                    content_sample
-                )
+                tier = self.classifier.classify_book_tier(book_title, book_author, content_sample)
 
             min_level = self.classifier.get_min_access_level(tier)
 
@@ -89,7 +86,7 @@ class IngestionService:
                 "tier": tier.value,
                 "min_level": min_level,
                 "language": language,
-                "file_path": file_path
+                "file_path": file_path,
             }
 
             chunks = self.chunker.semantic_chunk(text, metadata=base_metadata)
@@ -111,15 +108,13 @@ class IngestionService:
                     "chunk_index": chunk["chunk_index"],
                     "total_chunks": chunk["total_chunks"],
                     "language": language,
-                    "file_path": file_path
+                    "file_path": file_path,
                 }
                 metadatas.append(meta)
 
             # Step 7: Store in vector database
             result = self.vector_db.upsert_documents(
-                chunks=chunk_texts,
-                embeddings=embeddings,
-                metadatas=metadatas
+                chunks=chunk_texts, embeddings=embeddings, metadatas=metadatas
             )
 
             logger.info(f"✅ Successfully ingested: {book_title}")
@@ -131,7 +126,7 @@ class IngestionService:
                 "tier": tier.value,
                 "chunks_created": len(chunks),
                 "message": f"Successfully ingested {book_title}",
-                "error": None
+                "error": None,
             }
 
         except Exception as e:
@@ -142,6 +137,6 @@ class IngestionService:
                 "book_author": author or "Unknown",
                 "tier": "Unknown",
                 "chunks_created": 0,
-                "message": f"Failed to ingest book",
-                "error": str(e)
+                "message": "Failed to ingest book",
+                "error": str(e),
             }

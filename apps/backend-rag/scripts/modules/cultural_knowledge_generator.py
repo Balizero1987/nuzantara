@@ -15,11 +15,9 @@ These are NOT fixed responses - they're contextual knowledge that Haiku
 uses to generate natural, culturally-aware responses.
 """
 
-import asyncpg
 import logging
-from typing import List, Dict, Optional
-from datetime import datetime
-import json
+
+import asyncpg
 import httpx
 
 logger = logging.getLogger(__name__)
@@ -33,9 +31,9 @@ class CulturalKnowledgeGenerator:
     def __init__(
         self,
         database_url: str,
-        runpod_endpoint: Optional[str] = None,
-        runpod_api_key: Optional[str] = None,
-        search_service=None  # NEW: SearchService for vector DB integration
+        runpod_endpoint: str | None = None,
+        runpod_api_key: str | None = None,
+        search_service=None,  # NEW: SearchService for vector DB integration
     ):
         """
         Initialize generator
@@ -50,16 +48,13 @@ class CulturalKnowledgeGenerator:
         self.runpod_endpoint = runpod_endpoint
         self.runpod_api_key = runpod_api_key
         self.search_service = search_service
-        self.pool: Optional[asyncpg.Pool] = None
+        self.pool: asyncpg.Pool | None = None
 
     async def connect(self):
         """Initialize PostgreSQL connection pool"""
         try:
             self.pool = await asyncpg.create_pool(
-                self.database_url,
-                min_size=2,
-                max_size=10,
-                command_timeout=60
+                self.database_url, min_size=2, max_size=10, command_timeout=60
             )
             logger.info("✅ CulturalKnowledgeGenerator connected to PostgreSQL")
         except Exception as e:
@@ -73,11 +68,8 @@ class CulturalKnowledgeGenerator:
             logger.info("PostgreSQL connection pool closed")
 
     async def generate_cultural_chunk(
-        self,
-        topic: str,
-        when_to_use: List[str],
-        tone: str
-    ) -> Optional[Dict]:
+        self, topic: str, when_to_use: list[str], tone: str
+    ) -> dict | None:
         """
         Generate single cultural knowledge chunk
 
@@ -103,19 +95,13 @@ class CulturalKnowledgeGenerator:
 
             # Save to PostgreSQL cultural_knowledge table
             await self._save_cultural_chunk(
-                topic=topic,
-                content=content,
-                when_to_use=when_to_use,
-                tone=tone
+                topic=topic, content=content, when_to_use=when_to_use, tone=tone
             )
 
             # Save to vector DB for fast retrieval (if SearchService available)
             if self.search_service:
                 await self._save_to_chromadb(
-                    topic=topic,
-                    content=content,
-                    when_to_use=when_to_use,
-                    tone=tone
+                    topic=topic, content=content, when_to_use=when_to_use, tone=tone
                 )
 
             logger.info(f"✅ Cultural chunk generated: {topic}")
@@ -125,7 +111,7 @@ class CulturalKnowledgeGenerator:
                 "content": content,
                 "when_to_use": when_to_use,
                 "tone": tone,
-                "tokens_used": tokens_used
+                "tokens_used": tokens_used,
             }
 
         except Exception as e:
@@ -133,11 +119,8 @@ class CulturalKnowledgeGenerator:
             return None
 
     async def _generate_with_llama(
-        self,
-        topic: str,
-        when_to_use: List[str],
-        tone: str
-    ) -> Optional[str]:
+        self, topic: str, when_to_use: list[str], tone: str
+    ) -> str | None:
         """
         Generate cultural content with LLAMA 3.1
 
@@ -168,7 +151,6 @@ Audience: Foreign business clients working with Indonesian bureaucracy
 Purpose: Help Haiku AI explain why BALI ZERO takes time to build relationships with officials
 
 Write ONLY the knowledge chunk (no introduction, no "Here's the content"):""",
-
             "bureaucracy_patience": """Write a concise cultural knowledge chunk (100-150 words) about navigating Indonesian bureaucracy with patience and cultural sensitivity.
 
 Focus on:
@@ -183,7 +165,6 @@ Audience: Frustrated foreign clients asking "Why so slow?"
 Purpose: Help Haiku explain delays compassionately
 
 Write ONLY the knowledge chunk (no introduction, no "Here's the content"):""",
-
             "face_saving_culture": """Write a concise cultural knowledge chunk (100-150 words) about Indonesian face-saving communication and indirect negotiation.
 
 Focus on:
@@ -198,7 +179,6 @@ Audience: Clients confused by indirect responses from officials
 Purpose: Help Haiku decode Indonesian communication patterns
 
 Write ONLY the knowledge chunk (no introduction, no "Here's the content"):""",
-
             "tri_hita_karana": """Write a concise cultural knowledge chunk (100-150 words) about Bali's "Tri Hita Karana" philosophy and its business impact.
 
 Focus on:
@@ -213,7 +193,6 @@ Audience: Clients curious about Balinese culture or frustrated by ceremony delay
 Purpose: Help Haiku explain cultural context when relevant
 
 Write ONLY the knowledge chunk (no introduction, no "Here's the content"):""",
-
             "hierarchy_respect": """Write a concise cultural knowledge chunk (100-150 words) about Indonesian hierarchy and respectful communication.
 
 Focus on:
@@ -228,7 +207,6 @@ Audience: Foreign clients wanting to approach officials directly
 Purpose: Help Haiku guide proper escalation paths
 
 Write ONLY the knowledge chunk (no introduction, no "Here's the content"):""",
-
             "meeting_etiquette": """Write a concise cultural knowledge chunk (100-150 words) about Indonesian business meeting etiquette.
 
 Focus on:
@@ -243,7 +221,6 @@ Audience: First-time visitors to Indonesian offices
 Purpose: Help Haiku prepare clients for meetings
 
 Write ONLY the knowledge chunk (no introduction, no "Here's the content"):""",
-
             "ramadan_business": """Write a concise cultural knowledge chunk (100-150 words) about doing business during Ramadan in Indonesia.
 
 Focus on:
@@ -258,7 +235,6 @@ Audience: Clients with deadlines during Ramadan
 Purpose: Help Haiku explain timeline adjustments
 
 Write ONLY the knowledge chunk (no introduction, no "Here's the content"):""",
-
             "relationship_capital": """Write a concise cultural knowledge chunk (100-150 words) about "relationship capital" in Indonesian business.
 
 Focus on:
@@ -273,7 +249,6 @@ Audience: Clients questioning why they need BALI ZERO
 Purpose: Help Haiku explain BALI ZERO's relationship assets
 
 Write ONLY the knowledge chunk (no introduction, no "Here's the content"):""",
-
             "flexibility_expectations": """Write a concise cultural knowledge chunk (100-150 words) about managing expectations with Indonesian flexibility.
 
 Focus on:
@@ -288,7 +263,6 @@ Audience: Type-A foreign clients wanting exact dates
 Purpose: Help Haiku set realistic expectations
 
 Write ONLY the knowledge chunk (no introduction, no "Here's the content"):""",
-
             "language_barrier_navigation": """Write a concise cultural knowledge chunk (100-150 words) about navigating language barriers in Indonesian bureaucracy.
 
 Focus on:
@@ -302,27 +276,32 @@ Tone: Practical, expert-guidance, problem-solving
 Audience: DIY clients considering handling alone
 Purpose: Help Haiku explain translation service value
 
-Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
+Write ONLY the knowledge chunk (no introduction, no "Here's the content"):""",
         }
 
-        prompt = prompts.get(topic, f"Write a 100-150 word cultural knowledge chunk about {topic} in Indonesian business context.")
+        prompt = prompts.get(
+            topic,
+            f"Write a 100-150 word cultural knowledge chunk about {topic} in Indonesian business context.",
+        )
 
         try:
-            async with httpx.AsyncClient(timeout=300.0) as client:  # Increased to 300s (5min) for pod initialization
+            async with httpx.AsyncClient(
+                timeout=300.0
+            ) as client:  # Increased to 300s (5min) for pod initialization
                 response = await client.post(
                     self.runpod_endpoint,  # Fixed: removed duplicate /runsync
                     headers={
                         "Authorization": f"Bearer {self.runpod_api_key}",
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
                     json={
                         "input": {
                             "prompt": prompt,
                             "max_tokens": 300,
                             "temperature": 0.4,
-                            "top_p": 0.9
+                            "top_p": 0.9,
                         }
-                    }
+                    },
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -330,8 +309,11 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
                 # Handle RunPod response format
                 # If IN_QUEUE with /runsync, worker is cold starting - wait and retry
                 if data.get("status") == "IN_QUEUE":
-                    logger.warning(f"⚠️ Worker cold start detected (IN_QUEUE), waiting 90s for initialization...")
+                    logger.warning(
+                        "⚠️ Worker cold start detected (IN_QUEUE), waiting 90s for initialization..."
+                    )
                     import asyncio
+
                     await asyncio.sleep(90)  # Wait for worker to initialize
 
                     # Retry request after cold start
@@ -339,23 +321,25 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
                         self.runpod_endpoint,
                         headers={
                             "Authorization": f"Bearer {self.runpod_api_key}",
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
                         },
                         json={
                             "input": {
                                 "prompt": prompt,
                                 "max_tokens": 300,
                                 "temperature": 0.4,
-                                "top_p": 0.9
+                                "top_p": 0.9,
                             }
-                        }
+                        },
                     )
                     response.raise_for_status()
                     data = response.json()
 
                     # If still IN_QUEUE after retry, fail
                     if data.get("status") == "IN_QUEUE":
-                        logger.error(f"❌ Worker still IN_QUEUE after 90s wait - endpoint may be paused")
+                        logger.error(
+                            "❌ Worker still IN_QUEUE after 90s wait - endpoint may be paused"
+                        )
                         return None
 
                 # Extract content from completed job
@@ -389,12 +373,11 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
                     usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0)
                 )
 
-                logger.info(f"✅ LLAMA generated cultural chunk ({len(content)} chars, {tokens_used} tokens)")
+                logger.info(
+                    f"✅ LLAMA generated cultural chunk ({len(content)} chars, {tokens_used} tokens)"
+                )
 
-                return {
-                    "content": content.strip(),
-                    "tokens_used": tokens_used
-                }
+                return {"content": content.strip(), "tokens_used": tokens_used}
 
         except httpx.TimeoutException:
             logger.error("❌ LLAMA timeout (>300s)")
@@ -404,11 +387,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
             return None
 
     async def _save_cultural_chunk(
-        self,
-        topic: str,
-        content: str,
-        when_to_use: List[str],
-        tone: str
+        self, topic: str, content: str, when_to_use: list[str], tone: str
     ):
         """
         Save cultural chunk to PostgreSQL
@@ -424,7 +403,8 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
 
         try:
             async with self.pool.acquire() as conn:
-                await conn.execute("""
+                await conn.execute(
+                    """
                     INSERT INTO cultural_knowledge (
                         topic,
                         content,
@@ -446,7 +426,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
                     when_to_use,
                     tone,
                     "llama-3.1-zantara",
-                    0.85  # Default quality score
+                    0.85,  # Default quality score
                 )
 
             logger.info(f"✅ Saved cultural chunk: {topic}")
@@ -455,13 +435,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
             logger.error(f"❌ Failed to save cultural chunk: {e}")
             raise
 
-    async def _save_to_vector_db(
-        self,
-        topic: str,
-        content: str,
-        when_to_use: List[str],
-        tone: str
-    ):
+    async def _save_to_vector_db(self, topic: str, content: str, when_to_use: list[str], tone: str):
         """
         Save cultural chunk to vector DB for fast retrieval
 
@@ -482,12 +456,11 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
                 "topic": topic,
                 "when_to_use": when_to_use,
                 "tone": tone,
-                "language": "multi"  # Cultural insights work across IT/EN/ID
+                "language": "multi",  # Cultural insights work across IT/EN/ID
             }
 
             success = await self.search_service.add_cultural_insight(
-                text=content,
-                metadata=metadata
+                text=content, metadata=metadata
             )
 
             if success:
@@ -499,7 +472,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
             logger.error(f"❌ Failed to save to vector DB: {e}")
             # Don't raise - vector DB save is optional, PostgreSQL is primary
 
-    async def batch_generate_cultural_chunks(self) -> Dict:
+    async def batch_generate_cultural_chunks(self) -> dict:
         """
         Generate all cultural knowledge chunks
 
@@ -511,63 +484,62 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
             {
                 "topic": "indonesian_greetings",
                 "when_to_use": ["first_contact", "casual_chat", "greeting"],
-                "tone": "friendly_welcoming"
+                "tone": "friendly_welcoming",
             },
             {
                 "topic": "bureaucracy_patience",
                 "when_to_use": ["timeline_questions", "frustration_handling", "delay_response"],
-                "tone": "empathetic_reassuring"
+                "tone": "empathetic_reassuring",
             },
             {
                 "topic": "face_saving_culture",
                 "when_to_use": ["rejection_handling", "difficult_cases", "negotiation"],
-                "tone": "diplomatic_wise"
+                "tone": "diplomatic_wise",
             },
             {
                 "topic": "tri_hita_karana",
                 "when_to_use": ["cultural_question", "philosophy_interest", "bali_lifestyle"],
-                "tone": "educational_warm"
+                "tone": "educational_warm",
             },
             {
                 "topic": "hierarchy_respect",
                 "when_to_use": ["escalation_advice", "official_communication", "status_questions"],
-                "tone": "respectful_practical"
+                "tone": "respectful_practical",
             },
             {
                 "topic": "meeting_etiquette",
                 "when_to_use": ["meeting_preparation", "first_visit", "cultural_guidance"],
-                "tone": "practical_friendly"
+                "tone": "practical_friendly",
             },
             {
                 "topic": "ramadan_business",
                 "when_to_use": ["ramadan_period", "timeline_adjustment", "holiday_questions"],
-                "tone": "respectful_empathetic"
+                "tone": "respectful_empathetic",
             },
             {
                 "topic": "relationship_capital",
                 "when_to_use": ["value_proposition", "why_local_partner", "trust_building"],
-                "tone": "insider_wisdom"
+                "tone": "insider_wisdom",
             },
             {
                 "topic": "flexibility_expectations",
-                "when_to_use": ["timeline_management", "expectation_setting", "uncertainty_handling"],
-                "tone": "honest_realistic"
+                "when_to_use": [
+                    "timeline_management",
+                    "expectation_setting",
+                    "uncertainty_handling",
+                ],
+                "tone": "honest_realistic",
             },
             {
                 "topic": "language_barrier_navigation",
                 "when_to_use": ["translation_questions", "diy_concerns", "service_value"],
-                "tone": "practical_expert"
-            }
+                "tone": "practical_expert",
+            },
         ]
 
         logger.info(f"🚀 Batch generating {len(topics)} cultural chunks")
 
-        stats = {
-            "total_topics": len(topics),
-            "successful": 0,
-            "failed": 0,
-            "tokens_used": 0
-        }
+        stats = {"total_topics": len(topics), "successful": 0, "failed": 0, "tokens_used": 0}
 
         for i, topic_spec in enumerate(topics, 1):
             logger.info(f"[{i}/{len(topics)}] Processing: {topic_spec['topic']}")
@@ -576,7 +548,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
                 result = await self.generate_cultural_chunk(
                     topic=topic_spec["topic"],
                     when_to_use=topic_spec["when_to_use"],
-                    tone=topic_spec["tone"]
+                    tone=topic_spec["tone"],
                 )
 
                 if result:
@@ -591,9 +563,10 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
 
             # Rate limiting
             import asyncio
+
             await asyncio.sleep(5)
 
-        logger.info(f"✅ Batch generation complete:")
+        logger.info("✅ Batch generation complete:")
         logger.info(f"   Successful: {stats['successful']}")
         logger.info(f"   Failed: {stats['failed']}")
         logger.info(f"   Tokens used: {stats['tokens_used']}")
@@ -615,9 +588,7 @@ async def test_generator():
         return
 
     generator = CulturalKnowledgeGenerator(
-        database_url=database_url,
-        runpod_endpoint=runpod_endpoint,
-        runpod_api_key=runpod_api_key
+        database_url=database_url, runpod_endpoint=runpod_endpoint, runpod_api_key=runpod_api_key
     )
 
     try:
@@ -630,16 +601,16 @@ async def test_generator():
         result = await generator.generate_cultural_chunk(
             topic="indonesian_greetings",
             when_to_use=["first_contact", "greeting"],
-            tone="friendly_welcoming"
+            tone="friendly_welcoming",
         )
 
         if result:
-            print(f"\n✅ SUCCESS!")
+            print("\n✅ SUCCESS!")
             print(f"Topic: {result['topic']}")
             print(f"Tone: {result['tone']}")
             print(f"When to use: {', '.join(result['when_to_use'])}")
-            print(f"\nContent:")
-            print(result['content'])
+            print("\nContent:")
+            print(result["content"])
         else:
             print("\n❌ Generation failed")
 
@@ -649,4 +620,5 @@ async def test_generator():
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(test_generator())

@@ -8,12 +8,12 @@ Author: ZANTARA AI Code (Bali Zero Team)  # LEGACY CODE CLEANED: was Claude
 Date: November 5, 2025
 """
 
-from typing import Optional, List, Dict
-import redis.asyncio as redis
 import json
+import logging
 import uuid
 from datetime import timedelta
-import logging
+
+import redis.asyncio as redis
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class SessionService:
                 decode_responses=True,
                 encoding="utf-8",
                 socket_connect_timeout=5,
-                socket_timeout=5
+                socket_timeout=5,
             )
             self.ttl = timedelta(hours=ttl_hours)
             logger.info(f"✅ SessionService initialized with {ttl_hours}h TTL")
@@ -70,18 +70,14 @@ class SessionService:
         session_id = str(uuid.uuid4())
         try:
             # Initialize with empty history
-            await self.redis.setex(
-                f"session:{session_id}",
-                self.ttl,
-                json.dumps([])
-            )
+            await self.redis.setex(f"session:{session_id}", self.ttl, json.dumps([]))
             logger.info(f"🆕 Created session: {session_id}")
             return session_id
         except Exception as e:
             logger.error(f"❌ Failed to create session: {e}")
             raise
 
-    async def get_history(self, session_id: str) -> Optional[List[Dict]]:
+    async def get_history(self, session_id: str) -> list[dict] | None:
         """
         Get conversation history for a session
 
@@ -107,7 +103,7 @@ class SessionService:
             logger.error(f"❌ Failed to get session: {e}")
             return None
 
-    async def update_history(self, session_id: str, history: List[Dict]) -> bool:
+    async def update_history(self, session_id: str, history: list[dict]) -> bool:
         """
         Update conversation history for a session
 
@@ -125,11 +121,7 @@ class SessionService:
                 return False
 
             # Serialize and save
-            await self.redis.setex(
-                f"session:{session_id}",
-                self.ttl,
-                json.dumps(history)
-            )
+            await self.redis.setex(f"session:{session_id}", self.ttl, json.dumps(history))
             logger.info(f"💾 Updated session {session_id} with {len(history)} messages")
             return True
         except Exception as e:
@@ -180,7 +172,7 @@ class SessionService:
             logger.error(f"❌ Failed to extend TTL: {e}")
             return False
 
-    async def get_session_info(self, session_id: str) -> Optional[Dict]:
+    async def get_session_info(self, session_id: str) -> dict | None:
         """
         Get session metadata (TTL, message count, etc.)
 
@@ -209,7 +201,7 @@ class SessionService:
                 "session_id": session_id,
                 "message_count": len(history),
                 "ttl_seconds": ttl_seconds,
-                "ttl_hours": round(ttl_seconds / 3600, 2)
+                "ttl_hours": round(ttl_seconds / 3600, 2),
             }
         except Exception as e:
             logger.error(f"❌ Failed to get session info: {e}")
@@ -226,7 +218,7 @@ class SessionService:
         logger.info("ℹ️ Session cleanup is handled automatically by Redis TTL")
         return 0
 
-    async def get_analytics(self) -> Dict:
+    async def get_analytics(self) -> dict:
         """
         Get analytics about all sessions in Redis
 
@@ -251,7 +243,7 @@ class SessionService:
                     "active_sessions": 0,
                     "avg_messages_per_session": 0,
                     "top_session": None,
-                    "sessions_by_range": {}
+                    "sessions_by_range": {},
                 }
 
             # Analyze each session
@@ -292,7 +284,7 @@ class SessionService:
                 "active_sessions": active_sessions,
                 "avg_messages_per_session": round(avg_messages, 2),
                 "top_session": top_session if top_session["id"] else None,
-                "sessions_by_range": ranges
+                "sessions_by_range": ranges,
             }
 
             logger.info(f"📊 Analytics: {total_sessions} sessions, avg {avg_messages:.1f} messages")
@@ -306,10 +298,12 @@ class SessionService:
                 "active_sessions": 0,
                 "avg_messages_per_session": 0,
                 "top_session": None,
-                "sessions_by_range": {}
+                "sessions_by_range": {},
             }
 
-    async def update_history_with_ttl(self, session_id: str, history: List[Dict], ttl_hours: Optional[int] = None) -> bool:
+    async def update_history_with_ttl(
+        self, session_id: str, history: list[dict], ttl_hours: int | None = None
+    ) -> bool:
         """
         Update conversation history with custom TTL
 
@@ -329,12 +323,10 @@ class SessionService:
             # Use custom TTL or default
             ttl = timedelta(hours=ttl_hours) if ttl_hours else self.ttl
 
-            await self.redis.setex(
-                f"session:{session_id}",
-                ttl,
-                json.dumps(history)
+            await self.redis.setex(f"session:{session_id}", ttl, json.dumps(history))
+            logger.info(
+                f"💾 Updated session {session_id} with {len(history)} messages (TTL: {ttl.total_seconds() / 3600:.1f}h)"
             )
-            logger.info(f"💾 Updated session {session_id} with {len(history)} messages (TTL: {ttl.total_seconds()/3600:.1f}h)")
             return True
         except Exception as e:
             logger.error(f"❌ Failed to update session with custom TTL: {e}")
@@ -361,7 +353,7 @@ class SessionService:
             logger.error(f"❌ Failed to extend TTL: {e}")
             return False
 
-    async def export_session(self, session_id: str, format: str = "json") -> Optional[str]:
+    async def export_session(self, session_id: str, format: str = "json") -> str | None:
         """
         Export session conversation in specified format
 
@@ -397,11 +389,15 @@ class SessionService:
                 return "".join(lines)
 
             else:  # JSON format (default)
-                return json.dumps({
-                    "session_id": session_id,
-                    "message_count": len(history),
-                    "conversation": history
-                }, indent=2, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "session_id": session_id,
+                        "message_count": len(history),
+                        "conversation": history,
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
 
         except Exception as e:
             logger.error(f"❌ Failed to export session: {e}")
@@ -419,26 +415,32 @@ class SessionService:
 # Example usage
 async def main():
     """Example usage of SessionService"""
-    service = SessionService("redis://localhost:6379")
+    import logging
+    logger = logging.getLogger(__name__)
+
+    # Use settings for Redis URL instead of hardcoding
+    from app.core.config import settings
+    redis_url = getattr(settings, "redis_url", "redis://localhost:6379")
+    service = SessionService(redis_url)
 
     # Create session
     session_id = await service.create_session()
-    print(f"Created session: {session_id}")
+    logger.info(f"Created session: {session_id}")
 
     # Update history
     history = [
         {"role": "user", "content": "Hello"},
-        {"role": "assistant", "content": "Hi! How can I help you?"}
+        {"role": "assistant", "content": "Hi! How can I help you?"},
     ]
     await service.update_history(session_id, history)
 
     # Retrieve history
     retrieved = await service.get_history(session_id)
-    print(f"Retrieved: {retrieved}")
+    logger.info(f"Retrieved: {retrieved}")
 
     # Get session info
     info = await service.get_session_info(session_id)
-    print(f"Session info: {info}")
+    logger.info(f"Session info: {info}")
 
     # Clean up
     await service.delete_session(session_id)
@@ -447,4 +449,5 @@ async def main():
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(main())

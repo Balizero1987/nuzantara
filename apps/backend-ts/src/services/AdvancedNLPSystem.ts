@@ -1468,7 +1468,7 @@ export class AdvancedNLPSystem {
     // Service categorization now uses generic patterns only
     // Specific service types (kitas, pt pma, npwp, etc.) are stored in the database
     const lowerService = service.toLowerCase();
-    
+
     // Generic category detection based on keywords (not specific service names)
     if (lowerService.includes('visa') || lowerService.includes('permit') || lowerService.includes('immigration')) {
       return 'immigration';
@@ -1485,7 +1485,7 @@ export class AdvancedNLPSystem {
     if (lowerService.includes('property') || lowerService.includes('real estate') || lowerService.includes('properti')) {
       return 'property';
     }
-    
+
     return 'general';
   }
 

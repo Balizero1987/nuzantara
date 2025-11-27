@@ -4,11 +4,13 @@ Team Members List Plugin
 Migrated from: backend/services/zantara_tools.py -> _get_team_members_list
 """
 
-from typing import Optional, Dict, Any, List
-from pydantic import Field
-from core.plugins import Plugin, PluginMetadata, PluginInput, PluginOutput, PluginCategory
-from services.collaborator_service import CollaboratorService
 import logging
+from typing import Any
+
+from core.plugins import Plugin, PluginCategory, PluginInput, PluginMetadata, PluginOutput
+from pydantic import Field
+
+from services.collaborator_service import CollaboratorService
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +18,7 @@ logger = logging.getLogger(__name__)
 class TeamListInput(PluginInput):
     """Input schema for team list"""
 
-    department: Optional[str] = Field(
+    department: str | None = Field(
         None, description="Optional: filter by department (technology, operations, creative, etc.)"
     )
 
@@ -24,12 +26,12 @@ class TeamListInput(PluginInput):
 class TeamListOutput(PluginOutput):
     """Output schema for team list"""
 
-    total_members: Optional[int] = Field(None, description="Total number of team members")
-    by_department: Optional[Dict[str, List[Dict[str, Any]]]] = Field(
+    total_members: int | None = Field(None, description="Total number of team members")
+    by_department: dict[str, list[dict[str, Any]]] | None = Field(
         None, description="Team members grouped by department"
     )
-    roster: Optional[List[Dict[str, Any]]] = Field(None, description="Full team roster")
-    stats: Optional[Dict[str, Any]] = Field(None, description="Team statistics")
+    roster: list[dict[str, Any]] | None = Field(None, description="Full team roster")
+    stats: dict[str, Any] | None = Field(None, description="Team statistics")
 
 
 class TeamMembersListPlugin(Plugin):
@@ -39,7 +41,7 @@ class TeamMembersListPlugin(Plugin):
     Returns complete team roster with roles, departments, expertise levels, and stats.
     """
 
-    def __init__(self, config: Optional[dict] = None):
+    def __init__(self, config: dict | None = None):
         super().__init__(config)
         self.collaborator_service = CollaboratorService()
 
@@ -69,9 +71,7 @@ class TeamMembersListPlugin(Plugin):
     async def execute(self, input_data: TeamListInput) -> TeamListOutput:
         """Execute team list query"""
         try:
-            department = (
-                input_data.department.lower().strip() if input_data.department else None
-            )
+            department = input_data.department.lower().strip() if input_data.department else None
 
             logger.info(f"👥 Team list: department={department}")
 

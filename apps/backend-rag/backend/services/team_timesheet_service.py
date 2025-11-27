@@ -7,10 +7,11 @@ Timezone: Asia/Makassar (Bali Time, UTC+8)
 import asyncio
 import json
 import logging
-from datetime import datetime, time, timedelta
-from typing import Dict, List, Optional, Any
-import asyncpg
+from datetime import datetime, timedelta
+from typing import Any
 from zoneinfo import ZoneInfo
+
+import asyncpg
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class TeamTimesheetService:
 
     def __init__(self, db_pool: asyncpg.Pool):
         self.pool = db_pool
-        self.auto_logout_task: Optional[asyncio.Task] = None
+        self.auto_logout_task: asyncio.Task | None = None
         self.running = False
         logger.info("✅ TeamTimesheetService initialized")
 
@@ -82,11 +83,8 @@ class TeamTimesheetService:
                     )
 
     async def clock_in(
-        self,
-        user_id: str,
-        email: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, user_id: str, email: str, metadata: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """
         Clock in a team member
 
@@ -108,7 +106,7 @@ class TeamTimesheetService:
                     "success": False,
                     "error": "already_clocked_in",
                     "message": f"Already clocked in at {bali_time.strftime('%H:%M')} Bali time",
-                    "clocked_in_at": bali_time.isoformat()
+                    "clocked_in_at": bali_time.isoformat(),
                 }
 
             # Insert clock-in
@@ -120,33 +118,47 @@ class TeamTimesheetService:
                 """,
                 user_id,
                 email,
-                json.dumps(metadata or {})
+                json.dumps(metadata or {}),
             )
 
             logger.info(f"🟢 Clock-in: {email} at {now.strftime('%H:%M')} Bali time")
+
+            # Notify Admin (ZERO)
+            try:
+                from services.notification_hub import notification_hub, Notification, NotificationPriority, NotificationChannel
+                
+                admin_notification = Notification(
+                    notification_id=f"clockin_{user_id}_{int(now.timestamp())}",
+                    recipient_id="admin_zero",
+                    recipient_email="zero@balizero.com", # Target admin email
+                    title=f"🟢 Clock-In: {email}",
+                    message=f"{email} clocked in at {now.strftime('%H:%M')} Bali time.",
+                    priority=NotificationPriority.LOW,
+                    channels=[NotificationChannel.IN_APP] # Keep it low noise for now
+                )
+                await notification_hub.send(admin_notification)
+            except Exception as e:
+                logger.error(f"Failed to notify admin: {e}")
 
             return {
                 "success": True,
                 "action": "clock_in",
                 "timestamp": now.isoformat(),
                 "bali_time": now.strftime("%H:%M"),
-                "message": "Successfully clocked in"
+                "message": "Successfully clocked in",
             }
 
     async def clock_out(
-        self,
-        user_id: str,
-        email: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, user_id: str, email: str, metadata: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """
         Clock out a team member
-
+        
         Args:
             user_id: User identifier
             email: User email
             metadata: Optional metadata
-
+            
         Returns:
             Dict with clock-out confirmation and hours worked
         """
@@ -158,7 +170,7 @@ class TeamTimesheetService:
                 return {
                     "success": False,
                     "error": "not_clocked_in",
-                    "message": "Not currently clocked in"
+                    "message": "Not currently clocked in",
                 }
 
             # Insert clock-out
@@ -170,7 +182,7 @@ class TeamTimesheetService:
                 """,
                 user_id,
                 email,
-                json.dumps(metadata or {})
+                json.dumps(metadata or {}),
             )
 
             # Calculate hours worked
@@ -186,6 +198,23 @@ class TeamTimesheetService:
                 f"({hours_worked:.2f}h worked)"
             )
 
+            # Notify Admin (ZERO)
+            try:
+                from services.notification_hub import notification_hub, Notification, NotificationPriority, NotificationChannel
+                
+                admin_notification = Notification(
+                    notification_id=f"clockout_{user_id}_{int(now.timestamp())}",
+                    recipient_id="admin_zero",
+                    recipient_email="zero@balizero.com",
+                    title=f"🔴 Clock-Out: {email}",
+                    message=f"{email} clocked out. Worked {hours_worked:.2f}h.",
+                    priority=NotificationPriority.LOW,
+                    channels=[NotificationChannel.IN_APP]
+                )
+                await notification_hub.send(admin_notification)
+            except Exception as e:
+                logger.error(f"Failed to notify admin: {e}")
+
             return {
                 "success": True,
                 "action": "clock_out",
@@ -193,10 +222,10 @@ class TeamTimesheetService:
                 "bali_time": now.strftime("%H:%M"),
                 "clock_in_time": clock_in_time.isoformat(),
                 "hours_worked": round(hours_worked, 2),
-                "message": f"Successfully clocked out. Worked {hours_worked:.2f} hours"
+                "message": f"Successfully clocked out. Worked {hours_worked:.2f} hours",
             }
 
-    async def get_my_status(self, user_id: str) -> Dict[str, Any]:
+    async def get_my_status(self, user_id: str) -> dict[str, Any]:
         """
         Get current user's work status
 
@@ -219,7 +248,7 @@ class TeamTimesheetService:
                 WHERE user_id = $1 AND work_date = $2
                 """,
                 user_id,
-                today_bali
+                today_bali,
             )
 
             # This week's summary
@@ -231,7 +260,7 @@ class TeamTimesheetService:
                   AND week_start = DATE_TRUNC('week', $2::date)
                 """,
                 user_id,
-                today_bali
+                today_bali,
             )
 
             return {
@@ -241,10 +270,10 @@ class TeamTimesheetService:
                 "last_action_type": status["action_type"] if status else None,
                 "today_hours": float(today_hours["hours_worked"]) if today_hours else 0.0,
                 "week_hours": float(week_summary["total_hours"]) if week_summary else 0.0,
-                "week_days": int(week_summary["days_worked"]) if week_summary else 0
+                "week_days": int(week_summary["days_worked"]) if week_summary else 0,
             }
 
-    async def get_team_online_status(self) -> List[Dict[str, Any]]:
+    async def get_team_online_status(self) -> list[dict[str, Any]]:
         """
         Get current online status of all team members (ADMIN ONLY)
 
@@ -260,15 +289,12 @@ class TeamTimesheetService:
                     "email": row["email"],
                     "is_online": row["is_online"],
                     "last_action": row["last_action_bali"].isoformat(),
-                    "last_action_type": row["action_type"]
+                    "last_action_type": row["action_type"],
                 }
                 for row in rows
             ]
 
-    async def get_daily_hours(
-        self,
-        date: Optional[datetime] = None
-    ) -> List[Dict[str, Any]]:
+    async def get_daily_hours(self, date: datetime | None = None) -> list[dict[str, Any]]:
         """
         Get work hours for a specific date (ADMIN ONLY)
 
@@ -290,7 +316,7 @@ class TeamTimesheetService:
                 WHERE work_date = $1
                 ORDER BY hours_worked DESC
                 """,
-                date
+                date,
             )
 
             return [
@@ -300,15 +326,12 @@ class TeamTimesheetService:
                     "date": row["work_date"].isoformat(),
                     "clock_in": row["clock_in_bali"].strftime("%H:%M"),
                     "clock_out": row["clock_out_bali"].strftime("%H:%M"),
-                    "hours_worked": float(row["hours_worked"])
+                    "hours_worked": float(row["hours_worked"]),
                 }
                 for row in rows
             ]
 
-    async def get_weekly_summary(
-        self,
-        week_start: Optional[datetime] = None
-    ) -> List[Dict[str, Any]]:
+    async def get_weekly_summary(self, week_start: datetime | None = None) -> list[dict[str, Any]]:
         """
         Get weekly work summary (ADMIN ONLY)
 
@@ -331,7 +354,7 @@ class TeamTimesheetService:
                 WHERE week_start = DATE_TRUNC('week', $1::date)
                 ORDER BY total_hours DESC
                 """,
-                week_start
+                week_start,
             )
 
             return [
@@ -341,15 +364,14 @@ class TeamTimesheetService:
                     "week_start": row["week_start"].isoformat(),
                     "days_worked": int(row["days_worked"]),
                     "total_hours": float(row["total_hours"]),
-                    "avg_hours_per_day": float(row["avg_hours_per_day"])
+                    "avg_hours_per_day": float(row["avg_hours_per_day"]),
                 }
                 for row in rows
             ]
 
     async def get_monthly_summary(
-        self,
-        month_start: Optional[datetime] = None
-    ) -> List[Dict[str, Any]]:
+        self, month_start: datetime | None = None
+    ) -> list[dict[str, Any]]:
         """
         Get monthly work summary (ADMIN ONLY)
 
@@ -372,7 +394,7 @@ class TeamTimesheetService:
                 WHERE month_start = DATE_TRUNC('month', $1::date)
                 ORDER BY total_hours DESC
                 """,
-                month_start
+                month_start,
             )
 
             return [
@@ -382,16 +404,12 @@ class TeamTimesheetService:
                     "month_start": row["month_start"].isoformat(),
                     "days_worked": int(row["days_worked"]),
                     "total_hours": float(row["total_hours"]),
-                    "avg_hours_per_day": float(row["avg_hours_per_day"])
+                    "avg_hours_per_day": float(row["avg_hours_per_day"]),
                 }
                 for row in rows
             ]
 
-    async def export_timesheet_csv(
-        self,
-        start_date: datetime,
-        end_date: datetime
-    ) -> str:
+    async def export_timesheet_csv(self, start_date: datetime, end_date: datetime) -> str:
         """
         Export timesheet data as CSV (ADMIN ONLY)
 
@@ -410,7 +428,7 @@ class TeamTimesheetService:
                 ORDER BY work_date DESC, email
                 """,
                 start_date.date() if isinstance(start_date, datetime) else start_date,
-                end_date.date() if isinstance(end_date, datetime) else end_date
+                end_date.date() if isinstance(end_date, datetime) else end_date,
             )
 
         # Build CSV
@@ -427,15 +445,10 @@ class TeamTimesheetService:
         return "\n".join(csv_lines)
 
     async def _get_user_current_status(
-        self,
-        conn: asyncpg.Connection,
-        user_id: str
-    ) -> Optional[Dict[str, Any]]:
+        self, conn: asyncpg.Connection, user_id: str
+    ) -> dict[str, Any] | None:
         """Get user's current online/offline status"""
-        row = await conn.fetchrow(
-            "SELECT * FROM team_online_status WHERE user_id = $1",
-            user_id
-        )
+        row = await conn.fetchrow("SELECT * FROM team_online_status WHERE user_id = $1", user_id)
 
         if not row:
             return None
@@ -445,15 +458,15 @@ class TeamTimesheetService:
             "email": row["email"],
             "last_action_bali": row["last_action_bali"],
             "action_type": row["action_type"],
-            "is_online": row["is_online"]
+            "is_online": row["is_online"],
         }
 
 
 # Singleton instance
-_timesheet_service: Optional[TeamTimesheetService] = None
+_timesheet_service: TeamTimesheetService | None = None
 
 
-def get_timesheet_service() -> Optional[TeamTimesheetService]:
+def get_timesheet_service() -> TeamTimesheetService | None:
     """Get the global TeamTimesheetService instance"""
     return _timesheet_service
 

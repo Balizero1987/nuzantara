@@ -2,14 +2,13 @@
 Intel News API - Search and manage Bali intelligence news
 """
 
+import logging
+from datetime import datetime, timedelta
+
+from core.embeddings import EmbeddingsGenerator
+from core.qdrant_db import QdrantClient
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime, timedelta
-import logging
-
-from core.qdrant_db import QdrantClient
-from core.embeddings import EmbeddingsGenerator
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -31,10 +30,10 @@ INTEL_COLLECTIONS = {
 
 class IntelSearchRequest(BaseModel):
     query: str
-    category: Optional[str] = None
+    category: str | None = None
     date_range: str = "last_7_days"
-    tier: List[str] = ["T1", "T2", "T3"]  # Fixed: Changed from "1","2","3" to match Qdrant storage
-    impact_level: Optional[str] = None
+    tier: list[str] = ["T1", "T2", "T3"]  # Fixed: Changed from "1","2","3" to match Qdrant storage
+    impact_level: str | None = None
     limit: int = 20
 
 
@@ -42,7 +41,7 @@ class IntelStoreRequest(BaseModel):
     collection: str
     id: str
     document: str
-    embedding: List[float]
+    embedding: list[float]
     metadata: dict
     full_data: dict
 
@@ -78,7 +77,7 @@ async def search_intel(request: IntelSearchRequest):
                         "today": 1,
                         "last_7_days": 7,
                         "last_30_days": 30,
-                        "last_90_days": 90
+                        "last_90_days": 90,
                     }
                     days = days_map.get(request.date_range, 7)
                     cutoff_date = (datetime.now() - timedelta(days=days)).isoformat()
@@ -90,35 +89,35 @@ async def search_intel(request: IntelSearchRequest):
 
                 # Search
                 results = client.search(
-                    query_embedding=query_embedding,
-                    filter=where_filter,
-                    limit=request.limit
+                    query_embedding=query_embedding, filter=where_filter, limit=request.limit
                 )
 
                 # Parse results
                 for doc, metadata, distance in zip(
                     results.get("documents", []),
                     results.get("metadatas", []),
-                    results.get("distances", [])
+                    results.get("distances", []),
                 ):
                     similarity_score = 1 / (1 + distance)  # Convert distance to similarity
 
-                    all_results.append({
-                        "id": metadata.get("id"),
-                        "title": metadata.get("title"),
-                        "summary_english": doc[:300],  # First 300 chars
-                        "summary_italian": metadata.get("summary_italian", ""),
-                        "source": metadata.get("source"),
-                        "tier": metadata.get("tier"),
-                        "published_date": metadata.get("published_date"),
-                        "category": collection_name.replace("bali_intel_", ""),
-                        "impact_level": metadata.get("impact_level"),
-                        "url": metadata.get("url"),
-                        "key_changes": metadata.get("key_changes"),
-                        "action_required": metadata.get("action_required") == "True",
-                        "deadline_date": metadata.get("deadline_date"),
-                        "similarity_score": similarity_score
-                    })
+                    all_results.append(
+                        {
+                            "id": metadata.get("id"),
+                            "title": metadata.get("title"),
+                            "summary_english": doc[:300],  # First 300 chars
+                            "summary_italian": metadata.get("summary_italian", ""),
+                            "source": metadata.get("source"),
+                            "tier": metadata.get("tier"),
+                            "published_date": metadata.get("published_date"),
+                            "category": collection_name.replace("bali_intel_", ""),
+                            "impact_level": metadata.get("impact_level"),
+                            "url": metadata.get("url"),
+                            "key_changes": metadata.get("key_changes"),
+                            "action_required": metadata.get("action_required") == "True",
+                            "deadline_date": metadata.get("deadline_date"),
+                            "similarity_score": similarity_score,
+                        }
+                    )
 
             except Exception as e:
                 logger.warning(f"Error searching collection {collection_name}: {e}")
@@ -128,12 +127,9 @@ async def search_intel(request: IntelSearchRequest):
         all_results.sort(key=lambda x: x["similarity_score"], reverse=True)
 
         # Limit total results
-        all_results = all_results[:request.limit]
+        all_results = all_results[: request.limit]
 
-        return {
-            "results": all_results,
-            "total": len(all_results)
-        }
+        return {"results": all_results, "total": len(all_results)}
 
     except Exception as e:
         logger.error(f"Intel search error: {e}")
@@ -154,14 +150,10 @@ async def store_intel(request: IntelStoreRequest):
             chunks=[request.document],
             embeddings=[request.embedding],
             metadatas=[request.metadata],
-            ids=[request.id]
+            ids=[request.id],
         )
 
-        return {
-            "success": True,
-            "collection": collection_name,
-            "id": request.id
-        }
+        return {"success": True, "collection": collection_name, "id": request.id}
 
     except Exception as e:
         logger.error(f"Store intel error: {e}")
@@ -169,7 +161,7 @@ async def store_intel(request: IntelStoreRequest):
 
 
 @router.get("/api/intel/critical")
-async def get_critical_items(category: Optional[str] = None, days: int = 7):
+async def get_critical_items(category: str | None = None, days: int = 7):
     """Get critical impact items"""
     try:
         if category:
@@ -190,26 +182,30 @@ async def get_critical_items(category: Optional[str] = None, days: int = 7):
                 # Qdrant: Use peek to get documents, then filter in Python
                 # TODO: Implement Qdrant filter support for better performance
                 results = client.peek(limit=100)
-                
+
                 # Filter in Python for now
                 filtered_metadatas = []
                 for metadata in results.get("metadatas", []):
-                    if (metadata.get("impact_level") == "critical" and 
-                        metadata.get("published_date", "") >= cutoff_date):
+                    if (
+                        metadata.get("impact_level") == "critical"
+                        and metadata.get("published_date", "") >= cutoff_date
+                    ):
                         filtered_metadatas.append(metadata)
 
                 for metadata in filtered_metadatas[:50]:
-                    critical_items.append({
-                        "id": metadata.get("id"),
-                        "title": metadata.get("title"),
-                        "source": metadata.get("source"),
-                        "tier": metadata.get("tier"),
-                        "published_date": metadata.get("published_date"),
-                        "category": collection_name.replace("bali_intel_", ""),
-                        "url": metadata.get("url"),
-                        "action_required": metadata.get("action_required") == "True",
-                        "deadline_date": metadata.get("deadline_date")
-                    })
+                    critical_items.append(
+                        {
+                            "id": metadata.get("id"),
+                            "title": metadata.get("title"),
+                            "source": metadata.get("source"),
+                            "tier": metadata.get("tier"),
+                            "published_date": metadata.get("published_date"),
+                            "category": collection_name.replace("bali_intel_", ""),
+                            "url": metadata.get("url"),
+                            "action_required": metadata.get("action_required") == "True",
+                            "deadline_date": metadata.get("deadline_date"),
+                        }
+                    )
 
             except:
                 continue
@@ -217,10 +213,7 @@ async def get_critical_items(category: Optional[str] = None, days: int = 7):
         # Sort by date (newest first)
         critical_items.sort(key=lambda x: x.get("published_date", ""), reverse=True)
 
-        return {
-            "items": critical_items,
-            "count": len(critical_items)
-        }
+        return {"items": critical_items, "count": len(critical_items)}
 
     except Exception as e:
         logger.error(f"Get critical items error: {e}")
@@ -228,7 +221,7 @@ async def get_critical_items(category: Optional[str] = None, days: int = 7):
 
 
 @router.get("/api/intel/trends")
-async def get_trends(category: Optional[str] = None, days: int = 30):
+async def get_trends(category: str | None = None, days: int = 30):
     """Get trending topics and keywords"""
     try:
         # This would require more sophisticated analysis
@@ -252,17 +245,19 @@ async def get_trends(category: Optional[str] = None, days: int = 30):
                 # Extract keywords from metadata (simplified)
                 # In production, you'd want NLP-based topic modeling
 
-                all_keywords.append({
-                    "collection": collection_name.replace("bali_intel_", ""),
-                    "total_items": stats.get("total_documents", 0)
-                })
+                all_keywords.append(
+                    {
+                        "collection": collection_name.replace("bali_intel_", ""),
+                        "total_items": stats.get("total_documents", 0),
+                    }
+                )
 
             except:
                 continue
 
         return {
             "trends": all_keywords,
-            "top_topics": []  # Would require NLP analysis
+            "top_topics": [],  # Would require NLP analysis
         }
 
     except Exception as e:
@@ -284,7 +279,7 @@ async def get_collection_stats(collection: str):
         return {
             "collection_name": collection_name,
             "total_documents": stats.get("total_documents", 0),
-            "last_updated": datetime.now().isoformat()
+            "last_updated": datetime.now().isoformat(),
         }
 
     except Exception as e:

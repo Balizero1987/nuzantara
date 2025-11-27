@@ -13,44 +13,47 @@ Provides admin dashboard with collection health metrics.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 class HealthStatus(str, Enum):
     """Health status levels"""
+
     EXCELLENT = "excellent"  # All metrics green
-    GOOD = "good"           # Minor issues
-    WARNING = "warning"     # Needs attention
-    CRITICAL = "critical"   # Urgent action required
+    GOOD = "good"  # Minor issues
+    WARNING = "warning"  # Needs attention
+    CRITICAL = "critical"  # Urgent action required
 
 
 class StalenessSeverity(str, Enum):
     """Staleness severity levels"""
-    FRESH = "fresh"         # Updated recently (<1 month)
-    AGING = "aging"         # 1-3 months old
-    STALE = "stale"         # 3-6 months old
+
+    FRESH = "fresh"  # Updated recently (<1 month)
+    AGING = "aging"  # 1-3 months old
+    STALE = "stale"  # 3-6 months old
     VERY_STALE = "very_stale"  # >6 months old
 
 
 @dataclass
 class CollectionMetrics:
     """Metrics for a single collection"""
+
     collection_name: str
     document_count: int
-    last_updated: Optional[str]  # ISO timestamp
-    query_count: int             # Total queries to this collection
-    hit_count: int               # Queries that returned results
-    avg_confidence: float        # Average confidence score
+    last_updated: str | None  # ISO timestamp
+    query_count: int  # Total queries to this collection
+    hit_count: int  # Queries that returned results
+    avg_confidence: float  # Average confidence score
     avg_results_per_query: float
     health_status: HealthStatus
     staleness: StalenessSeverity
-    issues: List[str]            # List of detected issues
-    recommendations: List[str]   # Suggested actions
+    issues: list[str]  # List of detected issues
+    recommendations: list[str]  # Suggested actions
 
 
 class CollectionHealthService:
@@ -95,21 +98,21 @@ class CollectionHealthService:
             "tax_knowledge": self._init_metrics("tax_knowledge"),
             "property_listings": self._init_metrics("property_listings"),
             "property_knowledge": self._init_metrics("property_knowledge"),
-            "legal_updates": self._init_metrics("legal_updates")
+            "legal_updates": self._init_metrics("legal_updates"),
         }
 
         # Staleness thresholds (in days)
         self.staleness_thresholds = {
-            StalenessSeverity.FRESH: 30,      # <1 month
-            StalenessSeverity.AGING: 90,      # 1-3 months
-            StalenessSeverity.STALE: 180,     # 3-6 months
-            StalenessSeverity.VERY_STALE: 365  # >6 months = critical
+            StalenessSeverity.FRESH: 30,  # <1 month
+            StalenessSeverity.AGING: 90,  # 1-3 months
+            StalenessSeverity.STALE: 180,  # 3-6 months
+            StalenessSeverity.VERY_STALE: 365,  # >6 months = critical
         }
 
         logger.info("✅ CollectionHealthService initialized")
         logger.info(f"   Monitoring {len(self.metrics)} collections")
 
-    def _init_metrics(self, collection_name: str) -> Dict:
+    def _init_metrics(self, collection_name: str) -> dict:
         """Initialize empty metrics for a collection"""
         return {
             "query_count": 0,
@@ -117,15 +120,11 @@ class CollectionHealthService:
             "total_results": 0,
             "confidence_scores": [],
             "last_queried": None,
-            "last_updated": None  # Should be set by ingestion service
+            "last_updated": None,  # Should be set by ingestion service
         }
 
     def record_query(
-        self,
-        collection_name: str,
-        had_results: bool,
-        result_count: int = 0,
-        avg_score: float = 0.0
+        self, collection_name: str, had_results: bool, result_count: int = 0, avg_score: float = 0.0
     ):
         """
         Record a query to a collection for health tracking.
@@ -150,10 +149,7 @@ class CollectionHealthService:
             if avg_score > 0:
                 metrics["confidence_scores"].append(avg_score)
 
-    def calculate_staleness(
-        self,
-        last_updated: Optional[str]
-    ) -> StalenessSeverity:
+    def calculate_staleness(self, last_updated: str | None) -> StalenessSeverity:
         """
         Calculate staleness severity based on last update timestamp.
 
@@ -167,7 +163,7 @@ class CollectionHealthService:
             return StalenessSeverity.VERY_STALE
 
         try:
-            last_update_date = datetime.fromisoformat(last_updated.replace('Z', '+00:00'))
+            last_update_date = datetime.fromisoformat(last_updated.replace("Z", "+00:00"))
             days_old = (datetime.now() - last_update_date).days
 
             if days_old < self.staleness_thresholds[StalenessSeverity.FRESH]:
@@ -184,11 +180,7 @@ class CollectionHealthService:
             return StalenessSeverity.VERY_STALE
 
     def calculate_health_status(
-        self,
-        hit_rate: float,
-        avg_confidence: float,
-        staleness: StalenessSeverity,
-        query_count: int
+        self, hit_rate: float, avg_confidence: float, staleness: StalenessSeverity, query_count: int
     ) -> HealthStatus:
         """
         Calculate overall health status for a collection.
@@ -225,10 +217,12 @@ class CollectionHealthService:
             return HealthStatus.WARNING
 
         # Excellent conditions
-        if (staleness == StalenessSeverity.FRESH and
-            hit_rate > 0.8 and
-            avg_confidence > 0.7 and
-            query_count > 10):
+        if (
+            staleness == StalenessSeverity.FRESH
+            and hit_rate > 0.8
+            and avg_confidence > 0.7
+            and query_count > 10
+        ):
             return HealthStatus.EXCELLENT
 
         # Default to good
@@ -241,8 +235,8 @@ class CollectionHealthService:
         staleness: StalenessSeverity,
         hit_rate: float,
         avg_confidence: float,
-        query_count: int
-    ) -> List[str]:
+        query_count: int,
+    ) -> list[str]:
         """
         Generate actionable recommendations based on metrics.
 
@@ -261,9 +255,7 @@ class CollectionHealthService:
 
         # Staleness recommendations
         if staleness == StalenessSeverity.VERY_STALE:
-            recommendations.append(
-                f"🚨 URGENT: Re-ingest {collection_name} - data >6 months old"
-            )
+            recommendations.append(f"🚨 URGENT: Re-ingest {collection_name} - data >6 months old")
         elif staleness == StalenessSeverity.STALE:
             recommendations.append(
                 f"⚠️ WARNING: Consider updating {collection_name} - data 3-6 months old"
@@ -277,11 +269,11 @@ class CollectionHealthService:
         if query_count > 10:
             if hit_rate < 0.4:
                 recommendations.append(
-                    f"🚨 Low hit rate ({hit_rate*100:.0f}%) - review collection content relevance"
+                    f"🚨 Low hit rate ({hit_rate * 100:.0f}%) - review collection content relevance"
                 )
             elif hit_rate < 0.6:
                 recommendations.append(
-                    f"⚠️ Medium hit rate ({hit_rate*100:.0f}%) - consider expanding collection content"
+                    f"⚠️ Medium hit rate ({hit_rate * 100:.0f}%) - consider expanding collection content"
                 )
 
         # Confidence recommendations
@@ -297,19 +289,13 @@ class CollectionHealthService:
 
         # Usage recommendations
         if query_count == 0:
-            recommendations.append(
-                f"ℹ️ No queries yet - collection unused or routing issue"
-            )
+            recommendations.append("ℹ️ No queries yet - collection unused or routing issue")
         elif query_count < 5:
-            recommendations.append(
-                f"ℹ️ Low usage ({query_count} queries) - verify routing keywords"
-            )
+            recommendations.append(f"ℹ️ Low usage ({query_count} queries) - verify routing keywords")
 
         # Specific collection recommendations
         if "updates" in collection_name and staleness != StalenessSeverity.FRESH:
-            recommendations.append(
-                f"🚨 Updates collection should be fresh - enable auto-ingestion"
-            )
+            recommendations.append("🚨 Updates collection should be fresh - enable auto-ingestion")
 
         if not recommendations:
             recommendations.append("✅ Collection health is good - no action needed")
@@ -319,8 +305,8 @@ class CollectionHealthService:
     def get_collection_health(
         self,
         collection_name: str,
-        document_count: Optional[int] = None,
-        last_updated: Optional[str] = None
+        document_count: int | None = None,
+        last_updated: str | None = None,
     ) -> CollectionMetrics:
         """
         Get health metrics for a single collection.
@@ -346,7 +332,7 @@ class CollectionHealthService:
                 health_status=HealthStatus.CRITICAL,
                 staleness=StalenessSeverity.VERY_STALE,
                 issues=["Collection not found"],
-                recommendations=["Check collection exists in Qdrant"]
+                recommendations=["Check collection exists in Qdrant"],
             )
 
         metrics = self.metrics[collection_name]
@@ -358,16 +344,10 @@ class CollectionHealthService:
 
         confidence_scores = metrics["confidence_scores"]
         avg_confidence = (
-            sum(confidence_scores) / len(confidence_scores)
-            if confidence_scores
-            else 0.0
+            sum(confidence_scores) / len(confidence_scores) if confidence_scores else 0.0
         )
 
-        avg_results = (
-            metrics["total_results"] / hit_count
-            if hit_count > 0
-            else 0.0
-        )
+        avg_results = metrics["total_results"] / hit_count if hit_count > 0 else 0.0
 
         # Use provided last_updated or fall back to tracked
         last_update_timestamp = last_updated or metrics.get("last_updated")
@@ -377,10 +357,7 @@ class CollectionHealthService:
 
         # Calculate health status
         health_status = self.calculate_health_status(
-            hit_rate,
-            avg_confidence,
-            staleness,
-            query_count
+            hit_rate, avg_confidence, staleness, query_count
         )
 
         # Detect issues
@@ -388,7 +365,7 @@ class CollectionHealthService:
         if staleness in [StalenessSeverity.STALE, StalenessSeverity.VERY_STALE]:
             issues.append(f"Stale data ({staleness.value})")
         if query_count > 10 and hit_rate < 0.5:
-            issues.append(f"Low hit rate ({hit_rate*100:.0f}%)")
+            issues.append(f"Low hit rate ({hit_rate * 100:.0f}%)")
         if query_count > 10 and avg_confidence < 0.5:
             issues.append(f"Low confidence ({avg_confidence:.2f})")
         if document_count is not None and document_count == 0:
@@ -396,12 +373,7 @@ class CollectionHealthService:
 
         # Generate recommendations
         recommendations = self.generate_recommendations(
-            collection_name,
-            health_status,
-            staleness,
-            hit_rate,
-            avg_confidence,
-            query_count
+            collection_name, health_status, staleness, hit_rate, avg_confidence, query_count
         )
 
         return CollectionMetrics(
@@ -415,13 +387,10 @@ class CollectionHealthService:
             health_status=health_status,
             staleness=staleness,
             issues=issues,
-            recommendations=recommendations
+            recommendations=recommendations,
         )
 
-    def get_all_collection_health(
-        self,
-        include_empty: bool = True
-    ) -> Dict[str, CollectionMetrics]:
+    def get_all_collection_health(self, include_empty: bool = True) -> dict[str, CollectionMetrics]:
         """
         Get health metrics for all collections.
 
@@ -441,7 +410,7 @@ class CollectionHealthService:
 
         return all_health
 
-    def get_dashboard_summary(self) -> Dict[str, Any]:
+    def get_dashboard_summary(self) -> dict[str, Any]:
         """
         Get summary for admin dashboard.
 
@@ -455,14 +424,14 @@ class CollectionHealthService:
             HealthStatus.EXCELLENT: 0,
             HealthStatus.GOOD: 0,
             HealthStatus.WARNING: 0,
-            HealthStatus.CRITICAL: 0
+            HealthStatus.CRITICAL: 0,
         }
 
         staleness_counts = {
             StalenessSeverity.FRESH: 0,
             StalenessSeverity.AGING: 0,
             StalenessSeverity.STALE: 0,
-            StalenessSeverity.VERY_STALE: 0
+            StalenessSeverity.VERY_STALE: 0,
         }
 
         total_queries = 0
@@ -476,33 +445,32 @@ class CollectionHealthService:
             total_hits += health.hit_count
 
             if health.issues:
-                collections_with_issues.append({
-                    "collection": coll_name,
-                    "status": health.health_status.value,
-                    "issues": health.issues
-                })
+                collections_with_issues.append(
+                    {
+                        "collection": coll_name,
+                        "status": health.health_status.value,
+                        "issues": health.issues,
+                    }
+                )
 
         overall_hit_rate = total_hits / total_queries if total_queries > 0 else 0.0
 
         return {
             "timestamp": datetime.now().isoformat(),
             "total_collections": len(all_health),
-            "health_distribution": {
-                status.value: count
-                for status, count in status_counts.items()
-            },
+            "health_distribution": {status.value: count for status, count in status_counts.items()},
             "staleness_distribution": {
-                severity.value: count
-                for severity, count in staleness_counts.items()
+                severity.value: count for severity, count in staleness_counts.items()
             },
             "total_queries": total_queries,
-            "overall_hit_rate": f"{overall_hit_rate*100:.1f}%",
+            "overall_hit_rate": f"{overall_hit_rate * 100:.1f}%",
             "collections_with_issues": len(collections_with_issues),
             "critical_collections": [
-                c["collection"] for c in collections_with_issues
+                c["collection"]
+                for c in collections_with_issues
                 if c["status"] == HealthStatus.CRITICAL.value
             ],
-            "needs_attention": collections_with_issues[:5]  # Top 5
+            "needs_attention": collections_with_issues[:5],  # Top 5
         }
 
     def get_health_report(self, format: str = "text") -> str:
@@ -523,11 +491,7 @@ class CollectionHealthService:
         else:
             return self._generate_text_report(all_health, summary)
 
-    def _generate_text_report(
-        self,
-        all_health: Dict[str, CollectionMetrics],
-        summary: Dict
-    ) -> str:
+    def _generate_text_report(self, all_health: dict[str, CollectionMetrics], summary: dict) -> str:
         """Generate plain text health report"""
         lines = []
         lines.append("=" * 80)
@@ -544,18 +508,18 @@ class CollectionHealthService:
         lines.append("")
 
         lines.append("Health Distribution:")
-        for status, count in summary['health_distribution'].items():
+        for status, count in summary["health_distribution"].items():
             lines.append(f"  {status.upper()}: {count}")
         lines.append("")
 
         lines.append("Staleness Distribution:")
-        for severity, count in summary['staleness_distribution'].items():
+        for severity, count in summary["staleness_distribution"].items():
             lines.append(f"  {severity.upper()}: {count}")
         lines.append("")
 
-        if summary['critical_collections']:
+        if summary["critical_collections"]:
             lines.append("⚠️ CRITICAL COLLECTIONS:")
-            for coll in summary['critical_collections']:
+            for coll in summary["critical_collections"]:
                 lines.append(f"  - {coll}")
             lines.append("")
 
@@ -566,9 +530,14 @@ class CollectionHealthService:
         sorted_health = sorted(
             all_health.items(),
             key=lambda x: (
-                [HealthStatus.CRITICAL, HealthStatus.WARNING, HealthStatus.GOOD, HealthStatus.EXCELLENT].index(x[1].health_status),
-                x[0]
-            )
+                [
+                    HealthStatus.CRITICAL,
+                    HealthStatus.WARNING,
+                    HealthStatus.GOOD,
+                    HealthStatus.EXCELLENT,
+                ].index(x[1].health_status),
+                x[0],
+            ),
         )
 
         for coll_name, health in sorted_health:
@@ -576,13 +545,15 @@ class CollectionHealthService:
                 HealthStatus.EXCELLENT: "✅",
                 HealthStatus.GOOD: "👍",
                 HealthStatus.WARNING: "⚠️",
-                HealthStatus.CRITICAL: "🚨"
+                HealthStatus.CRITICAL: "🚨",
             }[health.health_status]
 
             lines.append(f"\n{status_emoji} {coll_name.upper()}")
             lines.append(f"  Status: {health.health_status.value}")
             lines.append(f"  Staleness: {health.staleness.value}")
-            lines.append(f"  Queries: {health.query_count} (hit rate: {(health.hit_count/health.query_count*100) if health.query_count > 0 else 0:.0f}%)")
+            lines.append(
+                f"  Queries: {health.query_count} (hit rate: {(health.hit_count / health.query_count * 100) if health.query_count > 0 else 0:.0f}%)"
+            )
             lines.append(f"  Avg Confidence: {health.avg_confidence:.2f}")
 
             if health.issues:
@@ -599,9 +570,7 @@ class CollectionHealthService:
         return "\n".join(lines)
 
     def _generate_markdown_report(
-        self,
-        all_health: Dict[str, CollectionMetrics],
-        summary: Dict
+        self, all_health: dict[str, CollectionMetrics], summary: dict
     ) -> str:
         """Generate markdown health report"""
         # Implementation similar to text but with markdown formatting

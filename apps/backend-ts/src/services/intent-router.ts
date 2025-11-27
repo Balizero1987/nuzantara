@@ -4,7 +4,7 @@ import logger from './logger.js';
 export type UserIntent = 'CHAT' | 'CONSULT';
 
 export class IntentRouter {
-  
+
   /**
    * Classify user message into CHAT (Casual) or CONSULT (Business/Legal)
    */
@@ -20,12 +20,12 @@ export class IntentRouter {
     // LLM Classification
     const prompt = `
     CLASSIFY the user intent.
-    
+
     - "CONSULT": User asks about Business, Law, Tax, Visa, Company Setup, Regulations, Costs, Definitions.
     - "CHAT": User says Hello, asks "How are you", talks about Weather, Traffic, Food, Life, or General Chit-chat.
-    
+
     Input: "${message}"
-    
+
     Return ONLY one word: "CONSULT" or "CHAT".
     `;
 
@@ -38,12 +38,12 @@ export class IntentRouter {
       });
 
       const cleanDecision = decision.trim().toUpperCase().replace(/[^A-Z]/g, '');
-      
+
       if (cleanDecision.includes('CONSULT')) {
         logger.info(`🚦 [ROUTER] LLM decided -> CONSULT`);
         return 'CONSULT';
       }
-      
+
       logger.info(`🚦 [ROUTER] LLM decided -> CHAT`);
       return 'CHAT';
 

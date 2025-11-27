@@ -1,7 +1,0 @@
-# This directory contains GitHub Actions workflows for ZANTARA CI/CD
-# 
-# Files:
-# - ci.yml: Main CI/CD pipeline
-# - README.md: Full documentation
-# - SETUP.md: Quick setup guide
-

@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-    
+
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/handlers/ai-services</a> ai.ts</h1>
         <div class='clearfix'>
-            
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/19</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/15</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/3</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/18</span>
             </div>
-        
-            
+
+
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -284,14 +284,14 @@ const TEAM_RECOGNITION: Record&lt;string, { name: string; role: string; departme
 // Check for identity recognition
 function <span class="fstat-no" title="function not covered" >checkIdentityRecognition(p</span>rompt: string, _sessionId: string): string | null {
   const text = <span class="cstat-no" title="statement not covered" >prompt.toLowerCase();</span>
-  
+
 <span class="cstat-no" title="statement not covered" >  for (const [, member] of Object.entries(TEAM_RECOGNITION)) {</span>
     const aliases = <span class="cstat-no" title="statement not covered" >[</span>
       member.name.toLowerCase(),
       member.role.toLowerCase(),
       member.department.toLowerCase()
     ];
-    
+
 <span class="cstat-no" title="statement not covered" >    if (aliases.some(<span class="fstat-no" title="function not covered" >alias =&gt; <span class="cstat-no" title="statement not covered" >t</span>ext.includes(alias))) {</span></span>
 <span class="cstat-no" title="statement not covered" >      logger.info(`✅ [ZANTARA] Identity recognized: ${member.name} (${member.role})`);</span>
 <span class="cstat-no" title="statement not covered" >      return member.personalizedResponse;</span>
@@ -325,7 +325,7 @@ export async function <span class="fstat-no" title="function not covered" >aiCha
     });
   } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >    logger.error('❌ ZANTARA error:', error);</span>
-    
+
     // Graceful fallback response instead of throwing error
 <span class="cstat-no" title="statement not covered" >    return ok({</span>
       response: `Ciao! Sono ZANTARA, l'assistente AI di Bali Zero. Attualmente il mio modello personalizzato non è disponibile, ma posso comunque aiutarti con informazioni sui nostri servizi. Come posso esserti utile oggi?`,
@@ -358,4 +358,3 @@ export async function <span class="fstat-no" title="function not covered" >aiCha
         <script src="../../../block-navigation.js"></script>
     </body>
 </html>
-    

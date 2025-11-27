@@ -3,8 +3,8 @@ ZANTARA RAG - Text Chunking
 Semantic text splitting for optimal RAG performance
 """
 
-from typing import List, Dict, Any
 import logging
+from typing import Any
 
 try:
     from app.config import settings
@@ -20,12 +20,7 @@ class TextChunker:
     Optimized for book content with natural language structure.
     """
 
-    def __init__(
-        self,
-        chunk_size: int = None,
-        chunk_overlap: int = None,
-        max_chunks: int = None
-    ):
+    def __init__(self, chunk_size: int = None, chunk_overlap: int = None, max_chunks: int = None):
         """
         Initialize chunker with configuration.
 
@@ -41,15 +36,15 @@ class TextChunker:
         # Separators in order of preference (from most to least semantic)
         self.separators = [
             "\n\n\n",  # Chapter breaks
-            "\n\n",    # Paragraph breaks
-            "\n",      # Line breaks
-            ". ",      # Sentence breaks
-            "! ",      # Exclamation
-            "? ",      # Question
-            "; ",      # Semicolon
-            ", ",      # Comma
-            " ",       # Word breaks
-            ""         # Character level
+            "\n\n",  # Paragraph breaks
+            "\n",  # Line breaks
+            ". ",  # Sentence breaks
+            "! ",  # Exclamation
+            "? ",  # Question
+            "; ",  # Semicolon
+            ", ",  # Comma
+            " ",  # Word breaks
+            "",  # Character level
         ]
 
         logger.info(
@@ -57,7 +52,7 @@ class TextChunker:
             f"overlap={self.chunk_overlap}, max_chunks={self.max_chunks}"
         )
 
-    def _split_text_recursive(self, text: str, separator: str) -> List[str]:
+    def _split_text_recursive(self, text: str, separator: str) -> list[str]:
         """
         Recursively split text using the given separator.
 
@@ -109,11 +104,7 @@ class TextChunker:
 
         return chunks
 
-    def semantic_chunk(
-        self,
-        text: str,
-        metadata: Dict[str, Any] = None
-    ) -> List[Dict[str, Any]]:
+    def semantic_chunk(self, text: str, metadata: dict[str, Any] = None) -> list[dict[str, Any]]:
         """
         Split text into semantic chunks with metadata.
 
@@ -130,7 +121,9 @@ class TextChunker:
 
         try:
             # Start with the first separator (most semantic)
-            chunks = self._split_text_recursive(text, self.separators[0]) if self.separators else [text]
+            chunks = (
+                self._split_text_recursive(text, self.separators[0]) if self.separators else [text]
+            )
 
             # Apply overlap between chunks
             if self.chunk_overlap > 0 and len(chunks) > 1:
@@ -138,7 +131,11 @@ class TextChunker:
                 for i, chunk in enumerate(chunks):
                     # Add overlap from previous chunk
                     if i > 0:
-                        overlap_text = chunks[i-1][-self.chunk_overlap:] if len(chunks[i-1]) > self.chunk_overlap else chunks[i-1]
+                        overlap_text = (
+                            chunks[i - 1][-self.chunk_overlap :]
+                            if len(chunks[i - 1]) > self.chunk_overlap
+                            else chunks[i - 1]
+                        )
                         chunk = overlap_text + chunk
                     overlapped_chunks.append(chunk)
                 chunks = overlapped_chunks
@@ -146,10 +143,9 @@ class TextChunker:
             # Limit number of chunks if needed
             if len(chunks) > self.max_chunks:
                 logger.warning(
-                    f"Text split into {len(chunks)} chunks, "
-                    f"truncating to {self.max_chunks}"
+                    f"Text split into {len(chunks)} chunks, truncating to {self.max_chunks}"
                 )
-                chunks = chunks[:self.max_chunks]
+                chunks = chunks[: self.max_chunks]
 
             # Create chunk objects with metadata
             chunk_objects = []
@@ -158,7 +154,7 @@ class TextChunker:
                     "text": chunk_text,
                     "chunk_index": idx,
                     "total_chunks": len(chunks),
-                    "chunk_length": len(chunk_text)
+                    "chunk_length": len(chunk_text),
                 }
 
                 # Add base metadata if provided
@@ -178,13 +174,9 @@ class TextChunker:
             logger.error(f"Error chunking text: {e}")
             raise
 
-
     def chunk_by_pages(
-        self,
-        text: str,
-        page_markers: List[int] = None,
-        metadata: Dict[str, Any] = None
-    ) -> List[Dict[str, Any]]:
+        self, text: str, page_markers: list[int] = None, metadata: dict[str, Any] = None
+    ) -> list[dict[str, Any]]:
         """
         Alternative chunking that respects page boundaries (for PDFs).
 
@@ -205,11 +197,7 @@ class TextChunker:
         return self.semantic_chunk(text, metadata)
 
 
-def semantic_chunk(
-    text: str,
-    max_tokens: int = 500,
-    overlap: int = 50
-) -> List[str]:
+def semantic_chunk(text: str, max_tokens: int = 500, overlap: int = 50) -> list[str]:
     """
     Convenience function for quick semantic chunking.
 

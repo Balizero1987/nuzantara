@@ -17,9 +17,8 @@ Example: "PT PMA Restaurant in Seminyak, 3 foreign directors"
 """
 
 import logging
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
 import re
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -27,26 +26,28 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CostItem:
     """Single cost item"""
+
     category: str  # e.g., "Legal", "Visa", "Tax"
     description: str
     amount: float  # In IDR
     currency: str = "IDR"
     source_oracle: str = ""
     is_recurring: bool = False
-    frequency: Optional[str] = None  # "monthly", "annually", etc.
+    frequency: str | None = None  # "monthly", "annually", etc.
 
 
 @dataclass
 class PricingResult:
     """Result of dynamic pricing calculation"""
+
     scenario: str
     total_setup_cost: float  # One-time costs
     total_recurring_cost: float  # Recurring costs (annual)
     currency: str
-    cost_items: List[CostItem]
+    cost_items: list[CostItem]
     timeline_estimate: str
-    breakdown_by_category: Dict[str, float]
-    key_assumptions: List[str]
+    breakdown_by_category: dict[str, float]
+    key_assumptions: list[str]
     confidence: float  # 0.0-1.0
 
 
@@ -76,14 +77,10 @@ class DynamicPricingService:
         "tax": ["npwp", "pkp", "tax registration", "pajak"],
         "visa": ["kitas", "kitap", "imta", "visa", "work permit", "rptka"],
         "property": ["rent", "lease", "sewa", "property", "location"],
-        "service_fees": ["bali zero", "consultation", "service", "professional fee"]
+        "service_fees": ["bali zero", "consultation", "service", "professional fee"],
     }
 
-    def __init__(
-        self,
-        cross_oracle_synthesis_service,
-        search_service
-    ):
+    def __init__(self, cross_oracle_synthesis_service, search_service):
         """
         Initialize Dynamic Pricing Service.
 
@@ -97,16 +94,12 @@ class DynamicPricingService:
         self.pricing_stats = {
             "total_calculations": 0,
             "avg_total_cost": 0.0,
-            "scenarios_priced": {}
+            "scenarios_priced": {},
         }
 
         logger.info("✅ DynamicPricingService initialized")
 
-    def extract_costs_from_text(
-        self,
-        text: str,
-        source_oracle: str = ""
-    ) -> List[CostItem]:
+    def extract_costs_from_text(self, text: str, source_oracle: str = "") -> list[CostItem]:
         """
         Extract cost information from Oracle result text.
 
@@ -155,7 +148,14 @@ class DynamicPricingService:
                     # Check if recurring
                     is_recurring = any(
                         keyword in text.lower()
-                        for keyword in ["annual", "yearly", "monthly", "recurring", "per year", "per month"]
+                        for keyword in [
+                            "annual",
+                            "yearly",
+                            "monthly",
+                            "recurring",
+                            "per year",
+                            "per month",
+                        ]
                     )
 
                     costs.append(
@@ -165,7 +165,7 @@ class DynamicPricingService:
                             amount=amount,
                             currency="IDR",
                             source_oracle=source_oracle,
-                            is_recurring=is_recurring
+                            is_recurring=is_recurring,
                         )
                     )
 
@@ -185,11 +185,7 @@ class DynamicPricingService:
 
         return "Other"
 
-    async def calculate_pricing(
-        self,
-        scenario: str,
-        user_level: int = 3
-    ) -> PricingResult:
+    async def calculate_pricing(self, scenario: str, user_level: int = 3) -> PricingResult:
         """
         Calculate comprehensive pricing for a scenario.
 
@@ -208,7 +204,7 @@ class DynamicPricingService:
         synthesis_result = await self.synthesis.synthesize(
             query=scenario,
             user_level=user_level,
-            use_cache=False  # Don't use cache for pricing (need fresh data)
+            use_cache=False,  # Don't use cache for pricing (need fresh data)
         )
 
         # Step 2: Extract costs from all Oracle results
@@ -225,10 +221,7 @@ class DynamicPricingService:
 
         # Step 3: Also query bali_zero_pricing directly
         pricing_results = await self.search.search(
-            query=scenario,
-            user_level=user_level,
-            limit=5,
-            collection_override="bali_zero_pricing"
+            query=scenario, user_level=user_level, limit=5, collection_override="bali_zero_pricing"
         )
 
         for result in pricing_results.get("results", []):
@@ -258,7 +251,7 @@ class DynamicPricingService:
             f"Consulted {len(synthesis_result.oracles_consulted)} Oracle collections",
             f"Based on {len(all_costs)} cost data points",
             "Costs are estimates and subject to change",
-            "Exchange rate: 1 USD = 15,000 IDR (if applicable)"
+            "Exchange rate: 1 USD = 15,000 IDR (if applicable)",
         ]
 
         if synthesis_result.risks:
@@ -267,10 +260,10 @@ class DynamicPricingService:
         # Step 8: Calculate confidence
         # Base on: number of cost items, Oracle coverage, synthesis confidence
         confidence = min(
-            synthesis_result.confidence * 0.4 +  # Scenario classification
-            (len(all_costs) / 10) * 0.3 +  # Cost item coverage
-            (len(synthesis_result.oracles_consulted) / 6) * 0.3,  # Oracle coverage
-            1.0
+            synthesis_result.confidence * 0.4  # Scenario classification
+            + (len(all_costs) / 10) * 0.3  # Cost item coverage
+            + (len(synthesis_result.oracles_consulted) / 6) * 0.3,  # Oracle coverage
+            1.0,
         )
 
         result = PricingResult(
@@ -282,19 +275,19 @@ class DynamicPricingService:
             timeline_estimate=timeline,
             breakdown_by_category=breakdown,
             key_assumptions=assumptions,
-            confidence=confidence
+            confidence=confidence,
         )
 
         # Update stats
         self.pricing_stats["avg_total_cost"] = (
-            (self.pricing_stats["avg_total_cost"] * (self.pricing_stats["total_calculations"] - 1)
-             + total_setup)
-            / self.pricing_stats["total_calculations"]
-        )
+            self.pricing_stats["avg_total_cost"] * (self.pricing_stats["total_calculations"] - 1)
+            + total_setup
+        ) / self.pricing_stats["total_calculations"]
 
         scenario_type = synthesis_result.scenario_type
-        self.pricing_stats["scenarios_priced"][scenario_type] = \
+        self.pricing_stats["scenarios_priced"][scenario_type] = (
             self.pricing_stats["scenarios_priced"].get(scenario_type, 0) + 1
+        )
 
         logger.info(
             f"✅ Pricing calculated: Setup=Rp {total_setup:,.0f}, "
@@ -304,11 +297,7 @@ class DynamicPricingService:
 
         return result
 
-    def format_pricing_report(
-        self,
-        pricing_result: PricingResult,
-        format: str = "text"
-    ) -> str:
+    def format_pricing_report(self, pricing_result: PricingResult, format: str = "text") -> str:
         """
         Generate formatted pricing report.
 
@@ -332,7 +321,7 @@ class DynamicPricingService:
         lines.append("=" * 80)
         lines.append(f"Scenario: {pr.scenario}")
         lines.append(f"Timeline: {pr.timeline_estimate}")
-        lines.append(f"Confidence: {pr.confidence*100:.0f}%")
+        lines.append(f"Confidence: {pr.confidence * 100:.0f}%")
         lines.append("")
 
         lines.append("TOTAL INVESTMENT")
@@ -375,9 +364,9 @@ class DynamicPricingService:
         # Similar to text but with markdown formatting
         return self._format_text_report(pr)  # Simplified for now
 
-    def get_pricing_stats(self) -> Dict:
+    def get_pricing_stats(self) -> dict:
         """Get pricing calculation statistics"""
         return {
             **self.pricing_stats,
-            "avg_total_cost_formatted": f"Rp {self.pricing_stats['avg_total_cost']:,.0f}"
+            "avg_total_cost_formatted": f"Rp {self.pricing_stats['avg_total_cost']:,.0f}",
         }
