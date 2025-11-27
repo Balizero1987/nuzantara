@@ -8,7 +8,8 @@ import sys
 import psycopg2
 
 def apply_migration():
-    database_url = os.getenv("DATABASE_URL")
+    from app.core.config import settings
+    database_url = settings.database_url
 
     if not database_url:
         print("❌ DATABASE_URL not set")

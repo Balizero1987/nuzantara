@@ -104,14 +104,15 @@ class BackendSelfHealingAgent:
         logger.info("🚀 Starting self-healing agent...")
 
         # Report startup to orchestrator
+        from app.core.config import settings
         await self.report_to_orchestrator(
             {
                 "type": "agent_startup",
                 "severity": "low",
                 "data": {
                     "service": self.service_name,
-                    "hostname": os.getenv("HOSTNAME", "unknown"),
-                    "fly_region": os.getenv("FLY_REGION", "unknown"),
+                    "hostname": settings.hostname or "unknown",
+                    "fly_region": settings.fly_region or "unknown",
                 },
             }
         )
@@ -209,7 +210,8 @@ class BackendSelfHealingAgent:
         """Check if Redis cache is accessible"""
         try:
             if not self.redis_client:
-                redis_url = os.getenv("REDIS_URL")
+                from app.core.config import settings
+                redis_url = settings.redis_url
                 if redis_url:
                     self.redis_client = redis.from_url(redis_url)
 
@@ -438,7 +440,8 @@ class BackendSelfHealingAgent:
 
 # Auto-start agent if run directly
 if __name__ == "__main__":
-    service_name = os.getenv("SERVICE_NAME", "unknown")
+    from app.core.config import settings
+    service_name = settings.service_name
     agent = BackendSelfHealingAgent(service_name=service_name)
 
     try:

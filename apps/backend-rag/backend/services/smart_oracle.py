@@ -23,14 +23,16 @@ logger = logging.getLogger(__name__)
 
 # 1. AI Configuration (Currently set to Google Gemini)
 # Ensure GOOGLE_API_KEY is set in your Fly.io secrets
-if "GOOGLE_API_KEY" in os.environ:
-    genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+from app.core.config import settings
+if settings.google_api_key:
+    genai.configure(api_key=settings.google_api_key)
 
 
 # 2. Google Drive Service (Using Service Account)
 def get_drive_service():
     """Initialize Google Drive service using service account credentials"""
-    creds_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
+    from app.core.config import settings
+    creds_json = settings.google_credentials_json
     if not creds_json:
         logger.error("Missing GOOGLE_CREDENTIALS_JSON secret!")
         return None

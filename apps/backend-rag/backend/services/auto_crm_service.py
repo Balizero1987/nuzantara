@@ -26,7 +26,8 @@ class AutoCRMService:
 
     def get_db_connection(self):
         """Get PostgreSQL connection"""
-        database_url = os.getenv("DATABASE_URL")
+        from app.core.config import settings
+        database_url = settings.database_url
         if not database_url:
             raise Exception("DATABASE_URL environment variable not set")
         return psycopg2.connect(database_url, cursor_factory=RealDictCursor)

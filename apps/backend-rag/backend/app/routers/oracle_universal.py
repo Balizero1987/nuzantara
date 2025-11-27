@@ -101,15 +101,13 @@ class Configuration:
 
     @property
     def google_api_key(self) -> str:
-        # TODO: Add google_api_key to settings if needed
-        import os
-        return os.environ.get("GOOGLE_API_KEY", "dummy_key")
+        from app.core.config import settings
+        return settings.google_api_key or "dummy_key"
 
     @property
     def google_credentials_json(self) -> str:
-        # TODO: Add google_credentials_json to settings if needed
-        import os
-        return os.environ.get("GOOGLE_CREDENTIALS_JSON", "{}")
+        from app.core.config import settings
+        return settings.google_credentials_json or "{}"
 
     @property
     def database_url(self) -> str:

@@ -16,7 +16,8 @@ class ImageGenerationService:
     """
 
     def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
+        from app.core.config import settings
+        self.api_key = api_key or settings.google_api_key
         if not self.api_key:
             logger.warning("⚠️ GOOGLE_API_KEY not set. Image generation will fail.")
         else:

@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 
 # Check if this should run locally or on Fly.io
-if os.getenv("FLY_APP_NAME"):
+from app.core.config import settings
+if settings.fly_app_name:
     print("Running on Fly.io - migrations are handled through release commands")
     print("Use Fly.io CLI or dashboard to apply migrations when needed")
     sys.exit(0)
