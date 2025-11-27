@@ -183,6 +183,7 @@ async def run_migration_010() -> dict:
             
             # Add missing columns one by one
             migrations = [
+                ("full_name", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS full_name VARCHAR(255)"),
                 ("pin_hash", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(255)"),
                 ("department", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS department VARCHAR(100)"),
                 ("language", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS language VARCHAR(10) DEFAULT 'en'"),
@@ -193,6 +194,27 @@ async def run_migration_010() -> dict:
                 ("locked_until", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS locked_until TIMESTAMP WITH TIME ZONE"),
                 ("active", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true"),
             ]
+            
+            # Sync name to full_name if name exists but full_name doesn't
+            try:
+                await conn.execute("""
+                    DO $$
+                    BEGIN
+                        IF EXISTS (
+                            SELECT 1 FROM information_schema.columns
+                            WHERE table_name = 'team_members' AND column_name = 'name'
+                        ) AND NOT EXISTS (
+                            SELECT 1 FROM information_schema.columns
+                            WHERE table_name = 'team_members' AND column_name = 'full_name'
+                        ) THEN
+                            ALTER TABLE team_members ADD COLUMN full_name VARCHAR(255);
+                            UPDATE team_members SET full_name = name WHERE full_name IS NULL;
+                        END IF;
+                    END $$;
+                """)
+                results.append("✓ Synced name to full_name")
+            except Exception as e:
+                results.append(f"⚠ Name sync error: {str(e)}")
             
             for col_name, sql in migrations:
                 try:
