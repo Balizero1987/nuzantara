@@ -1,47 +1,45 @@
 import { NextResponse } from "next/server"
 
-// Mock user database
-const MOCK_USERS = {
-  "zero@balizero.com": {
-    pin: "010719",
-    user: {
-      id: "1",
-      email: "zero@balizero.com",
-      name: "Zero Balizero",
-      tier: "S",
-      tier_display: "Executive",
-    },
-  },
-}
+const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || process.env.NEXT_PUBLIC_RAG_BACKEND_URL || "https://nuzantara-rag.fly.dev"
 
 export async function POST(request: Request) {
   try {
-    const { email, pin } = await request.json()
+    const body = await request.json()
+    const { email, pin } = body
 
-    console.log("[v0] Mock login attempt:", { email, pin })
-
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    // Check credentials
-    const user = MOCK_USERS[email as keyof typeof MOCK_USERS]
-
-    if (!user || user.pin !== pin) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+    if (!email || !pin) {
+      return NextResponse.json({ error: "Email and PIN are required" }, { status: 400 })
     }
 
-    // Generate mock JWT token
-    const token = `mock_jwt_token_${Date.now()}`
-
-    console.log("[v0] Mock login success:", user.user)
-
-    return NextResponse.json({
-      token,
-      user: user.user,
-      message: "Login successful",
+    // Proxy to backend-RAG
+    const response = await fetch(`${RAG_BACKEND_URL}/api/auth/team/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, pin }),
     })
+
+    const backendData = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: backendData.detail || backendData.message || "Authentication failed" },
+        { status: response.status }
+      )
+    }
+
+    // Unwrap data from backend response if wrapped
+    // Backend returns { success: true, data: { token: ..., user: ... } }
+    // Frontend expects { token: ..., user: ..., ... } directly
+    if (backendData.success && backendData.data) {
+      return NextResponse.json(backendData.data)
+    }
+
+    // If not wrapped, return as-is
+    return NextResponse.json(backendData)
   } catch (error) {
-    console.error("[v0] Mock login error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("[v0] Login proxy error:", error)
+    return NextResponse.json({ error: "Authentication service unavailable" }, { status: 500 })
   }
 }
