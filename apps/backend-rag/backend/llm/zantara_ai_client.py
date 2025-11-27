@@ -11,7 +11,6 @@ Change AI model by updating ZANTARA_AI_MODEL env var - no code changes required.
 """
 
 import logging
-import os
 import asyncio
 from typing import Any
 
@@ -40,7 +39,7 @@ class ZantaraAIClient:
         base_url: str = "https://openrouter.ai/api/v1",
         model: str | None = None,
     ):
-        self.api_key = api_key or os.getenv("OPENROUTER_API_KEY_LLAMA", "").strip()
+        self.api_key = api_key or (settings.openrouter_api_key or "").strip()
         self.mock_mode = False
         
         if not self.api_key:
@@ -48,7 +47,7 @@ class ZantaraAIClient:
             self.mock_mode = True
             # raise ValueError("ZantaraAIClient requires OPENROUTER_API_KEY_LLAMA")
 
-        self.model = model or os.getenv("ZANTARA_AI_MODEL", "meta-llama/llama-4-scout")
+        self.model = model or settings.zantara_ai_model
         self.base_url = base_url
 
         if not self.mock_mode:

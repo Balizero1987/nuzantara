@@ -9,6 +9,10 @@ This directory contains all project documentation organized by category.
 - `SYSTEM_ARCHITECTURE_v5_3.md` - Detailed v5.3 architecture specification
 - `FRONTEND_BACKEND_INTEGRATION_ANALYSIS.md` - Frontend-backend integration analysis
 
+### 🔗 Backend-Frontend Communication
+- **[BACKEND_FRONTEND_COMMUNICATION.md](./BACKEND_FRONTEND_COMMUNICATION.md)** - ⭐⭐ Guida completa su come backend e frontend comunicano
+- **[COMMUNICATION_FLOW_DIAGRAM.md](./COMMUNICATION_FLOW_DIAGRAM.md)** - Diagrammi di flusso completi
+
 ### 🚀 [Deployment](./deployment/)
 - `DEPLOYMENT_GUIDE_v5_3_ULTRA_HYBRID.md` - Complete deployment guide for v5.3
 - `DEPLOYMENT_VALIDATION_v5_3.md` - Deployment validation procedures
