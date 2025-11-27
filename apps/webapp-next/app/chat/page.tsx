@@ -1,17 +1,19 @@
 "use client"
 
-import { useChat } from 'ai/react';
 import { Send, Bot, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+interface ChatMessage {
+    role: 'user' | 'assistant';
+    content: string;
+    id?: string;
+}
 
 export default function Chat() {
-    const { messages, input, handleInputChange, handleSubmit } = useChat({
-        api: '/api/chat',
-        headers: {
-            'Authorization': typeof window !== 'undefined' ? `Bearer ${localStorage.getItem('zantara_token') || ''}` : '',
-        },
-    });
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -21,6 +23,68 @@ export default function Chat() {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!input.trim() || isLoading) return;
+
+        const userMessage: ChatMessage = { role: 'user', content: input.trim(), id: Date.now().toString() };
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setIsLoading(true);
+
+        try {
+            const token = localStorage.getItem('zantara_token');
+            if (!token) {
+                throw new Error('No authentication token');
+            }
+
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ messages: [...messages, userMessage] }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Chat request failed');
+            }
+
+            const reader = response.body?.getReader();
+            if (!reader) {
+                throw new Error('No reader available');
+            }
+
+            const decoder = new TextDecoder();
+            let assistantContent = '';
+            const assistantMessage: ChatMessage = { role: 'assistant', content: '', id: (Date.now() + 1).toString() };
+            setMessages(prev => [...prev, assistantMessage]);
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                assistantContent += chunk;
+                
+                setMessages(prev => {
+                    const updated = [...prev];
+                    const lastMsg = updated[updated.length - 1];
+                    if (lastMsg.role === 'assistant') {
+                        lastMsg.content = assistantContent;
+                    }
+                    return updated;
+                });
+            }
+        } catch (error) {
+            console.error('Chat error:', error);
+            setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, an error occurred. Please try again.', id: Date.now().toString() }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="flex flex-col h-screen bg-[#2B2B2B] text-white font-sans">
@@ -78,13 +142,14 @@ export default function Chat() {
                     <input
                         className="w-full bg-[#2B2B2B] border border-gray-600 rounded-xl py-4 pl-6 pr-14 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all font-sans"
                         value={input}
-                        onChange={handleInputChange}
+                        onChange={(e) => setInput(e.target.value)}
                         placeholder="Execute command or query knowledge base..."
+                        disabled={isLoading}
                     />
                     <button
                         type="submit"
                         className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={!input.trim()}
+                        disabled={!input.trim() || isLoading}
                     >
                         <Send className="w-4 h-4" />
                     </button>
