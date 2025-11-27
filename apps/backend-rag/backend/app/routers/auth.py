@@ -242,7 +242,6 @@ async def get_csrf_token():
     Returns token in both JSON body and response headers.
     """
     import secrets
-    from fastapi import Response
     
     # Generate CSRF token (32 bytes = 64 hex chars)
     csrf_token = secrets.token_hex(32)

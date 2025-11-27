@@ -207,7 +207,7 @@ async def get_critical_items(category: str | None = None, days: int = 7):
                         }
                     )
 
-            except:
+            except Exception:
                 continue
 
         # Sort by date (newest first)
@@ -252,7 +252,7 @@ async def get_trends(category: str | None = None, days: int = 30):
                     }
                 )
 
-            except:
+            except Exception:
                 continue
 
         return {
