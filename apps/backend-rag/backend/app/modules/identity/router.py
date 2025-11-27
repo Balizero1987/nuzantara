@@ -171,40 +171,71 @@ async def run_migration_010() -> dict:
     """
     try:
         import asyncpg
-        from pathlib import Path
 
         if not settings.database_url:
             raise HTTPException(status_code=500, detail="DATABASE_URL not configured")
 
-        # Read migration file
-        migration_file = Path(__file__).parent.parent.parent / "db" / "migrations" / "010_fix_team_members_schema.sql"
-        
-        if not migration_file.exists():
-            raise HTTPException(status_code=500, detail=f"Migration file not found: {migration_file}")
-
-        with open(migration_file, 'r') as f:
-            sql = f.read()
-
         conn = await asyncpg.connect(settings.database_url)
+        results = []
 
         try:
-            logger.info("Executing migration 010...")
+            logger.info("Executing migration 010 (simplified)...")
             
-            # Execute migration in a transaction
-            async with conn.transaction():
-                # Split SQL by semicolons and execute each statement
-                statements = [s.strip() for s in sql.split(';') if s.strip() and not s.strip().startswith('--')]
-                
-                for i, statement in enumerate(statements, 1):
-                    if statement:
-                        try:
-                            await conn.execute(statement)
-                            logger.info(f"Executed statement {i}/{len(statements)}")
-                        except Exception as stmt_error:
-                            logger.error(f"Error in statement {i}: {stmt_error}")
-                            logger.error(f"Statement: {statement[:200]}...")
-                            # Continue with other statements (migration is idempotent)
-                            pass
+            # Add missing columns one by one
+            migrations = [
+                ("pin_hash", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(255)"),
+                ("department", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS department VARCHAR(100)"),
+                ("language", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS language VARCHAR(10) DEFAULT 'en'"),
+                ("personalized_response", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS personalized_response BOOLEAN DEFAULT false"),
+                ("notes", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS notes TEXT"),
+                ("last_login", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS last_login TIMESTAMP WITH TIME ZONE"),
+                ("failed_attempts", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS failed_attempts INTEGER DEFAULT 0"),
+                ("locked_until", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS locked_until TIMESTAMP WITH TIME ZONE"),
+                ("active", "ALTER TABLE team_members ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true"),
+            ]
+            
+            for col_name, sql in migrations:
+                try:
+                    await conn.execute(sql)
+                    results.append(f"✓ Added column: {col_name}")
+                    logger.info(f"Added column: {col_name}")
+                except Exception as e:
+                    results.append(f"⚠ Column {col_name}: {str(e)}")
+                    logger.warning(f"Column {col_name} error (may already exist): {e}")
+
+            # Sync is_active to active if both exist
+            try:
+                await conn.execute("""
+                    DO $$
+                    BEGIN
+                        IF EXISTS (
+                            SELECT 1 FROM information_schema.columns
+                            WHERE table_name = 'team_members' AND column_name = 'is_active'
+                        ) AND EXISTS (
+                            SELECT 1 FROM information_schema.columns
+                            WHERE table_name = 'team_members' AND column_name = 'active'
+                        ) THEN
+                            UPDATE team_members SET active = is_active WHERE active IS NULL;
+                            ALTER TABLE team_members DROP COLUMN IF EXISTS is_active;
+                        END IF;
+                    END $$;
+                """)
+                results.append("✓ Synced is_active to active")
+            except Exception as e:
+                results.append(f"⚠ Sync error: {str(e)}")
+
+            # Create indexes
+            indexes = [
+                "CREATE INDEX IF NOT EXISTS idx_team_members_department ON team_members(department)",
+                "CREATE INDEX IF NOT EXISTS idx_team_members_language ON team_members(language)",
+            ]
+            
+            for idx_sql in indexes:
+                try:
+                    await conn.execute(idx_sql)
+                    results.append(f"✓ Created index")
+                except Exception as e:
+                    results.append(f"⚠ Index error: {str(e)}")
 
             # Verify columns
             cols = await conn.fetch("""
@@ -218,6 +249,7 @@ async def run_migration_010() -> dict:
             return {
                 "success": True,
                 "message": "Migration 010 executed successfully",
+                "results": results,
                 "columns": [{"name": c["column_name"], "type": c["data_type"]} for c in cols]
             }
         except Exception as e:
@@ -225,7 +257,7 @@ async def run_migration_010() -> dict:
             import traceback
             error_details = traceback.format_exc()
             logger.error(f"Full traceback: {error_details}")
-            raise HTTPException(status_code=500, detail=f"Migration failed: {str(e)}\n{error_details}")
+            raise HTTPException(status_code=500, detail=f"Migration failed: {str(e)}")
         finally:
             await conn.close()
 
