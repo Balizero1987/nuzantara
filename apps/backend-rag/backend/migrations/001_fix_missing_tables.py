@@ -5,7 +5,6 @@ Date: 2025-10-19
 Purpose: Create cultural_knowledge, query_clusters tables and fix memory_facts.id
 """
 
-import os
 import sys
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
