@@ -105,12 +105,13 @@ class IdentityService:
             conn = await self.get_db_connection()
 
             # Query user (case-insensitive email, same as Node.js)
+            # Note: Using full_name and active in SQL, mapped to name and is_active in Python model
             query = """
-                SELECT id, name, email, pin_hash, role, department, language,
-                       personalized_response, is_active, last_login,
+                SELECT id, full_name as name, email, pin_hash, role, department, language,
+                       personalized_response, active as is_active, last_login,
                        failed_attempts, locked_until, created_at, updated_at
                 FROM team_members
-                WHERE LOWER(email) = LOWER($1) AND is_active = true
+                WHERE LOWER(email) = LOWER($1) AND active = true
             """
 
             row = await conn.fetchrow(query, email)
@@ -158,16 +159,17 @@ class IdentityService:
             )
 
             # Create User object from database row
+            # Note: Query already maps full_name -> name and active -> is_active
             user = User(
-                id=row["id"],
-                name=row["name"],
+                id=str(row["id"]),  # Ensure string type
+                name=row["name"],  # Already mapped from full_name in query
                 email=row["email"],
                 pin_hash=row["pin_hash"],
                 role=row["role"],
                 department=row["department"],
                 language=row["language"] or "en",
                 personalized_response=row["personalized_response"] or False,
-                is_active=row["is_active"],
+                is_active=row["is_active"],  # Already mapped from active in query
                 last_login=row["last_login"],
                 failed_attempts=0,  # Reset after successful login
                 locked_until=None,  # Reset after successful login
