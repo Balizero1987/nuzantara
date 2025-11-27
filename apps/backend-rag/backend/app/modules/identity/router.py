@@ -103,7 +103,7 @@ async def seed_team_endpoint() -> dict:
             # Ensure table has notes column
             await conn.execute(
                 """
-                ALTER TABLE team_members 
+                ALTER TABLE team_members
                 ADD COLUMN IF NOT EXISTS notes TEXT
                 """
             )
@@ -124,8 +124,8 @@ async def seed_team_endpoint() -> dict:
                         await conn.execute(
                             """
                             UPDATE team_members
-                            SET name = $1, pin_hash = $2, role = $3, department = $4,
-                                language = $5, notes = $6, is_active = true,
+                            SET full_name = $1, pin_hash = $2, role = $3, department = $4,
+                                language = $5, notes = $6, active = true,
                                 failed_attempts = 0, locked_until = NULL, updated_at = NOW()
                             WHERE LOWER(email) = LOWER($7)
                             """,
@@ -137,7 +137,7 @@ async def seed_team_endpoint() -> dict:
                     else:
                         await conn.execute(
                             """
-                            INSERT INTO team_members (name, email, pin_hash, role, department, language, notes, is_active)
+                            INSERT INTO team_members (full_name, email, pin_hash, role, department, language, notes, active)
                             VALUES ($1, $2, $3, $4, $5, $6, $7, true)
                             """,
                             member["name"], member["email"], pin_hash, member["role"],
@@ -147,7 +147,7 @@ async def seed_team_endpoint() -> dict:
                 except Exception as e:
                     errors.append(f"{member['email']}: {str(e)}")
 
-            final_count = await conn.fetchval("SELECT COUNT(*) FROM team_members WHERE is_active = true")
+            final_count = await conn.fetchval("SELECT COUNT(*) FROM team_members WHERE active = true")
 
             return {
                 "success": True,
@@ -181,7 +181,7 @@ async def debug_auth() -> dict:
         try:
             # Query user
             query = """
-                SELECT id, name, email, pin_hash, role, is_active
+                SELECT id, full_name as name, email, pin_hash, role, active as is_active
                 FROM team_members
                 WHERE LOWER(email) = LOWER($1)
             """
@@ -284,18 +284,19 @@ async def reset_admin_user() -> dict:
 
         try:
             # Create table if it doesn't exist (migration)
+            # Note: Using full_name and active to match migration 007 schema
             await conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS team_members (
                     id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid()::text,
-                    name VARCHAR(255) NOT NULL,
+                    full_name VARCHAR(255) NOT NULL,
                     email VARCHAR(255) UNIQUE NOT NULL,
                     pin_hash VARCHAR(255) NOT NULL,
                     role VARCHAR(100) NOT NULL DEFAULT 'member',
                     department VARCHAR(100),
                     language VARCHAR(10) DEFAULT 'en',
                     personalized_response BOOLEAN DEFAULT false,
-                    is_active BOOLEAN DEFAULT true,
+                    active BOOLEAN DEFAULT true,
                     last_login TIMESTAMP,
                     failed_attempts INTEGER DEFAULT 0,
                     locked_until TIMESTAMP,
@@ -318,15 +319,15 @@ async def reset_admin_user() -> dict:
             # Insert or update
             result = await conn.fetchrow(
                 """
-                INSERT INTO team_members (name, email, pin_hash, role, department, language, is_active)
+                INSERT INTO team_members (full_name, email, pin_hash, role, department, language, active)
                 VALUES ($1, $2, $3, $4, $5, $6, true)
                 ON CONFLICT (email) DO UPDATE SET
                     pin_hash = EXCLUDED.pin_hash,
-                    is_active = true,
+                    active = true,
                     failed_attempts = 0,
                     locked_until = NULL,
                     updated_at = NOW()
-                RETURNING id, name, email, role
+                RETURNING id, full_name as name, email, role
                 """,
                 "Zero",
                 "zero@balizero.com",
