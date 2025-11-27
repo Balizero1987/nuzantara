@@ -60,7 +60,8 @@ class MemoryServicePostgres:
         Args:
             database_url: PostgreSQL connection string (from Fly.io DATABASE_URL)
         """
-        self.database_url = database_url or os.getenv("DATABASE_URL")
+        from app.core.config import settings
+        self.database_url = database_url or settings.database_url
         self.pool: asyncpg.Pool | None = None
         self.memory_cache: dict[str, UserMemory] = {}  # In-memory fallback
         self.use_postgres = bool(self.database_url)

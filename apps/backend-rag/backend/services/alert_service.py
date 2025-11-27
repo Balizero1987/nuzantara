@@ -27,8 +27,9 @@ class AlertService:
     """Service for sending alerts to various channels"""
 
     def __init__(self):
-        self.slack_webhook = os.getenv("SLACK_WEBHOOK_URL")
-        self.discord_webhook = os.getenv("DISCORD_WEBHOOK_URL")
+        from app.core.config import settings
+        self.slack_webhook = settings.slack_webhook_url
+        self.discord_webhook = settings.discord_webhook_url
         self.enable_slack = bool(self.slack_webhook)
         self.enable_discord = bool(self.discord_webhook)
         self.enable_logging = True  # Always enabled

@@ -164,6 +164,12 @@ class Settings(BaseSettings):
     oracle_api_key: str | None = None  # Set via ORACLE_API_KEY env var
 
     # ========================================
+    # GOOGLE SERVICES CONFIGURATION
+    # ========================================
+    google_api_key: str | None = None  # Set via GOOGLE_API_KEY env var
+    google_credentials_json: str | None = None  # Set via GOOGLE_CREDENTIALS_JSON env var
+
+    # ========================================
     # FLY.IO DEPLOYMENT
     # ========================================
     fly_app_name: str | None = None  # Set via FLY_APP_NAME env var
