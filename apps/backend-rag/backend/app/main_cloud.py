@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
-from fastapi import FastAPI, Header, HTTPException, Request, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
@@ -46,28 +46,27 @@ from app.routers import (
     health,
     ingest,
     intel,
+    media,
     memory_vector,
     notifications,
     oracle_ingest,
     oracle_universal,
     productivity,
     team_activity,
-    media,
 )
-from services.cultural_rag_service import CulturalRAGService
-from services.handler_proxy import HandlerProxyService
-from services.intelligent_router import IntelligentRouter
-from services.query_router import QueryRouter
-from services.personality_service import PersonalityService
+from services.auto_crm_service import get_auto_crm_service
 
 # --- Specialized Agents ---
 from services.autonomous_research_service import AutonomousResearchService
-from services.cross_oracle_synthesis_service import CrossOracleSynthesisService
 from services.client_journey_orchestrator import ClientJourneyOrchestrator
-from services.auto_crm_service import get_auto_crm_service
-from services.memory_service_postgres import MemoryServicePostgres
 from services.collective_memory_workflow import create_collective_memory_workflow
-
+from services.cross_oracle_synthesis_service import CrossOracleSynthesisService
+from services.cultural_rag_service import CulturalRAGService
+from services.handler_proxy import HandlerProxyService
+from services.intelligent_router import IntelligentRouter
+from services.memory_service_postgres import MemoryServicePostgres
+from services.personality_service import PersonalityService
+from services.query_router import QueryRouter
 
 # --- Core Services ---
 from services.search_service import SearchService
@@ -164,25 +163,26 @@ async def get_csrf_token():
     """
     import secrets
     from datetime import datetime, timezone
+
     from fastapi.responses import JSONResponse
-    
+
     # Generate CSRF token (32 bytes = 64 hex chars)
     csrf_token = secrets.token_hex(32)
-    
+
     # Generate session ID
     session_id = f"session_{int(datetime.now(timezone.utc).timestamp() * 1000)}_{secrets.token_hex(16)}"
-    
+
     # Return in both JSON and headers
     response_data = {
         "csrfToken": csrf_token,
         "sessionId": session_id
     }
-    
+
     # Create JSON response with headers
     json_response = JSONResponse(content=response_data)
     json_response.headers["X-CSRF-Token"] = csrf_token
     json_response.headers["X-Session-Id"] = session_id
-    
+
     return json_response
 
 
@@ -308,7 +308,7 @@ async def initialize_services() -> None:
         autonomous_research_service = None
         cross_oracle_synthesis_service = None
         client_journey_orchestrator = None
-        
+
         if ai_client and search_service:
             try:
                 autonomous_research_service = AutonomousResearchService(
@@ -338,17 +338,17 @@ async def initialize_services() -> None:
         # 7. Auto-CRM & Memory
         try:
             get_auto_crm_service(ai_client=ai_client) # Initialize singleton
-            
+
             # Initialize Memory Service
             memory_service = MemoryServicePostgres()
             await memory_service.connect() # Ensure connection
             app.state.memory_service = memory_service
-            
+
             # Initialize Collective Memory Workflow
             collective_memory_workflow = create_collective_memory_workflow(memory_service=memory_service)
             app.state.collective_memory_workflow = collective_memory_workflow
             logger.info("✅ CollectiveMemoryWorkflow initialized")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize CRM/Memory services: {e}")
 
@@ -487,7 +487,7 @@ async def bali_zero_chat_stream(
             try:
                 # Simple CRM trigger
                 crm_messages = [{"role": "user", "content": query}]
-                
+
                 background_tasks.add_task(
                     get_auto_crm_service().process_conversation,
                     conversation_id=0, # Placeholder
@@ -514,7 +514,7 @@ async def bali_zero_chat_stream(
                         "consolidation_actions": [],
                         "memory_to_store": None
                     }
-                    
+
                     async def run_collective_memory(workflow, input_state):
                         try:
                             await workflow.ainvoke(input_state)

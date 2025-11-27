@@ -22,8 +22,8 @@ REFACTORED (2025-12-01):
 - AI engine abstraction allows switching models without code changes
 """
 
-import logging
 import asyncio
+import logging
 from typing import Any
 
 # Import modular components
@@ -83,7 +83,7 @@ class IntelligentRouter:
         self.context_builder = ContextBuilder()
         self.rag_manager = RAGManager(search_service)
         self.specialized_router = SpecializedServiceRouter(
-            autonomous_research_service, 
+            autonomous_research_service,
             cross_oracle_synthesis_service,
             client_journey_orchestrator
         )

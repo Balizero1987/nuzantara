@@ -509,12 +509,12 @@ Enhanced text:"""
         if not base_profile:
             # Fallback to professional if not found
             base_profile = self.personality_profiles["professional"]
-        
+
         base_prompt = base_profile["system_prompt"]
-        
+
         # Dynamic Language Logic
         lang_instruction = ""
-        
+
         if user_language == "id":
             lang_instruction = (
                 "LANGUAGE: BAHASA INDONESIA (JAKSEL STYLE).\n"
@@ -569,7 +569,7 @@ Enhanced text:"""
             system_prompt = self.get_personality_system_prompt(
                 user_context["personality_type"], user_language
             )
-            
+
             prompt = f"""{system_prompt}
 
 USER: {message}

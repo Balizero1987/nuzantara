@@ -10,8 +10,8 @@ AI engine is fully configurable via environment variables:
 Change AI model by updating ZANTARA_AI_MODEL env var - no code changes required.
 """
 
-import logging
 import asyncio
+import logging
 from typing import Any
 
 from openai import AsyncOpenAI
@@ -36,25 +36,24 @@ class ZantaraAIClient:
     def __init__(
         self,
         api_key: str | None = None,
-        base_url: str = "https://openrouter.ai/api/v1",
+        base_url: str | None = None,
         model: str | None = None,
     ):
-        self.api_key = api_key or (settings.openrouter_api_key or "").strip()
+        self.api_key = api_key or (settings.google_api_key or "").strip()
         self.mock_mode = False
-        
-        if not self.api_key:
-            logger.warning("⚠️ OPENROUTER_API_KEY_LLAMA missing. ZantaraAIClient running in MOCK MODE.")
-            self.mock_mode = True
-            # raise ValueError("ZantaraAIClient requires OPENROUTER_API_KEY_LLAMA")
 
-        self.model = model or settings.zantara_ai_model
+        if not self.api_key:
+            logger.warning("⚠️ GOOGLE_API_KEY missing. ZantaraAIClient running in MOCK MODE.")
+            self.mock_mode = True
+            # raise ValueError("ZantaraAIClient requires GOOGLE_API_KEY")
+
+        self.model = model or "gemini-2.0-flash-exp"  # Use Gemini 2.0 Flash for RAG processing
         self.base_url = base_url
 
         if not self.mock_mode:
-            self.client = AsyncOpenAI(
-                base_url=base_url,
-                api_key=self.api_key,
-            )
+            import google.generativeai as genai
+            genai.configure(api_key=self.api_key)
+            self.client = genai.GenerativeModel(self.model)
         else:
             self.client = None
 
@@ -65,7 +64,7 @@ class ZantaraAIClient:
 
         logger.info("✅ ZantaraAIClient initialized")
         logger.info(f"   Engine model: {self.model}")
-        logger.info(f"   Provider: {'MOCK' if self.mock_mode else 'OpenRouter'}")
+        logger.info(f"   Provider: {'MOCK' if self.mock_mode else 'OpenAI'}")
 
     def get_model_info(self) -> dict[str, Any]:
         """Get current model information"""

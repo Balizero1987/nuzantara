@@ -1,6 +1,6 @@
 {
   "name": "@nuzantara/types",
-  "version": "1.0.0",
+  "version": "5.2.0",
   "description": "Shared TypeScript types for Nuzantara monorepo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,7 +8,11 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["nuzantara", "types", "typescript"],
+  "keywords": [
+    "nuzantara",
+    "types",
+    "typescript"
+  ],
   "author": "Nuzantara Team",
   "license": "UNLICENSED",
   "private": true

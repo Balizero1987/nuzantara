@@ -242,20 +242,20 @@ async def get_csrf_token():
     Returns token in both JSON body and response headers.
     """
     import secrets
-    
+
     # Generate CSRF token (32 bytes = 64 hex chars)
     csrf_token = secrets.token_hex(32)
-    
+
     # Generate session ID
     from datetime import datetime, timezone
     session_id = f"session_{int(datetime.now(timezone.utc).timestamp() * 1000)}_{secrets.token_hex(16)}"
-    
+
     # Return in both JSON and headers
     response_data = {
         "csrfToken": csrf_token,
         "sessionId": session_id
     }
-    
+
     # Note: FastAPI Response model doesn't support setting headers directly in decorator
     # Headers will be set in the endpoint function
     return response_data

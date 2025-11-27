@@ -310,7 +310,7 @@ class AutoCRMService:
     ) -> dict:
         """
         Process an incoming email and auto-populate CRM
-        
+
         Args:
             email_data: {subject, sender, body, date, id}
             team_member: Team member handling (system default)
@@ -319,23 +319,23 @@ class AutoCRMService:
         messages = [
             {"role": "user", "content": f"Subject: {email_data['subject']}\n\n{email_data['body']}"}
         ]
-        
+
         # Extract sender email from "Name <email@domain.com>" format
         sender_email = email_data['sender']
         if '<' in sender_email and '>' in sender_email:
             sender_email = sender_email.split('<')[1].split('>')[0]
-            
+
         # Use a dummy conversation ID for email interactions (or create a new table for emails later)
         # For now, we reuse the process_conversation logic but we need a conversation_id.
-        # We'll use a negative number or hash to indicate email source if needed, 
-        # but process_conversation expects an int. 
+        # We'll use a negative number or hash to indicate email source if needed,
+        # but process_conversation expects an int.
         # Let's create a dummy conversation entry or just pass 0 if FK allows.
         # Actually, let's try to insert a conversation record first to be clean.
-        
+
         try:
             conn = self.get_db_connection()
             cursor = conn.cursor()
-            
+
             # Create a conversation record for this email thread
             cursor.execute(
                 """
@@ -349,16 +349,16 @@ class AutoCRMService:
             conn.commit()
             cursor.close()
             conn.close()
-            
+
             logger.info(f"📧 Processing email from {sender_email} as conversation {conversation_id}")
-            
+
             return await self.process_conversation(
                 conversation_id=conversation_id,
                 messages=messages,
                 user_email=sender_email,
                 team_member=team_member
             )
-            
+
         except Exception as e:
             logger.error(f"❌ Email processing failed: {e}")
             return {"success": False, "error": str(e)}

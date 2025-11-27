@@ -31,14 +31,6 @@ import * as yaml from 'yaml';
 // TYPES
 // ============================================================================
 
-interface ValidationRule {
-  id: string;
-  name: string;
-  description: string;
-  check: string[];
-  severity: 'error' | 'warning' | 'info';
-}
-
 interface ValidationResult {
   passed: boolean;
   violations: Violation[];
@@ -177,25 +169,31 @@ class AICodeValidator {
       // Get staged files
       const staged = execSync('git diff --cached --name-only --diff-filter=ACM', {
         encoding: 'utf8',
-      }).trim().split('\n').filter(Boolean);
+      })
+        .trim()
+        .split('\n')
+        .filter(Boolean);
 
       // Get unstaged files
       const unstaged = execSync('git diff --name-only --diff-filter=ACM', {
         encoding: 'utf8',
-      }).trim().split('\n').filter(Boolean);
+      })
+        .trim()
+        .split('\n')
+        .filter(Boolean);
 
       // Combine and deduplicate
       const allFiles = [...new Set([...staged, ...unstaged])];
 
       // Filter only source code files
-      const sourceFiles = allFiles.filter(file => {
+      const sourceFiles = allFiles.filter((file) => {
         const ext = path.extname(file);
         return ['.ts', '.tsx', '.js', '.jsx', '.py', '.yaml', '.yml', '.json'].includes(ext);
       });
 
       console.log(`📊 Found ${sourceFiles.length} modified source files`);
       return sourceFiles;
-    } catch (error) {
+    } catch {
       console.warn('⚠️  Could not get git diff, checking all files');
       return [];
     }
@@ -269,7 +267,8 @@ class AICodeValidator {
             severity: 'error',
             file,
             message: 'Route file contains business logic. Business logic should be in services.',
-            suggestion: 'Move business logic to a service class and call it from the route handler.',
+            suggestion:
+              'Move business logic to a service class and call it from the route handler.',
           });
         }
 
@@ -320,7 +319,7 @@ class AICodeValidator {
 
       // Check naming conventions
       const namingIssues = this.checkNamingConventions(file, content);
-      namingIssues.forEach(issue => this.addViolation(issue));
+      namingIssues.forEach((issue) => this.addViolation(issue));
 
       // Check import organization
       if (!this.hasOrganizedImports(content)) {
@@ -427,8 +426,14 @@ class AICodeValidator {
 
       // Check for hardcoded secrets
       const secretPatterns = [
-        { pattern: /(password|api[_-]?key|secret|token)\s*=\s*['"][^'"]+['"]/gi, name: 'Hardcoded secret' },
-        { pattern: /process\.env\.[A-Z_]+\s*\|\|\s*['"][^'"]+['"]/g, name: 'Hardcoded fallback secret' },
+        {
+          pattern: /(password|api[_-]?key|secret|token)\s*=\s*['"][^'"]+['"]/gi,
+          name: 'Hardcoded secret',
+        },
+        {
+          pattern: /process\.env\.[A-Z_]+\s*\|\|\s*['"][^'"]+['"]/g,
+          name: 'Hardcoded fallback secret',
+        },
       ];
 
       for (const { pattern, name } of secretPatterns) {
@@ -459,7 +464,8 @@ class AICodeValidator {
             severity: 'error',
             file,
             message: 'Potential SQL injection vulnerability. Use parameterized queries.',
-            suggestion: 'Use query builders or parameterized queries instead of string concatenation.',
+            suggestion:
+              'Use query builders or parameterized queries instead of string concatenation.',
           });
         }
       }
@@ -598,8 +604,8 @@ class AICodeValidator {
     }
 
     // Check if new code has tests
-    const sourceFiles = this.modifiedFiles.filter(f =>
-      !f.includes('.test.') && !f.includes('.spec.') && !f.includes('__tests__')
+    const sourceFiles = this.modifiedFiles.filter(
+      (f) => !f.includes('.test.') && !f.includes('.spec.') && !f.includes('__tests__')
     );
 
     for (const file of sourceFiles) {
@@ -647,7 +653,7 @@ class AICodeValidator {
 
       // Check function length (simplified)
       const longFunctions = this.findLongFunctions(content, thresholds?.max_function_length);
-      longFunctions.forEach(func => {
+      longFunctions.forEach((func) => {
         this.addWarning({
           rule_id: 'cmplx-001',
           message: `Function "${func.name}" is too long (${func.lines} lines). Extract into smaller functions.`,
@@ -744,22 +750,24 @@ class AICodeValidator {
   private containsBusinessLogic(content: string): boolean {
     // Simplified check: look for complex logic in route handlers
     const patterns = [
-      /app\.(get|post|put|delete).*\{[\s\S]{200,}\}/,  // Long route handler
-      /app\.(get|post|put|delete).*if\s*\(.*\{[\s\S]+\}/,  // Conditional logic
+      /app\.(get|post|put|delete).*\{[\s\S]{200,}\}/, // Long route handler
+      /app\.(get|post|put|delete).*if\s*\(.*\{[\s\S]+\}/, // Conditional logic
     ];
-    return patterns.some(p => p.test(content));
+    return patterns.some((p) => p.test(content));
   }
 
   private hasDirectDbAccess(content: string): boolean {
-    return /\.(query|execute|findOne|findMany|create|update|delete)\s*\(/.test(content) &&
-           this.isRouteFile(content);
+    return (
+      /\.(query|execute|findOne|findMany|create|update|delete)\s*\(/.test(content) &&
+      this.isRouteFile(content)
+    );
   }
 
   private hasCircularDependency(file: string, content: string): boolean {
     // Simplified: this would need a full dependency graph in production
     const imports = content.match(/import.*from\s+['"]([^'"]+)['"]/g) || [];
     // Basic check for suspicious patterns
-    return imports.some(imp => imp.includes('../../../'));
+    return imports.some((imp) => imp.includes('../../../'));
   }
 
   private checkNamingConventions(file: string, content: string): Violation[] {
@@ -801,9 +809,9 @@ class AICodeValidator {
   }
 
   private hasOrganizedImports(content: string): boolean {
-    const importLines = content.split('\n').filter(line =>
-      line.trim().startsWith('import ') || line.trim().startsWith('from ')
-    );
+    const importLines = content
+      .split('\n')
+      .filter((line) => line.trim().startsWith('import ') || line.trim().startsWith('from '));
 
     if (importLines.length < 3) return true;
 
@@ -811,10 +819,10 @@ class AICodeValidator {
     let hasExternalGroup = false;
     let hasInternalGroup = false;
 
-    importLines.forEach(line => {
-      if (line.includes('from \'node:') || line.includes('from \'@types/')) {
+    importLines.forEach((line) => {
+      if (line.includes("from 'node:") || line.includes("from '@types/")) {
         hasExternalGroup = true;
-      } else if (line.includes('from \'@nuzantara/') || line.includes('from \'./')) {
+      } else if (line.includes("from '@nuzantara/") || line.includes("from './")) {
         hasInternalGroup = true;
       }
     });
@@ -830,7 +838,7 @@ class AICodeValidator {
 
   private findFunctionsWithoutReturnType(content: string): string[] {
     const matches = content.match(/function\s+\w+\s*\([^)]*\)\s*\{/g) || [];
-    return matches.filter(match => !match.includes('):'));
+    return matches.filter((match) => !match.includes('):'));
   }
 
   private hasPythonTypeHints(content: string): boolean {
@@ -838,8 +846,8 @@ class AICodeValidator {
     const funcDefs = content.match(/def\s+\w+\s*\([^)]*\)/g) || [];
     if (funcDefs.length === 0) return true;
 
-    const withTypes = funcDefs.filter(f => f.includes(':')).length;
-    return withTypes / funcDefs.length > 0.8;  // 80% threshold
+    const withTypes = funcDefs.filter((f) => f.includes(':')).length;
+    return withTypes / funcDefs.length > 0.8; // 80% threshold
   }
 
   private hasUnhandledAsyncOperations(content: string): boolean {
@@ -849,8 +857,10 @@ class AICodeValidator {
 
   private hasPotentialN1Query(content: string): boolean {
     // Look for queries in loops
-    return /for\s*\([\s\S]*\.(query|find|findOne)/.test(content) ||
-           /\.forEach\([\s\S]*\.(query|find|findOne)/.test(content);
+    return (
+      /for\s*\([\s\S]*\.(query|find|findOne)/.test(content) ||
+      /\.forEach\([\s\S]*\.(query|find|findOne)/.test(content)
+    );
   }
 
   private hasCorrespondingTest(file: string): boolean {
@@ -861,13 +871,16 @@ class AICodeValidator {
       file.replace(/src\//, '__tests__/'),
     ];
 
-    return testPatterns.some(testFile => {
+    return testPatterns.some((testFile) => {
       const fullPath = path.join(CONFIG.ROOT_DIR, testFile);
       return fs.existsSync(fullPath);
     });
   }
 
-  private findLongFunctions(content: string, maxLength: number): Array<{ name: string; lines: number }> {
+  private findLongFunctions(
+    content: string,
+    maxLength: number
+  ): Array<{ name: string; lines: number }> {
     const longFunctions: Array<{ name: string; lines: number }> = [];
 
     // Simple regex to find function declarations
@@ -947,7 +960,7 @@ class AICodeValidator {
     this.result.summary.suggestions_count = this.result.suggestions.length;
     this.result.summary.can_proceed =
       this.result.summary.critical_issues === 0 &&
-      this.result.violations.filter(v => v.severity === 'error').length === 0;
+      this.result.violations.filter((v) => v.severity === 'error').length === 0;
   }
 
   private saveReport(): void {

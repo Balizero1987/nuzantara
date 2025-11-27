@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 # 1. AI Configuration (Currently set to Google Gemini)
 # Ensure GOOGLE_API_KEY is set in your Fly.io secrets
 from app.core.config import settings
+
 if settings.google_api_key:
     genai.configure(api_key=settings.google_api_key)
 

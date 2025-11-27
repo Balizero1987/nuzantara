@@ -125,8 +125,13 @@ class TeamTimesheetService:
 
             # Notify Admin (ZERO)
             try:
-                from services.notification_hub import notification_hub, Notification, NotificationPriority, NotificationChannel
-                
+                from services.notification_hub import (
+                    Notification,
+                    NotificationChannel,
+                    NotificationPriority,
+                    notification_hub,
+                )
+
                 admin_notification = Notification(
                     notification_id=f"clockin_{user_id}_{int(now.timestamp())}",
                     recipient_id="admin_zero",
@@ -153,12 +158,12 @@ class TeamTimesheetService:
     ) -> dict[str, Any]:
         """
         Clock out a team member
-        
+
         Args:
             user_id: User identifier
             email: User email
             metadata: Optional metadata
-            
+
         Returns:
             Dict with clock-out confirmation and hours worked
         """
@@ -200,8 +205,13 @@ class TeamTimesheetService:
 
             # Notify Admin (ZERO)
             try:
-                from services.notification_hub import notification_hub, Notification, NotificationPriority, NotificationChannel
-                
+                from services.notification_hub import (
+                    Notification,
+                    NotificationChannel,
+                    NotificationPriority,
+                    notification_hub,
+                )
+
                 admin_notification = Notification(
                     notification_id=f"clockout_{user_id}_{int(now.timestamp())}",
                     recipient_id="admin_zero",

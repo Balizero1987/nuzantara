@@ -3,14 +3,15 @@ Gmail Service for ZANTARA
 Handles email reading and sending using Google API.
 """
 
+import base64
 import logging
 import os
-import base64
-from typing import List, Dict, Any
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from googleapiclient.discovery import build
 from email.mime.text import MIMEText
+from typing import Any
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ class GmailService:
             # For now, we check for a local token.json or credentials.json
             if os.path.exists('token.json'):
                 self.creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-            
+
             # If no valid credentials available, let the user know
             if not self.creds or not self.creds.valid:
                 if self.creds and self.creds.expired and self.creds.refresh_token:
@@ -55,7 +56,7 @@ class GmailService:
         except Exception as e:
             logger.error(f"❌ Gmail authentication failed: {e}")
 
-    def list_messages(self, query: str = 'is:unread', max_results: int = 5) -> List[Dict[str, Any]]:
+    def list_messages(self, query: str = 'is:unread', max_results: int = 5) -> list[dict[str, Any]]:
         """List messages matching query"""
         if not self.service:
             # Mock behavior
@@ -69,7 +70,7 @@ class GmailService:
             logger.error(f"❌ Failed to list messages: {e}")
             return []
 
-    def get_message_details(self, message_id: str) -> Dict[str, Any]:
+    def get_message_details(self, message_id: str) -> dict[str, Any]:
         """Get full details of a message"""
         if not self.service:
             return {}
@@ -78,11 +79,11 @@ class GmailService:
             message = self.service.users().messages().get(userId='me', id=message_id).execute()
             payload = message.get('payload', {})
             headers = payload.get('headers', [])
-            
+
             subject = next((h['value'] for h in headers if h['name'] == 'Subject'), 'No Subject')
             sender = next((h['value'] for h in headers if h['name'] == 'From'), 'Unknown')
             date = next((h['value'] for h in headers if h['name'] == 'Date'), '')
-            
+
             # Extract body (simplified)
             body = "No content"
             if 'parts' in payload:
@@ -109,7 +110,7 @@ class GmailService:
             logger.error(f"❌ Failed to get message details: {e}")
             return {}
 
-    def create_draft(self, to: str, subject: str, body: str) -> Dict[str, Any]:
+    def create_draft(self, to: str, subject: str, body: str) -> dict[str, Any]:
         """Create a draft email"""
         if not self.service:
             logger.info(f"📝 [MOCK] Draft created for {to}: {subject}")
@@ -121,7 +122,7 @@ class GmailService:
             message['subject'] = subject
             raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
             body = {'message': {'raw': raw}}
-            
+
             draft = self.service.users().drafts().create(userId='me', body=body).execute()
             logger.info(f"✅ Draft created: {draft['id']}")
             return draft

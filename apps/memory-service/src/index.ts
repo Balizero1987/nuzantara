@@ -11,7 +11,7 @@
  * - Basic retrieval
  */
 
-/* eslint-disable no-console */ // Console statements appropriate for service logging
+  // Console statements appropriate for service logging
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import express, { Request, Response } from 'express';
@@ -24,22 +24,32 @@ import path from 'path';
 import { MemoryAnalytics } from './analytics';
 import { ConversationSummarizer } from './summarization';
 import { FactExtractor } from './fact-extraction';
+import { createLogger, parseLogLevel } from '@nuzantara/utils';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+// Initialize structured logger
+const logger = createLogger({
+  service: 'memory-service',
+  level: parseLogLevel(process.env.LOG_LEVEL || 'info'),
+  enableColors: process.env.NODE_ENV !== 'production',
+});
 
 // Middleware
 app.use(helmet());
 
 // CORS Configuration - Secure & Minimal
+const corsOrigins = process.env.CORS_ORIGINS?.split(',') || [
+  'https://nuzantara-backend.fly.dev', // Backend-TS (primary caller)
+  'http://localhost:3000', // Webapp dev
+  'http://localhost:8080', // Local memory service
+  'http://127.0.0.1:8080', // Local alternative
+];
+
 app.use(
   cors({
-    origin: [
-      'https://nuzantara-backend.fly.dev', // Backend-TS (primary caller)
-      'http://localhost:3000', // Webapp dev
-      'http://localhost:8080', // Local memory service
-      'http://127.0.0.1:8080', // Local alternative
-    ],
+    origin: corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -72,18 +82,28 @@ if (process.env.REDIS_URL) {
       lazyConnect: true,
     });
     redis.on('error', (err) => {
-      console.warn('⚠️  Redis connection error (caching disabled):', err.message);
+      logger.warn('Redis connection error (caching disabled)', {
+        error: err.message,
+        type: 'redis'
+      });
     });
     redis.connect().catch((err) => {
-      console.warn('⚠️  Redis unavailable, running without cache:', err.message);
+      logger.warn('Redis unavailable, running without cache', {
+        error: err.message,
+        type: 'redis'
+      });
       redis = null;
     });
   } catch {
-    console.warn('⚠️  Redis initialization failed, running without cache');
+    logger.warn('Redis initialization failed, running without cache', {
+      type: 'redis'
+    });
     redis = null;
   }
 } else {
-  console.log('ℹ️  Redis not configured, running without cache');
+  logger.info('Redis not configured, running without cache', {
+    type: 'redis'
+  });
 }
 
 // Initialize Analytics
@@ -108,7 +128,10 @@ const factExtractor = new FactExtractor(postgres, {
 // ============================================================
 
 async function initializeDatabase() {
-  console.log('🔧 Initializing Memory Service Database...');
+  logger.info('Initializing Memory Service Database', {
+    type: 'database',
+    operation: 'initialization'
+  });
 
   try {
     // Table 1: Sessions
@@ -203,12 +226,18 @@ async function initializeDatabase() {
       END $$;
     `);
 
-    console.log('✅ Memory Service Database initialized successfully!');
+    logger.info('Memory Service Database initialized successfully', {
+      type: 'database',
+      operation: 'initialization'
+    });
 
     // Initialize analytics tables
     await analytics.initialize();
   } catch (error) {
-    console.error('❌ Database initialization failed:', error);
+    logger.error('Database initialization failed', error as Error, {
+      type: 'database',
+      operation: 'initialization'
+    });
     throw error;
   }
 }
@@ -1376,18 +1405,20 @@ app.get('/api/facts/stats', async (req: Request, res: Response) => {
 // ============================================================
 
 app.listen(PORT, () => {
-  console.log('🧠 ========================================');
-  console.log('🧠 NUZANTARA MEMORY SERVICE v1.0');
-  console.log('🧠 ========================================');
-  console.log(`🧠 Port: ${PORT}`);
-  console.log(`🧠 Health: http://localhost:${PORT}/health`);
-  console.log(`🧠 Stats: http://localhost:${PORT}/api/stats`);
-  console.log('🧠 ========================================');
+  logger.info('NUZANTARA MEMORY SERVICE started', {
+    type: 'startup',
+    version: '1.0',
+    port: PORT,
+    healthEndpoint: `http://localhost:${PORT}/health`,
+    statsEndpoint: `http://localhost:${PORT}/api/stats`
+  });
 });
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('\n🛑 Shutting down Memory Service...');
+  logger.info('Shutting down Memory Service...', {
+    type: 'shutdown'
+  });
   await postgres.end();
   if (redis) await redis.quit();
   process.exit(0);
