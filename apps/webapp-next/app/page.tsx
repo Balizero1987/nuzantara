@@ -18,11 +18,8 @@ export default function Login() {
         setError(false);
 
         try {
-            // Get backend URL from environment
-            const RAG_BACKEND_URL = process.env.NEXT_PUBLIC_RAG_BACKEND_URL || process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
-            
-            // Call real authentication endpoint
-            const response = await fetch(`${RAG_BACKEND_URL}/api/auth/team/login`, {
+            // Call frontend API route that handles authentication
+            const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -79,10 +76,9 @@ export default function Login() {
                 className={`w-full max-w-[420px] bg-[#505050] backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-600 p-8 animate-fade-in ${error ? "animate-shake" : ""
                     }`}
             >
-                <form onSubmit={handleSubmit} className="space-y-6">
-
+                <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Email Input */}
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                         <label htmlFor="email" className="block text-xs font-bold text-white/90 tracking-widest uppercase font-serif">
                             Email Address
                         </label>
@@ -97,7 +93,7 @@ export default function Login() {
                     </div>
 
                     {/* PIN Input */}
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                         <label htmlFor="pin" className="block text-xs font-bold text-white/90 tracking-widest uppercase font-serif">
                             Access PIN
                         </label>
@@ -135,11 +131,18 @@ export default function Login() {
                         </div>
                     </div>
 
+                    {/* Error Message */}
+                    {error && (
+                        <div className="bg-red-900/20 border border-red-500/30 text-red-200 px-4 py-3 rounded-lg text-sm font-serif text-center">
+                            Invalid email or PIN. Please try again.
+                        </div>
+                    )}
+
                     {/* Submit Button */}
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-[#404040] text-white py-3.5 rounded-lg font-bold text-xl hover:bg-[#4a4a4a] hover:border-red-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 flex items-center justify-center gap-2 shadow-lg font-serif tracking-wide"
+                        className="w-full bg-[#404040] text-white py-4 rounded-lg font-bold text-xl hover:bg-[#4a4a4a] hover:border-red-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 flex items-center justify-center gap-2 shadow-lg font-serif tracking-wide"
                     >
                         {isLoading ? (
                             <>

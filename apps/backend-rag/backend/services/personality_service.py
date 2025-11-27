@@ -11,7 +11,6 @@ Integra Gemini 1.5 (RAG research) + Zantara Oracle Cloud (personality voice)
 """
 
 import logging
-import os
 
 # Note: Google services will be injected to avoid circular imports
 # Team members database
