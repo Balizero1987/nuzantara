@@ -163,6 +163,55 @@ async def seed_team_endpoint() -> dict:
         raise HTTPException(status_code=500, detail=f"Seed failed: {str(e)}")
 
 
+@router.post("/run-migration-010")
+async def run_migration_010() -> dict:
+    """
+    TEMPORARY: Execute migration 010 to fix team_members schema
+    TODO: Remove this endpoint after migration is applied
+    """
+    try:
+        import asyncpg
+        from pathlib import Path
+
+        if not settings.database_url:
+            raise HTTPException(status_code=500, detail="DATABASE_URL not configured")
+
+        # Read migration file
+        migration_file = Path(__file__).parent.parent.parent / "db" / "migrations" / "010_fix_team_members_schema.sql"
+        
+        if not migration_file.exists():
+            raise HTTPException(status_code=500, detail=f"Migration file not found: {migration_file}")
+
+        with open(migration_file, 'r') as f:
+            sql = f.read()
+
+        conn = await asyncpg.connect(settings.database_url)
+
+        try:
+            logger.info("Executing migration 010...")
+            await conn.execute(sql)
+
+            # Verify columns
+            cols = await conn.fetch("""
+                SELECT column_name, data_type 
+                FROM information_schema.columns 
+                WHERE table_name = 'team_members' 
+                AND column_name IN ('pin_hash', 'department', 'language', 'full_name', 'active', 'personalized_response', 'notes', 'last_login', 'failed_attempts', 'locked_until')
+                ORDER BY column_name
+            """)
+
+            return {
+                "success": True,
+                "message": "Migration 010 executed successfully",
+                "columns": [{"name": c["column_name"], "type": c["data_type"]} for c in cols]
+            }
+        finally:
+            await conn.close()
+    except Exception as e:
+        logger.error(f"Migration 010 error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Migration failed: {str(e)}")
+
+
 @router.get("/debug-auth")
 async def debug_auth() -> dict:
     """
