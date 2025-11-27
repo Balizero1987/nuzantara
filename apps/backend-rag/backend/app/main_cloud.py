@@ -45,6 +45,7 @@ from app.routers import (
     crm_shared_memory,
     handlers,
     health,
+    hero_stories,
     ingest,
     intel,
     memory_vector,
@@ -143,6 +144,7 @@ def include_routers(api: FastAPI) -> None:
     api.include_router(oracle_ingest.router)
     api.include_router(oracle_universal.router)
     api.include_router(productivity.router)
+    api.include_router(hero_stories.router)
     # Identity module (Prime Standard - team login)
     api.include_router(identity_router, prefix="/api/auth")
     # Knowledge module (Prime Standard - replaces old search router)
