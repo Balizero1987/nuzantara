@@ -260,6 +260,8 @@ async def run_migration_010() -> dict:
             raise HTTPException(status_code=500, detail=f"Migration failed: {str(e)}")
         finally:
             await conn.close()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Migration failed: {str(e)}")
 
 
 @router.get("/debug-auth")
@@ -437,13 +439,15 @@ async def reset_admin_user() -> dict:
             )
 
             return {
-                "success": True,
+                    "success": True,
                 "message": "Admin user ready",
                 "email": result["email"],
                 "pin": "010719",
                 "name": result["name"],
                 "role": result["role"],
             }
+        except Exception as inner_e:
+            raise HTTPException(status_code=500, detail=f"Database operation failed: {str(inner_e)}")
         finally:
             await conn.close()
     except Exception as e:
