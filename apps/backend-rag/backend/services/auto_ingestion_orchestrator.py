@@ -416,19 +416,17 @@ Answer with YES or NO and a brief reason."""
 
             target_collection = source.target_collection
 
-            # Prepare metadata
-            metadata = {
-                "title": content.title,
-                "source": source.name,
-                "url": content.url,
-                "scraped_at": content.scraped_at,
-                "update_type": content.update_type.value if content.update_type else None,
-                "relevance_score": content.relevance_score,
-                **content.metadata,
-            }
-
             # Add to collection (using search_service ingestion method if available)
             try:
+                # Prepare metadata for logging
+                metadata_info = {
+                    "title": content.title,
+                    "source": source.name,
+                    "url": content.url,
+                    "scraped_at": content.scraped_at,
+                    "update_type": content.update_type.value if content.update_type else None,
+                    "relevance_score": content.relevance_score,
+                }
                 # In production, use search_service.add_document()
                 # For now, log
                 logger.info(f"   ✅ Ingested: {content.title[:50]}... → {target_collection}")
