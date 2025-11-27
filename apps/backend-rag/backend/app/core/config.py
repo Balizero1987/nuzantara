@@ -147,6 +147,7 @@ class Settings(BaseSettings):
     twilio_whatsapp_number: str | None = None  # Set via TWILIO_WHATSAPP_NUMBER env var
     slack_webhook_url: str | None = None  # Set via SLACK_WEBHOOK_URL env var
     discord_webhook_url: str | None = None  # Set via DISCORD_WEBHOOK_URL env var
+    github_token: str | None = None  # Set via GITHUB_TOKEN env var
 
     # ========================================
     # ORACLE CONFIGURATION
