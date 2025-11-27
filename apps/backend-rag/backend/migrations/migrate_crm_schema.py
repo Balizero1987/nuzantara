@@ -4,7 +4,6 @@ Apply CRM System Schema Migration
 Connects to Fly.io PostgreSQL and applies migration 007
 """
 
-import os
 import sys
 import psycopg2
 from pathlib import Path

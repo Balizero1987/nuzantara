@@ -4,7 +4,6 @@ Use this script when psql is not available locally
 Migrations will be applied on Fly.io deployment
 """
 
-import os
 import sys
 from pathlib import Path
 
