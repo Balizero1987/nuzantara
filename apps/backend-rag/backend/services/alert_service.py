@@ -4,7 +4,6 @@ Sends alerts for critical errors via Slack, Discord, and logging
 """
 
 import logging
-import os
 from datetime import datetime
 from enum import Enum
 from typing import Any

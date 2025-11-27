@@ -15,7 +15,6 @@ Features:
 
 import asyncio
 import logging
-import os
 import sys
 import time
 import traceback
@@ -395,7 +394,8 @@ class BackendSelfHealingAgent:
         """Reconnect to cache"""
         logger.info("Attempting cache reconnection...")
         try:
-            redis_url = os.getenv("REDIS_URL")
+            from app.core.config import settings
+            redis_url = settings.redis_url
             if redis_url:
                 self.redis_client = redis.from_url(redis_url)
                 self.redis_client.ping()
@@ -411,8 +411,8 @@ class BackendSelfHealingAgent:
             payload = {
                 "agent": "backend",
                 "service": self.service_name,
-                "hostname": os.getenv("HOSTNAME", "unknown"),
-                "region": os.getenv("FLY_REGION", "unknown"),
+                "hostname": settings.hostname or "unknown",
+                "region": settings.fly_region or "unknown",
                 "event": event,
                 "timestamp": time.time(),
             }

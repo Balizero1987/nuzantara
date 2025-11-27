@@ -4,7 +4,6 @@ Uses Google's Generative AI (Imagen) to generate images from text prompts.
 """
 
 import logging
-import os
 import google.generativeai as genai
 from typing import Optional
 

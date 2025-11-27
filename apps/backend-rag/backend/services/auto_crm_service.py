@@ -4,7 +4,6 @@ Automatically creates/updates clients and practices from chat conversations
 """
 
 import logging
-import os
 from datetime import datetime
 
 import psycopg2
