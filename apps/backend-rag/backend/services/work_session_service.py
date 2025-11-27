@@ -26,7 +26,8 @@ class WorkSessionService:
     """
 
     def __init__(self):
-        self.db_url = os.getenv("DATABASE_URL")
+        from app.core.config import settings
+        self.db_url = settings.database_url
         self.pool = None
         self.zero_email = "zero@balizero.com"  # All notifications go here
 

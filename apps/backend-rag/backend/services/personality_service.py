@@ -37,7 +37,7 @@ class PersonalityService:
         # Usa Zantara locale tramite SSH tunnel per Jaksel personality
         from app.core.config import settings
         self.zantara_oracle_url = settings.zantara_oracle_url
-        self.oracle_api_key = os.getenv("ORACLE_API_KEY", "")
+        self.oracle_api_key = settings.oracle_api_key or ""
         self.team_members = TEAM_MEMBERS
         self.personality_profiles = self._build_personality_profiles()
 

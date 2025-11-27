@@ -4,7 +4,6 @@ Qdrant client wrapper for embeddings storage and retrieval
 """
 
 import logging
-import os
 from typing import Any
 
 import requests
@@ -31,12 +30,8 @@ class QdrantClient:
             qdrant_url: Qdrant server URL (default from env/settings)
             collection_name: Name of collection to use
         """
-        # Get Qdrant URL from env or settings
-        self.qdrant_url = (
-            qdrant_url
-            or os.environ.get("QDRANT_URL")
-            or (settings.qdrant_url if settings else "https://nuzantara-qdrant.fly.dev")
-        )
+        # Get Qdrant URL from settings
+        self.qdrant_url = qdrant_url or settings.qdrant_url
 
         self.collection_name = collection_name or "knowledge_base"
 

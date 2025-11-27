@@ -6,7 +6,12 @@ import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 
 export default function Chat() {
-    const { messages, input, handleInputChange, handleSubmit } = useChat();
+    const { messages, input, handleInputChange, handleSubmit } = useChat({
+        api: '/api/chat',
+        headers: {
+            'Authorization': typeof window !== 'undefined' ? `Bearer ${localStorage.getItem('zantara_token') || ''}` : '',
+        },
+    });
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {

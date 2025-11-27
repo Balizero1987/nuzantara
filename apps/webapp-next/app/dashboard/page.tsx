@@ -18,9 +18,9 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                // In a real deployment, this would be an absolute URL or proxied
-                // For local dev, we hit the backend directly (CORS allowed)
-                const res = await fetch('http://localhost:8000/api/dashboard/stats');
+                // Use environment variable for backend URL
+                const RAG_BACKEND_URL = process.env.NEXT_PUBLIC_RAG_BACKEND_URL || process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
+                const res = await fetch(`${RAG_BACKEND_URL}/api/dashboard/stats`);
                 if (res.ok) {
                     const data = await res.json();
                     setStats(data);

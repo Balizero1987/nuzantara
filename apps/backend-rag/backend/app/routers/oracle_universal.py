@@ -87,8 +87,13 @@ class Configuration:
 
     def _validate_environment(self):
         """Validate required environment variables"""
-        required_vars = ["GOOGLE_API_KEY", "GOOGLE_CREDENTIALS_JSON", "DATABASE_URL"]
-        missing_vars = [var for var in required_vars if not os.environ.get(var)]
+        from app.core.config import settings
+        missing_vars = []
+        
+        if not settings.database_url:
+            missing_vars.append("DATABASE_URL")
+        # Note: GOOGLE_API_KEY and GOOGLE_CREDENTIALS_JSON are not in settings yet
+        # They can be added if needed, but for now we'll keep the warning
 
         if missing_vars:
             logger.warning(f"⚠️ Missing environment variables: {missing_vars}. Using dummy values for testing.")
@@ -96,21 +101,27 @@ class Configuration:
 
     @property
     def google_api_key(self) -> str:
+        # TODO: Add google_api_key to settings if needed
+        import os
         return os.environ.get("GOOGLE_API_KEY", "dummy_key")
 
     @property
     def google_credentials_json(self) -> str:
+        # TODO: Add google_credentials_json to settings if needed
+        import os
         return os.environ.get("GOOGLE_CREDENTIALS_JSON", "{}")
 
     @property
     def database_url(self) -> str:
-        return os.environ.get("DATABASE_URL", "postgresql://user:pass@localhost/db")
+        from app.core.config import settings
+        return settings.database_url or "postgresql://user:pass@localhost/db"
 
     @property
     def openai_api_key(self) -> str:
-        if not os.environ.get("OPENAI_API_KEY"):
+        from app.core.config import settings
+        if not settings.openai_api_key:
             logger.warning("⚠️ OPENAI_API_KEY not set - embeddings may fail")
-        return os.environ.get("OPENAI_API_KEY", "")
+        return settings.openai_api_key or ""
 
 
 # Initialize configuration

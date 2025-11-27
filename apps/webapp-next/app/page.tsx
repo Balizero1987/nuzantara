@@ -17,15 +17,47 @@ export default function Login() {
         setIsLoading(true);
         setError(false);
 
-        // Simulate authentication
-        setTimeout(() => {
-            setIsLoading(false);
-            // For demo, we assume success if email/pin are not empty (or specific values)
-            // But let's keep the "error first" demo flow if desired, or just go straight to dashboard
-            // Let's go straight to dashboard for a smooth "Mission Control" feel
+        try {
+            // Get backend URL from environment
+            const RAG_BACKEND_URL = process.env.NEXT_PUBLIC_RAG_BACKEND_URL || process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
+            
+            // Call real authentication endpoint
+            const response = await fetch(`${RAG_BACKEND_URL}/api/auth/team/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, pin }),
+            });
 
-            router.push('/dashboard');
-        }, 1500);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ detail: 'Authentication failed' }));
+                setError(true);
+                setIsLoading(false);
+                return;
+            }
+
+            const data = await response.json();
+
+            // Save token to localStorage
+            if (data.token) {
+                localStorage.setItem('zantara_token', data.token);
+                // Also save user data if needed
+                if (data.user) {
+                    localStorage.setItem('zantara_user', JSON.stringify(data.user));
+                }
+                
+                // Redirect to dashboard on success
+                router.push('/dashboard');
+            } else {
+                setError(true);
+                setIsLoading(false);
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError(true);
+            setIsLoading(false);
+        }
     };
 
     return (
