@@ -24,17 +24,9 @@ import path from 'path';
 import { MemoryAnalytics } from './analytics';
 import { ConversationSummarizer } from './summarization';
 import { FactExtractor } from './fact-extraction';
-import { createLogger, parseLogLevel } from '@nuzantara/utils';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-
-// Initialize structured logger
-const logger = createLogger({
-  service: 'memory-service',
-  level: parseLogLevel(process.env.LOG_LEVEL || 'info'),
-  enableColors: process.env.NODE_ENV !== 'production',
-});
 
 // Middleware
 app.use(helmet());
@@ -63,14 +55,17 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Database connections
-const postgres = new Pool({
-  connectionString:
-    process.env.DATABASE_URL || 'postgres://postgres:password@localhost:5432/memory_db',
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+// Only initialize PostgreSQL if DATABASE_URL is provided
+const databaseUrl = process.env.DATABASE_URL;
+const postgres = databaseUrl
+  ? new Pool({
+      connectionString: databaseUrl,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    })
+  : null;
 
 // Redis (optional - for caching)
 let redis: Redis | null = null;
@@ -82,56 +77,52 @@ if (process.env.REDIS_URL) {
       lazyConnect: true,
     });
     redis.on('error', (err) => {
-      logger.warn('Redis connection error (caching disabled)', {
-        error: err.message,
-        type: 'redis'
-      });
+      console.warn('⚠️  Redis connection error (caching disabled):', err.message);
     });
     redis.connect().catch((err) => {
-      logger.warn('Redis unavailable, running without cache', {
-        error: err.message,
-        type: 'redis'
-      });
+      console.warn('⚠️  Redis unavailable, running without cache:', err.message);
       redis = null;
     });
   } catch {
-    logger.warn('Redis initialization failed, running without cache', {
-      type: 'redis'
-    });
+    console.warn('⚠️  Redis initialization failed, running without cache');
     redis = null;
   }
 } else {
-  logger.info('Redis not configured, running without cache', {
-    type: 'redis'
-  });
+  console.log('ℹ️  Redis not configured, running without cache');
 }
 
-// Initialize Analytics
-const analytics = new MemoryAnalytics(postgres, redis);
+// Initialize Analytics (only if postgres is available)
+const analytics = postgres ? new MemoryAnalytics(postgres, redis) : null;
 
-// Initialize Summarizer
-const summarizer = new ConversationSummarizer(postgres, {
+// Initialize Summarizer (only if postgres is available)
+const summarizer = postgres ? new ConversationSummarizer(postgres, {
   messageThreshold: 50,
   keepRecentCount: 10,
   openaiApiKey: process.env.OPENAI_API_KEY || '',
-});
+}) : null;
 
-// Initialize Fact Extractor
-const factExtractor = new FactExtractor(postgres, {
+// Initialize Fact Extractor (only if postgres is available)
+const factExtractor = postgres ? new FactExtractor(postgres, {
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   minConfidence: 0.7,
   minImportance: 0.6,
-});
+}) : null;
+
+if (!process.env.OPENAI_API_KEY) {
+  console.log('⚠️  OpenAI API key not configured - fact extraction disabled');
+}
 
 // ============================================================
 // DATABASE INITIALIZATION
 // ============================================================
 
 async function initializeDatabase() {
-  logger.info('Initializing Memory Service Database', {
-    type: 'database',
-    operation: 'initialization'
-  });
+  console.log('🔧 Initializing Memory Service Database...');
+
+  if (!postgres) {
+    console.log('⚠️  No database configured - running in memory-only mode');
+    return;
+  }
 
   try {
     // Table 1: Sessions
@@ -226,18 +217,14 @@ async function initializeDatabase() {
       END $$;
     `);
 
-    logger.info('Memory Service Database initialized successfully', {
-      type: 'database',
-      operation: 'initialization'
-    });
+    console.log('✅ Memory Service Database initialized successfully!');
 
-    // Initialize analytics tables
-    await analytics.initialize();
+    // Initialize analytics tables (if analytics is available)
+    if (analytics) {
+      await analytics.initialize();
+    }
   } catch (error) {
-    logger.error('Database initialization failed', error as Error, {
-      type: 'database',
-      operation: 'initialization'
-    });
+    console.error('❌ Database initialization failed:', error);
     throw error;
   }
 }
@@ -251,18 +238,39 @@ initializeDatabase().catch(console.error);
 
 app.get('/health', async (req: Request, res: Response) => {
   try {
-    // Test database connection
-    const dbTest = await postgres.query('SELECT NOW()');
-    const redisTest = redis ? await redis.ping() : 'disabled';
+    // Test database connection (if configured)
+    let dbStatus = 'not_configured';
+    if (postgres) {
+      try {
+        const dbTest = await postgres.query('SELECT NOW()');
+        dbStatus = dbTest.rows[0] ? 'connected' : 'disconnected';
+      } catch (dbError) {
+        dbStatus = 'error';
+      }
+    }
 
-    res.json({
-      status: 'healthy',
+    // Test Redis connection (if configured)
+    let redisStatus = 'not_configured';
+    if (redis) {
+      try {
+        const redisTest = await redis.ping();
+        redisStatus = redisTest === 'PONG' ? 'connected' : 'disconnected';
+      } catch (redisError) {
+        redisStatus = 'error';
+      }
+    }
+
+    const isHealthy = (dbStatus === 'connected' || dbStatus === 'not_configured') &&
+                     (redisStatus === 'connected' || redisStatus === 'disconnected' || redisStatus === 'not_configured');
+
+    res.status(isHealthy ? 200 : 503).json({
+      status: isHealthy ? 'healthy' : 'unhealthy',
       service: 'memory-service',
       version: '1.0.0',
       timestamp: new Date().toISOString(),
       databases: {
-        postgres: dbTest.rows[0] ? 'connected' : 'disconnected',
-        redis: redisTest === 'PONG' ? 'connected' : 'disconnected',
+        postgres: dbStatus,
+        redis: redisStatus,
       },
     });
   } catch (error) {
@@ -273,11 +281,22 @@ app.get('/health', async (req: Request, res: Response) => {
   }
 });
 
+// Helper function to check database availability
+function requireDatabase(req: Request, res: Response, next: Function) {
+  if (!postgres) {
+    return res.status(503).json({
+      success: false,
+      error: 'Database not configured - service running in memory-only mode',
+    });
+  }
+  next();
+}
+
 // ============================================================
 // LEVEL 1: SESSION MANAGEMENT
 // ============================================================
 
-app.post('/api/session/create', async (req: Request, res: Response) => {
+app.post('/api/session/create', requireDatabase, async (req: Request, res: Response) => {
   try {
     const { session_id, user_id, member_name, metadata = {} } = req.body;
 
@@ -300,7 +319,7 @@ app.post('/api/session/create', async (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/session/:session_id', async (req: Request, res: Response) => {
+app.get('/api/session/:session_id', requireDatabase, async (req: Request, res: Response) => {
   try {
     const { session_id } = req.params;
 
@@ -1405,21 +1424,19 @@ app.get('/api/facts/stats', async (req: Request, res: Response) => {
 // ============================================================
 
 app.listen(PORT, () => {
-  logger.info('NUZANTARA MEMORY SERVICE started', {
-    type: 'startup',
-    version: '1.0',
-    port: PORT,
-    healthEndpoint: `http://localhost:${PORT}/health`,
-    statsEndpoint: `http://localhost:${PORT}/api/stats`
-  });
+  console.log('🧠 ========================================');
+  console.log('🧠 NUZANTARA MEMORY SERVICE v1.0');
+  console.log('🧠 ========================================');
+  console.log(`🧠 Port: ${PORT}`);
+  console.log(`🧠 Health: http://localhost:${PORT}/health`);
+  console.log(`🧠 Stats: http://localhost:${PORT}/api/stats`);
+  console.log('🧠 ========================================');
 });
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  logger.info('Shutting down Memory Service...', {
-    type: 'shutdown'
-  });
-  await postgres.end();
+  console.log('\n🛑 Shutting down Memory Service...');
+  if (postgres) await postgres.end();
   if (redis) await redis.quit();
   process.exit(0);
 });

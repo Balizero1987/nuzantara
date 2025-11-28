@@ -2,11 +2,11 @@
   "name": "@nuzantara/webapp-tailwind",
   "version": "5.2.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "build": "tsc && vite build",
-    "dev": "vite",
-    "preview": "vite preview"
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@ai-sdk/openai": "2.0.73",

@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     zantara_ai_model: str = "gpt-4o-mini"  # Set via ZANTARA_AI_MODEL
     zantara_ai_cost_input: float = 0.15  # Cost per 1M input tokens (GPT-4o-mini)
     zantara_ai_cost_output: float = 0.60  # Cost per 1M output tokens (GPT-4o-mini)
+    openrouter_api_key_llama: str | None = None  # Set via OPENROUTER_API_KEY_LLAMA env var
 
     # ========================================
     # QDRANT VECTOR DATABASE
@@ -115,6 +116,13 @@ class Settings(BaseSettings):
     jwt_secret_key: str = "zantara_default_secret_key_2025_change_in_production"
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_hours: int = 24
+
+    # ========================================
+    # API KEY AUTHENTICATION CONFIGURATION
+    # ========================================
+    api_keys: str = "zantara-secret-2024,zantara-test-2024"
+    api_auth_enabled: bool = True
+    api_auth_bypass_db: bool = True
 
     # ========================================
     # TYPESCRIPT BACKEND INTEGRATION

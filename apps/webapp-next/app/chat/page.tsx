@@ -332,11 +332,11 @@ export default function ChatPage() {
             </button>
           </div>
 
-          <div className="flex items-center gap-3 animate-pulse-glow -my-16 scale-[3] mx-auto">
+          <div className="animate-pulse-glow -my-20 scale-[4] mx-auto">
             <img
               src="/logo-zantara.svg"
               alt="ZANTARA"
-              className="h-8 w-auto drop-shadow-[0_0_10px_rgba(212,175,55,0.3)]"
+              className="h-12 w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.5)]"
             />
           </div>
 
@@ -351,7 +351,7 @@ export default function ChatPage() {
               />
               <button
                 onClick={() => avatarInputRef.current?.click()}
-                className="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-purple-600 via-purple-500 to-indigo-600 shadow-[0_0_20px_rgba(147,51,234,0.5)] hover:shadow-[0_0_30px_rgba(147,51,234,0.7)] transition-all duration-300 hover:scale-110 flex items-center justify-center"
+                className="w-14 h-14 rounded-full overflow-hidden transition-all duration-300 hover:scale-110 flex items-center justify-center"
                 title="Click to upload avatar"
               >
                 {avatarImage ? (

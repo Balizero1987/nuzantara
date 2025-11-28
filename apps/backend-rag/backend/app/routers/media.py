@@ -18,8 +18,31 @@ async def generate_image(request: ImagePrompt):
     """
     try:
         service = ImageGenerationService()
-        image_url = await service.generate_image(request.prompt)
-        return {"url": image_url}
+        result = await service.generate_image(request.prompt)
+
+        if result["success"]:
+            return {
+                "success": True,
+                "url": result["url"],
+                "prompt": result.get("prompt"),
+                "service": result.get("service", "unknown")
+            }
+        else:
+            # Return proper HTTP status codes for different error types
+            if "not configured" in result["error"]:
+                raise HTTPException(status_code=503, detail=result)
+            elif "Invalid prompt" in result["error"]:
+                raise HTTPException(status_code=400, detail=result)
+            else:
+                raise HTTPException(status_code=500, detail=result)
+
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
         logger.error(f"Image generation error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail={
+            "success": False,
+            "error": "Internal server error",
+            "details": str(e)
+        })

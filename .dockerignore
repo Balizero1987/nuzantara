@@ -1,3 +1,28 @@
+# Only include webapp-next and exclude everything else
+# First include everything we need
+!apps/webapp-next/
+!apps/webapp-next/**/*
+
+# Then exclude everything else at the root level
+*
+
+# Exclude other apps
+apps/backend/
+apps/webapp-vite/
+apps/admin/
+apps/api-gateway/
+apps/mobile/
+
+# Exclude all other directories
+scripts/
+docs/
+tests/
+test/
+data/
+chroma_data/
+chromadb/
+oracle-data/
+
 # Git
 /.git
 .gitignore
