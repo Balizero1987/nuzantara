@@ -32,6 +32,11 @@ from app.core.config import settings
 from app.modules.identity.router import router as identity_router
 from app.modules.knowledge.router import router as knowledge_router
 
+# --- Hybrid Authentication Middleware ---
+from middleware.hybrid_auth import HybridAuthMiddleware
+
+import asyncpg
+
 # --- Routers ---
 from app.routers import (
     agents,
@@ -99,19 +104,24 @@ def _allowed_origins() -> list[str]:
     if hasattr(settings, "dev_origins") and settings.dev_origins:
         origins.extend([origin.strip() for origin in settings.dev_origins.split(",") if origin.strip()])
 
-    # Default production origins (fallback)
-    if not origins:
-        origins = [
-            "https://zantara.balizero.com",
-            "https://www.zantara.balizero.com",
-            "https://balizero1987.github.io",
-            "https://balizero.github.io",
-            "https://nuzantara-webapp.fly.dev",  # Frontend Fly.io deployment
-        ]
+    # Default production origins
+    default_origins = [
+        "https://zantara.balizero.com",
+        "https://www.zantara.balizero.com",
+        "https://balizero1987.github.io",
+        "https://balizero.github.io",
+        "https://nuzantara-webapp.fly.dev",  # Frontend Fly.io deployment
+    ]
+
+    # Always include defaults
+    for origin in default_origins:
+        if origin not in origins:
+            origins.append(origin)
 
     return origins
 
 
+# Add CORS middleware first
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins(),
@@ -119,6 +129,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add Hybrid Authentication middleware (after CORS)
+app.add_middleware(HybridAuthMiddleware)
 
 
 # --- Router Inclusion ---
@@ -205,6 +218,39 @@ async def get_dashboard_stats():
     }
 
 
+async def _validate_api_key(api_key: str | None) -> dict | None:
+    """
+    Validate API key for service-to-service authentication.
+    Returns a user payload when the API key is valid, otherwise None.
+
+    This function will be integrated with colleague's API Key authentication service.
+    For now, provides basic validation against configured API keys.
+    """
+    if not api_key:
+        return None
+
+    # Get configured API keys from settings
+    from app.core.config import settings
+    configured_keys = getattr(settings, 'api_keys', '').split(',') if getattr(settings, 'api_keys', None) else []
+
+    # Basic validation against configured keys
+    if api_key in configured_keys:
+        logger.info(f"✅ API key authentication successful")
+        return {
+            "id": "api_key_user",
+            "email": "api-service@nuzantara.io",
+            "name": "API Service User",
+            "role": "service",
+            "auth_method": "api_key",
+            "permissions": ["read", "write"]
+        }
+
+    # TODO: Integrate with colleague's API Key validation service
+    # For now, this is a placeholder that can be extended
+    logger.warning(f"❌ Invalid API key: {api_key[:8]}... (masked)")
+    return None
+
+
 async def _validate_auth_token(token: str | None) -> dict | None:
     """
     Validate frontend-issued JWT tokens by delegating to the TypeScript backend.
@@ -252,6 +298,42 @@ async def _validate_auth_token(token: str | None) -> dict | None:
         except Exception as exc:
             logger.error("Token validation request failed via %s: %s", base_url, exc)
             continue
+
+    return None
+
+
+async def _validate_auth_mixed(authorization: str | None = None, auth_token: str | None = None, x_api_key: str | None = None) -> dict | None:
+    """
+    Enhanced authentication supporting both JWT and API keys.
+
+    Priority order:
+    1. Authorization: Bearer <JWT_TOKEN>
+    2. auth_token parameter
+    3. X-API-Key header
+
+    Returns user profile when any authentication method succeeds.
+    """
+    # Try JWT token authentication first
+    token_value = None
+    if authorization:
+        if not authorization.startswith("Bearer "):
+            logger.warning("Invalid authorization header format")
+        else:
+            token_value = authorization.split(" ", 1)[1].strip()
+    elif auth_token:
+        token_value = auth_token.strip()
+
+    if token_value:
+        user = await _validate_auth_token(token_value)
+        if user:
+            user["auth_method"] = "jwt"
+            return user
+
+    # Try API key authentication if JWT failed
+    if x_api_key:
+        user = await _validate_api_key(x_api_key)
+        if user:
+            return user
 
     return None
 
@@ -352,21 +434,69 @@ async def initialize_services() -> None:
         except Exception as e:
             logger.error(f"❌ Failed to initialize CRM/Memory services: {e}")
 
-        if ai_client and search_service:
-            intelligent_router = IntelligentRouter(
-                ai_client=ai_client,
-                search_service=search_service,
-                tool_executor=tool_executor,
-                cultural_rag_service=cultural_rag_service,
-                autonomous_research_service=autonomous_research_service,
-                cross_oracle_synthesis_service=cross_oracle_synthesis_service,
-                client_journey_orchestrator=client_journey_orchestrator,
-                personality_service=PersonalityService(),
-            )
+        # 7. Team Timesheet Service
+        if settings.database_url:
+            try:
+                # Create asyncpg pool for team timesheet service
+                db_pool = await asyncpg.create_pool(
+                    dsn=settings.database_url,
+                    min_size=5,
+                    max_size=20,
+                    command_timeout=60
+                )
+
+                from services.team_timesheet_service import init_timesheet_service
+                ts_service = init_timesheet_service(db_pool)
+                app.state.ts_service = ts_service
+                app.state.db_pool = db_pool  # Store pool for other services
+
+                # Start background tasks
+                await ts_service.start_auto_logout_monitor()
+                logger.info("✅ Team Timesheet Service initialized with auto-logout monitor")
+            except Exception as e:
+                logger.error(f"❌ Failed to initialize Team Timesheet Service: {e}")
+                app.state.ts_service = None
+                app.state.db_pool = None
+        else:
+            logger.warning("⚠️ DATABASE_URL not configured - Team Timesheet Service unavailable")
+            app.state.ts_service = None
+            app.state.db_pool = None
+
+        # Initialize IntelligentRouter with fallback to mock mode
+        try:
+            if ai_client and search_service:
+                # Full initialization with all services
+                intelligent_router = IntelligentRouter(
+                    ai_client=ai_client,
+                    search_service=search_service,
+                    tool_executor=tool_executor,
+                    cultural_rag_service=cultural_rag_service,
+                    autonomous_research_service=autonomous_research_service,
+                    cross_oracle_synthesis_service=cross_oracle_synthesis_service,
+                    client_journey_orchestrator=client_journey_orchestrator,
+                    personality_service=PersonalityService(),
+                )
+                logger.info("✅ IntelligentRouter initialized with full services")
+            else:
+                # Fallback to minimal mock mode
+                logger.warning("⚠️ Some dependencies missing, initializing IntelligentRouter in minimal mode")
+                intelligent_router = IntelligentRouter(
+                    ai_client=ai_client or ZantaraAIClient(),  # Create mock client if None
+                    search_service=None,
+                    tool_executor=None,
+                    cultural_rag_service=None,
+                    autonomous_research_service=None,
+                    cross_oracle_synthesis_service=None,
+                    client_journey_orchestrator=None,
+                    personality_service=None,
+                )
+                logger.info("✅ IntelligentRouter initialized in minimal mode")
+
             dependencies.bali_zero_router = intelligent_router
             app.state.intelligent_router = intelligent_router
-        else:
-            logger.warning("⚠️ IntelligentRouter NOT initialized due to missing dependencies")
+
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize IntelligentRouter: {e}")
             app.state.intelligent_router = None
 
         # State persistence
@@ -437,20 +567,17 @@ async def bali_zero_chat_stream(
     if not query.strip():
         raise HTTPException(status_code=400, detail="Query must not be empty")
 
-    # Auth Check
-    token_value: str | None = None
-    if authorization:
-        if not authorization.startswith("Bearer "):
-            raise HTTPException(status_code=401, detail="Invalid authorization header")
-        token_value = authorization.split(" ", 1)[1].strip()
-    elif auth_token:
-        token_value = auth_token.strip()
-    else:
-        raise HTTPException(status_code=401, detail="Authorization token required")
-
-    user_profile = await _validate_auth_token(token_value)
+    # Enhanced Auth Check (JWT + API Key)
+    user_profile = await _validate_auth_mixed(
+        authorization=authorization,
+        auth_token=auth_token,
+        x_api_key=request.headers.get("x-api-key")
+    )
     if not user_profile:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required. Provide either JWT token (Bearer <token>) or API key (X-API-Key header)"
+        )
 
     if not getattr(app.state, "services_initialized", False):
         raise HTTPException(status_code=503, detail="Services are still initializing")
@@ -478,7 +605,20 @@ async def bali_zero_chat_stream(
                 memory=None,
                 collaborator=None,
             ):
-                yield f"data: {json.dumps({'type': 'token', 'data': chunk}, ensure_ascii=False)}\n\n"
+                # Intercept legacy [METADATA] tags and convert to SSE metadata events
+                if chunk.startswith("[METADATA]"):
+                    try:
+                        # Extract JSON content between tags
+                        json_str = chunk.replace("[METADATA]", "")
+                        metadata_data = json.loads(json_str)
+                        yield f"data: {json.dumps({'type': 'metadata', 'data': metadata_data}, ensure_ascii=False)}\n\n"
+                    except Exception as e:
+                        logger.warning(f"Failed to parse metadata chunk: {e}")
+                        # Fallback: send as hidden token or ignore? sending as token might show garbage
+                        # Let's ignore it to be safe, or send as debug log
+                        pass
+                else:
+                    yield f"data: {json.dumps({'type': 'token', 'data': chunk}, ensure_ascii=False)}\n\n"
 
             # Done
             yield f"data: {json.dumps({'type': 'done', 'data': None})}\n\n"
