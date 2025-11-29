@@ -1,0 +1,234 @@
+name: Enhanced Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  security-scan:
+    name: Comprehensive Security Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Install deep analysis tools
+        run: |
+          # Install Semgrep
+          python -m pip install semgrep
+
+          # Install CodeQL CLI
+          wget https://github.com/github/codeql-cli-binaries/releases/download/v2.23.6/codeql-linux64.zip
+          unzip codeql-linux64.zip
+          sudo mv codeql /opt/
+          echo "/opt/codeql" >> $GITHUB_PATH
+
+      - name: Install SonarScanner
+        run: |
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.3.0.5189-linux.zip
+          unzip sonar-scanner-cli-7.3.0.5189-linux.zip
+          echo "SONAR_SCANNER_HOME=$PWD/sonar-scanner-7.3.0.5189-linux" >> $GITHUB_ENV
+          echo "$SONAR_SCANNER_HOME/bin" >> $GITHUB_PATH
+
+      - name: Setup Node.js for frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: apps/webapp-next/package-lock.json
+
+      - name: Install Python dependencies
+        run: |
+          cd apps/backend-rag
+          pip install -r requirements.txt
+
+      - name: Install Node.js dependencies
+        run: |
+          cd apps/webapp-next
+          npm ci
+
+      - name: Run Semgrep Security Scan
+        id: semgrep
+        run: |
+          semgrep --config=auto \
+                  --config=secrets \
+                  --severity=ERROR \
+                  --severity=WARNING \
+                  --json \
+                  --output=semgrep-results.json \
+                  apps/ || true
+
+          # Parse results
+          CRITICAL=$(cat semgrep-results.json | jq '.results | length' 2>/dev/null || echo "0")
+          echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+          echo "semgrep_critical_issues=$CRITICAL" >> $GITHUB_ENV
+
+      - name: Run CodeQL Analysis
+        id: codeql
+        run: |
+          # Create CodeQL database
+          codeql database create codeql-db \
+              --language=python \
+              --source-root=apps/backend-rag
+
+          # Analyze database
+          codeql database analyze codeql-db \
+              --format=sarif \
+              --output=codeql-results.sarif \
+              python-security-and-quality || true
+
+          # Count findings
+          FINDINGS=$(cat codeql-results.sarif | jq '.runs[0].results | length' 2>/dev/null || echo "0")
+          echo "findings=$FINDINGS" >> $GITHUB_OUTPUT
+          echo "codeql_findings=$FINDINGS" >> $GITHUB_ENV
+
+      - name: Run SonarQube Scan
+        id: sonarqube
+        continue-on-error: true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          # Create sonar-project.properties
+          cat > sonar-project.properties << EOF
+          sonar.projectKey=nuzantara-ci
+          sonar.projectName=Nuzantara CI/CD
+          sonar.sources=apps/backend-rag/backend,apps/backend-rag/api
+          sonar.tests=apps/backend-rag/tests
+          sonar.inclusions=**/*.py
+          sonar.exclusions=**/__pycache__/**,**/node_modules/**
+          sonar.python.coverage.reportPaths=apps/backend-rag/coverage.xml
+          sonar.sourceEncoding=UTF-8
+          EOF
+
+          # Run scan (if token is available)
+          if [ -n "$SONAR_TOKEN" ]; then
+            sonar-scanner \
+                -Dsonar.host.url=https://sonarcloud.io \
+                -Dsonar.login=$SONAR_TOKEN
+            echo "sonar_scan=completed" >> $GITHUB_OUTPUT
+          else
+            echo "sonar_scan=skipped_no_token" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Contract Sentinel
+        id: contract
+        run: |
+          python3 apps/core/sentinel_contract.py > contract-results.txt 2>&1 || true
+
+          # Check for breaches
+          if grep -q "CONTRACT BREACH" contract-results.txt; then
+            echo "status=BREACH" >> $GITHUB_OUTPUT
+            echo "contract_breach=true" >> $GITHUB_ENV
+          else
+            echo "status=VALID" >> $GITHUB_OUTPUT
+            echo "contract_breach=false" >> $GITHUB_ENV
+          fi
+
+      - name: Upload Security Scan Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-scan-results
+          path: |
+            semgrep-results.json
+            codeql-results.sarif
+            contract-results.txt
+          retention-days: 30
+
+      - name: Comment PR with Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+
+            let comment = '## 🔍 Security Scan Results\n\n';
+
+            // Semgrep results
+            const semgrepCritical = process.env.semgrep_critical_issues || 0;
+            comment += `### Semgrep\n`;
+            comment += `- 🔴 Critical Issues: ${semgrepCritical}\n`;
+
+            // CodeQL results
+            const codeqlFindings = process.env.codeql_findings || 0;
+            comment += `### CodeQL\n`;
+            comment += `- 🟡 Security Findings: ${codeqlFindings}\n`;
+
+            // Contract check
+            const contractBreach = process.env.contract_breach === 'true';
+            comment += `### Contract Check\n`;
+            comment += contractBreach ? '- ❌ CONTRACT BREACH DETECTED\n' : '- ✅ Contract Valid\n';
+
+            // Overall status
+            comment += `\n### Overall Status\n`;
+            if (semgrepCritical > 0 || codeqlFindings > 0 || contractBreach) {
+              comment += '🚨 **ACTION REQUIRED** - Security issues found!\n';
+            } else {
+              comment += '✅ **PASSED** - No critical issues detected\n';
+            }
+
+            // Create or update comment
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Check for Critical Issues
+        run: |
+          # Fail if critical issues are found
+          if [ "${{ env.semgrep_critical_issues }}" -gt 0 ] || [ "${{ env.contract_breach }}" = "true" ]; then
+            echo "::error::Critical security issues detected! Check the security scan results."
+            exit 1
+          else
+            echo "✅ No critical security issues detected"
+          fi
+
+  frontend-security:
+    name: Frontend Security Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: apps/webapp-next/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd apps/webapp-next
+          npm ci
+
+      - name: Run npm audit
+        run: |
+          cd apps/webapp-next
+          npm audit --audit-level moderate
+
+      - name: TypeScript type check
+        run: |
+          cd apps/webapp-next
+          npm run type-check || true
