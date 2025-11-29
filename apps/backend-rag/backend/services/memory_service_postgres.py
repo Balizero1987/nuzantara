@@ -60,6 +60,7 @@ class MemoryServicePostgres:
             database_url: PostgreSQL connection string (from Fly.io DATABASE_URL)
         """
         from app.core.config import settings
+
         self.database_url = database_url or settings.database_url
         self.pool: asyncpg.Pool | None = None
         self.memory_cache: dict[str, UserMemory] = {}  # In-memory fallback
@@ -333,7 +334,7 @@ class MemoryServicePostgres:
             )
         return success
 
-    async def save_fact(self, user_id: str, content: str, fact_type: str = "general") -> bool:
+    async def save_fact(self, user_id: str, content: str, _fact_type: str = "general") -> bool:
         """
         Save a fact to memory_facts table (alias for add_fact).
 

@@ -27,7 +27,6 @@ from app.modules.identity.router import (
 )
 from app.modules.identity.service import IdentityService
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -94,7 +93,7 @@ def reset_identity_service():
     import app.modules.identity.router as router_module
 
     # Access the module-level variable, not the router instance
-    original_service = getattr(router_module, '_identity_service', None)
+    original_service = getattr(router_module, "_identity_service", None)
     router_module._identity_service = None
     yield
     router_module._identity_service = original_service
@@ -125,14 +124,18 @@ def test_get_identity_service_returns_singleton(reset_identity_service):
 
 
 @pytest.mark.asyncio
-async def test_login_success(mock_settings, mock_identity_service, mock_user, reset_identity_service):
+async def test_login_success(
+    mock_settings, mock_identity_service, mock_user, reset_identity_service
+):
     """Test successful login"""
     # Setup
     mock_identity_service.authenticate_user = AsyncMock(return_value=mock_user)
     mock_identity_service.create_access_token = Mock(return_value="jwt_token_123")
     mock_identity_service.get_permissions_for_role = Mock(return_value=["all", "admin"])
 
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         request = LoginRequest(email="test@example.com", pin="1234")
@@ -158,16 +161,20 @@ async def test_login_success(mock_settings, mock_identity_service, mock_user, re
 
 
 @pytest.mark.asyncio
-async def test_login_invalid_pin_format_non_digit(mock_settings, mock_identity_service, reset_identity_service):
+async def test_login_invalid_pin_format_non_digit(
+    mock_settings, mock_identity_service, reset_identity_service
+):
     """Test login with invalid PIN format (non-digit) - validation happens in endpoint"""
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         # Create request with valid format first, then modify pin to bypass Pydantic validation
         request = LoginRequest(email="test@example.com", pin="1234")
         # Manually set invalid pin to test endpoint validation
         request.pin = "abcd"
-        
+
         with pytest.raises(HTTPException) as exc_info:
             await team_login(request)
 
@@ -176,16 +183,20 @@ async def test_login_invalid_pin_format_non_digit(mock_settings, mock_identity_s
 
 
 @pytest.mark.asyncio
-async def test_login_invalid_pin_format_too_short(mock_settings, mock_identity_service, reset_identity_service):
+async def test_login_invalid_pin_format_too_short(
+    mock_settings, mock_identity_service, reset_identity_service
+):
     """Test login with invalid PIN format (too short) - validation happens in endpoint"""
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         # Create request with valid format first, then modify pin to bypass Pydantic validation
         request = LoginRequest(email="test@example.com", pin="1234")
         # Manually set invalid pin to test endpoint validation
         request.pin = "123"
-        
+
         with pytest.raises(HTTPException) as exc_info:
             await team_login(request)
 
@@ -194,16 +205,20 @@ async def test_login_invalid_pin_format_too_short(mock_settings, mock_identity_s
 
 
 @pytest.mark.asyncio
-async def test_login_invalid_pin_format_too_long(mock_settings, mock_identity_service, reset_identity_service):
+async def test_login_invalid_pin_format_too_long(
+    mock_settings, mock_identity_service, reset_identity_service
+):
     """Test login with invalid PIN format (too long) - validation happens in endpoint"""
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         # Create request with valid format first, then modify pin to bypass Pydantic validation
         request = LoginRequest(email="test@example.com", pin="1234")
         # Manually set invalid pin to test endpoint validation
         request.pin = "123456789"
-        
+
         with pytest.raises(HTTPException) as exc_info:
             await team_login(request)
 
@@ -212,11 +227,15 @@ async def test_login_invalid_pin_format_too_long(mock_settings, mock_identity_se
 
 
 @pytest.mark.asyncio
-async def test_login_authentication_failed(mock_settings, mock_identity_service, reset_identity_service):
+async def test_login_authentication_failed(
+    mock_settings, mock_identity_service, reset_identity_service
+):
     """Test login when authentication fails"""
     mock_identity_service.authenticate_user = AsyncMock(return_value=None)
 
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         request = LoginRequest(email="test@example.com", pin="1234")
@@ -228,11 +247,15 @@ async def test_login_authentication_failed(mock_settings, mock_identity_service,
 
 
 @pytest.mark.asyncio
-async def test_login_service_exception(mock_settings, mock_identity_service, reset_identity_service):
+async def test_login_service_exception(
+    mock_settings, mock_identity_service, reset_identity_service
+):
     """Test login when service raises exception"""
     mock_identity_service.authenticate_user = AsyncMock(side_effect=Exception("Database error"))
 
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         request = LoginRequest(email="test@example.com", pin="1234")
@@ -244,13 +267,17 @@ async def test_login_service_exception(mock_settings, mock_identity_service, res
 
 
 @pytest.mark.asyncio
-async def test_login_http_exception_passthrough(mock_settings, mock_identity_service, reset_identity_service):
+async def test_login_http_exception_passthrough(
+    mock_settings, mock_identity_service, reset_identity_service
+):
     """Test that HTTPException is passed through without modification"""
     mock_identity_service.authenticate_user = AsyncMock(
         side_effect=HTTPException(status_code=401, detail="Custom error")
     )
 
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         request = LoginRequest(email="test@example.com", pin="1234")
@@ -361,7 +388,9 @@ async def test_seed_team_member_error_handling(mock_settings, mock_asyncpg_conne
     """Test that errors for individual members are collected"""
     # Setup mocks
     mock_asyncpg_connection.execute = AsyncMock()
-    mock_asyncpg_connection.fetchrow = AsyncMock(side_effect=[None, Exception("Member error"), None])
+    mock_asyncpg_connection.fetchrow = AsyncMock(
+        side_effect=[None, Exception("Member error"), None]
+    )
     mock_asyncpg_connection.fetchval = AsyncMock(return_value=2)
 
     with patch("asyncpg.connect", return_value=mock_asyncpg_connection):
@@ -579,7 +608,9 @@ async def test_reset_admin_no_database_url(mock_settings):
 
 
 @pytest.mark.asyncio
-async def test_reset_admin_database_error(mock_settings, mock_asyncpg_connection, reset_identity_service):
+async def test_reset_admin_database_error(
+    mock_settings, mock_asyncpg_connection, reset_identity_service
+):
     """Test reset admin when database operation fails"""
     mock_asyncpg_connection.execute = AsyncMock(side_effect=Exception("Database error"))
 
@@ -617,7 +648,9 @@ async def test_reset_admin_connection_error(mock_settings):
 # ============================================================================
 
 
-def test_login_endpoint_integration(mock_settings, mock_identity_service, mock_user, reset_identity_service):
+def test_login_endpoint_integration(
+    mock_settings, mock_identity_service, mock_user, reset_identity_service
+):
     """Test login endpoint using TestClient"""
     from fastapi import FastAPI
 
@@ -628,11 +661,11 @@ def test_login_endpoint_integration(mock_settings, mock_identity_service, mock_u
     mock_identity_service.create_access_token = Mock(return_value="jwt_token_123")
     mock_identity_service.get_permissions_for_role = Mock(return_value=["all"])
 
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         client = TestClient(app)
-        response = client.post(
-            "/team/login", json={"email": "test@example.com", "pin": "1234"}
-        )
+        response = client.post("/team/login", json={"email": "test@example.com", "pin": "1234"})
 
         assert response.status_code == 200
         data = response.json()
@@ -659,13 +692,17 @@ def test_login_endpoint_validation_error(mock_settings):
 
 
 @pytest.mark.asyncio
-async def test_login_with_minimum_pin_length(mock_settings, mock_identity_service, mock_user, reset_identity_service):
+async def test_login_with_minimum_pin_length(
+    mock_settings, mock_identity_service, mock_user, reset_identity_service
+):
     """Test login with minimum PIN length (4 digits)"""
     mock_identity_service.authenticate_user = AsyncMock(return_value=mock_user)
     mock_identity_service.create_access_token = Mock(return_value="token")
     mock_identity_service.get_permissions_for_role = Mock(return_value=[])
 
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         request = LoginRequest(email="test@example.com", pin="1234")
@@ -675,13 +712,17 @@ async def test_login_with_minimum_pin_length(mock_settings, mock_identity_servic
 
 
 @pytest.mark.asyncio
-async def test_login_with_maximum_pin_length(mock_settings, mock_identity_service, mock_user, reset_identity_service):
+async def test_login_with_maximum_pin_length(
+    mock_settings, mock_identity_service, mock_user, reset_identity_service
+):
     """Test login with maximum PIN length (8 digits)"""
     mock_identity_service.authenticate_user = AsyncMock(return_value=mock_user)
     mock_identity_service.create_access_token = Mock(return_value="token")
     mock_identity_service.get_permissions_for_role = Mock(return_value=[])
 
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         request = LoginRequest(email="test@example.com", pin="12345678")
@@ -700,7 +741,9 @@ async def test_login_user_without_personalized_response(
     mock_identity_service.create_access_token = Mock(return_value="token")
     mock_identity_service.get_permissions_for_role = Mock(return_value=[])
 
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         request = LoginRequest(email="test@example.com", pin="1234")
@@ -719,11 +762,12 @@ async def test_login_user_with_none_language(
     mock_identity_service.create_access_token = Mock(return_value="token")
     mock_identity_service.get_permissions_for_role = Mock(return_value=[])
 
-    with patch("app.modules.identity.router.get_identity_service", return_value=mock_identity_service):
+    with patch(
+        "app.modules.identity.router.get_identity_service", return_value=mock_identity_service
+    ):
         from app.modules.identity.router import team_login
 
         request = LoginRequest(email="test@example.com", pin="1234")
         response = await team_login(request)
 
         assert response.user["language"] == "en"  # Default fallback
-

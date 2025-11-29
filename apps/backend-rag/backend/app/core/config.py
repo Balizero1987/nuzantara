@@ -3,12 +3,19 @@ NUZANTARA PRIME - Centralized Configuration
 All environment variables centralized using pydantic-settings
 """
 
+
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     """Application settings from environment variables - Prime Standard"""
+
+    # ========================================
+    # PROJECT CONFIGURATION
+    # ========================================
+    PROJECT_NAME: str = "Nuzantara Prime"
+    API_V1_STR: str = "/api/v1"
 
     # ========================================
     # EMBEDDINGS CONFIGURATION
@@ -21,7 +28,7 @@ class Settings(BaseSettings):
 
     @field_validator("embedding_dimensions", mode="before")
     @classmethod
-    def set_dimensions_from_provider(cls, v, info):
+    def set_dimensions_from_provider(cls, _v, info):
         """Automatically set embedding dimensions based on provider"""
         provider = info.data.get("embedding_provider", "openai")
         if provider == "openai":
@@ -162,13 +169,13 @@ class Settings(BaseSettings):
     # ========================================
     zantara_oracle_url: str = Field(
         default="http://localhost:11434/api/generate",
-        description="ZANTARA Oracle API URL (set via ZANTARA_ORACLE_URL env var)"
+        description="ZANTARA Oracle API URL (set via ZANTARA_ORACLE_URL env var)",
     )
 
     # Development origins (for local testing)
     dev_origins: str = Field(
         default="http://localhost:4173,http://127.0.0.1:4173,http://localhost:3000,http://127.0.0.1:3000",
-        description="Comma-separated list of development origins for CORS (set via DEV_ORIGINS env var)"
+        description="Comma-separated list of development origins for CORS (set via DEV_ORIGINS env var)",
     )
     oracle_api_key: str | None = None  # Set via ORACLE_API_KEY env var
 
@@ -177,6 +184,7 @@ class Settings(BaseSettings):
     # ========================================
     google_api_key: str | None = None  # Set via GOOGLE_API_KEY env var
     google_credentials_json: str | None = None  # Set via GOOGLE_CREDENTIALS_JSON env var
+    hf_api_key: str | None = None  # Set via HF_API_KEY env var
 
     # ========================================
     # FLY.IO DEPLOYMENT

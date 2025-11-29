@@ -140,7 +140,7 @@ async def ingest_documents(
         metadatas = []
         ids = []
 
-        for idx, (doc, embedding) in enumerate(zip(request.documents, embeddings)):
+        for idx, (doc, _embedding) in enumerate(zip(request.documents, embeddings, strict=True)):
             # Generate unique ID
             law_id = doc.metadata.get("law_id", "UNKNOWN")
             pasal = doc.metadata.get("pasal", str(idx))
@@ -216,4 +216,4 @@ async def list_collections(service: SearchService = Depends(get_search_service))
 
     except Exception as e:
         logger.error(f"List collections error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

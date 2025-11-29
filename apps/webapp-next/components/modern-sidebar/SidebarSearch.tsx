@@ -18,23 +18,23 @@ interface SidebarSearchProps {
   onChatSelect?: (chatId: string) => void
 }
 
+// Mock data - sostituire con dati reali dal backend
+const mockChats = [
+  { id: '1', title: 'Project Planning Discussion', preview: 'Discussing Q1 roadmap...', timestamp: '2 hours ago' },
+  { id: '2', title: 'Code Review Session', preview: 'Reviewing PR #123...', timestamp: '1 day ago' },
+  { id: '3', title: 'Architecture Decision', preview: 'Database schema changes...', timestamp: '3 days ago' },
+]
+
+const mockCommands = [
+  { id: 'new-chat', title: 'New Chat', subtitle: 'Start a fresh conversation', icon: <Sparkles className="w-4 h-4" /> },
+  { id: 'image-gen', title: 'Generate Image', subtitle: 'Create AI images', icon: <Hash className="w-4 h-4" /> },
+  { id: 'voice-chat', title: 'Voice Chat', subtitle: 'Talk with AI', icon: <Clock className="w-4 h-4" /> },
+]
+
 export function SidebarSearch({ className, onChatSelect }: SidebarSearchProps) {
   const [query, setQuery] = React.useState('')
   const [suggestions, setSuggestions] = React.useState<SearchSuggestion[]>([])
   const [isOpen, setIsOpen] = React.useState(false)
-
-  // Mock data - sostituire con dati reali dal backend
-  const mockChats = [
-    { id: '1', title: 'Project Planning Discussion', preview: 'Discussing Q1 roadmap...', timestamp: '2 hours ago' },
-    { id: '2', title: 'Code Review Session', preview: 'Reviewing PR #123...', timestamp: '1 day ago' },
-    { id: '3', title: 'Architecture Decision', preview: 'Database schema changes...', timestamp: '3 days ago' },
-  ]
-
-  const mockCommands = [
-    { id: 'new-chat', title: 'New Chat', subtitle: 'Start a fresh conversation', icon: <Sparkles className="w-4 h-4" /> },
-    { id: 'image-gen', title: 'Generate Image', subtitle: 'Create AI images', icon: <Hash className="w-4 h-4" /> },
-    { id: 'voice-chat', title: 'Voice Chat', subtitle: 'Talk with AI', icon: <Clock className="w-4 h-4" /> },
-  ]
 
   React.useEffect(() => {
     if (!query.trim()) {
@@ -48,7 +48,7 @@ export function SidebarSearch({ className, onChatSelect }: SidebarSearchProps) {
     // Filter chats
     mockChats.forEach(chat => {
       if (chat.title.toLowerCase().includes(query.toLowerCase()) ||
-          chat.preview.toLowerCase().includes(query.toLowerCase())) {
+        chat.preview.toLowerCase().includes(query.toLowerCase())) {
         filtered.push({
           id: chat.id,
           type: 'chat',
@@ -140,7 +140,7 @@ export function SidebarSearch({ className, onChatSelect }: SidebarSearchProps) {
 
           {suggestions.length === 0 && query && (
             <div className="p-4 text-center text-gray-400 text-sm">
-              No results found for "{query}"
+              No results found for &quot;{query}&quot;
             </div>
           )}
         </div>

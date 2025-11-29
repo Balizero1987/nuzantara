@@ -42,7 +42,7 @@ class StreamingService:
         model: str | None = None,
         system: str | None = None,
         max_tokens: int = 2000,
-        temperature: float = 0.7,
+        _temperature: float = 0.7,
     ) -> AsyncIterator[dict[str, Any]]:
         """
         Stream ZANTARA AI response token-by-token
@@ -215,10 +215,7 @@ class StreamingService:
             Formatted SSE event string
         """
         # Convert data to string if needed
-        if isinstance(data, (dict, list)):
-            data_str = json.dumps(data)
-        else:
-            data_str = str(data)
+        data_str = json.dumps(data) if isinstance(data, dict | list) else str(data)
 
         # Format as SSE
         return f"event: {event_type}\ndata: {data_str}\n\n"
@@ -236,7 +233,7 @@ class StreamingService:
         """
         try:
             # Quick test with minimal request using ZantaraAIClient
-            result = await self.zantara_client.chat_async(
+            await self.zantara_client.chat_async(
                 messages=[{"role": "user", "content": "test"}], max_tokens=5
             )
 

@@ -4,6 +4,7 @@ Monitors system health and sends alerts on downtime or degradation
 """
 
 import asyncio
+import contextlib
 import logging
 from datetime import datetime, timedelta
 from typing import Any
@@ -51,10 +52,8 @@ class HealthMonitor:
         self.running = False
         if self.task:
             self.task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self.task
-            except asyncio.CancelledError:
-                pass
         logger.info("🛑 HealthMonitor stopped")
 
     async def _monitoring_loop(self):
@@ -75,7 +74,7 @@ class HealthMonitor:
         # Get services from dependencies
         try:
             search_service = get_search_service()
-        except:
+        except Exception:
             search_service = None
 
         # These would need to be passed in or retrieved from dependencies

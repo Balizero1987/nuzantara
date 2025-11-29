@@ -252,39 +252,6 @@ class PricingService:
             "contact_urgency_levels": self.prices.get("contact_urgency_levels", {}),
         }
 
-    def get_pricing(self, service_type: str = "all") -> dict[str, Any]:
-        """
-        Get pricing for specific service type (FIXED: Added missing method)
-
-        Args:
-            service_type: Type of service (visa, kitas, business_setup, tax_consulting, legal, all)
-
-        Returns:
-            Pricing data for the requested service type
-        """
-        if not self.loaded:
-            return {
-                "error": "Official prices not loaded",
-                "fallback_contact": {"email": "info@balizero.com", "whatsapp": "+62 813 3805 1876"},
-            }
-
-        # Map service types to specific methods
-        if service_type == "visa":
-            return self.get_visa_prices()
-        elif service_type == "kitas" or service_type == "long_stay_permit":
-            return self.get_kitas_prices()  # Generic long-stay permit prices
-        elif service_type == "business_setup":
-            return self.get_business_prices()
-        elif service_type == "tax_consulting":
-            return self.get_tax_prices()
-        elif service_type == "legal":
-            return self.get_business_prices()  # Legal services are in business
-        elif service_type == "all":
-            return self.get_all_prices()
-        else:
-            # Try to search for the service
-            return self.search_service(service_type)
-
     def format_for_llm_context(self, service_type: str | None = None) -> str:
         """
         Format pricing data as context for LLM
@@ -339,7 +306,7 @@ class PricingService:
         warnings = self.prices.get("important_warnings", {})
         if warnings:
             context_parts.append("## IMPORTANT WARNINGS")
-            for key, warning in list(warnings.items())[:3]:  # Top 3 warnings
+            for _key, warning in list(warnings.items())[:3]:  # Top 3 warnings
                 context_parts.append(f"⚠️ {warning}")
             context_parts.append("")
 

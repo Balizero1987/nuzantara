@@ -767,7 +767,7 @@ class SearchService:
             return False
 
     async def query_cultural_insights(
-        self, query: str, when_to_use: str | None = None, limit: int = 3
+        self, query: str, _when_to_use: str | None = None, limit: int = 3
     ) -> list[dict[str, Any]]:
         """
         Query cultural insights from Qdrant

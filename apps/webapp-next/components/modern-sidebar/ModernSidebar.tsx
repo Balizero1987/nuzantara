@@ -61,7 +61,7 @@ function SidebarContent({ className, onChatSelect, onNewChat }: ModernSidebarPro
             backgroundImage: 'url(/images/image_art/Bali_zero_hq_Subtle_geometric_pattern,_golden_lines_on_dark_background,_minima_3d95f5d2-0f4e-477c-bc1f-a6f750466cce.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundBlend: 'overlay'
+            backgroundBlendMode: "overlay",
           }}
         >
           {/* Header */}
@@ -205,7 +205,7 @@ function SidebarContent({ className, onChatSelect, onNewChat }: ModernSidebarPro
               backgroundImage: 'url(/images/image_art/Bali_zero_hq_Subtle_geometric_pattern,_golden_lines_on_dark_background,_minima_3d95f5d2-0f4e-477c-bc1f-a6f750466cce.png)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              backgroundBlend: 'overlay'
+              backgroundBlendMode: 'overlay'
             }}
           >
             {/* Mobile Header */}

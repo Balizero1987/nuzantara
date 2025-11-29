@@ -143,3 +143,5 @@ COMMENT ON COLUMN team_members.locked_until IS 'Account lock expiry timestamp';
 
 COMMIT;
 
+
+

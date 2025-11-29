@@ -64,6 +64,7 @@ archive/
 # Tests - keep local only
 testsprite_tests/
 tests/
+!apps/backend-rag/tests/
 
 # Development projects - keep local only
 projects/devai/
@@ -145,6 +146,7 @@ VERIFICA_*.md
 # Script Python temporanei e di test
 *_scraper*.py
 test_*.py
+!apps/backend-rag/tests/**/test_*.py
 fix_*.py
 check_*.py
 gen_*.py

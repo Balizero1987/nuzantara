@@ -1,24 +1,39 @@
+import { createServerClient } from "@/src/lib/api/client"
+
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json()
-    const lastMessage = messages[messages.length - 1]
+    const { messages, user_id = "web_user" } = await req.json()
+    const lastMessage = messages[messages.length - 1]?.content || ""
 
-    // Mock AI response - replace this with your backend API call
-    const mockResponses = [
-      "Zantara Core online. How can I assist you today?",
-      "I'm processing your request. The system is operating at optimal capacity.",
-      "Based on your query, I recommend checking the Mission Control dashboard for real-time updates.",
-      "All systems are nominal. What would you like to know about Zantara AI?",
-    ]
+    console.log("[ChatAPI] Production request:", { message: lastMessage, user_id })
 
-    const response = mockResponses[Math.floor(Math.random() * mockResponses.length)]
+    // Extract token from Authorization header
+    const authHeader = req.headers.get("Authorization")
+    const token = authHeader?.replace("Bearer ", "") || ""
 
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    // Call the real backend Oracle API using generated client
+    const client = createServerClient(token)
 
-    return Response.json({ message: response })
-  } catch (error) {
-    console.error("[v0] Chat API error:", error)
-    return Response.json({ message: "Error processing request" }, { status: 500 })
+    const data = await client.oracleV53UltraHybrid.hybridOracleQueryApiOracleQueryPost({
+      requestBody: {
+        query: lastMessage,
+        user_email: user_id
+      }
+    })
+
+    return Response.json({
+      message: data.answer || "I'm unable to process that request right now.",
+      sources: data.sources || [],
+      model_used: data.model_used || "gemini-2.5-flash"
+    })
+
+  } catch (error: any) {
+    console.error("[ChatAPI] Production error:", error)
+    const status = error.status || 500
+    const message = error.body?.detail || "Failed to connect to AI service"
+    return Response.json(
+      { message: message },
+      { status: status }
+    )
   }
 }

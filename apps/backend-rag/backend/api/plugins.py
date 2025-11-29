@@ -5,7 +5,7 @@ Provides REST API for plugin management and execution.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from core.plugins import PluginCategory, executor, registry
 from fastapi import APIRouter, Header, HTTPException
@@ -22,23 +22,23 @@ class PluginExecuteRequest(BaseModel):
 
     input_data: dict[str, Any]
     use_cache: bool = True
-    user_id: Optional[str] = None
+    user_id: str | None = None
 
 
 class PluginListFilters(BaseModel):
     """Filters for listing plugins"""
 
-    category: Optional[PluginCategory] = None
-    tags: Optional[list[str]] = None
-    allowed_models: Optional[list[str]] = None
+    category: PluginCategory | None = None
+    tags: list[str] | None = None
+    allowed_models: list[str] | None = None
 
 
 # Endpoints
 @router.get("/list")
 async def list_plugins(
-    category: Optional[str] = None,
-    tags: Optional[list[str]] = None,
-    allowed_models: Optional[list[str]] = None,
+    category: str | None = None,
+    tags: list[str] | None = None,
+    allowed_models: list[str] | None = None,
 ):
     """
     List all available plugins
@@ -55,7 +55,7 @@ async def list_plugins(
             try:
                 plugin_category = PluginCategory(category)
             except ValueError:
-                raise HTTPException(400, f"Invalid category: {category}")
+                raise HTTPException(400, f"Invalid category: {category}") from None
 
         plugins = registry.list_plugins(
             category=plugin_category, tags=tags, allowed_models=allowed_models
@@ -69,7 +69,7 @@ async def list_plugins(
 
     except Exception as e:
         logger.error(f"Error listing plugins: {e}")
-        raise HTTPException(500, str(e))
+        raise HTTPException(500, str(e)) from e
 
 
 @router.get("/{plugin_name}")
@@ -104,7 +104,7 @@ async def get_plugin(plugin_name: str):
 async def execute_plugin(
     plugin_name: str,
     request: PluginExecuteRequest,
-    x_user_id: Optional[str] = Header(None),
+    x_user_id: str | None = Header(None),
 ):
     """
     Execute a plugin
@@ -139,7 +139,7 @@ async def execute_plugin(
 
     except Exception as e:
         logger.error(f"Error executing plugin {plugin_name}: {e}")
-        raise HTTPException(500, str(e))
+        raise HTTPException(500, str(e)) from e
 
 
 @router.get("/{plugin_name}/metrics")
@@ -196,7 +196,7 @@ async def get_statistics():
 
 
 @router.get("/tools/anthropic")
-async def get_anthropic_tools(model: Optional[str] = None):
+async def get_anthropic_tools(model: str | None = None):
     """
     Get plugin definitions in ZANTARA AI tool format (legacy Anthropic format for compatibility)
 
@@ -213,9 +213,7 @@ async def get_anthropic_tools(model: Optional[str] = None):
 
 # Admin endpoints (require admin auth)
 @router.post("/{plugin_name}/reload")
-async def reload_plugin(
-    plugin_name: str, x_admin_key: Optional[str] = Header(None)
-):
+async def reload_plugin(plugin_name: str, x_admin_key: str | None = Header(None)):
     """
     Hot-reload a plugin (admin only)
 
@@ -234,7 +232,7 @@ async def reload_plugin(
         return {"success": True, "message": f"Plugin {plugin_name} reloaded"}
     except Exception as e:
         logger.error(f"Error reloading plugin {plugin_name}: {e}")
-        raise HTTPException(500, str(e))
+        raise HTTPException(500, str(e)) from e
 
 
 @router.get("/health")

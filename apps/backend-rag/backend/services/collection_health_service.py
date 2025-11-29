@@ -112,7 +112,7 @@ class CollectionHealthService:
         logger.info("✅ CollectionHealthService initialized")
         logger.info(f"   Monitoring {len(self.metrics)} collections")
 
-    def _init_metrics(self, collection_name: str) -> dict:
+    def _init_metrics(self, _collection_name: str) -> dict:
         """Initialize empty metrics for a collection"""
         return {
             "query_count": 0,
@@ -231,7 +231,7 @@ class CollectionHealthService:
     def generate_recommendations(
         self,
         collection_name: str,
-        health_status: HealthStatus,
+        _health_status: HealthStatus,
         staleness: StalenessSeverity,
         hit_rate: float,
         avg_confidence: float,
@@ -402,7 +402,7 @@ class CollectionHealthService:
         """
         all_health = {}
 
-        for collection_name in self.metrics.keys():
+        for collection_name in self.metrics:
             health = self.get_collection_health(collection_name)
 
             if include_empty or health.query_count > 0:

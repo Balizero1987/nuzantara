@@ -83,9 +83,7 @@ class IntelligentRouter:
         self.context_builder = ContextBuilder()
         self.rag_manager = RAGManager(search_service)
         self.specialized_router = SpecializedServiceRouter(
-            autonomous_research_service,
-            cross_oracle_synthesis_service,
-            client_journey_orchestrator
+            autonomous_research_service, cross_oracle_synthesis_service, client_journey_orchestrator
         )
 
         self.response_handler = ResponseHandler()
@@ -109,7 +107,7 @@ class IntelligentRouter:
         conversation_history: list[dict] | None = None,
         memory: Any | None = None,
         emotional_profile: Any | None = None,
-        last_ai_used: str | None = None,
+        _last_ai_used: str | None = None,
         collaborator: Any | None = None,
         frontend_tools: list[dict] | None = None,
     ) -> dict:
@@ -144,12 +142,16 @@ class IntelligentRouter:
             intent = await self.classifier.classify_intent(message)
             category = intent["category"]
             suggested_ai = intent["suggested_ai"]
-            logger.info(f"📋 [Router] Initial Classification: {category} (Confidence: {intent.get('confidence', 0.0)})")
+            logger.info(
+                f"📋 [Router] Initial Classification: {category} (Confidence: {intent.get('confidence', 0.0)})"
+            )
 
             # STEP 0.5: Fast Track (Skip RAG/Gemini for greetings/casual)
             if category in ["greeting", "casual"] and self.personality_service:
                 logger.info("🚀 [Router] FAST TRACK ACTIVATED: Skipping RAG & Gemini")
-                fast_response = await self.personality_service.fast_chat(user_id, message) # user_id is email in this context usually
+                fast_response = await self.personality_service.fast_chat(
+                    user_id, message
+                )  # user_id is email in this context usually
                 return fast_response
 
             # STEP 1: Determine tools to use (frontend or backend)
@@ -264,7 +266,7 @@ class IntelligentRouter:
 
         except Exception as e:
             logger.error(f"❌ [Router] Routing error: {e}")
-            raise Exception(f"Routing failed: {str(e)}")
+            raise Exception(f"Routing failed: {str(e)}") from e
 
     async def stream_chat(
         self,
@@ -388,12 +390,17 @@ class IntelligentRouter:
             # Yield metadata first (custom format for frontend)
             # Format: [METADATA]json_string[METADATA]
             metadata = {
-                "memory_used": True if memory and (memory.get("facts") or memory.get("summary")) else False,
-                "rag_sources": [doc.metadata.get("source", "Unknown") for doc in rag_result.get("docs", [])] if rag_result else [],
+                "memory_used": bool(memory and (memory.get("facts") or memory.get("summary"))),
+                "rag_sources": [
+                    doc.metadata.get("source", "Unknown") for doc in rag_result.get("docs", [])
+                ]
+                if rag_result
+                else [],
                 "team_member": collaborator.get("name") if collaborator else "Zantara",
-                "intent": category
+                "intent": category,
             }
             import json
+
             yield f"[METADATA]{json.dumps(metadata)}[METADATA]"
 
             async for chunk in self.ai.stream(
@@ -409,7 +416,7 @@ class IntelligentRouter:
 
         except Exception as e:
             logger.error(f"❌ [Router Stream] Error: {e}")
-            raise Exception(f"Streaming failed: {str(e)}")
+            raise Exception(f"Streaming failed: {str(e)}") from e
 
     async def _handle_emotional_override(
         self,

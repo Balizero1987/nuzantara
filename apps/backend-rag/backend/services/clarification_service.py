@@ -189,7 +189,7 @@ class ClarificationService:
             Clarification request string
         """
         ambiguity_type = ambiguity_info["ambiguity_type"]
-        query_lower = query.lower()
+        query.lower()
 
         # Language-specific clarification templates
         templates = {
@@ -261,37 +261,37 @@ class ClarificationService:
         return None
 
     def _generate_clarification_options(
-        self, query: str, ambiguity_type: str, language: str
+        self, query: str, _ambiguity_type: str, language: str
     ) -> str | None:
         """Generate specific clarification options based on query"""
         query_lower = query.lower()
 
         # Visa-related clarifications
+        visa_options = {
+            "en": "- Tourist visa\n- Business visa (KITAS)\n- Work permit\n- Visa extension",
+            "it": "- Visto turistico\n- Visto business (KITAS)\n- Permesso di lavoro\n- Estensione visto",
+            "id": "- Visa turis\n- Visa bisnis (KITAS)\n- Izin kerja\n- Perpanjangan visa",
+        }
         if "visa" in query_lower or "permit" in query_lower:
-            if language == "en":
-                return "- Tourist visa\n- Business visa (KITAS)\n- Work permit\n- Visa extension"
-            elif language == "it":
-                return "- Visto turistico\n- Visto business (KITAS)\n- Permesso di lavoro\n- Estensione visto"
-            elif language == "id":
-                return "- Visa turis\n- Visa bisnis (KITAS)\n- Izin kerja\n- Perpanjangan visa"
+            return visa_options.get(language)
 
         # Tax-related clarifications
-        elif "tax" in query_lower or "pajak" in query_lower:
-            if language == "en":
-                return "- Corporate tax\n- Personal income tax\n- VAT\n- Tax registration"
-            elif language == "it":
-                return "- Tasse aziendali\n- Tasse personali\n- IVA\n- Registrazione fiscale"
-            elif language == "id":
-                return "- Pajak perusahaan\n- Pajak penghasilan\n- PPN\n- Pendaftaran NPWP"
+        tax_options = {
+            "en": "- Corporate tax\n- Personal income tax\n- VAT\n- Tax registration",
+            "it": "- Tasse aziendali\n- Tasse personali\n- IVA\n- Registrazione fiscale",
+            "id": "- Pajak perusahaan\n- Pajak penghasilan\n- PPN\n- Pendaftaran NPWP",
+        }
+        if "tax" in query_lower or "pajak" in query_lower:
+            return tax_options.get(language)
 
         # Business-related clarifications
-        elif "business" in query_lower or "company" in query_lower:
-            if language == "en":
-                return "- Starting a new company\n- PT PMA registration\n- Business licenses\n- Company requirements"
-            elif language == "it":
-                return "- Aprire una nuova azienda\n- Registrazione PT PMA\n- Licenze commerciali\n- Requisiti aziendali"
-            elif language == "id":
-                return "- Buka perusahaan baru\n- Daftar PT PMA\n- Izin usaha\n- Persyaratan perusahaan"
+        business_options = {
+            "en": "- Starting a new company\n- PT PMA registration\n- Business licenses\n- Company requirements",
+            "it": "- Aprire una nuova azienda\n- Registrazione PT PMA\n- Licenze commerciali\n- Requisiti aziendali",
+            "id": "- Buka perusahaan baru\n- Daftar PT PMA\n- Izin usaha\n- Persyaratan perusahaan",
+        }
+        if "business" in query_lower or "company" in query_lower:
+            return business_options.get(language)
 
         return None
 

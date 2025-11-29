@@ -1,56 +1,48 @@
-import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from "axios"
+import { NuzantaraClient } from './generated/NuzantaraClient';
 
-// Base API URL - update with your backend URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://nuzantara-rag.fly.dev"
-const API_KEY = "zantara-secret-2024"
+/**
+ * Server-side Client Factory (Authenticated)
+ * Use this in Next.js Route Handlers or Server Components
+ * @param token - The JWT token extracted from cookies or headers
+ */
+export const createServerClient = (token: string) => {
+  return new NuzantaraClient({
+    BASE: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+    TOKEN: token,
+    HEADERS: {
+      'X-API-Key': process.env.NUZANTARA_API_KEY || ''
+    }
+  });
+};
 
-class APIClient {
-  private client: AxiosInstance
+/**
+ * Server-side Client Factory (Public)
+ * Use this for public endpoints like Login
+ */
+export const createPublicClient = () => {
+  return new NuzantaraClient({
+    BASE: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+    HEADERS: {
+      'X-API-Key': process.env.NUZANTARA_API_KEY || ''
+    }
+  });
+};
+
+class ClientWrapper {
+  public client: NuzantaraClient;
 
   constructor() {
-    this.client = axios.create({
-      baseURL: API_BASE_URL,
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "X-API-Key": API_KEY,
-      },
-      timeout: 30000,
-    })
-
-    // Request interceptor: Add API key and JWT token to all requests
-    this.client.interceptors.request.use(
-      (config: InternalAxiosRequestConfig) => {
-        if (config.headers) {
-          // Always add API key
-          config.headers["X-API-Key"] = API_KEY
-
-          // Add JWT token if available
-          const token = this.getToken()
-          if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`
-          }
+    this.client = new NuzantaraClient({
+      BASE: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+      TOKEN: async () => {
+        if (typeof window !== 'undefined') {
+          return localStorage.getItem('zantara_session_token') || '';
         }
-        return config
-      },
-      (error) => Promise.reject(error),
-    )
-
-    // Response interceptor: Simple error handling
-    this.client.interceptors.response.use(
-      (response) => response,
-      async (error: AxiosError) => {
-        // Handle API key errors
-        if (error.response?.status === 401) {
-          console.error("API Key authentication failed")
-          // We could redirect to login or show an error message
-        }
-        return Promise.reject(error)
-      },
-    )
+        return '';
+      }
+    });
   }
 
-  // Simple session management (no JWT)
   getToken(): string | null {
     if (typeof window === "undefined") return null
     return localStorage.getItem("zantara_session_token")
@@ -75,11 +67,8 @@ class APIClient {
       window.location.href = "/"
     }
   }
-
-  get instance(): AxiosInstance {
-    return this.client
-  }
 }
 
-export const apiClient = new APIClient()
-export default apiClient.instance
+export const apiClient = new ClientWrapper();
+// Export the underlying client for direct usage if needed
+export const client = apiClient.client;

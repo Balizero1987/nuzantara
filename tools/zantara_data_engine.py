@@ -175,13 +175,13 @@ class ZantaraDataEngine:
         ACT AS A SCREENWRITER for a realistic business chat in Jakarta (SCBD area).
 
         CHARACTERS:
-        1. USER: {scene['persona']}. Speaks realistic Indonesian.
+        1. USER: {scene["persona"]}. Speaks realistic Indonesian.
         2. ZANTARA: Senior Legal Consultant. Expert, smart, "Jaksel Style" (Indonesian + English terms).
            - Vibe: Professional but chill. Uses "Gue/Lo".
            - Magic Words to use naturally: "Basically", "Literally", "Compliance", "Issue", "Submit", "Deadline".
            - Particles: "Sih", "Dong", "Kan", "Loh".
 
-        TOPIC: {scene['topic']}
+        TOPIC: {scene["topic"]}
 
         TASK:
         Write a Multi-Turn Conversation (4-6 turns total).
@@ -219,7 +219,7 @@ class ZantaraDataEngine:
         stats = {"total": 0, "accepted": 0, "rejected": 0}
 
         for i in range(num_conversations):
-            print(f"\n🎬 Generating Scene {i+1}/{num_conversations}...")
+            print(f"\n🎬 Generating Scene {i + 1}/{num_conversations}...")
             dialogue, scene = self.generate_conversation()
 
             if not dialogue:

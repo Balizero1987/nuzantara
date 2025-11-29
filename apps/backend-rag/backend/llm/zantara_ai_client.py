@@ -14,8 +14,6 @@ import asyncio
 import logging
 from typing import Any
 
-from openai import AsyncOpenAI
-
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -39,27 +37,38 @@ class ZantaraAIClient:
         base_url: str | None = None,
         model: str | None = None,
     ):
-        # TEMPORARY: Force mock mode for testing
-        # TODO: Replace with real API keys when available
-        self.api_key = None
-        self.mock_mode = True
-        self.base_url = base_url or "mock://localhost"
+        # Production mode - use real Gemini API
+        import google.generativeai as genai
+
+        self.api_key = api_key or settings.google_api_key
+        self.mock_mode = False
+        self.base_url = base_url or "https://generativelanguage.googleapis.com"
         self.client = None
-        self.genai_client = None
-        self.use_native_genai = False
+        self.genai_client = genai
+        self.use_native_genai = True
 
-        logger.warning("🎭 FORCED MOCK MODE for testing - Chat stream will work with mock responses")
+        # Initialize Gemini client
+        if self.api_key:
+            try:
+                genai.configure(api_key=self.api_key)
+                logger.info("✅ Gemini AI Client initialized in production mode")
+            except Exception as e:
+                logger.error(f"❌ Failed to configure Gemini: {e}")
+                self.mock_mode = True
+        else:
+            logger.warning("⚠️ No Gemini API key found - some features may not work")
+            self.mock_mode = True  # Fallback to mock if no API key
 
-        self.model = model or "mock-chat"
+        self.model = model or "gemini-2.5-flash"
 
         # Initialize pricing even in mock mode
         self.pricing = {
-            "input": getattr(settings, 'zantara_ai_cost_input', 0.15),
-            "output": getattr(settings, 'zantara_ai_cost_output', 0.60),
+            "input": getattr(settings, "zantara_ai_cost_input", 0.15),
+            "output": getattr(settings, "zantara_ai_cost_output", 0.60),
         }
 
         # Log the configuration for debugging
-        logger.info(f"🔧 ZantaraAIClient Configuration:")
+        logger.info("🔧 ZantaraAIClient Configuration:")
         logger.info(f"   API Key Available: {'Yes' if self.api_key else 'No'}")
         logger.info(f"   Model: {self.model}")
         logger.info(f"   Base URL: {self.base_url}")
@@ -69,7 +78,9 @@ class ZantaraAIClient:
 
         logger.info("✅ ZantaraAIClient initialized")
         logger.info(f"   Engine model: {self.model}")
-        logger.info(f"   Mode: {'Mock' if self.mock_mode else 'Native Gemini' if self.use_native_genai else 'OpenAI Compat'}")
+        logger.info(
+            f"   Mode: {'Mock' if self.mock_mode else 'Native Gemini' if self.use_native_genai else 'OpenAI Compat'}"
+        )
 
     def get_model_info(self) -> dict[str, Any]:
         """Get current model information"""
@@ -84,15 +95,15 @@ class ZantaraAIClient:
     ) -> str:
         """
         Build ZANTARA system prompt
-        
+
         Args:
             memory_context: Optional memory context to inject
             use_v6_optimized: Use v6.0 optimized prompt (default: True)
-            
+
         Returns:
             System prompt string
         """
-        
+
         if use_v6_optimized:
             # TABULA RASA: Pure behavioral system prompt - ZERO domain knowledge
             # Code is a "shell" - knows HOW to reason, not WHAT is in the database
@@ -158,14 +169,14 @@ CRITICAL PROHIBITIONS:
     ) -> dict:
         """
         Generate chat response using ZANTARA AI
-        
+
         Args:
             messages: Chat messages [{"role": "user", "content": "..."}]
             max_tokens: Max tokens to generate
             temperature: Sampling temperature
             system: Optional system prompt override
             memory_context: Optional memory context to inject
-            
+
         Returns:
             {
                 "text": "response",
@@ -194,69 +205,58 @@ CRITICAL PROHIBITIONS:
         # --- NATIVE GEMINI IMPLEMENTATION ---
         if self.use_native_genai and self.genai_client:
             try:
-                # Convert OpenAI messages to Gemini contents
-                # Gemini expects: [{'role': 'user', 'parts': ['...']}, {'role': 'model', 'parts': ['...']}]
-                # System prompt is usually set at model init, but we can prepend it or use system_instruction if supported
-                
-                # Note: genai.GenerativeModel(..., system_instruction=...) is how system prompt is set
-                # But we already initialized self.genai_client. We might need to re-init or prepend.
-                # For simplicity/robustness, we'll prepend system prompt to first user message or use a new client instance
-                
                 # Re-init with system prompt (efficient enough)
                 import google.generativeai as genai
-                client_with_sys = genai.GenerativeModel(
-                    self.model,
-                    system_instruction=system
-                )
-                
+
+                client_with_sys = genai.GenerativeModel(self.model, system_instruction=system)
+
                 gemini_history = []
                 last_user_message = ""
-                
+
                 for msg in messages:
                     role = msg.get("role")
                     content = msg.get("content", "")
-                    
+
                     if role == "system":
                         # Should be handled by system_instruction, but if passed in messages, ignore or append?
                         # We already handled 'system' arg. If 'system' role is in messages, it might be extra.
                         continue
-                        
+
                     if role == "user":
                         last_user_message = content
                         gemini_history.append({"role": "user", "parts": [content]})
                     elif role == "assistant":
                         gemini_history.append({"role": "model", "parts": [content]})
-                
+
                 # Remove the last user message from history as it's the prompt
                 if gemini_history and gemini_history[-1]["role"] == "user":
                     gemini_history.pop()
-                
+
                 # Start chat
                 chat = client_with_sys.start_chat(history=gemini_history)
-                
+
                 # Generate response
                 response = await chat.send_message_async(
                     last_user_message,
                     generation_config=genai.types.GenerationConfig(
-                        max_output_tokens=max_tokens,
-                        temperature=temperature
-                    )
+                        max_output_tokens=max_tokens, temperature=temperature
+                    ),
                 )
-                
+
                 answer = response.text
-                
+
                 # Estimate tokens (Gemini has count_tokens but let's estimate for speed)
                 tokens_input = len(str(messages)) / 4
                 tokens_output = len(answer) / 4
-                
+
                 return {
                     "text": answer,
                     "model": self.model,
                     "provider": "google_native",
                     "tokens": {"input": int(tokens_input), "output": int(tokens_output)},
-                    "cost": 0.0, # TODO: Calc cost
+                    "cost": 0.0,  # TODO: Calc cost
                 }
-                
+
             except Exception as e:
                 logger.error(f"❌ Native Gemini Error: {e}")
                 # Fallback to OpenAI compat if native fails? Or just raise?
@@ -264,6 +264,11 @@ CRITICAL PROHIBITIONS:
                 raise e
 
         # --- OPENAI COMPATIBILITY IMPLEMENTATION ---
+        # Check if client is initialized
+        if not self.client:
+            logger.error("❌ OpenAI-compatible client not initialized")
+            raise ValueError("OpenAI-compatible client is not available")
+
         # Build full messages with system prompt
         full_messages = [{"role": "system", "content": system}]
         full_messages.extend(messages)
@@ -315,28 +320,146 @@ CRITICAL PROHIBITIONS:
         """
         logger.info(f"🌊 [ZantaraAI] Starting stream for user {user_id}")
 
+        # Build system prompt
+        system = self._build_system_prompt(memory_context=memory_context)
+
+        # Enhanced streaming with retry mechanism and error handling
+        if self.mock_mode:
+            logger.info(f"🎭 [ZantaraAI] MOCK MODE streaming for user {user_id}")
+            response = f"This is a MOCK stream response to: {message}. In production mode, this would be connected to Gemini AI."
+            words = response.split()
+            for word in words:
+                yield word + " "
+                await asyncio.sleep(0.05)
+            return
+
+        # --- NATIVE GEMINI STREAMING IMPLEMENTATION ---
+        if self.use_native_genai and self.genai_client:
+            # Retry mechanism for streaming
+            max_retries = 3
+            retry_delay = 2
+
+            for attempt in range(max_retries):
+                try:
+                    logger.info(
+                        f"🌊 [ZantaraAI] Native Gemini Attempt {attempt + 1}/{max_retries} for streaming user {user_id}"
+                    )
+
+                    # Re-init with system prompt
+                    import google.generativeai as genai
+
+                    client_with_sys = genai.GenerativeModel(self.model, system_instruction=system)
+
+                    # Build history from conversation_history
+                    gemini_history = []
+                    if conversation_history:
+                        for msg in conversation_history:
+                            role = msg.get("role")
+                            content = msg.get("content", "")
+                            if role == "user":
+                                gemini_history.append({"role": "user", "parts": [content]})
+                            elif role == "assistant":
+                                gemini_history.append({"role": "model", "parts": [content]})
+
+                    # Start chat
+                    chat = client_with_sys.start_chat(history=gemini_history)
+
+                    # Generate streaming response
+                    response = await chat.send_message_async(
+                        message,
+                        generation_config=genai.types.GenerationConfig(
+                            max_output_tokens=max_tokens, temperature=0.7
+                        ),
+                        stream=True,
+                    )
+
+                    # Stream response with error handling
+                    stream_active = False
+                    async for chunk in response:
+                        stream_active = True
+                        if chunk.text:
+                            yield chunk.text
+
+                    if stream_active:
+                        logger.info(
+                            f"✅ [ZantaraAI] Native Gemini Stream completed successfully for user {user_id}"
+                        )
+                        return
+
+                    logger.warning(
+                        f"⚠️ [ZantaraAI] No content received in native Gemini stream attempt {attempt + 1}"
+                    )
+
+                except Exception as e:
+                    error_msg = str(e).lower()
+                    logger.error(
+                        f"❌ [ZantaraAI] Native Gemini Stream attempt {attempt + 1} failed: {e}"
+                    )
+
+                    # Check if we should retry
+                    should_retry = attempt < max_retries - 1 and any(
+                        keyword in error_msg
+                        for keyword in [
+                            "connection",
+                            "timeout",
+                            "network",
+                            "api",
+                            "rate",
+                            "server",
+                            "unavailable",
+                        ]
+                    )
+
+                    if should_retry:
+                        delay = retry_delay * (2**attempt)  # Exponential backoff
+                        logger.info(f"🔄 [ZantaraAI] Retrying in {delay}s...")
+                        await asyncio.sleep(delay)
+                        continue
+                    else:
+                        # Non-retryable error or max retries reached
+                        break
+
+            # All retries failed - provide fallback response
+            logger.error(
+                f"❌ [ZantaraAI] All native Gemini streaming attempts failed for user {user_id}"
+            )
+            fallback_response = (
+                "Scusi, ho riscontrato un problema di connessione con i servizi di intelligenza artificiale. "
+                "Provi di tra qualche istante o contatti il supporto tecnico se il problema persiste."
+            )
+
+            # Stream fallback response word by word
+            words = fallback_response.split()
+            for word in words:
+                yield word + " "
+                await asyncio.sleep(0.1)
+
+            logger.warning(f"🎭 [ZantaraAI] Fallback response streamed for user {user_id}")
+            return
+
+        # --- OPENAI COMPATIBILITY IMPLEMENTATION ---
+        # Check if client is initialized
+        if not self.client:
+            logger.error("❌ OpenAI-compatible client not initialized for streaming")
+            fallback_response = (
+                "Scusi, ho riscontrato un problema di configurazione con i servizi di intelligenza artificiale. "
+                "Contatti il supporto tecnico se il problema persiste."
+            )
+            words = fallback_response.split()
+            for word in words:
+                yield word + " "
+                await asyncio.sleep(0.1)
+            return
+
         # Build messages
         messages = []
         if conversation_history:
             messages.extend(conversation_history)
         messages.append({"role": "user", "content": message})
 
-        # Build system prompt
-        system = self._build_system_prompt(memory_context=memory_context)
-
         # Build full messages with system
         full_messages = [{"role": "system", "content": system}]
         full_messages.extend(messages)
-
-        # Enhanced streaming with retry mechanism and error handling
-        if self.mock_mode:
-            logger.info(f"🎭 [ZantaraAI] MOCK MODE streaming for user {user_id}")
-            response = f"This is a MOCK stream response to: {message}. In production mode, this would be connected to real AI models like Meta Llama, GPT, or Gemini."
-            words = response.split()
-            for word in words:
-                yield word + " "
-                await asyncio.sleep(0.05)
-            return
 
         # Retry mechanism for streaming
         max_retries = 3
@@ -344,7 +467,9 @@ CRITICAL PROHIBITIONS:
 
         for attempt in range(max_retries):
             try:
-                logger.info(f"🌊 [ZantaraAI] Attempt {attempt + 1}/{max_retries} for streaming user {user_id}")
+                logger.info(
+                    f"🌊 [ZantaraAI] OpenAI Compat Attempt {attempt + 1}/{max_retries} for streaming user {user_id}"
+                )
 
                 # Create streaming request
                 stream = await self.client.chat.completions.create(
@@ -365,25 +490,37 @@ CRITICAL PROHIBITIONS:
                         yield content
 
                 if stream_active:
-                    logger.info(f"✅ [ZantaraAI] Stream completed successfully for user {user_id}")
+                    logger.info(
+                        f"✅ [ZantaraAI] OpenAI Compat Stream completed successfully for user {user_id}"
+                    )
                     return
 
-                logger.warning(f"⚠️ [ZantaraAI] No content received in stream attempt {attempt + 1}")
+                logger.warning(
+                    f"⚠️ [ZantaraAI] No content received in OpenAI Compat stream attempt {attempt + 1}"
+                )
 
             except Exception as e:
                 error_msg = str(e).lower()
-                logger.error(f"❌ [ZantaraAI] Stream attempt {attempt + 1} failed: {e}")
+                logger.error(
+                    f"❌ [ZantaraAI] OpenAI Compat Stream attempt {attempt + 1} failed: {e}"
+                )
 
                 # Check if we should retry
-                should_retry = (
-                    attempt < max_retries - 1 and
-                    any(keyword in error_msg for keyword in [
-                        "connection", "timeout", "network", "api", "rate", "server", "unavailable"
-                    ])
+                should_retry = attempt < max_retries - 1 and any(
+                    keyword in error_msg
+                    for keyword in [
+                        "connection",
+                        "timeout",
+                        "network",
+                        "api",
+                        "rate",
+                        "server",
+                        "unavailable",
+                    ]
                 )
 
                 if should_retry:
-                    delay = retry_delay * (2 ** attempt)  # Exponential backoff
+                    delay = retry_delay * (2**attempt)  # Exponential backoff
                     logger.info(f"🔄 [ZantaraAI] Retrying in {delay}s...")
                     await asyncio.sleep(delay)
                     continue
@@ -392,7 +529,9 @@ CRITICAL PROHIBITIONS:
                     break
 
         # All retries failed - provide fallback response
-        logger.error(f"❌ [ZantaraAI] All streaming attempts failed for user {user_id}")
+        logger.error(
+            f"❌ [ZantaraAI] All OpenAI Compat streaming attempts failed for user {user_id}"
+        )
         fallback_response = (
             "Scusi, ho riscontrato un problema di connessione con i servizi di intelligenza artificiale. "
             "Provi di tra qualche istante o contatti il supporto tecnico se il problema persiste."
@@ -409,7 +548,7 @@ CRITICAL PROHIBITIONS:
     async def conversational(
         self,
         message: str,
-        user_id: str,
+        _user_id: str,
         conversation_history: list[dict[str, str]] | None = None,
         memory_context: str | None = None,
         max_tokens: int = 150,
@@ -460,9 +599,9 @@ CRITICAL PROHIBITIONS:
         conversation_history: list[dict[str, str]] | None = None,
         memory_context: str | None = None,
         tools: list[dict[str, Any]] | None = None,
-        tool_executor: Any | None = None,
+        _tool_executor: Any | None = None,
         max_tokens: int = 150,
-        max_tool_iterations: int = 2,
+        _max_tool_iterations: int = 2,
     ) -> dict:
         """
         Compatible interface for IntelligentRouter - conversational WITH tool calling
@@ -571,4 +710,8 @@ CRITICAL PROHIBITIONS:
 
     def is_available(self) -> bool:
         """Check if ZANTARA AI is configured and available"""
+        # For native Gemini, we only need api_key and genai_client
+        if self.use_native_genai:
+            return bool(self.api_key and self.genai_client)
+        # For OpenAI compatibility, we need api_key and client
         return bool(self.api_key and self.client)

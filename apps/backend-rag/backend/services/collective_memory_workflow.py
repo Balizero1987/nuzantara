@@ -82,7 +82,7 @@ def merge_memories(existing: list[dict], new_content: str) -> dict:
     }
 
 
-def detect_conflicts(existing: list[dict], new_content: str) -> list[str]:
+def detect_conflicts(_existing: list[dict], _new_content: str) -> list[str]:
     """Rileva conflitti tra memorie esistenti e nuovo contenuto"""
     conflicts = []
     # TODO: Implementare logica di rilevamento conflitti
@@ -147,7 +147,7 @@ async def extract_entities_and_relationships(state: CollectiveMemoryState) -> Co
 
 
 async def check_existing_memories(
-    state: CollectiveMemoryState, memory_service
+    state: CollectiveMemoryState, _memory_service
 ) -> CollectiveMemoryState:
     """Verifica memorie esistenti correlate"""
     # Cerca memorie simili (semplificato)
@@ -166,7 +166,7 @@ async def categorize_memory(state: CollectiveMemoryState) -> CollectiveMemorySta
 async def assess_personal_importance(state: CollectiveMemoryState) -> CollectiveMemoryState:
     """Valuta importanza personale (non solo lavorativa)"""
     category = state["detected_category"]
-    participants_count = len(state["participants"])
+    len(state["participants"])
 
     # Calcola importanza basata su categoria
     if category == MemoryCategory.MILESTONE:
@@ -281,7 +281,7 @@ def route_by_importance(state: CollectiveMemoryState) -> str:
         return "low"
 
 
-def create_collective_memory_workflow(memory_service=None, mcp_client=None):
+def create_collective_memory_workflow(memory_service=None, _mcp_client=None):
     """Crea workflow LangGraph per memoria collettiva intelligente"""
 
     workflow = StateGraph(CollectiveMemoryState)

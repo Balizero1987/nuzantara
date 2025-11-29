@@ -31,8 +31,8 @@ nuzantara/
 - **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
 - **Backend RAG**: Python 3.11+, FastAPI, PostgreSQL, Redis, Qdrant
 - **Memory Service**: Node.js, TypeScript, PostgreSQL, Redis
-- **AI Providers**: OpenAI, Anthropic, Google Gemini, Custom Models
-- **Deployment**: Docker, Fly.io
+- **AI Providers**: OpenAI, Anthropic, Google Gemini, Custom Models, **Jaksel AI (Hugging Face)**
+- **Deployment**: Docker, Fly.io, Hugging Face
 - **Database**: PostgreSQL, Redis, Qdrant Vector DB
 
 ## 🚀 Quick Start
@@ -246,6 +246,27 @@ npm run test:integration
 - Unit tests: `**/*.test.ts` or `**/*.test.py`
 - Integration tests: `**/*.integration.test.ts`
 - E2E tests: Using Playwright in `e2e/`
+
+## 🛠️ The Toolkit (AI & Devs)
+We use a set of advanced tools to maintain quality and observability.
+
+### 1. Sentinel (Quality Control)
+Runs linting, tests, and health checks.
+```bash
+./sentinel
+```
+
+### 2. Scribe (Documentation)
+Generates living documentation.
+```bash
+python apps/core/scribe.py
+```
+
+### 3. Observability Stack
+- **Prometheus:** `http://localhost:9090`
+- **Grafana:** `http://localhost:3001` (admin/admin)
+- **Jaeger:** `http://localhost:16686`
+- **Qdrant UI:** `http://localhost:6333/dashboard`
 
 ## 📊 Monitoring & Observability
 

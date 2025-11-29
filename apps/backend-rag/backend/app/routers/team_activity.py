@@ -116,7 +116,7 @@ def verify_admin(email: str) -> bool:
 
 
 async def get_admin_email(
-    authorization: str | None = Header(None), x_user_email: str | None = Header(None)
+    _authorization: str | None = Header(None), x_user_email: str | None = Header(None)
 ) -> str:
     """
     Extract and verify admin email from headers
@@ -170,7 +170,7 @@ async def clock_in(request: ClockInRequest):
         return ClockResponse(**result)
     except Exception as e:
         logger.error(f"❌ Clock-in failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/clock-out", response_model=ClockResponse)
@@ -194,7 +194,7 @@ async def clock_out(request: ClockOutRequest):
         return ClockResponse(**result)
     except Exception as e:
         logger.error(f"❌ Clock-out failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/my-status", response_model=UserStatusResponse)
@@ -218,7 +218,7 @@ async def get_my_status(user_id: str = Query(..., description="User ID")):
         return UserStatusResponse(**status)
     except Exception as e:
         logger.error(f"❌ Get status failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # ============================================================================
@@ -227,7 +227,7 @@ async def get_my_status(user_id: str = Query(..., description="User ID")):
 
 
 @router.get("/status", response_model=list[TeamMemberStatus])
-async def get_team_status(admin_email: str = Depends(get_admin_email)):
+async def get_team_status(_admin_email: str = Depends(get_admin_email)):
     """
     Get current online status of all team members (ADMIN ONLY)
 
@@ -244,13 +244,13 @@ async def get_team_status(admin_email: str = Depends(get_admin_email)):
         return [TeamMemberStatus(**s) for s in statuses]
     except Exception as e:
         logger.error(f"❌ Get team status failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/hours", response_model=list[DailyHours])
 async def get_daily_hours(
     date: str | None = Query(None, description="Date (YYYY-MM-DD, defaults to today)"),
-    admin_email: str = Depends(get_admin_email),
+    _admin_email: str = Depends(get_admin_email),
 ):
     """
     Get work hours for a specific date (ADMIN ONLY)
@@ -271,16 +271,16 @@ async def get_daily_hours(
         hours = await service.get_daily_hours(target_date)
         return [DailyHours(**h) for h in hours]
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid date format: {e}") from e
     except Exception as e:
         logger.error(f"❌ Get daily hours failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/activity/weekly", response_model=list[WeeklySummary])
 async def get_weekly_summary(
     week_start: str | None = Query(None, description="Week start date (YYYY-MM-DD)"),
-    admin_email: str = Depends(get_admin_email),
+    _admin_email: str = Depends(get_admin_email),
 ):
     """
     Get weekly work summary (ADMIN ONLY)
@@ -301,16 +301,16 @@ async def get_weekly_summary(
         summary = await service.get_weekly_summary(target_week)
         return [WeeklySummary(**s) for s in summary]
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid date format: {e}") from e
     except Exception as e:
         logger.error(f"❌ Get weekly summary failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/activity/monthly", response_model=list[MonthlySummary])
 async def get_monthly_summary(
     month_start: str | None = Query(None, description="Month start date (YYYY-MM-DD)"),
-    admin_email: str = Depends(get_admin_email),
+    _admin_email: str = Depends(get_admin_email),
 ):
     """
     Get monthly work summary (ADMIN ONLY)
@@ -331,10 +331,10 @@ async def get_monthly_summary(
         summary = await service.get_monthly_summary(target_month)
         return [MonthlySummary(**s) for s in summary]
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid date format: {e}") from e
     except Exception as e:
         logger.error(f"❌ Get monthly summary failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/export")
@@ -342,7 +342,7 @@ async def export_timesheet(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     format: str = Query("csv", description="Export format (csv only for now)"),
-    admin_email: str = Depends(get_admin_email),
+    _admin_email: str = Depends(get_admin_email),
 ):
     """
     Export timesheet data (ADMIN ONLY)
@@ -374,10 +374,10 @@ async def export_timesheet(
             },
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid date format: {e}") from e
     except Exception as e:
         logger.error(f"❌ Export timesheet failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # ============================================================================

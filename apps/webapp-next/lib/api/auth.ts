@@ -3,43 +3,52 @@ import { apiClient } from "./client"
 
 export const authAPI = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://nuzantara-rag.fly.dev"
+    try {
+      // Call Next.js Proxy Route
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: credentials.email,
+          pin: credentials.pin // The proxy expects 'pin', not 'password'
+        })
+      });
 
-    // Simple API key validation - accept any email with the correct pin
-    if (credentials.pin === "010719") {
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // The proxy returns { token, user, message }
+      // We need to map it to LoginResponse structure if needed, 
+      // but the proxy response seems to match what we need mostly.
+
       const userData: User = {
-        id: "user_001",
-        email: credentials.email,
-        name: credentials.email.split("@")[0],
-        role: "admin",
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        role: data.user.role,
         avatar: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
 
-      // Create a more realistic JWT-like token
-      const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
-      const payload = btoa(JSON.stringify({
-        sub: userData.id,
-        email: userData.email,
-        role: userData.role,
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 86400 // 24 hours
-      }))
-      const signature = "zantara-signature"
-      const token = `${header}.${payload}.${signature}`
-
-      const response: LoginResponse = {
+      const authResponse: LoginResponse = {
         user: userData,
-        token: token,
-        expiresIn: 86400, // 24 hours
+        token: data.token,
+        expiresIn: 3600, // Default 1 hour if not provided
       }
 
       this.saveUser(userData)
-      apiClient.setToken(response.token)
-      return response
-    } else {
-      throw new Error("Invalid credentials")
+      apiClient.setToken(authResponse.token)
+      return authResponse
+
+    } catch (error: any) {
+      console.error("Login error:", error)
+      throw new Error(error.message || "Login failed")
     }
   },
 

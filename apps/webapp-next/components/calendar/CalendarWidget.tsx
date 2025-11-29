@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { calendarAPI } from "@/lib/api/calendar"
 
 export function CalendarWidget() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [events, setEvents] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 

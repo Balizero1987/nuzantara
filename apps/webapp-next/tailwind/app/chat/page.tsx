@@ -175,32 +175,30 @@ export default function ChatPage() {
 
     setIsGeneratingImage(true)
     try {
-      const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": "AIzaSyDIPbWDL7xMbBnyilSPD61K9e5u1CQiodE",
-          },
-          body: JSON.stringify({
-            instances: [{ prompt: imagePrompt }],
-            parameters: {
-              sampleCount: 1,
-              aspectRatio: "1:1",
-            },
-          }),
+      const response = await fetch(`${API_BASE_URL}/api/v1/image/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-      )
+        body: JSON.stringify({
+          prompt: imagePrompt,
+          number_of_images: 1,
+          aspect_ratio: "1:1",
+          safety_filter_level: "block_some",
+          person_generation: "allow_adult",
+        }),
+      })
 
       const data = await response.json()
-      if (data.predictions?.[0]?.bytesBase64Encoded) {
-        const imageData = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`
-        setGeneratedImage(imageData)
+      if (data.success && data.images?.length > 0) {
+        setGeneratedImage(data.images[0])
+      } else {
+        throw new Error(data.error || "No images generated")
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("[v0] Image generation error:", error)
-      alert("Failed to generate image. Please try again.")
+      alert(`Failed to generate image: ${error.message}`)
     } finally {
       setIsGeneratingImage(false)
       setShowImageModal(false)

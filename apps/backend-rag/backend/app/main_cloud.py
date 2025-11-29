@@ -14,6 +14,7 @@ import json
 import logging
 from collections.abc import AsyncIterator
 
+import asyncpg
 import httpx
 from dotenv import load_dotenv
 
@@ -26,16 +27,23 @@ from fastapi.responses import StreamingResponse
 # --- LLM Client ---
 from llm.zantara_ai_client import ZantaraAIClient
 
+# --- Hybrid Authentication Middleware ---
+from middleware.hybrid_auth import HybridAuthMiddleware
+
+# --- OpenTelemetry ---
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from prometheus_fastapi_instrumentator import Instrumentator
+
 # --- App Dependencies & Config ---
 from app import dependencies
 from app.core.config import settings
 from app.modules.identity.router import router as identity_router
 from app.modules.knowledge.router import router as knowledge_router
-
-# --- Hybrid Authentication Middleware ---
-from middleware.hybrid_auth import HybridAuthMiddleware
-
-import asyncpg
 
 # --- Routers ---
 from app.routers import (
@@ -85,10 +93,23 @@ TS_BACKEND_FALLBACK_URL = settings.ts_backend_url
 
 # Setup FastAPI
 app = FastAPI(
-    title="ZANTARA RAG Backend",
-    version="5.3.0",
-    description="Python FastAPI backend for ZANTARA RAG + Tooling",
+    title=settings.PROJECT_NAME,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    debug=True,  # Force debug mode for detailed errors
 )
+
+# --- Observability: Metrics (Prometheus) ---
+Instrumentator().instrument(app).expose(app)
+
+# --- Observability: Tracing (Jaeger/OpenTelemetry) ---
+# Only enable if JAEGER_ENABLED is set (optional but good practice)
+resource = Resource.create(attributes={"service.name": "nuzantara-backend"})
+trace.set_tracer_provider(TracerProvider(resource=resource))
+otlp_exporter = OTLPSpanExporter(endpoint="http://jaeger:4317", insecure=True)
+trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
+
+# Instrument FastAPI
+FastAPIInstrumentor.instrument_app(app)
 
 
 # --- CORS Configuration ---
@@ -98,11 +119,19 @@ def _allowed_origins() -> list[str]:
 
     # Production origins from settings
     if settings.zantara_allowed_origins:
-        origins.extend([origin.strip() for origin in settings.zantara_allowed_origins.split(",") if origin.strip()])
+        origins.extend(
+            [
+                origin.strip()
+                for origin in settings.zantara_allowed_origins.split(",")
+                if origin.strip()
+            ]
+        )
 
     # Development origins from settings (if configured)
     if hasattr(settings, "dev_origins") and settings.dev_origins:
-        origins.extend([origin.strip() for origin in settings.dev_origins.split(",") if origin.strip()])
+        origins.extend(
+            [origin.strip() for origin in settings.dev_origins.split(",") if origin.strip()]
+        )
 
     # Default production origins
     default_origins = [
@@ -161,10 +190,16 @@ def include_routers(api: FastAPI) -> None:
     # The following routers are included directly on the app instance
     # and are not part of the `include_routers` function's `api` parameter.
 
+
 include_routers(app)
 
 app.include_router(team_activity.router)
 app.include_router(media.router)
+
+# Import and include image generation router
+from app.routers import image_generation
+
+app.include_router(image_generation.router)
 
 
 # --- CSRF Token Endpoint (directly on app, not in router) ---
@@ -183,13 +218,12 @@ async def get_csrf_token():
     csrf_token = secrets.token_hex(32)
 
     # Generate session ID
-    session_id = f"session_{int(datetime.now(timezone.utc).timestamp() * 1000)}_{secrets.token_hex(16)}"
+    session_id = (
+        f"session_{int(datetime.now(timezone.utc).timestamp() * 1000)}_{secrets.token_hex(16)}"
+    )
 
     # Return in both JSON and headers
-    response_data = {
-        "csrfToken": csrf_token,
-        "sessionId": session_id
-    }
+    response_data = {"csrfToken": csrf_token, "sessionId": session_id}
 
     # Create JSON response with headers
     json_response = JSONResponse(content=response_data)
@@ -211,10 +245,7 @@ async def get_dashboard_stats():
         "active_agents": 3,
         "system_health": "99.9%",
         "uptime_status": "ONLINE",
-        "knowledge_base": {
-            "vectors": "1.2M",
-            "status": "Indexing..."
-        }
+        "knowledge_base": {"vectors": "1.2M", "status": "Indexing..."},
     }
 
 
@@ -231,18 +262,21 @@ async def _validate_api_key(api_key: str | None) -> dict | None:
 
     # Get configured API keys from settings
     from app.core.config import settings
-    configured_keys = getattr(settings, 'api_keys', '').split(',') if getattr(settings, 'api_keys', None) else []
+
+    configured_keys = (
+        getattr(settings, "api_keys", "").split(",") if getattr(settings, "api_keys", None) else []
+    )
 
     # Basic validation against configured keys
     if api_key in configured_keys:
-        logger.info(f"✅ API key authentication successful")
+        logger.info("✅ API key authentication successful")
         return {
             "id": "api_key_user",
             "email": "api-service@nuzantara.io",
             "name": "API Service User",
             "role": "service",
             "auth_method": "api_key",
-            "permissions": ["read", "write"]
+            "permissions": ["read", "write"],
         }
 
     # TODO: Integrate with colleague's API Key validation service
@@ -253,27 +287,46 @@ async def _validate_api_key(api_key: str | None) -> dict | None:
 
 async def _validate_auth_token(token: str | None) -> dict | None:
     """
-    Validate frontend-issued JWT tokens by delegating to the TypeScript backend.
-    Returns the unified user payload when the token is valid, otherwise None.
-
-    ⚠️ DEPENDENCY: This function requires the TypeScript backend to be reachable.
-    If TS_BACKEND_URL is unreachable, token validation fails and chat stream will fail.
-
-    TODO: Implement local JWT verification as fallback to avoid single point of failure.
-    Alternatively, accept tokens signed by Python auth.py to avoid extra network hop.
+    Validate JWT tokens locally using the shared secret.
+    Falls back to external TypeScript backend validation if local validation fails.
     """
     if not token:
         return None
 
     if token == "dev-token-bypass":
         logger.warning("⚠️ Using dev-token-bypass for authentication")
-        return {
-            "id": "dev-user",
-            "email": "dev@balizero.com",
-            "name": "Dev User",
-            "role": "admin"
-        }
+        return {"id": "dev-user", "email": "dev@balizero.com", "name": "Dev User", "role": "admin"}
 
+    # 1. Try Local Validation (Primary)
+    try:
+        from jose import JWTError, jwt
+
+        from app.core.config import settings
+
+        payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
+
+        # Validate expiration
+        # jose.jwt.decode validates 'exp' by default if present
+
+        user_id = payload.get("sub") or payload.get("userId")
+        email = payload.get("email")
+
+        if user_id and email:
+            logger.info(f"✅ Local JWT validation successful for {email}")
+            return {
+                "id": user_id,
+                "email": email,
+                "role": payload.get("role", "member"),
+                "name": payload.get("name", email.split("@")[0]),
+                "auth_method": "jwt_local",
+            }
+
+    except JWTError as e:
+        logger.debug(f"Local JWT validation failed: {e}")
+    except Exception as e:
+        logger.warning(f"Unexpected error during local JWT validation: {e}")
+
+    # 2. Fallback to External Validation (Legacy/Migration)
     configured_url = getattr(app.state, "ts_backend_url", TS_BACKEND_FALLBACK_URL)
     candidate_urls = []
     for base in [configured_url, TS_BACKEND_FALLBACK_URL]:
@@ -294,6 +347,7 @@ async def _validate_auth_token(token: str | None) -> dict | None:
             payload = response.json()
             user = payload.get("data", {}).get("user")
             if user:
+                logger.info(f"✅ External JWT validation successful via {base_url}")
                 return user
         except Exception as exc:
             logger.error("Token validation request failed via %s: %s", base_url, exc)
@@ -302,7 +356,9 @@ async def _validate_auth_token(token: str | None) -> dict | None:
     return None
 
 
-async def _validate_auth_mixed(authorization: str | None = None, auth_token: str | None = None, x_api_key: str | None = None) -> dict | None:
+async def _validate_auth_mixed(
+    authorization: str | None = None, auth_token: str | None = None, x_api_key: str | None = None
+) -> dict | None:
     """
     Enhanced authentication supporting both JWT and API keys.
 
@@ -339,7 +395,6 @@ async def _validate_auth_mixed(authorization: str | None = None, auth_token: str
 
 
 # --- Service Initialization -------------------------------------------------
-
 
 
 async def initialize_services() -> None:
@@ -396,7 +451,7 @@ async def initialize_services() -> None:
                 autonomous_research_service = AutonomousResearchService(
                     search_service=search_service,
                     query_router=query_router,
-                    zantara_ai_service=ai_client
+                    zantara_ai_service=ai_client,
                 )
                 logger.info("✅ AutonomousResearchService initialized")
             except Exception as e:
@@ -404,8 +459,7 @@ async def initialize_services() -> None:
 
             try:
                 cross_oracle_synthesis_service = CrossOracleSynthesisService(
-                    search_service=search_service,
-                    zantara_ai_client=ai_client
+                    search_service=search_service, zantara_ai_client=ai_client
                 )
                 logger.info("✅ CrossOracleSynthesisService initialized")
             except Exception as e:
@@ -419,15 +473,17 @@ async def initialize_services() -> None:
 
         # 7. Auto-CRM & Memory
         try:
-            get_auto_crm_service(ai_client=ai_client) # Initialize singleton
+            get_auto_crm_service(ai_client=ai_client)  # Initialize singleton
 
             # Initialize Memory Service
             memory_service = MemoryServicePostgres()
-            await memory_service.connect() # Ensure connection
+            await memory_service.connect()  # Ensure connection
             app.state.memory_service = memory_service
 
             # Initialize Collective Memory Workflow
-            collective_memory_workflow = create_collective_memory_workflow(memory_service=memory_service)
+            collective_memory_workflow = create_collective_memory_workflow(
+                memory_service=memory_service
+            )
             app.state.collective_memory_workflow = collective_memory_workflow
             logger.info("✅ CollectiveMemoryWorkflow initialized")
 
@@ -439,13 +495,11 @@ async def initialize_services() -> None:
             try:
                 # Create asyncpg pool for team timesheet service
                 db_pool = await asyncpg.create_pool(
-                    dsn=settings.database_url,
-                    min_size=5,
-                    max_size=20,
-                    command_timeout=60
+                    dsn=settings.database_url, min_size=5, max_size=20, command_timeout=60
                 )
 
                 from services.team_timesheet_service import init_timesheet_service
+
                 ts_service = init_timesheet_service(db_pool)
                 app.state.ts_service = ts_service
                 app.state.db_pool = db_pool  # Store pool for other services
@@ -479,7 +533,9 @@ async def initialize_services() -> None:
                 logger.info("✅ IntelligentRouter initialized with full services")
             else:
                 # Fallback to minimal mock mode
-                logger.warning("⚠️ Some dependencies missing, initializing IntelligentRouter in minimal mode")
+                logger.warning(
+                    "⚠️ Some dependencies missing, initializing IntelligentRouter in minimal mode"
+                )
                 intelligent_router = IntelligentRouter(
                     ai_client=ai_client or ZantaraAIClient(),  # Create mock client if None
                     search_service=None,
@@ -571,12 +627,12 @@ async def bali_zero_chat_stream(
     user_profile = await _validate_auth_mixed(
         authorization=authorization,
         auth_token=auth_token,
-        x_api_key=request.headers.get("x-api-key")
+        x_api_key=request.headers.get("x-api-key"),
     )
     if not user_profile:
         raise HTTPException(
             status_code=401,
-            detail="Authentication required. Provide either JWT token (Bearer <token>) or API key (X-API-Key header)"
+            detail="Authentication required. Provide either JWT token (Bearer <token>) or API key (X-API-Key header)",
         )
 
     if not getattr(app.state, "services_initialized", False):
@@ -630,10 +686,10 @@ async def bali_zero_chat_stream(
 
                 background_tasks.add_task(
                     get_auto_crm_service().process_conversation,
-                    conversation_id=0, # Placeholder
+                    conversation_id=0,  # Placeholder
                     messages=crm_messages,
                     user_email=user_email,
-                    team_member="system"
+                    team_member="system",
                 )
             except Exception as e:
                 logger.error(f"⚠️ Auto-CRM background task failed: {e}")
@@ -646,30 +702,27 @@ async def bali_zero_chat_stream(
                     state = {
                         "query": query,
                         "user_id": user_id,
-                        "session_id": "session_0", # Placeholder
+                        "session_id": "session_0",  # Placeholder
                         "participants": [user_id],
                         "existing_memories": [],
                         "relationships_to_update": [],
                         "profile_updates": [],
                         "consolidation_actions": [],
-                        "memory_to_store": None
+                        "memory_to_store": None,
                     }
 
                     async def run_collective_memory(workflow, input_state):
                         try:
                             await workflow.ainvoke(input_state)
-                            logger.info(f"🧠 Collective Memory processed for {input_state['user_id']}")
+                            logger.info(
+                                f"🧠 Collective Memory processed for {input_state['user_id']}"
+                            )
                         except Exception as e:
                             logger.error(f"❌ Collective Memory failed: {e}")
 
-                    background_tasks.add_task(
-                        run_collective_memory,
-                        collective_workflow,
-                        state
-                    )
+                    background_tasks.add_task(run_collective_memory, collective_workflow, state)
             except Exception as e:
                 logger.error(f"⚠️ Collective Memory background task failed: {e}")
-
 
         except Exception as exc:
             logger.exception("Streaming error: %s", exc)

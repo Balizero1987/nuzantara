@@ -1,45 +1,29 @@
 import { NextResponse } from "next/server"
-
-const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || process.env.NEXT_PUBLIC_RAG_BACKEND_URL || "https://nuzantara-rag.fly.dev"
+import { createPublicClient } from "@/src/lib/api/client"
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { email, pin } = body
+    const { email, pin } = await request.json()
 
-    if (!email || !pin) {
-      return NextResponse.json({ error: "Email and PIN are required" }, { status: 400 })
-    }
+    console.log("[AuthAPI] Production login attempt:", { email })
 
-    // Proxy to backend-RAG
-    const response = await fetch(`${RAG_BACKEND_URL}/api/auth/team/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, pin }),
+    // Call the real backend authentication API using generated client
+    const client = createPublicClient()
+    const data = await client.identity.teamLoginApiAuthTeamLoginPost({
+      requestBody: { email, pin }
     })
 
-    const backendData = await response.json()
+    console.log("[AuthAPI] Production login success:", { email, user: data.user })
 
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: backendData.detail || backendData.message || "Authentication failed" },
-        { status: response.status }
-      )
-    }
-
-    // Unwrap data from backend response if wrapped
-    // Backend returns { success: true, data: { token: ..., user: ... } }
-    // Frontend expects { token: ..., user: ..., ... } directly
-    if (backendData.success && backendData.data) {
-      return NextResponse.json(backendData.data)
-    }
-
-    // If not wrapped, return as-is
-    return NextResponse.json(backendData)
-  } catch (error) {
-    console.error("[v0] Login proxy error:", error)
-    return NextResponse.json({ error: "Authentication service unavailable" }, { status: 500 })
+    return NextResponse.json({
+      token: data.token,
+      user: data.user,
+      message: "Login successful",
+    })
+  } catch (error: any) {
+    console.error("[AuthAPI] Production login error:", error)
+    const status = error.status || 500
+    const message = error.body?.detail || "Authentication service unavailable"
+    return NextResponse.json({ error: message }, { status })
   }
 }

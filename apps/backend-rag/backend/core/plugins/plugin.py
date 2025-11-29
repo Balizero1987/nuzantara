@@ -192,7 +192,7 @@ class Plugin(ABC):
         """
         pass
 
-    async def validate(self, input_data: PluginInput) -> bool:
+    async def validate(self, _input_data: PluginInput) -> bool:
         """
         Optional validation logic beyond Pydantic.
         Override if needed for complex validation.

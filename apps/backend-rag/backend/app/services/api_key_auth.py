@@ -4,8 +4,8 @@ Provides simple API key validation to bypass database dependency for testing
 """
 
 import logging
-from typing import Dict, Optional, Any
 from datetime import datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -23,21 +23,21 @@ class APIKeyAuth:
                 "role": "admin",
                 "permissions": ["*"],
                 "created_at": "2024-01-01T00:00:00Z",
-                "description": "Main API key for testing and development"
+                "description": "Main API key for testing and development",
             },
             "zantara-test-2024": {
                 "role": "test",
                 "permissions": ["read"],
                 "created_at": "2024-01-01T00:00:00Z",
-                "description": "Test API key with read-only permissions"
-            }
+                "description": "Test API key with read-only permissions",
+            },
         }
 
-        self.key_stats = {key: {"usage_count": 0, "last_used": None} for key in self.valid_keys.keys()}
+        self.key_stats = {key: {"usage_count": 0, "last_used": None} for key in self.valid_keys}
 
         logger.info(f"API Key service initialized with {len(self.valid_keys)} valid keys")
 
-    def validate_api_key(self, api_key: str) -> Optional[Dict[str, Any]]:
+    def validate_api_key(self, api_key: str) -> dict[str, Any] | None:
         """
         Validate API key and return user context
 
@@ -60,7 +60,9 @@ class APIKeyAuth:
         self.key_stats[api_key]["usage_count"] += 1
         self.key_stats[api_key]["last_used"] = datetime.utcnow().isoformat()
 
-        logger.debug(f"Valid API key used: {key_info['role']} (usage: {self.key_stats[api_key]['usage_count']})")
+        logger.debug(
+            f"Valid API key used: {key_info['role']} (usage: {self.key_stats[api_key]['usage_count']})"
+        )
 
         return {
             "id": f"api_key_{api_key[:8]}",
@@ -74,19 +76,19 @@ class APIKeyAuth:
                 "key_created_at": key_info["created_at"],
                 "key_description": key_info["description"],
                 "usage_count": self.key_stats[api_key]["usage_count"],
-                "last_used": self.key_stats[api_key]["last_used"]
-            }
+                "last_used": self.key_stats[api_key]["last_used"],
+            },
         }
 
     def is_valid_key(self, api_key: str) -> bool:
         """Check if API key is valid (simplified validation)"""
         return api_key in self.valid_keys
 
-    def get_key_info(self, api_key: str) -> Optional[Dict[str, Any]]:
+    def get_key_info(self, api_key: str) -> dict[str, Any] | None:
         """Get key information without incrementing usage stats"""
         return self.valid_keys.get(api_key)
 
-    def get_service_stats(self) -> Dict[str, Any]:
+    def get_service_stats(self) -> dict[str, Any]:
         """Get service statistics for monitoring"""
         total_usage = sum(stats["usage_count"] for stats in self.key_stats.values())
         return {
@@ -94,7 +96,7 @@ class APIKeyAuth:
             "total_usage": total_usage,
             "key_usage": self.key_stats,
             "service_up": True,
-            "service_type": "static_api_key"
+            "service_type": "static_api_key",
         }
 
     def add_key(self, key: str, role: str = "test", permissions: list = None) -> bool:
@@ -110,7 +112,7 @@ class APIKeyAuth:
             "role": role,
             "permissions": permissions,
             "created_at": datetime.utcnow().isoformat(),
-            "description": f"Programmatically added key ({role})"
+            "description": f"Programmatically added key ({role})",
         }
         self.key_stats[key] = {"usage_count": 0, "last_used": None}
 

@@ -157,11 +157,11 @@ async def create_client(
         logger.error(f"❌ Integrity error creating client: {e}")
         raise HTTPException(
             status_code=400, detail="Client with this email or phone already exists"
-        )
+        ) from e
 
     except Exception as e:
         logger.error(f"❌ Failed to create client: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/", response_model=list[ClientResponse])
@@ -220,7 +220,7 @@ async def list_clients(
 
     except Exception as e:
         logger.error(f"❌ Failed to list clients: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{client_id}", response_model=ClientResponse)
@@ -246,7 +246,7 @@ async def get_client(client_id: int):
         raise
     except Exception as e:
         logger.error(f"❌ Failed to get client: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/by-email/{email}")
@@ -272,7 +272,7 @@ async def get_client_by_email(email: str):
         raise
     except Exception as e:
         logger.error(f"❌ Failed to get client by email: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.patch("/{client_id}", response_model=ClientResponse)
@@ -349,7 +349,7 @@ async def update_client(
         raise
     except Exception as e:
         logger.error(f"❌ Failed to update client: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.delete("/{client_id}")
@@ -405,7 +405,7 @@ async def delete_client(
         raise
     except Exception as e:
         logger.error(f"❌ Failed to delete client: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{client_id}/summary")
@@ -494,7 +494,7 @@ async def get_client_summary(client_id: int):
         raise
     except Exception as e:
         logger.error(f"❌ Failed to get client summary: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/stats/overview")
@@ -553,4 +553,4 @@ async def get_clients_stats():
 
     except Exception as e:
         logger.error(f"❌ Failed to get client stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

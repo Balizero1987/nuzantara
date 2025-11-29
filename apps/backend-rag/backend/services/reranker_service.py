@@ -236,7 +236,7 @@ class RerankerService:
             # Combine documents with scores and sort
             # Convert numpy.float32 to native Python float for JSON serialization
             scores_float = [float(s) for s in scores]
-            doc_score_pairs = list(zip(documents, scores_float))
+            doc_score_pairs = list(zip(documents, scores_float, strict=True))
             ranked = sorted(doc_score_pairs, key=lambda x: x[1], reverse=True)
 
             # Update cache
@@ -414,7 +414,7 @@ class RerankerService:
         query_doc_ranges = []  # Track which pairs belong to which query
         doc_start_idx = 0
 
-        for query, documents in zip(queries, documents_list):
+        for query, documents in zip(queries, documents_list, strict=True):
             doc_texts = [doc.get("text") or doc.get("document") or str(doc) for doc in documents]
             pairs = [[query, text] for text in doc_texts]
             all_pairs.extend(pairs)
@@ -429,12 +429,14 @@ class RerankerService:
             # Split results back per query
             results = []
 
-            for query_idx, (query, documents) in enumerate(zip(queries, documents_list)):
+            for query_idx, (_query, documents) in enumerate(
+                zip(queries, documents_list, strict=True)
+            ):
                 start_idx, end_idx = query_doc_ranges[query_idx]
                 query_scores = all_scores_float[start_idx:end_idx]
 
                 # Combine documents with scores and sort
-                doc_score_pairs = list(zip(documents, query_scores))
+                doc_score_pairs = list(zip(documents, query_scores, strict=True))
                 ranked = sorted(doc_score_pairs, key=lambda x: x[1], reverse=True)
 
                 results.append(ranked[:top_k])
@@ -458,7 +460,7 @@ class RerankerService:
             logger.warning("⚠️ Falling back to individual reranking")
             return [
                 self.rerank(query, docs, top_k=top_k)
-                for query, docs in zip(queries, documents_list)
+                for query, docs in zip(queries, documents_list, strict=True)
             ]
 
     def get_stats(self) -> dict[str, Any]:

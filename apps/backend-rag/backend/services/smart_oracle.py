@@ -17,13 +17,14 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
+from app.core.config import settings
+
 logger = logging.getLogger(__name__)
 
 # --- CONFIGURATION ---
 
 # 1. AI Configuration (Currently set to Google Gemini)
 # Ensure GOOGLE_API_KEY is set in your Fly.io secrets
-from app.core.config import settings
 
 if settings.google_api_key:
     genai.configure(api_key=settings.google_api_key)
@@ -33,6 +34,7 @@ if settings.google_api_key:
 def get_drive_service():
     """Initialize Google Drive service using service account credentials"""
     from app.core.config import settings
+
     creds_json = settings.google_credentials_json
     if not creds_json:
         logger.error("Missing GOOGLE_CREDENTIALS_JSON secret!")

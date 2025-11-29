@@ -48,10 +48,10 @@ class IdentityService:
             Hashed password string (utf-8 encoded)
         """
         # Encode string to bytes, hash it, decode back to utf-8 string for DB storage
-        pwd_bytes = password.encode('utf-8')
+        pwd_bytes = password.encode("utf-8")
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(pwd_bytes, salt)
-        return hashed.decode('utf-8')
+        return hashed.decode("utf-8")
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """
@@ -66,8 +66,8 @@ class IdentityService:
         """
         # Encode both to bytes and check
         try:
-            plain_bytes = plain_password.encode('utf-8')
-            hashed_bytes = hashed_password.encode('utf-8')
+            plain_bytes = plain_password.encode("utf-8")
+            hashed_bytes = hashed_password.encode("utf-8")
             return bcrypt.checkpw(plain_bytes, hashed_bytes)
         except Exception as e:
             logger.error(f"Bcrypt verification failed: {e}")
@@ -127,7 +127,9 @@ class IdentityService:
 
             # Verify PIN
             pin_hash_from_db = row["pin_hash"]
-            logger.info(f"🔍 Verifying PIN for {email}, hash length: {len(pin_hash_from_db)}, hash prefix: {pin_hash_from_db[:20] if pin_hash_from_db else 'None'}")
+            logger.info(
+                f"🔍 Verifying PIN for {email}, hash length: {len(pin_hash_from_db)}, hash prefix: {pin_hash_from_db[:20] if pin_hash_from_db else 'None'}"
+            )
 
             if not self.verify_password(pin, pin_hash_from_db):
                 # Increment failed attempts
@@ -203,6 +205,7 @@ class IdentityService:
         expiration = datetime.now(timezone.utc) + timedelta(days=7)
 
         payload = {
+            "sub": user.id,  # Standard Subject claim
             "userId": user.id,  # Node.js uses "userId" not "id"
             "email": user.email,
             "role": user.role,

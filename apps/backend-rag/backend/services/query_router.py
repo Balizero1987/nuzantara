@@ -743,7 +743,7 @@ class QueryRouter:
         property_score = sum(1 for kw in self.PROPERTY_KEYWORDS if kw in query_lower)
         books_score = sum(1 for kw in self.BOOKS_KEYWORDS if kw in query_lower)
         update_score = sum(1 for kw in self.UPDATE_KEYWORDS if kw in query_lower)
-        tax_genius_score = sum(1 for kw in self.TAX_GENIUS_KEYWORDS if kw in query_lower)
+        sum(1 for kw in self.TAX_GENIUS_KEYWORDS if kw in query_lower)
 
         # Find matching keywords
         visa_matches = [kw for kw in self.VISA_KEYWORDS if kw in query_lower]

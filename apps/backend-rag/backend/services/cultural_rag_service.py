@@ -183,6 +183,7 @@ async def test_cultural_rag():
     ]
 
     import logging
+
     logger = logging.getLogger(__name__)
 
     for i, test in enumerate(test_cases, 1):

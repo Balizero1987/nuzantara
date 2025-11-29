@@ -64,7 +64,7 @@ class GoldenAnswerService:
             logger.info("Loading embedding model for similarity matching...")
             self.model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    async def lookup_golden_answer(self, query: str, user_id: str | None = None) -> dict | None:
+    async def lookup_golden_answer(self, query: str, _user_id: str | None = None) -> dict | None:
         """
         Lookup golden answer for user query
 

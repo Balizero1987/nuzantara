@@ -286,7 +286,7 @@ async def search_shared_memory(
 
     except Exception as e:
         logger.error(f"❌ Shared memory search failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/upcoming-renewals")
@@ -335,7 +335,7 @@ async def get_upcoming_renewals(days: int = Query(90, description="Look ahead da
 
     except Exception as e:
         logger.error(f"❌ Failed to get upcoming renewals: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/client/{client_id}/full-context")
@@ -448,7 +448,7 @@ async def get_client_full_context(client_id: int):
         raise
     except Exception as e:
         logger.error(f"❌ Failed to get client full context: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/team-overview")
@@ -540,4 +540,4 @@ async def get_team_overview():
 
     except Exception as e:
         logger.error(f"❌ Failed to get team overview: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

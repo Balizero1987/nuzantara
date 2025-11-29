@@ -56,6 +56,7 @@ from core.embeddings import EmbeddingsGenerator
 from psycopg2.extras import RealDictCursor
 
 from app.dependencies import get_search_service
+from app.routers.simple_jaksel_caller_translation import SimpleJakselCaller
 from services.personality_service import PersonalityService
 from services.search_service import SearchService
 from services.smart_oracle import smart_oracle
@@ -88,6 +89,7 @@ class Configuration:
     def _validate_environment(self):
         """Validate required environment variables"""
         from app.core.config import settings
+
         missing_vars = []
 
         if not settings.database_url:
@@ -96,27 +98,33 @@ class Configuration:
         # They can be added if needed, but for now we'll keep the warning
 
         if missing_vars:
-            logger.warning(f"⚠️ Missing environment variables: {missing_vars}. Using dummy values for testing.")
+            logger.warning(
+                f"⚠️ Missing environment variables: {missing_vars}. Using dummy values for testing."
+            )
             # raise ValueError(f"Missing environment variables: {missing_vars}")
 
     @property
     def google_api_key(self) -> str:
         from app.core.config import settings
+
         return settings.google_api_key or "dummy_key"
 
     @property
     def google_credentials_json(self) -> str:
         from app.core.config import settings
+
         return settings.google_credentials_json or "{}"
 
     @property
     def database_url(self) -> str:
         from app.core.config import settings
+
         return settings.database_url or "postgresql://user:pass@localhost/db"
 
     @property
     def openai_api_key(self) -> str:
         from app.core.config import settings
+
         if not settings.openai_api_key:
             logger.warning("⚠️ OPENAI_API_KEY not set - embeddings may fail")
         return settings.openai_api_key or ""
@@ -204,7 +212,9 @@ class GoogleServices:
                     logger.warning(f"⚠️ Failed to load alternative model '{alt_name}': {e2}")
                     continue
 
-            raise RuntimeError(f"Could not load Gemini model '{model_name}' or any alternatives")
+            raise RuntimeError(
+                f"Could not load Gemini model '{model_name}' or any alternatives"
+            ) from None
 
     def get_zantara_model(self, use_case: str = "legal_reasoning") -> genai.GenerativeModel:
         """
@@ -707,7 +717,10 @@ def generate_query_hash(query_text: str) -> str:
 
 router = APIRouter(prefix="/api/oracle", tags=["Oracle v5.3 - Ultra Hybrid"])
 
-# Initialize Personality Service for multi-voice support
+# Initialize Simple Jaksel Caller for direct Jaksel calls
+jaksel_caller = SimpleJakselCaller()
+
+# Initialize Personality Service
 personality_service = PersonalityService()
 
 
@@ -763,7 +776,7 @@ async def hybrid_oracle_query(
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Embedding service temporarily unavailable",
-            )
+            ) from e
 
         # Search the appropriate collection
         if collection_used not in service.collections:
@@ -874,36 +887,64 @@ async def hybrid_oracle_query(
                     reasoning_result.get("reasoning_time_ms", 0) if reasoning_result else 0
                 )
 
-                # Apply personality translation if user email is provided
-                if answer and request.user_email:
-                    try:
-                        # Use Gemini-only personality translation (Oracle not accessible externally)
-                        personality_result = await personality_service.translate_to_personality(
-                            gemini_response=answer,
-                            user_email=request.user_email,
-                            original_query=request.query,
-                            gemini_model_getter=google_services.get_zantara_model,
-                        )
-
-                        if personality_result["success"]:
-                            answer = personality_result["response"]
-                            model_used = f"{model_used} + {personality_result['personality_used']}"
-                            logger.info(
-                                f"🎭 Applied {personality_result['personality_used']} personality"
-                            )
-                        else:
-                            logger.warning(
-                                f"⚠️ Personality translation failed: {personality_result.get('error', 'Unknown error')}"
-                            )
-
-                    except Exception as e:
-                        logger.error(f"❌ Personality service error: {e}")
-                        # Keep original answer if personality service fails
-
             except Exception as e:
                 logger.error(f"❌ Error in reasoning pipeline: {e}")
                 answer = "I encountered an error during analysis. The system has been notified. Please try again."
                 model_used = "error_fallback"
+                reasoning_time = 0
+
+        # 6. Apply Jaksel personality if user email is provided (moved outside use_ai condition)
+        if request.user_email and request.user_email in [
+            "anton@balizero.com",
+            "amanda@balizero.com",
+            "krisna@balizero.com",
+        ]:
+            logger.info(f"🚨 ABOUT TO CALL JAKSEL for {request.user_email}")
+            logger.info(f"🔍 DEBUG: Answer exists: {bool(answer)}")
+            logger.info(f"🔍 DEBUG: Answer length: {len(answer) if answer else 0}")
+            logger.info(f"🔍 DEBUG: User email: {request.user_email}")
+            try:
+                # If no answer, create a simple one for Jaksel to process
+                if not answer:
+                    answer = f"User asked: {request.query}"
+
+                # Call Jaksel directly with SimpleJakselCaller
+                jaksel_result = await jaksel_caller.call_jaksel_direct(
+                    query=request.query, user_email=request.user_email, gemini_answer=answer
+                )
+
+                if jaksel_result["success"]:
+                    answer = jaksel_result["response"]
+                    model_used = (
+                        f"{model_used} + Jaksel (Gemma 9B)" if model_used else "Jaksel (Gemma 9B)"
+                    )
+                    logger.info(
+                        f"🎭 Jaksel responded for {jaksel_result['user_name']} in {jaksel_result['language']}"
+                    )
+                else:
+                    logger.error(f"❌ JAKSEL FAILED: {jaksel_result.get('error', 'Unknown')}")
+
+            except Exception as e:
+                logger.error(f"❌ JAKSEL EXCEPTION: {e}")
+                import traceback
+
+                logger.error(f"❌ JAKSEL TRACEBACK: {traceback.format_exc()}")
+                # Keep original answer if Jaksel call fails
+
+        # 7. If no answer from AI processing, provide default response that can be processed by Jaksel
+        if not answer:
+            # Check if we should call Jaksel directly
+            if request.user_email and request.user_email in [
+                "anton@balizero.com",
+                "amanda@balizero.com",
+                "krisna@balizero.com",
+            ]:
+                answer = f"User asked: {request.query}"
+                model_used = None  # Will be set by Jaksel
+                reasoning_time = 0
+            else:
+                answer = f"Hello {request.user_email.split('@')[0] if request.user_email else 'there'}! I've processed your query about '{request.query}'. How can I help you further today?"
+                model_used = "default_response"
                 reasoning_time = 0
 
         # 6. Calculate total execution time
@@ -1050,7 +1091,7 @@ async def submit_user_feedback(feedback: FeedbackRequest):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error processing feedback: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/health")
@@ -1124,7 +1165,7 @@ async def get_user_profile_endpoint(user_email: str):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error retrieving user profile: {str(e)}",
-        )
+        ) from e
 
 
 # ========================================
@@ -1184,7 +1225,7 @@ async def get_personalities():
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get personalities: {str(e)}",
-        )
+        ) from e
 
 
 @router.post("/personality/test")
@@ -1205,7 +1246,7 @@ async def test_personality(personality_type: str, message: str):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to test personality: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/gemini/test")

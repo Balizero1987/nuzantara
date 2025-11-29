@@ -26,6 +26,7 @@ class WorkSessionService:
 
     def __init__(self):
         from app.core.config import settings
+
         self.db_url = settings.database_url
         self.pool = None
         self.zero_email = "zero@balizero.com"  # All notifications go here
@@ -345,7 +346,7 @@ Session ID: {session["id"]}
 
         # Count unique days
         for stats in user_stats.values():
-            unique_dates = set(s["date"] for s in stats["sessions"])
+            unique_dates = {s["date"] for s in stats["sessions"]}
             stats["days_worked"] = len(unique_dates)
             stats["avg_hours_per_day"] = (
                 round(stats["total_hours"] / stats["days_worked"], 2)

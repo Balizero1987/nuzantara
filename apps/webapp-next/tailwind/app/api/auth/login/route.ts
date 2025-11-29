@@ -1,47 +1,43 @@
 import { NextResponse } from "next/server"
 
-// Mock user database
-const MOCK_USERS = {
-  "zero@balizero.com": {
-    pin: "010719",
-    user: {
-      id: "1",
-      email: "zero@balizero.com",
-      name: "Zero Balizero",
-      tier: "S",
-      tier_display: "Executive",
-    },
-  },
-}
+const API_URL = process.env.NUZANTARA_API_URL || "https://nuzantara-rag.fly.dev"
+const API_KEY = process.env.NUZANTARA_API_KEY || "nuzantara-api-key-2024-secure"
 
 export async function POST(request: Request) {
   try {
     const { email, pin } = await request.json()
 
-    console.log("[v0] Mock login attempt:", { email, pin })
+    console.log("[AuthAPI] Production login attempt:", { email })
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    // Call the real backend authentication API
+    const response = await fetch(`${API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": API_KEY,
+      },
+      body: JSON.stringify({
+        email,
+        pin,
+      })
+    })
 
-    // Check credentials
-    const user = MOCK_USERS[email as keyof typeof MOCK_USERS]
-
-    if (!user || user.pin !== pin) {
+    if (!response.ok) {
+      console.error("[AuthAPI] Backend auth error:", response.status, response.statusText)
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
-    // Generate mock JWT token
-    const token = `mock_jwt_token_${Date.now()}`
+    const data = await response.json()
 
-    console.log("[v0] Mock login success:", user.user)
+    console.log("[AuthAPI] Production login success:", { email, user: data.user })
 
     return NextResponse.json({
-      token,
-      user: user.user,
+      token: data.token,
+      user: data.user,
       message: "Login successful",
     })
   } catch (error) {
-    console.error("[v0] Mock login error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("[AuthAPI] Production login error:", error)
+    return NextResponse.json({ error: "Authentication service unavailable" }, { status: 500 })
   }
 }

@@ -307,3 +307,5 @@ Vedi comandi curl sopra per ogni endpoint.
 - Token valido necessario per endpoint protetti
 - Alcuni endpoint potrebbero non esistere (404 OK per test)
 
+
+
