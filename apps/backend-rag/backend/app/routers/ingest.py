@@ -70,7 +70,7 @@ async def upload_and_ingest(
 
     except Exception as e:
         logger.error(f"Upload ingestion error: {e}")
-        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}") from e
 
 
 @router.post("/file", response_model=BookIngestionResponse)
@@ -102,11 +102,11 @@ async def ingest_local_file(request: BookIngestionRequest):
 
     except Exception as e:
         logger.error(f"File ingestion error: {e}")
-        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}") from e
 
 
 @router.post("/batch", response_model=BatchIngestionResponse)
-async def batch_ingest(request: BatchIngestionRequest, background_tasks: BackgroundTasks):
+async def batch_ingest(request: BatchIngestionRequest, _background_tasks: BackgroundTasks):
     """
     Process all books in a directory.
 
@@ -185,7 +185,7 @@ async def batch_ingest(request: BatchIngestionRequest, background_tasks: Backgro
         raise
     except Exception as e:
         logger.error(f"Batch ingestion error: {e}")
-        raise HTTPException(status_code=500, detail=f"Batch ingestion failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Batch ingestion failed: {str(e)}") from e
 
 
 @router.get("/stats")
@@ -209,4 +209,4 @@ async def get_ingestion_stats():
 
     except Exception as e:
         logger.error(f"Stats error: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get stats: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get stats: {str(e)}") from e

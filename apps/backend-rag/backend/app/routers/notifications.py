@@ -126,7 +126,7 @@ async def send_notification(request: SendNotificationRequest):
 
     except Exception as e:
         logger.error(f"Send notification error: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @router.post("/send-template")
@@ -161,7 +161,7 @@ async def send_template_notification(request: TemplateNotificationRequest):
 
     except Exception as e:
         logger.error(f"Send template notification error: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @router.post("/test")

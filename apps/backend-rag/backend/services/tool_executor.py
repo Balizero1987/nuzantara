@@ -130,7 +130,7 @@ class ToolExecutor:
 
                     # Extract data from ZantaraTools result
                     payload = result.get("data", result)
-                    if isinstance(payload, (dict, list)):
+                    if isinstance(payload, dict | list):
                         content_text = json.dumps(payload, ensure_ascii=False)
                     else:
                         content_text = str(payload)
@@ -165,7 +165,7 @@ class ToolExecutor:
                         continue
 
                     payload = result.get("result", result)
-                    if isinstance(payload, (dict, list)):
+                    if isinstance(payload, dict | list):
                         content_text = json.dumps(payload)
                     else:
                         content_text = str(payload)

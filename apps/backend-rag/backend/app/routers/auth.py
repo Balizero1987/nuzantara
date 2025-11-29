@@ -72,7 +72,7 @@ async def get_db_connection():
         return await asyncpg.connect(settings.database_url)
     except Exception as e:
         logger.error(f"❌ Database connection failed: {e}")
-        raise HTTPException(status_code=503, detail="Database connection failed")
+        raise HTTPException(status_code=503, detail="Database connection failed") from None
 
 
 # ============================================================================
@@ -116,16 +116,16 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         email: str = payload.get("email")
         if user_id is None or email is None:
             raise credentials_exception
-    except jwt.PyJWTError:
-        raise credentials_exception
+    except jwt.PyJWTError as e:
+        raise credentials_exception from e
 
     # Get user from database
     conn = await get_db_connection()
     try:
         query = """
-            SELECT id, email, name, role, status, metadata, language_preference
-            FROM users
-            WHERE id = $1 AND email = $2 AND status = 'active'
+            SELECT id::text, email, full_name as name, role, 'active' as status, permissions as metadata, language as language_preference
+            FROM team_members
+            WHERE id::text = $1 AND email = $2 AND active = true
         """
         row = await conn.fetchrow(query, user_id, email)
 
@@ -151,11 +151,11 @@ async def login(request: LoginRequest):
     """
     conn = await get_db_connection()
     try:
-        # Real database authentication only
+        # Real database authentication using team_members
         query = """
-            SELECT id, email, name, password_hash, role, status, metadata, language_preference
-            FROM users
-            WHERE email = $1 AND status = 'active'
+            SELECT id, email, full_name as name, pin_hash as password_hash, role, 'active' as status, permissions as metadata, language as language_preference
+            FROM team_members
+            WHERE email = $1 AND active = true
         """
         user = await conn.fetchrow(query, request.email)
 
@@ -205,7 +205,7 @@ async def login(request: LoginRequest):
         raise
     except Exception as e:
         logger.error(f"❌ Login failed: {e}")
-        raise HTTPException(status_code=500, detail="Authentication service unavailable")
+        raise HTTPException(status_code=500, detail="Authentication service unavailable") from None
     finally:
         await conn.close()
 
@@ -217,7 +217,7 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
 
 
 @router.post("/logout")
-async def logout(current_user: dict = Depends(get_current_user)):
+async def logout(_current_user: dict = Depends(get_current_user)):
     """Logout user (server-side token invalidation would go here)"""
     return {"success": True, "message": "Logout successful"}
 
@@ -248,13 +248,13 @@ async def get_csrf_token():
 
     # Generate session ID
     from datetime import datetime, timezone
-    session_id = f"session_{int(datetime.now(timezone.utc).timestamp() * 1000)}_{secrets.token_hex(16)}"
+
+    session_id = (
+        f"session_{int(datetime.now(timezone.utc).timestamp() * 1000)}_{secrets.token_hex(16)}"
+    )
 
     # Return in both JSON and headers
-    response_data = {
-        "csrfToken": csrf_token,
-        "sessionId": session_id
-    }
+    response_data = {"csrfToken": csrf_token, "sessionId": session_id}
 
     # Note: FastAPI Response model doesn't support setting headers directly in decorator
     # Headers will be set in the endpoint function

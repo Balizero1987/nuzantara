@@ -115,7 +115,7 @@ async def semantic_search(query: SearchQuery) -> SearchResponse:
         raise
     except Exception as e:
         logger.error(f"Search error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}") from e
 
 
 @router.get("/health")
@@ -131,4 +131,4 @@ async def search_health() -> dict[str, Any]:
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}", exc_info=True)
-        raise HTTPException(status_code=503, detail=f"Knowledge service unhealthy: {str(e)}")
+        raise HTTPException(status_code=503, detail=f"Knowledge service unhealthy: {str(e)}") from e

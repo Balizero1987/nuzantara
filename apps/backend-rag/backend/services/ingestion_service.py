@@ -113,7 +113,7 @@ class IngestionService:
                 metadatas.append(meta)
 
             # Step 7: Store in vector database
-            result = self.vector_db.upsert_documents(
+            self.vector_db.upsert_documents(
                 chunks=chunk_texts, embeddings=embeddings, metadatas=metadatas
             )
 

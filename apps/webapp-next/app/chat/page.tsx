@@ -73,7 +73,7 @@ export default function ChatPage() {
     setStreamingContent("")
 
     let accumulatedContent = ""
-    let metadata = undefined
+    let metadata: ChatMetadata | undefined = undefined
 
     try {
       await chatAPI.streamChat(
@@ -117,6 +117,7 @@ export default function ChatPage() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       handleSubmit(e as any)
     }
   }
@@ -175,32 +176,34 @@ export default function ChatPage() {
 
     setIsGeneratingImage(true)
     try {
-      const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY || "",
-          },
-          body: JSON.stringify({
-            instances: [{ prompt: imagePrompt }],
-            parameters: {
-              sampleCount: 1,
-              aspectRatio: "1:1",
-            },
-          }),
+      const token = apiClient.getToken()
+
+      // Use Next.js Proxy instead of direct backend call
+      const response = await fetch('/api/image/generate', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-      )
+        body: JSON.stringify({
+          prompt: imagePrompt,
+          number_of_images: 1,
+          aspect_ratio: "1:1",
+          safety_filter_level: "block_some",
+          person_generation: "allow_adult",
+        }),
+      })
 
       const data = await response.json()
-      if (data.predictions?.[0]?.bytesBase64Encoded) {
-        const imageData = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`
-        setGeneratedImage(imageData)
+      if (data.success && data.images?.length > 0) {
+        setGeneratedImage(data.images[0])
+      } else {
+        throw new Error(data.error || "No images generated")
       }
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("[v0] Image generation error:", error)
-      alert("Failed to generate image. Please try again.")
+      alert(`Failed to generate image: ${error.message}`)
     } finally {
       setIsGeneratingImage(false)
       setShowImageModal(false)
@@ -229,9 +232,8 @@ export default function ChatPage() {
           />
 
           <aside
-            className={`fixed left-0 top-0 h-full w-80 bg-[#1a1a1a]/95 backdrop-blur-md border-r border-gray-800/50 transform transition-transform duration-300 ease-in-out z-40 ${
-              isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
+            className={`fixed left-0 top-0 h-full w-80 bg-[#1a1a1a]/95 backdrop-blur-md border-r border-gray-800/50 transform transition-transform duration-300 ease-in-out z-40 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+              }`}
           >
             <div className="p-6 h-full flex flex-col">
               <button
@@ -280,7 +282,17 @@ export default function ChatPage() {
 
       <div className={`flex flex-col min-h-screen transition-all duration-300 ${isSidebarOpen ? "ml-80" : "ml-0"}`}>
         {/* Header */}
-        <header className="flex items-center justify-between px-6 py-4 border-b border-gray-700/50 backdrop-blur-sm sticky top-0 z-30">
+        <header className="flex items-center justify-between px-6 py-4 border-b border-gray-700/50 backdrop-blur-sm sticky top-0 z-30 relative">
+          {/* Corner Decoration Top Right */}
+          <div
+            className="absolute top-0 right-0 w-12 h-12 opacity-30 pointer-events-none"
+            style={{
+              backgroundImage: 'url(/images/image_art/zantara_ornate_corner_transparent.png)',
+              backgroundSize: 'contain',
+              backgroundPosition: 'top right',
+              backgroundRepeat: 'no-repeat'
+            }}
+          />
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -304,11 +316,10 @@ export default function ChatPage() {
 
             <button
               onClick={handleCheckInOut}
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-                isCheckedIn
-                  ? "bg-green-500/20 border-2 border-green-500 text-green-400"
-                  : "bg-gray-700/50 border-2 border-gray-600 text-gray-400 hover:border-[#d4af37]"
-              }`}
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${isCheckedIn
+                ? "bg-green-500/20 border-2 border-green-500 text-green-400"
+                : "bg-gray-700/50 border-2 border-gray-600 text-gray-400 hover:border-[#d4af37]"
+                }`}
               title={isCheckedIn ? "Check Out" : "Check In"}
             >
               {isCheckedIn ? (
@@ -332,11 +343,11 @@ export default function ChatPage() {
             </button>
           </div>
 
-          <div className="animate-pulse-glow -my-20 scale-[4] mx-auto">
+          <div className="animate-pulse-glow -my-32 scale-[2.69] mx-auto">
             <img
               src="/logo-zantara.svg"
               alt="ZANTARA"
-              className="h-12 w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.5)]"
+              className="h-16 w-auto drop-shadow-[0_0_20px_rgba(212,175,55,0.6)]"
             />
           </div>
 
@@ -355,15 +366,13 @@ export default function ChatPage() {
                 title="Click to upload avatar"
               >
                 {avatarImage ? (
-                  <img src={avatarImage || "/placeholder.svg"} alt="User" className="w-full h-full object-cover" />
+                  <img src={avatarImage} alt="User" className="w-full h-full object-cover" />
                 ) : (
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <img
+                    src="/images/zantara_avatar.png"
+                    alt="Zantara AI"
+                    className="w-full h-full object-cover"
+                  />
                 )}
               </button>
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#2a2a2a] animate-pulse" />
@@ -391,10 +400,30 @@ export default function ChatPage() {
           </div>
         </header>
 
+        {/* Golden Divider */}
+        <div
+          className="h-px w-full"
+          style={{
+            backgroundImage: 'url(/images/image_art/zantara_divider_dark_transparent.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        />
+
         <main className="flex-1 overflow-y-auto px-4 py-6 max-h-[calc(100vh-180px)]">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center space-y-3 py-16">
-              <h1 className="text-3xl md:text-4xl font-bold tracking-wide animate-fade-in-down relative">
+            <div className="flex flex-col items-center justify-center text-center space-y-3 py-16 relative">
+              {/* AI Brain Background */}
+              <div
+                className="absolute inset-0 opacity-10"
+                style={{
+                  backgroundImage: 'url(/images/image_art/zantara_brain_transparent.png)',
+                  backgroundSize: 'contain',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                }}
+              />
+              <h1 className="text-3xl md:text-4xl font-bold tracking-wide animate-fade-in-down relative z-10">
                 <span className="text-white">Selamat datang di ZANTARA</span>
               </h1>
 
@@ -560,27 +589,21 @@ export default function ChatPage() {
                       type="button"
                       onClick={() => setShowImageModal(true)}
                       disabled={isGeneratingImage}
-                      className="flex-shrink-0 p-2.5 rounded-xl bg-purple-600/40 hover:bg-purple-600/60 text-purple-200 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40"
+                      className="flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
                       title="Generate Image"
                     >
                       {isGeneratingImage ? (
-                        <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                          />
-                        </svg>
+                        <img
+                          src="/create_image.png"
+                          alt="Generating..."
+                          className="w-full h-full object-contain animate-spin opacity-60"
+                        />
                       ) : (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
+                        <img
+                          src="/create_image.png"
+                          alt="Generate Image"
+                          className="w-full h-full object-contain hover:drop-shadow-[0_0_8px_rgba(139,92,246,0.6)] transition-all"
+                        />
                       )}
                     </button>
 
@@ -602,25 +625,13 @@ export default function ChatPage() {
                     <button
                       type="submit"
                       disabled={isLoading || !input.trim()}
-                      className="relative flex-shrink-0 w-11 h-11 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden"
-                      style={{
-                        background:
-                          "linear-gradient(145deg, #f4d03f 0%, #d4af37 30%, #b8941f 60%, #d4af37 80%, #f4d03f 100%)",
-                        boxShadow:
-                          "0 6px 20px rgba(212, 175, 55, 0.5), 0 2px 8px rgba(212, 175, 55, 0.3), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -3px 6px rgba(0,0,0,0.3)",
-                      }}
+                      className="relative flex-shrink-0 w-14 h-14 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 hover:scale-110 active:scale-95 rounded-full overflow-hidden"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-black/20" />
-                      <div className="absolute inset-[2px] rounded-lg bg-gradient-to-br from-yellow-300/20 to-transparent" />
-                      <span
-                        className="relative text-2xl font-bold bg-gradient-to-br from-gray-800 via-gray-900 to-black bg-clip-text text-transparent flex items-center justify-center h-full"
-                        style={{
-                          filter: "drop-shadow(0 1px 1px rgba(255,255,255,0.5))",
-                          transform: "translateY(-1px)",
-                        }}
-                      >
-                        ∞
-                      </span>
+                      <img
+                        src="/infinity_button.png"
+                        alt="Send"
+                        className="w-full h-full object-contain"
+                      />
                     </button>
                   </div>
                 </div>

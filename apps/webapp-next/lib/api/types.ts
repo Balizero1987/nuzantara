@@ -1,9 +1,13 @@
 export interface User {
   id: string
   email: string
-  full_name: string
-  tier: "S" | "A" | "B" | "C" | "D"
-  created_at: string
+  name: string
+  role: string
+  avatar?: string | null
+  createdAt?: string
+  updatedAt?: string
+  tier?: "S" | "A" | "B" | "C" | "D"
+  created_at?: string
 }
 
 export interface LoginRequest {
@@ -14,6 +18,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string
   user: User
+  expiresIn?: number
 }
 
 export interface ChatMessage {

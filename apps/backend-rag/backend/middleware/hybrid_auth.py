@@ -4,14 +4,14 @@ Combines API Key and JWT authentication for flexible access control
 """
 
 import logging
-from typing import Optional, Dict, Any
+from datetime import datetime, timezone
+from typing import Any
+
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from fastapi import HTTPException, status
-from datetime import datetime, timezone
 
-from app.services.api_key_auth import APIKeyAuth
 from app.core.config import settings
+from app.services.api_key_auth import APIKeyAuth
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,9 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
         self.api_auth_enabled = settings.api_auth_enabled
         self.api_auth_bypass_db = settings.api_auth_bypass_db
 
-        logger.info(f"HybridAuthMiddleware initialized - API Auth: {self.api_auth_enabled}, Bypass DB: {self.api_auth_bypass_db}")
+        logger.info(
+            f"HybridAuthMiddleware initialized - API Auth: {self.api_auth_enabled}, Bypass DB: {self.api_auth_bypass_db}"
+        )
 
     async def dispatch(self, request: Request, call_next):
         """
@@ -48,7 +50,7 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
         """
         try:
             # Add timing for performance monitoring
-            start_time = datetime.now(timezone.utc)
+            datetime.now(timezone.utc)
 
             # Only apply authentication if enabled
             if self.api_auth_enabled:
@@ -57,18 +59,20 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
                 # Inject authenticated user context into request state
                 if auth_result:
                     request.state.user = auth_result
-                    request.state.auth_type = getattr(auth_result, 'auth_method', 'unknown')
-                    logger.debug(f"Authenticated request: {auth_result.get('role', 'unknown')} via {request.state.auth_type}")
+                    request.state.auth_type = getattr(auth_result, "auth_method", "unknown")
+                    logger.debug(
+                        f"Authenticated request: {auth_result.get('role', 'unknown')} via {request.state.auth_type}"
+                    )
                 else:
                     request.state.user = None
-                    request.state.auth_type = 'public'
+                    request.state.auth_type = "public"
                     logger.debug("Public endpoint - no authentication required")
 
             # Process the request
             response = await call_next(request)
 
             # Add auth metadata to response headers for monitoring
-            if hasattr(request.state, 'auth_type'):
+            if hasattr(request.state, "auth_type"):
                 response.headers["X-Auth-Type"] = request.state.auth_type
 
             return response
@@ -79,7 +83,7 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
             # This ensures the system remains operational even with auth problems
             return await call_next(request)
 
-    async def authenticate_request(self, request: Request) -> Optional[Dict[str, Any]]:
+    async def authenticate_request(self, request: Request) -> dict[str, Any] | None:
         """
         Authenticate request using hybrid approach
 
@@ -100,7 +104,7 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
         # No authentication provided - treat as public request
         return None
 
-    async def authenticate_api_key(self, request: Request) -> Optional[Dict[str, Any]]:
+    async def authenticate_api_key(self, request: Request) -> dict[str, Any] | None:
         """
         Authenticate using API Key from X-API-Key header
 
@@ -127,7 +131,7 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
             # Still return None (don't raise exception to allow public fallback)
             return None
 
-    async def authenticate_jwt(self, request: Request) -> Optional[Dict[str, Any]]:
+    async def authenticate_jwt(self, request: Request) -> dict[str, Any] | None:
         """
         Fallback to JWT authentication
 
@@ -150,7 +154,8 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
                 # refactor get_current_user to work with middleware context
                 request_copy = request
                 request_copy.headers._list = [
-                    (k, v) for k, v in request.headers.items()
+                    (k, v)
+                    for k, v in request.headers.items()
                     if k.lower() != "authorization" or not v.startswith("Bearer ")
                 ]
                 request_copy.headers._list.append(("Authorization", f"Bearer {jwt_token}"))
@@ -165,17 +170,17 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
             # Database bypass enabled - skip JWT validation
             return None
 
-    def get_auth_stats(self) -> Dict[str, Any]:
+    def get_auth_stats(self) -> dict[str, Any]:
         """Get authentication statistics for monitoring"""
         return {
             "api_auth_enabled": self.api_auth_enabled,
             "api_auth_bypass_db": self.api_auth_bypass_db,
             "api_key_stats": self.api_key_auth.get_service_stats(),
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
 
-def create_default_user_context() -> Dict[str, Any]:
+def create_default_user_context() -> dict[str, Any]:
     """Create default user context for public endpoints"""
     return {
         "id": "public_user",
@@ -187,6 +192,6 @@ def create_default_user_context() -> Dict[str, Any]:
         "permissions": ["read"],
         "metadata": {
             "source": "hybrid_auth_middleware",
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        },
     }

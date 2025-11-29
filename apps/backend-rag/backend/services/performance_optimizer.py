@@ -246,7 +246,7 @@ class BatchProcessor:
                 # Process batch
                 try:
                     results = await self._process_batch_items(batch)
-                    for future, result in zip(futures, results):
+                    for future, result in zip(futures, results, strict=True):
                         future.set_result(result)
                 except Exception as e:
                     for future in futures:

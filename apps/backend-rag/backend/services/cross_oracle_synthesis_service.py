@@ -192,7 +192,7 @@ class CrossOracleSynthesisService:
         max_score = scenario_scores[best_scenario]
 
         # Normalize confidence (0.0-1.0)
-        pattern_keywords = len(self.SCENARIO_PATTERNS[best_scenario]["keywords"])
+        len(self.SCENARIO_PATTERNS[best_scenario]["keywords"])
         confidence = min(max_score / 5.0, 1.0)  # Cap at 1.0
 
         logger.info(f"🎯 Scenario classified: {best_scenario} (confidence={confidence:.2f})")

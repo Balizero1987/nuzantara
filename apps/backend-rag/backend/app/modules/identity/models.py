@@ -30,9 +30,7 @@ class User(SQLModel, table=True):
     # User identification
     # Map Python 'name' to database 'full_name' column
     name: str = Field(
-        sa_column=Column("full_name", nullable=False),
-        max_length=255,
-        description="Full name"
+        sa_column=Column("full_name", nullable=False), max_length=255, description="Full name"
     )
     email: str = Field(
         unique=True, index=True, max_length=255, description="Email address (unique)"
@@ -54,9 +52,7 @@ class User(SQLModel, table=True):
     )
     # Map Python 'is_active' to database 'active' column
     is_active: bool = Field(
-        sa_column=Column("active", default=True),
-        default=True,
-        description="Account active status"
+        sa_column=Column("active", default=True), default=True, description="Account active status"
     )
 
     # Notes/Metadata for AI understanding

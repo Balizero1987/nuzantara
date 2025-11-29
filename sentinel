@@ -1,0 +1,9 @@
+#!/bin/bash
+# SENTINEL WRAPPER
+# Executes the Python Guardian script
+
+# Ensure we are in the project root
+cd "$(dirname "$0")"
+
+# Execute Sentinel
+python3 apps/core/sentinel.py "$@"

@@ -97,13 +97,14 @@ class PluginExecutor:
             )
 
         # Check rate limit
-        if plugin.metadata.rate_limit:
-            if not await self._check_rate_limit(plugin_name, plugin.metadata.rate_limit, user_id):
-                return PluginOutput(
-                    success=False,
-                    error=f"Rate limit exceeded for {plugin_name}",
-                    metadata={"rate_limit": plugin.metadata.rate_limit},
-                )
+        if plugin.metadata.rate_limit and not await self._check_rate_limit(
+            plugin_name, plugin.metadata.rate_limit, user_id
+        ):
+            return PluginOutput(
+                success=False,
+                error=f"Rate limit exceeded for {plugin_name}",
+                metadata={"rate_limit": plugin.metadata.rate_limit},
+            )
 
         # Check auth requirements
         if plugin.metadata.requires_auth and not user_id:
@@ -394,9 +395,9 @@ class PluginExecutor:
         Returns:
             Dictionary mapping plugin names to metrics
         """
-        return {name: self.get_metrics(name) for name in self._metrics.keys()}
+        return {name: self.get_metrics(name) for name in self._metrics}
 
-    async def warm_plugins(self, plugin_names: List[str]):
+    async def warm_plugins(self, plugin_names: list[str]):
         """
         Warm up plugins by calling on_load
 

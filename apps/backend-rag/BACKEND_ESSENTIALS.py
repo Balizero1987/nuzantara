@@ -54,15 +54,17 @@ Image Generation.
 # 2. CORE SERVICES (Python Logic)
 # ==============================================================================
 
+
 # --- GMAIL SERVICE (services/gmail_service.py) ---
 class GmailService:
-    def list_messages(self, query='is:unread', max_results=5):
+    def list_messages(self, query="is:unread", max_results=5):
         # Returns list of message summaries
         pass
 
     def get_message_details(self, message_id):
         # Returns {subject, sender, body, date, snippet}
         pass
+
 
 # --- CALENDAR SERVICE (services/calendar_service.py) ---
 class CalendarService:
@@ -74,11 +76,13 @@ class CalendarService:
         # Creates event in Google Calendar
         pass
 
+
 # --- AUTO CRM SERVICE (services/auto_crm_service.py) ---
 class AutoCRMService:
     async def process_email_interaction(self, email_data, team_member="system"):
         # Extracts intent from email and creates/updates CRM Client
         pass
+
 
 # ==============================================================================
 # 3. DATA MODELS (Pydantic)

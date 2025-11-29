@@ -647,7 +647,7 @@ class TeamAnalyticsService:
         total_conversations = sum(s["conversations_count"] or 0 for s in sessions)
         total_activities = sum(s["activities_count"] or 0 for s in sessions)
 
-        unique_members = len(set(s["user_email"] for s in sessions))
+        unique_members = len({s["user_email"] for s in sessions})
 
         # Find overlap periods (when multiple people work)
         overlap_hours = defaultdict(set)

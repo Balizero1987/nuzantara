@@ -203,7 +203,7 @@ class RerankerAuditService:
                             entry = json.loads(line.strip())
                             event_type = entry.get("event_type", "unknown")
                             event_counts[event_type] = event_counts.get(event_type, 0) + 1
-                        except:
+                        except Exception:
                             continue
 
                     return {

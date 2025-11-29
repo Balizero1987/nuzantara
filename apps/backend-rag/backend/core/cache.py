@@ -35,6 +35,7 @@ class CacheService:
 
         # Try to connect to Redis (Fly.io provides REDIS_URL)
         from app.core.config import settings
+
         redis_url = settings.redis_url
         if redis_url:
             try:

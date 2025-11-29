@@ -72,10 +72,7 @@ class TextChunker:
 
         for i, split in enumerate(splits):
             # Add separator back (except for empty separator)
-            if separator and i < len(splits) - 1:
-                split_with_sep = split + separator
-            else:
-                split_with_sep = split
+            split_with_sep = split + separator if separator and i < len(splits) - 1 else split
 
             # If adding this split would exceed chunk_size
             if len(current_chunk) + len(split_with_sep) > self.chunk_size and current_chunk:

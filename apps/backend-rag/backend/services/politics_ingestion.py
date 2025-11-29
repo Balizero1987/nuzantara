@@ -56,8 +56,8 @@ class PoliticsIngestionService:
             ideol = ", ".join(record.get("ideology", []) or [])
             leaders = record.get("leaders", [])
             leader_lines = [
-                f"- {l.get('person_id', '')} ({l.get('from', '?')}→{l.get('to', '?')})"
-                for l in leaders
+                f"- {leader.get('person_id', '')} ({leader.get('from', '?')}→{leader.get('to', '?')})"
+                for leader in leaders
             ]
             text = (
                 f"Partai: {name} ({record.get('abbrev', '')})\n"
@@ -160,6 +160,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     import logging
+
     logger = logging.getLogger(__name__)
 
     svc = PoliticsIngestionService(persist_directory=args.chroma)

@@ -131,9 +131,7 @@ class DynamicPricingService:
                             amount *= 1_000
 
                     # Determine currency
-                    currency = "IDR"  # Default
                     if "$" in match.group(0) or "USD" in match.group(0):
-                        currency = "USD"
                         amount *= 15_000  # Convert to IDR (rough estimate)
 
                     # Extract context (description)
@@ -341,7 +339,7 @@ class DynamicPricingService:
 
         lines.append("DETAILED COST ITEMS")
         lines.append("-" * 80)
-        for category in sorted(set(c.category for c in pr.cost_items)):
+        for category in sorted({c.category for c in pr.cost_items}):
             cat_costs = [c for c in pr.cost_items if c.category == category]
             lines.append(f"\n{category}:")
             for cost in cat_costs:

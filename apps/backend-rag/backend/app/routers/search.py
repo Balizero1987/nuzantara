@@ -103,7 +103,7 @@ async def semantic_search(query: SearchQuery):
 
     except Exception as e:
         logger.error(f"Search error: {e}")
-        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}") from e
 
 
 @router.get("/health")
@@ -118,4 +118,4 @@ async def search_health():
             "vector_db": "connected",
         }
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Search service unhealthy: {str(e)}")
+        raise HTTPException(status_code=503, detail=f"Search service unhealthy: {str(e)}") from e

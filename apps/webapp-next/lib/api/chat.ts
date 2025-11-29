@@ -1,4 +1,5 @@
 import type { ChatMetadata } from "./types"
+import { apiClient } from "./client"
 
 export const chatAPI = {
   async streamChat(
@@ -8,29 +9,25 @@ export const chatAPI = {
     onComplete: () => void,
     onError: (error: Error) => void,
   ): Promise<void> {
-    const token = typeof window !== "undefined" ? localStorage.getItem("zantara_session_token") : null
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://nuzantara-rag.fly.dev"
+    const token = apiClient.getToken()
+    console.log("[ChatClient] Token available:", !!token, token ? `${token.substring(0, 10)}...` : "None")
 
-    console.log("[ChatAPI] Using API URL:", apiUrl)
-    console.log("[ChatAPI] Token present:", !!token)
+    if (!token) {
+      onError(new Error("No authentication token found. Please log in."))
+      return
+    }
 
     try {
-      const userEmail = typeof window !== "undefined" ? localStorage.getItem("zantara_user_email") || "user@nuzantara.com" : "user@nuzantara.com"
-      const apiKey = process.env.NEXT_PUBLIC_API_KEY || "zantara-secret-2024"
-
-      const headers: Record<string, string> = {
-        "X-API-Key": apiKey,
-        "Content-Type": "application/json",
-      }
-
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`
-      }
-
-      console.log("[ChatAPI] Fetching stream...")
-      const response = await fetch(`${apiUrl}/bali-zero/chat-stream?query=${encodeURIComponent(message)}&user_email=${encodeURIComponent(userEmail)}&user_role=member`, {
-        method: "GET",
-        headers: headers,
+      const response = await fetch('/api/chat/stream', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          message: message,
+          user_id: "web_user" // You might want to get this from user profile
+        })
       })
 
       if (!response.ok) {
@@ -59,35 +56,38 @@ export const chatAPI = {
 
         buffer += decoder.decode(value, { stream: true })
 
-        // Process buffer line by line
-        const lines = buffer.split("\n\n")
-        buffer = lines.pop() || "" // Keep the last incomplete chunk in buffer
+        // Process buffer line by line (assuming backend sends SSE-like or chunked text)
+        // If backend sends raw text chunks, just call onChunk.
+        // If backend sends "data: {...}", parse it.
+        // The proxy returns response.body directly.
+        // Let's assume the backend sends raw text or SSE.
+        // The original code handled SSE "data: ".
 
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const dataStr = line.slice(6)
-            try {
-              const event = JSON.parse(dataStr)
+        // Simple text streaming for now, or try to parse SSE if detected
+        if (buffer.includes("data: ")) {
+          const lines = buffer.split("\n\n")
+          buffer = lines.pop() || ""
 
-              switch (event.type) {
-                case "metadata":
-                  onMetadata(event.data)
-                  break
-                case "token":
-                  if (event.data) {
-                    onChunk(event.data)
-                  }
-                  break
-                case "done":
-                  // Will be handled by loop exit, but good to know
-                  break
-                case "error":
-                  throw new Error(event.data || "Unknown streaming error")
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const dataStr = line.slice(6)
+              try {
+                // Try to parse as JSON first
+                const event = JSON.parse(dataStr)
+                if (event.type === 'token' && event.data) onChunk(event.data)
+                else if (event.type === 'metadata') onMetadata(event.data)
+                else if (event.type === 'error') throw new Error(event.data)
+              } catch (e) {
+                // If not JSON, maybe just text?
+                // But "data: " implies SSE structure.
+                console.warn("Failed to parse SSE:", e)
               }
-            } catch (e) {
-              console.warn("[ChatAPI] Failed to parse SSE event:", e, line)
             }
           }
+        } else {
+          // Fallback for raw text streaming if not SSE
+          onChunk(buffer)
+          buffer = ""
         }
       }
     } catch (error) {

@@ -17,9 +17,9 @@ repos:
 
   - repo: local
     hooks:
-      - id: health-check
-        name: Gatekeeper (Health Check)
-        entry: python apps/backend-rag/scripts/health_check.py
+      - id: sentinel
+        name: Sentinel System Guardian
+        entry: ./sentinel
         language: system
         pass_filenames: false
-        stages: [pre-push]
+        always_run: true

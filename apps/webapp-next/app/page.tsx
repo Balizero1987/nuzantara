@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { authAPI } from "@/lib/api/auth"
 import { apiClient } from "@/lib/api/client"
+import Image from "next/image"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -28,6 +29,7 @@ export default function LoginPage() {
 
       // Redirect to chat
       router.push("/chat")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || "Login failed. Please check your credentials.")
       console.error("[v0] Login error:", err)
@@ -39,17 +41,20 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#1a1a1a] via-[#2a2a2a] to-[#3a3a3a] font-sans p-4">
       <div className="w-full max-w-[420px] flex flex-col items-center animate-fade-in-down mb-8">
-        <img
+
+        <Image
           src="/logo-zantara.svg"
           alt="ZANTARA"
+          width={350}
+          height={100}
           className="w-full h-auto max-w-[350px] mb-3 drop-shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:drop-shadow-[0_0_30px_rgba(212,175,55,0.6)] transition-all duration-300"
+          priority
         />
       </div>
 
       <div
-        className={`w-full max-w-[420px] bg-gradient-to-br from-[#505050]/90 to-[#404040]/80 backdrop-blur-2xl rounded-3xl shadow-2xl border-2 border-transparent bg-clip-padding p-8 animate-fade-in-up ${
-          error ? "animate-shake" : ""
-        }`}
+        className={`w-full max-w-[420px] bg-gradient-to-br from-[#505050]/90 to-[#404040]/80 backdrop-blur-2xl rounded-3xl shadow-2xl border-2 border-transparent bg-clip-padding p-8 animate-fade-in-up ${error ? "animate-shake" : ""
+          }`}
         style={{
           backgroundImage: "linear-gradient(#505050, #404040), linear-gradient(135deg, #d4af37, #f0c75e, #d4af37)",
           backgroundOrigin: "border-box",

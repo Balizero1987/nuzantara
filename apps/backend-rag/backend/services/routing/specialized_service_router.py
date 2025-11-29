@@ -114,7 +114,6 @@ JOURNEY_KEYWORDS = [
 ]
 
 
-
 class SpecializedServiceRouter:
     """
     Router for specialized services
@@ -149,7 +148,6 @@ class SpecializedServiceRouter:
             f"   Cross-Oracle Synthesis: {'✅' if cross_oracle_synthesis_service else '❌'}"
         )
         logger.info(f"   Client Journey: {'✅' if client_journey_orchestrator else '❌'}")
-
 
     def detect_autonomous_research(self, message: str, category: str) -> bool:
         """
@@ -320,7 +318,7 @@ class SpecializedServiceRouter:
             logger.error(f"🛣️ [SpecializedServiceRouter] Error: {e}")
             return None
 
-    def detect_client_journey(self, message: str, category: str) -> bool:
+    def detect_client_journey(self, message: str, _category: str) -> bool:
         """
         Detect if query triggers a client journey
         """
@@ -367,8 +365,7 @@ class SpecializedServiceRouter:
 
             # Create the journey
             journey = self.client_journey.create_journey(
-                journey_type=journey_type,
-                client_id=user_id
+                journey_type=journey_type, client_id=user_id
             )
 
             response_text = (
@@ -389,11 +386,10 @@ class SpecializedServiceRouter:
                 "client_journey": {
                     "journey_id": journey.journey_id,
                     "status": journey.status.value,
-                    "current_step": journey.steps[0].title
-                }
+                    "current_step": journey.steps[0].title,
+                },
             }
 
         except Exception as e:
             logger.error(f"🛣️ [SpecializedServiceRouter] Error: {e}")
             return None
-

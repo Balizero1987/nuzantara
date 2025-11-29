@@ -24,7 +24,7 @@ export function useSidebar() {
   return context
 }
 
-interface SidebarProviderProps {
+export interface SidebarProviderProps {
   children: React.ReactNode
   defaultOpen?: boolean
   className?: string

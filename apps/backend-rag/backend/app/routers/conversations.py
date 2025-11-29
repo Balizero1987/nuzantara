@@ -171,7 +171,7 @@ async def save_conversation(request: SaveConversationRequest):
 
     except Exception as e:
         logger.error(f"❌ Failed to save conversation: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/history")
@@ -283,7 +283,7 @@ async def clear_conversation_history(user_email: str, session_id: str | None = N
 
     except Exception as e:
         logger.error(f"❌ Failed to clear conversation history: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/stats")
@@ -327,4 +327,4 @@ async def get_conversation_stats(user_email: str):
 
     except Exception as e:
         logger.error(f"❌ Failed to get conversation stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

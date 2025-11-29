@@ -14,9 +14,10 @@ primary_region = 'sin'
 
 [env]
   EMBEDDING_PROVIDER = 'openai'
-  LOG_LEVEL = 'INFO'
+  LOG_LEVEL = 'DEBUG'
   PORT = '8080'
   QDRANT_URL = 'https://nuzantara-qdrant.fly.dev'
+  PYTHONUNBUFFERED = '1'
 
 [[mounts]]
   source = 'nuzantara_rag_data'

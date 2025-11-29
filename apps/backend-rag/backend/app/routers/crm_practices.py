@@ -189,7 +189,7 @@ async def create_practice(
         raise
     except Exception as e:
         logger.error(f"❌ Failed to create practice: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/", response_model=list[dict])
@@ -262,7 +262,7 @@ async def list_practices(
 
     except Exception as e:
         logger.error(f"❌ Failed to list practices: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/active")
@@ -299,11 +299,11 @@ async def get_active_practices(assigned_to: str | None = Query(None)):
 
     except Exception as e:
         logger.error(f"❌ Failed to get active practices: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/renewals/upcoming")
-async def get_upcoming_renewals(days: int = Query(90, description="Days to look ahead")):
+async def get_upcoming_renewals(_days: int = Query(90, description="Days to look ahead")):
     """
     Get practices with upcoming renewal dates
 
@@ -324,7 +324,7 @@ async def get_upcoming_renewals(days: int = Query(90, description="Days to look 
 
     except Exception as e:
         logger.error(f"❌ Failed to get upcoming renewals: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{practice_id}")
@@ -368,7 +368,7 @@ async def get_practice(practice_id: int):
         raise
     except Exception as e:
         logger.error(f"❌ Failed to get practice: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.patch("/{practice_id}")
@@ -476,7 +476,7 @@ async def update_practice(
         raise
     except Exception as e:
         logger.error(f"❌ Failed to update practice: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/{practice_id}/documents/add")
@@ -541,7 +541,7 @@ async def add_document_to_practice(
         raise
     except Exception as e:
         logger.error(f"❌ Failed to add document: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/stats/overview")
@@ -616,4 +616,4 @@ async def get_practices_stats():
 
     except Exception as e:
         logger.error(f"❌ Failed to get practices stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

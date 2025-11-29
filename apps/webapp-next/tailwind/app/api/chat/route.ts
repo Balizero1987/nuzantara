@@ -1,24 +1,48 @@
+const API_URL = process.env.NUZANTARA_API_URL || "https://nuzantara-rag.fly.dev"
+const API_KEY = process.env.NUZANTARA_API_KEY || "nuzantara-api-key-2024-secure"
+
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json()
-    const lastMessage = messages[messages.length - 1]
+    const { messages, user_id = "web_user" } = await req.json()
+    const lastMessage = messages[messages.length - 1]?.content || ""
 
-    // Mock AI response - replace this with your backend API call
-    const mockResponses = [
-      "Zantara Core online. How can I assist you today?",
-      "I'm processing your request. The system is operating at optimal capacity.",
-      "Based on your query, I recommend checking the Mission Control dashboard for real-time updates.",
-      "All systems are nominal. What would you like to know about Zantara AI?",
-    ]
+    console.log("[ChatAPI] Production request (tailwind):", { message: lastMessage, user_id })
 
-    const response = mockResponses[Math.floor(Math.random() * mockResponses.length)]
+    // Call the real backend Oracle API
+    const response = await fetch(`${API_URL}/api/oracle/query`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": API_KEY,
+        "Authorization": `Bearer ${req.headers.get("Authorization")?.replace("Bearer ", "") || ""}`,
+      },
+      body: JSON.stringify({
+        query: lastMessage,
+        user_id: user_id
+      })
+    })
 
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    if (!response.ok) {
+      console.error("[ChatAPI] Backend error:", response.status, response.statusText)
+      return Response.json(
+        { message: "AI service temporarily unavailable" },
+        { status: response.status }
+      )
+    }
 
-    return Response.json({ message: response })
+    const data = await response.json()
+
+    return Response.json({
+      message: data.answer || "I'm unable to process that request right now.",
+      sources: data.sources || [],
+      model_used: data.model_used || "gemini-2.5-flash"
+    })
+
   } catch (error) {
-    console.error("[v0] Chat API error:", error)
-    return Response.json({ message: "Error processing request" }, { status: 500 })
+    console.error("[ChatAPI] Production error (tailwind):", error)
+    return Response.json(
+      { message: "Failed to connect to AI service" },
+      { status: 500 }
+    )
   }
 }

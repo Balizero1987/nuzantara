@@ -93,11 +93,7 @@ def enforce_santai_mode(response: str, query_type: str, max_words: int = 30) -> 
         # Truncate at sentence boundary
         truncated = " ".join(words[:max_words])
         last_period = max(truncated.rfind("."), truncated.rfind("!"), truncated.rfind("?"))
-        if last_period > 0:
-            response = truncated[: last_period + 1]
-        else:
-            # No sentence boundary found, hard truncate
-            response = truncated + "..."
+        response = truncated[: last_period + 1] if last_period > 0 else truncated + "..."
 
     return response.strip()
 
@@ -118,11 +114,13 @@ def add_contact_if_appropriate(response: str, query_type: str) -> str:
         return response
 
     # Add contact info for business and emergency queries
-    if query_type in ["business", "emergency"]:
-        # Only add if not already present
-        if "whatsapp" not in response.lower() and "+62" not in response:
-            contact = "\n\nNeed help? Contact us on WhatsApp +62 859 0436 9574"
-            return response + contact
+    if (
+        query_type in ["business", "emergency"]
+        and "whatsapp" not in response.lower()
+        and "+62" not in response
+    ):
+        contact = "\n\nNeed help? Contact us on WhatsApp +62 859 0436 9574"
+        return response + contact
 
     return response
 

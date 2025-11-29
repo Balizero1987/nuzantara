@@ -155,7 +155,7 @@ async def create_interaction(interaction: InteractionCreate):
 
     except Exception as e:
         logger.error(f"❌ Failed to create interaction: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/", response_model=list[dict])
@@ -212,7 +212,7 @@ async def list_interactions(
 
     except Exception as e:
         logger.error(f"❌ Failed to list interactions: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{interaction_id}")
@@ -250,7 +250,7 @@ async def get_interaction(interaction_id: int):
         raise
     except Exception as e:
         logger.error(f"❌ Failed to get interaction: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/client/{client_id}/timeline")
@@ -295,7 +295,7 @@ async def get_client_timeline(client_id: int, limit: int = Query(50, le=200)):
 
     except Exception as e:
         logger.error(f"❌ Failed to get client timeline: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/practice/{practice_id}/history")
@@ -332,7 +332,7 @@ async def get_practice_history(practice_id: int):
 
     except Exception as e:
         logger.error(f"❌ Failed to get practice history: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/stats/overview")
@@ -424,7 +424,7 @@ async def get_interactions_stats(
 
     except Exception as e:
         logger.error(f"❌ Failed to get interaction stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/from-conversation")
@@ -549,7 +549,7 @@ async def create_interaction_from_conversation(
 
     except Exception as e:
         logger.error(f"❌ Failed to create interaction from conversation: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/sync-gmail")
@@ -568,13 +568,13 @@ async def sync_gmail_interactions(
         auto_crm = get_auto_crm_service()
 
         # 1. List unread messages
-        messages = gmail.list_messages(query='is:unread', max_results=limit)
+        messages = gmail.list_messages(query="is:unread", max_results=limit)
 
         results = []
 
         # 2. Process each message
         for msg_summary in messages:
-            msg_id = msg_summary['id']
+            msg_id = msg_summary["id"]
 
             # Get full details
             details = gmail.get_message_details(msg_id)
@@ -583,25 +583,18 @@ async def sync_gmail_interactions(
 
             # Process with AutoCRM
             result = await auto_crm.process_email_interaction(
-                email_data=details,
-                team_member=team_member
+                email_data=details, team_member=team_member
             )
 
-            results.append({
-                "message_id": msg_id,
-                "subject": details.get('subject'),
-                "crm_result": result
-            })
+            results.append(
+                {"message_id": msg_id, "subject": details.get("subject"), "crm_result": result}
+            )
 
             # Mark as read (optional, maybe later)
             # gmail.mark_as_read(msg_id)
 
-        return {
-            "success": True,
-            "processed_count": len(results),
-            "results": results
-        }
+        return {"success": True, "processed_count": len(results), "results": results}
 
     except Exception as e:
         logger.error(f"❌ Gmail sync failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

@@ -1,0 +1,56 @@
+rules:
+  - id: hardcoded-jwt-secret
+    pattern: |
+      JWT_SECRET = "..."
+    message: Hardcoded JWT secret detected
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      technology: [jwt]
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+
+  - id: hardcoded-api-key
+    pattern: |
+      $VAR = "sk-proj-..." or
+      $VAR = "zantara-secret-..."
+    message: Hardcoded API key detected
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      technology: [api]
+      cwe: "CWE-798"
+
+  - id: sql-injection-f-string
+    pattern: |
+      f"SELECT ... {$VAR} ..."
+    message: Potential SQL injection with f-string
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      technology: [sql]
+      cwe: "CWE-89: SQL Injection"
+
+  - id: dangerous-eval
+    pattern: eval($INPUT)
+    message: Use of eval() with user input
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      technology: [python]
+      cwe: "CWE-94: Improper Control of Generation of Code"
+
+  - id: weak-crypto
+    pattern: |
+      hashlib.md5(...) or
+      hashlib.sha1(...)
+    message: Weak cryptographic algorithm detected
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      technology: [crypto]
+      cwe: "CWE-327: Use of a Broken or Risky Cryptographic Algorithm"

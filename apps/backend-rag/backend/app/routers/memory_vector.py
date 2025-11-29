@@ -33,8 +33,9 @@ def initialize_memory_vector_db(qdrant_url: str | None = None) -> QdrantClient:
         memory_vector_db = QdrantClient(qdrant_url=target_url, collection_name="zantara_memories")
         stats = memory_vector_db.get_collection_stats()
         logger.info(
-            "✅ Memory vector DB ready (collection='zantara_memories', url='%s', total=%s)"
-            % (target_url, stats.get("total_documents", 0))
+            "✅ Memory vector DB ready (collection='zantara_memories', url='{}', total={})".format(
+                target_url, stats.get("total_documents", 0)
+            )
         )
     except Exception as exc:
         logger.error(f"Memory vector DB initialization failed: {exc}")
@@ -118,7 +119,7 @@ async def init_memory_collection(request: InitRequest) -> InitResponse:
         )
     except Exception as exc:
         logger.error(f"Memory vector init failed: {exc}")
-        raise HTTPException(status_code=500, detail=f"Initialization failed: {str(exc)}")
+        raise HTTPException(status_code=500, detail=f"Initialization failed: {str(exc)}") from exc
 
 
 @router.post("/embed", response_model=EmbedResponse)
@@ -133,7 +134,7 @@ async def generate_embedding(request: EmbedRequest):
         return EmbedResponse(embedding=embedding, dimensions=len(embedding), model=embedder.model)
     except Exception as e:
         logger.error(f"Embedding generation failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Embedding failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Embedding failed: {str(e)}") from e
 
 
 @router.post("/store")
@@ -161,7 +162,7 @@ async def store_memory_vector(request: StoreMemoryRequest):
         return {"success": True, "memory_id": request.id, "collection": "zantara_memories"}
     except Exception as e:
         logger.error(f"Memory storage failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Storage failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Storage failed: {str(e)}") from e
 
 
 @router.post("/search", response_model=MemorySearchResponse)
@@ -221,7 +222,7 @@ async def search_memories_semantic(request: SearchMemoryRequest):
 
     except Exception as e:
         logger.error(f"Memory search failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}") from e
 
 
 @router.post("/similar", response_model=MemorySearchResponse)
@@ -244,9 +245,9 @@ async def find_similar_memories(request: SimilarMemoryRequest):
 
         # Normalize embedding payloads returned by Qdrant
         first_embedding = embeddings_raw[0]
-        if isinstance(first_embedding, (list, tuple)):
+        if isinstance(first_embedding, list | tuple):
             query_embedding = list(first_embedding)
-        elif isinstance(first_embedding, (int, float)):
+        elif isinstance(first_embedding, int | float):
             # Handle flat vectors returned directly as a single list of floats
             query_embedding = list(embeddings_raw)
         else:
@@ -303,7 +304,7 @@ async def find_similar_memories(request: SimilarMemoryRequest):
         raise
     except Exception as e:
         logger.error(f"Similar memory search failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Similar search failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Similar search failed: {str(e)}") from e
 
 
 @router.delete("/{memory_id}")
@@ -318,7 +319,7 @@ async def delete_memory_vector(memory_id: str):
         return {"success": True, "deleted_id": memory_id}
     except Exception as e:
         logger.error(f"Memory deletion failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Deletion failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Deletion failed: {str(e)}") from e
 
 
 @router.get("/stats")
@@ -333,7 +334,7 @@ async def get_memory_stats():
             "total_memories": stats.get("total_documents", 0),
             "collection_name": stats.get("collection_name", "zantara_memories"),
             "qdrant_url": db.qdrant_url,
-            "users": len(set([m.get("userId", "") for m in peek_data.get("metadatas", [])])),
+            "users": len({m.get("userId", "") for m in peek_data.get("metadatas", [])}),
             "collection_size_mb": stats.get("total_documents", 0) * 0.001,  # Rough estimate
         }
     except Exception as e:
@@ -358,4 +359,6 @@ async def memory_vector_health():
             "dimensions": embedder.dimensions,
         }
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Memory vector service unhealthy: {str(e)}")
+        raise HTTPException(
+            status_code=503, detail=f"Memory vector service unhealthy: {str(e)}"
+        ) from e

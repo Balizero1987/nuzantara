@@ -26,6 +26,7 @@ class AutoCRMService:
     def get_db_connection(self):
         """Get PostgreSQL connection"""
         from app.core.config import settings
+
         database_url = settings.database_url
         if not database_url:
             raise Exception("DATABASE_URL environment variable not set")
@@ -321,9 +322,9 @@ class AutoCRMService:
         ]
 
         # Extract sender email from "Name <email@domain.com>" format
-        sender_email = email_data['sender']
-        if '<' in sender_email and '>' in sender_email:
-            sender_email = sender_email.split('<')[1].split('>')[0]
+        sender_email = email_data["sender"]
+        if "<" in sender_email and ">" in sender_email:
+            sender_email = sender_email.split("<")[1].split(">")[0]
 
         # Use a dummy conversation ID for email interactions (or create a new table for emails later)
         # For now, we reuse the process_conversation logic but we need a conversation_id.
@@ -343,20 +344,22 @@ class AutoCRMService:
                 VALUES (%s, %s, NOW(), NOW())
                 RETURNING id
                 """,
-                (sender_email, f"Email: {email_data['subject']}")
+                (sender_email, f"Email: {email_data['subject']}"),
             )
-            conversation_id = cursor.fetchone()['id']
+            conversation_id = cursor.fetchone()["id"]
             conn.commit()
             cursor.close()
             conn.close()
 
-            logger.info(f"📧 Processing email from {sender_email} as conversation {conversation_id}")
+            logger.info(
+                f"📧 Processing email from {sender_email} as conversation {conversation_id}"
+            )
 
             return await self.process_conversation(
                 conversation_id=conversation_id,
                 messages=messages,
                 user_email=sender_email,
-                team_member=team_member
+                team_member=team_member,
             )
 
         except Exception as e:

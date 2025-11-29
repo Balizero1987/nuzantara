@@ -1,4 +1,4 @@
-import apiClient from "./client"
+import { apiClient } from "./client"
 
 interface CalendarEvent {
   id?: string
@@ -10,13 +10,14 @@ interface CalendarEvent {
 }
 
 export const calendarAPI = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async scheduleEvent(event: CalendarEvent): Promise<any> {
-    const response = await apiClient.instance.post("/api/productivity/calendar/schedule", event)
+    const response = await apiClient.client.post("/api/productivity/calendar/schedule", event)
     return response.data
   },
 
   async listEvents(limit = 10): Promise<CalendarEvent[]> {
-    const response = await apiClient.instance.get("/api/productivity/calendar/events", {
+    const response = await apiClient.client.get("/api/productivity/calendar/events", {
       params: { limit },
     })
     return response.data.events || []

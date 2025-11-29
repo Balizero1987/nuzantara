@@ -87,15 +87,14 @@ class NotificationHub:
 
     def __init__(self):
         from app.core.config import settings
+
         self.channels_config = {
             "email": {
                 "enabled": bool(settings.sendgrid_api_key or settings.smtp_host),
                 "provider": "sendgrid" if settings.sendgrid_api_key else "smtp",
             },
             "whatsapp": {
-                "enabled": bool(
-                    settings.twilio_account_sid and settings.twilio_whatsapp_number
-                ),
+                "enabled": bool(settings.twilio_account_sid and settings.twilio_whatsapp_number),
                 "provider": "twilio",
             },
             "sms": {"enabled": bool(settings.twilio_account_sid), "provider": "twilio"},
@@ -114,17 +113,19 @@ class NotificationHub:
     def _init_providers(self):
         """Initialize notification providers"""
         # Email provider
-        if self.channels_config["email"]["enabled"]:
-            if self.channels_config["email"]["provider"] == "sendgrid":
-                try:
-                    from sendgrid import SendGridAPIClient
+        if (
+            self.channels_config["email"]["enabled"]
+            and self.channels_config["email"]["provider"] == "sendgrid"
+        ):
+            try:
+                from sendgrid import SendGridAPIClient
 
-                    from app.core.config import settings
+                from app.core.config import settings
 
-                    self.sendgrid_client = SendGridAPIClient(settings.sendgrid_api_key)
-                except ImportError:
-                    logger.warning("⚠️ SendGrid package not installed")
-                    self.channels_config["email"]["enabled"] = False
+                self.sendgrid_client = SendGridAPIClient(settings.sendgrid_api_key)
+            except ImportError:
+                logger.warning("⚠️ SendGrid package not installed")
+                self.channels_config["email"]["enabled"] = False
 
         # Twilio provider (WhatsApp + SMS)
         if self.channels_config["whatsapp"]["enabled"] or self.channels_config["sms"]["enabled"]:
@@ -133,9 +134,7 @@ class NotificationHub:
 
                 from app.core.config import settings
 
-                self.twilio_client = Client(
-                    settings.twilio_account_sid, settings.twilio_auth_token
-                )
+                self.twilio_client = Client(settings.twilio_account_sid, settings.twilio_auth_token)
             except ImportError:
                 logger.warning("⚠️ Twilio package not installed")
                 self.channels_config["whatsapp"]["enabled"] = False

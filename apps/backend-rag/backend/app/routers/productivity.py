@@ -46,24 +46,25 @@ async def schedule_meeting(event: CalendarEvent):
         service = get_calendar_service()
 
         # Calculate end time
-        start_dt = datetime.fromisoformat(event.start_time.replace('Z', '+00:00'))
+        start_dt = datetime.fromisoformat(event.start_time.replace("Z", "+00:00"))
         end_dt = start_dt + timedelta(minutes=event.duration_minutes)
 
         result = service.create_event(
             summary=event.title,
             start_time=event.start_time,
             end_time=end_dt.isoformat(),
-            description=f"Attendees: {', '.join(event.attendees)}"
+            description=f"Attendees: {', '.join(event.attendees)}",
         )
 
         return {
             "status": "success",
             "message": f"Meeting '{event.title}' scheduled.",
-            "data": result
+            "data": result,
         }
     except Exception as e:
         logger.error(f"Failed to schedule meeting: {e}")
         return {"status": "error", "message": str(e)}
+
 
 @router.get("/calendar/events")
 async def list_events(limit: int = 10):

@@ -145,7 +145,7 @@ async def create_client_journey(request: CreateJourneyRequest):
         }
     except Exception as e:
         logger.error(f"Journey creation failed: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from None
 
 
 @router.get("/journey/{journey_id}")
@@ -173,7 +173,7 @@ async def complete_journey_step(journey_id: str, step_id: str, notes: str | None
             "updated_journey": journey_orchestrator.get_journey(journey_id).__dict__,
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from None
 
 
 @router.get("/journey/{journey_id}/next-steps")
@@ -237,7 +237,7 @@ async def add_compliance_tracking(request: AddComplianceItemRequest):
             "message": "Compliance tracking added",
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from None
 
 
 @router.get("/compliance/alerts")

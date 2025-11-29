@@ -5,6 +5,7 @@ Timezone: Asia/Makassar (Bali Time, UTC+8)
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 from datetime import datetime, timedelta
@@ -52,10 +53,8 @@ class TeamTimesheetService:
         self.running = False
         if self.auto_logout_task:
             self.auto_logout_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self.auto_logout_task
-            except asyncio.CancelledError:
-                pass
         logger.info("🛑 Auto-logout monitor stopped")
 
     async def _auto_logout_loop(self):
@@ -135,11 +134,11 @@ class TeamTimesheetService:
                 admin_notification = Notification(
                     notification_id=f"clockin_{user_id}_{int(now.timestamp())}",
                     recipient_id="admin_zero",
-                    recipient_email="zero@balizero.com", # Target admin email
+                    recipient_email="zero@balizero.com",  # Target admin email
                     title=f"🟢 Clock-In: {email}",
                     message=f"{email} clocked in at {now.strftime('%H:%M')} Bali time.",
                     priority=NotificationPriority.LOW,
-                    channels=[NotificationChannel.IN_APP] # Keep it low noise for now
+                    channels=[NotificationChannel.IN_APP],  # Keep it low noise for now
                 )
                 await notification_hub.send(admin_notification)
             except Exception as e:
@@ -219,7 +218,7 @@ class TeamTimesheetService:
                     title=f"🔴 Clock-Out: {email}",
                     message=f"{email} clocked out. Worked {hours_worked:.2f}h.",
                     priority=NotificationPriority.LOW,
-                    channels=[NotificationChannel.IN_APP]
+                    channels=[NotificationChannel.IN_APP],
                 )
                 await notification_hub.send(admin_notification)
             except Exception as e:

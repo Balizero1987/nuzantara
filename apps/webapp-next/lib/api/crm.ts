@@ -1,4 +1,4 @@
-import apiClient from "./client"
+import { apiClient } from "./client"
 
 interface CRMClient {
   id: number
@@ -28,22 +28,22 @@ interface GmailSyncResult {
 
 export const crmAPI = {
   async getClients(): Promise<CRMClient[]> {
-    const response = await apiClient.instance.get("/api/crm/clients")
+    const response = await apiClient.client.get("/api/crm/clients")
     return response.data
   },
 
   async syncGmail(): Promise<GmailSyncResult> {
-    const response = await apiClient.instance.post("/api/crm/interactions/sync-gmail")
+    const response = await apiClient.client.post("/api/crm/interactions/sync-gmail")
     return response.data
   },
 
   async createClient(data: Partial<CRMClient>): Promise<CRMClient> {
-    const response = await apiClient.instance.post("/api/crm/clients", data)
+    const response = await apiClient.client.post("/api/crm/clients", data)
     return response.data
   },
 
   async updateClient(id: number, data: Partial<CRMClient>): Promise<CRMClient> {
-    const response = await apiClient.instance.put(`/api/crm/clients/${id}`, data)
+    const response = await apiClient.client.put(`/api/crm/clients/${id}`, data)
     return response.data
   },
 }

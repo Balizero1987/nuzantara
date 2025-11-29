@@ -62,7 +62,7 @@ def extract_text_from_pdf(file_path: str) -> str:
         return full_text
 
     except Exception as e:
-        raise DocumentParseError(f"Failed to parse PDF {file_path}: {str(e)}")
+        raise DocumentParseError(f"Failed to parse PDF {file_path}: {str(e)}") from e
 
 
 def extract_text_from_epub(file_path: str) -> str:
@@ -107,7 +107,7 @@ def extract_text_from_epub(file_path: str) -> str:
         return full_text
 
     except Exception as e:
-        raise DocumentParseError(f"Failed to parse EPUB {file_path}: {str(e)}")
+        raise DocumentParseError(f"Failed to parse EPUB {file_path}: {str(e)}") from e
 
 
 def auto_detect_and_parse(file_path: str) -> str:

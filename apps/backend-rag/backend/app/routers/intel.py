@@ -97,6 +97,7 @@ async def search_intel(request: IntelSearchRequest):
                     results.get("documents", []),
                     results.get("metadatas", []),
                     results.get("distances", []),
+                    strict=True,
                 ):
                     similarity_score = 1 / (1 + distance)  # Convert distance to similarity
 
@@ -133,7 +134,7 @@ async def search_intel(request: IntelSearchRequest):
 
     except Exception as e:
         logger.error(f"Intel search error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/api/intel/store")
@@ -157,7 +158,7 @@ async def store_intel(request: IntelStoreRequest):
 
     except Exception as e:
         logger.error(f"Store intel error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/api/intel/critical")
@@ -217,11 +218,11 @@ async def get_critical_items(category: str | None = None, days: int = 7):
 
     except Exception as e:
         logger.error(f"Get critical items error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/api/intel/trends")
-async def get_trends(category: str | None = None, days: int = 30):
+async def get_trends(category: str | None = None, _days: int = 30):
     """Get trending topics and keywords"""
     try:
         # This would require more sophisticated analysis
@@ -262,7 +263,7 @@ async def get_trends(category: str | None = None, days: int = 30):
 
     except Exception as e:
         logger.error(f"Get trends error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/api/intel/stats/{collection}")
@@ -284,4 +285,4 @@ async def get_collection_stats(collection: str):
 
     except Exception as e:
         logger.error(f"Get stats error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

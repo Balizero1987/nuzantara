@@ -40,7 +40,7 @@ class FollowupService:
             self.zantara_client = None
 
     def get_topic_based_followups(
-        self, query: str, response: str, topic: str = "business", language: str = "en"
+        self, _query: str, _response: str, topic: str = "business", language: str = "en"
     ) -> list[str]:
         """
         Get pre-defined topic-based follow-up questions

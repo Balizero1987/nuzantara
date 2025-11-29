@@ -5,6 +5,7 @@ import { crmAPI } from "@/lib/api/crm"
 
 export function GmailSyncWidget() {
   const [isSyncing, setIsSyncing] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -18,6 +19,7 @@ export function GmailSyncWidget() {
 
       // Auto-hide success message after 5s
       setTimeout(() => setResult(null), 5000)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || "Gmail sync failed")
     } finally {
