@@ -9,8 +9,9 @@ const DialogSkeleton = () => <div className="fixed inset-0 bg-black/50 backdrop-
 const SidebarSkeleton = () => <div className="w-64 h-full bg-gray-800 animate-pulse" />
 
 // Lazy loaded components with proper loading states
+// Lazy loaded components with proper loading states
 export const LazyButton = dynamic(
-  () => import('../button'),
+  () => import('../button').then(mod => mod.Button),
   {
     loading: ButtonSkeleton,
     ssr: false // Optimize for client-side only
@@ -18,7 +19,7 @@ export const LazyButton = dynamic(
 )
 
 export const LazyInput = dynamic(
-  () => import('../input'),
+  () => import('../input').then(mod => mod.Input),
   {
     loading: InputSkeleton,
     ssr: false
@@ -26,7 +27,7 @@ export const LazyInput = dynamic(
 )
 
 export const LazyCard = dynamic(
-  () => import('../card'),
+  () => import('../card').then(mod => mod.Card),
   {
     loading: CardSkeleton,
     ssr: false
@@ -34,7 +35,7 @@ export const LazyCard = dynamic(
 )
 
 export const LazyDialog = dynamic(
-  () => import('../dialog'),
+  () => import('../dialog').then(mod => mod.Dialog),
   {
     loading: DialogSkeleton,
     ssr: false
@@ -42,7 +43,7 @@ export const LazyDialog = dynamic(
 )
 
 export const LazySidebar = dynamic(
-  () => import('../sidebar'),
+  () => import('../sidebar').then(mod => mod.Sidebar),
   {
     loading: SidebarSkeleton,
     ssr: false
@@ -50,11 +51,11 @@ export const LazySidebar = dynamic(
 )
 
 // Per componenti più leggeri, loading states semplici
-export const LazyLabel = dynamic(() => import('../label'), { ssr: false })
-export const LazySeparator = dynamic(() => import('../separator'), { ssr: false })
-export const LazySkeleton = dynamic(() => import('../skeleton'), { ssr: false })
-export const LazySheet = dynamic(() => import('../sheet'), { ssr: false })
-export const LazyToast = dynamic(() => import('../toast'), { ssr: false })
+export const LazyLabel = dynamic(() => import('../label').then(mod => mod.Label), { ssr: false })
+export const LazySeparator = dynamic(() => import('../separator').then(mod => mod.Separator), { ssr: false })
+export const LazySkeleton = dynamic(() => import('../skeleton').then(mod => mod.Skeleton), { ssr: false })
+export const LazySheet = dynamic(() => import('../sheet').then(mod => mod.Sheet), { ssr: false })
+export const LazyToast = dynamic(() => import('../toast').then(mod => mod.Toast), { ssr: false })
 
 // Batch exports for commonly used groups
 export const LazyFormComponents = {

@@ -9,6 +9,8 @@ import { apiClient } from "@/lib/api/client"
 import { RAGDrawer } from "@/components/chat/RAGDrawer"
 import type { ChatMessage, ChatMetadata } from "@/lib/api/types"
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
 export default function ChatPage() {
   const router = useRouter()
   const [input, setInput] = useState("")
@@ -73,7 +75,7 @@ export default function ChatPage() {
     setStreamingContent("")
 
     let accumulatedContent = ""
-    let metadata = undefined
+    let metadata: any = undefined
 
     try {
       await chatAPI.streamChat(
@@ -82,7 +84,7 @@ export default function ChatPage() {
           accumulatedContent += chunk
           setStreamingContent(accumulatedContent)
         },
-        (meta) => {
+        (meta: any) => {
           console.log("[v0] Metadata received:", meta)
           metadata = meta
         },
@@ -175,6 +177,7 @@ export default function ChatPage() {
 
     setIsGeneratingImage(true)
     try {
+      const token = apiClient.getToken()
       const response = await fetch(`${API_BASE_URL}/api/v1/image/generate`, {
         method: "POST",
         headers: {
@@ -227,9 +230,8 @@ export default function ChatPage() {
           />
 
           <aside
-            className={`fixed left-0 top-0 h-full w-80 bg-[#1a1a1a]/95 backdrop-blur-md border-r border-gray-800/50 transform transition-transform duration-300 ease-in-out z-40 ${
-              isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
+            className={`fixed left-0 top-0 h-full w-80 bg-[#1a1a1a]/95 backdrop-blur-md border-r border-gray-800/50 transform transition-transform duration-300 ease-in-out z-40 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+              }`}
           >
             <div className="p-6 h-full flex flex-col">
               <button
@@ -302,11 +304,10 @@ export default function ChatPage() {
 
             <button
               onClick={handleCheckInOut}
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-                isCheckedIn
-                  ? "bg-green-500/20 border-2 border-green-500 text-green-400"
-                  : "bg-gray-700/50 border-2 border-gray-600 text-gray-400 hover:border-[#d4af37]"
-              }`}
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${isCheckedIn
+                ? "bg-green-500/20 border-2 border-green-500 text-green-400"
+                : "bg-gray-700/50 border-2 border-gray-600 text-gray-400 hover:border-[#d4af37]"
+                }`}
               title={isCheckedIn ? "Check Out" : "Check In"}
             >
               {isCheckedIn ? (

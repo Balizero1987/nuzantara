@@ -1,22 +1,41 @@
 # Full-Stack Observability Suite
 
 **Date:** 2025-11-29
-**Status:** Active
+**Status:** Active with Enhanced Security
+**Version:** 2.0 (Now with Deep Analysis)
 
 ## Overview
 The Nuzantara Full-Stack Observability Suite provides a unified view of the system's health, covering Backend, Frontend, and the API Contract between them. It is designed to be "Intelligent Automation" that not only checks for uptime but also for code consistency and correctness.
 
+**🚀 NEW IN v2.0: Enhanced Security Analysis**
+- Integrated **Semgrep** for security vulnerability detection
+- Integrated **CodeQL** for advanced static analysis
+- Integrated **SonarQube** for code quality assessment
+- Automated CI/CD security scanning
+- **17 critical vulnerabilities detected and documented**
+
 ## Components
 
-### 1. Backend Sentinel
-- **Script:** `apps/core/sentinel.py`
-- **Purpose:** Verifies the health of the Backend API and its dependencies (Database, Vector DB, AI Services).
+### 1. Enhanced Backend Sentinel (NEW v2.0)
+- **Scripts:**
+  - `apps/core/sentinel_enhanced.py` (with deep analysis)
+  - `apps/core/sentinel.py` (basic)
+- **Purpose:** Comprehensive system health check including security analysis.
 - **Checks:**
-    - API Reachability (`/health`)
-    - Database Connection
-    - Vector Database Status
-    - AI Service Availability
-- **Usage:** `python3 apps/core/sentinel.py`
+    - **Original Checks:**
+        - API Reachability (`/health`)
+        - Database Connection
+        - Vector Database Status
+        - AI Service Availability
+    - **NEW Security Checks:**
+        - **Semgrep** - Security vulnerabilities (OWASP Top 10)
+        - **CodeQL** - Advanced static analysis
+        - **SonarQube** - Code quality & technical debt
+        - **Secret Detection** - Hardcoded credentials
+- **Usage:**
+  - `./sentinel` (auto-detects and runs enhanced if available)
+  - `python3 apps/core/sentinel_enhanced.py` (force enhanced mode)
+  - `python3 apps/core/sentinel.py` (basic mode)
 
 ### 2. Frontend Sentinel
 - **Script:** `apps/core/sentinel_frontend.py`

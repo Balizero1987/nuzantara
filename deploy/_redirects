@@ -1,6 +1,0 @@
-# ZANTARA Official Redirects
-# Homepage redirects to login
-/ /login 200
-
-# SPA fallback
-/chat /chat.html 200
