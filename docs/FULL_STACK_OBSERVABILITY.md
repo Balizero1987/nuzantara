@@ -65,7 +65,21 @@ The Nuzantara Full-Stack Observability Suite provides a unified view of the syst
     - `docs/ARCHITECTURE.md` (Backend)
     - `docs/FRONTEND_ARCHITECTURE.md` (Frontend)
 
-### 5. Evaluator (Judgement Day)
+### 5. Deep Analysis Engine (NEW v2.0)
+- **Script:** `scripts/deep-analysis.sh`
+- **Purpose:** Comprehensive security and quality analysis using industry-leading tools.
+- **Tools:**
+    - **Semgrep** - Finds security vulnerabilities, secrets, and code issues
+    - **CodeQL** - Advanced static analysis with data flow tracking
+    - **SonarQube** - Code quality, technical debt, and maintainability
+- **Findings:**
+    - **17 vulnerabilities** found in first scan
+    - **API keys** hardcoded detection
+    - **SQL injection** vulnerabilities
+    - **Security best practices** violations
+- **Usage:** `./scripts/deep-analysis.sh`
+
+### 6. Evaluator (Judgement Day)
 - **Script:** `apps/evaluator/judgement_day.py`
 - **Purpose:** Evaluates the quality of the RAG (Retrieval-Augmented Generation) system.
 - **Mechanism:**
@@ -115,10 +129,34 @@ The system is supported by a robust containerized monitoring stack defined in `d
     - Verified with `curl` and Frontend Sentinel.
 
 ## How to Verify System Health
-Run the following commands in order:
-1.  `python3 apps/core/sentinel.py` (Check Backend)
-2.  `python3 apps/core/sentinel_frontend.py` (Check Frontend User Flow)
-3.  `python3 apps/core/sentinel_contract.py` (Check Code Consistency)
-4.  `python3 apps/evaluator/judgement_day.py` (Check RAG Quality)
 
-If all three pass, the system is **Healthy** and **Consistent**.
+### Quick Health Check (Enhanced)
+```bash
+# Single command for full system health including security
+./sentinel
+```
+
+### Detailed Health Check
+Run the following commands in order:
+1. `./sentinel` (Full enhanced system check including security)
+2. `python3 apps/core/sentinel_frontend.py` (Check Frontend User Flow)
+3. `python3 apps/core/sentinel_contract.py` (Check Code Consistency)
+4. `./scripts/deep-analysis.sh` (Deep Security Analysis)
+5. `python3 apps/evaluator/judgement_day.py` (Check RAG Quality)
+
+### CI/CD Integration
+```bash
+# Setup for automated security scanning
+./scripts/setup-deep-analysis.sh
+
+# Results saved to:
+# - sentinel-results/ (Enhanced Sentinel reports)
+# - deep-analysis-results/ (Security scan results)
+```
+
+### Security Health Dashboard
+- **Critical Issues:** Check `deep-analysis-results/semgrep-auto.json`
+- **Code Quality:** Check SonarQube at `http://localhost:9000`
+- **Detailed Report:** Check `docs/DEEP_ANALYSIS_REPORT.md`
+
+If all checks pass, the system is **Healthy**, **Secure**, and **Consistent**.
