@@ -352,37 +352,35 @@ async def get_interactions_stats(
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Base filter
-        where_clause = "WHERE 1=1"
+        # Base query with parameterized filters
         params = []
+        base_conditions = []
 
         if team_member:
-            where_clause += " AND team_member = %s"
+            base_conditions.append("team_member = %s")
             params.append(team_member)
 
+        where_clause = "WHERE " + " AND ".join(base_conditions) if base_conditions else ""
+
         # By type
-        cursor.execute(
-            f"""
+        type_query = f"""
             SELECT interaction_type, COUNT(*) as count
             FROM interactions
             {where_clause}
             GROUP BY interaction_type
-        """,
-            params,
-        )
+        """
+        cursor.execute(type_query, params)
         by_type = cursor.fetchall()
 
         # By sentiment
-        cursor.execute(
-            f"""
+        sentiment_query = f"""
             SELECT sentiment, COUNT(*) as count
             FROM interactions
             {where_clause}
             AND sentiment IS NOT NULL
             GROUP BY sentiment
-        """,
-            params,
-        )
+        """
+        cursor.execute(sentiment_query, params)
         by_sentiment = cursor.fetchall()
 
         # By team member (if not filtered)
@@ -400,13 +398,13 @@ async def get_interactions_stats(
             by_team_member = []
 
         # Recent activity (last 7 days)
-        cursor.execute(
-            f"""
+        recent_query = f"""
             SELECT COUNT(*) as count
             FROM interactions
             {where_clause}
             AND interaction_date >= NOW() - INTERVAL '7 days'
-        """,
+        """
+        cursor.execute(recent_query,
             params,
         )
         recent_count = cursor.fetchone()["count"]

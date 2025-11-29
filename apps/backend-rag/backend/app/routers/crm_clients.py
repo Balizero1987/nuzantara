@@ -291,11 +291,23 @@ async def update_client(
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Build update query dynamically
+        # Build update query with field validation
+        allowed_fields = {
+            "name", "email", "phone", "company", "status", "value",
+            "source", "assigned_to", "notes", "tags", "custom_fields"
+        }
+
         update_fields = []
         params = []
 
         for field, value in updates.dict(exclude_unset=True).items():
+            # Validate field name to prevent SQL injection
+            if field not in allowed_fields:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid field name: {field}"
+                )
+
             if value is not None:
                 if field in ["tags", "custom_fields"]:
                     update_fields.append(f"{field} = %s")
