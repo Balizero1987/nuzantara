@@ -1,9 +1,16 @@
 #!/bin/bash
-# SENTINEL WRAPPER
-# Executes the Python Guardian script
+# SENTINEL WRAPPER - Enhanced with Deep Analysis
+# Executes the enhanced Python Guardian script
 
 # Ensure we are in the project root
 cd "$(dirname "$0")"
 
-# Execute Sentinel
-python3 apps/core/sentinel.py "$@"
+# Check if deep analysis tools are available
+if command -v semgrep &> /dev/null && command -v codeql &> /dev/null; then
+    echo "🚀 Enhanced Sentinel Mode - Deep Analysis Available"
+    python3 apps/core/sentinel_enhanced.py "$@"
+else
+    echo "⚠️ Enhanced tools not found - Running Basic Sentinel"
+    echo "Run './scripts/setup-deep-analysis.sh' to enable full security scanning"
+    python3 apps/core/sentinel.py "$@"
+fi
