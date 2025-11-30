@@ -38,25 +38,28 @@ export default function ChatPage() {
   ])
 
   useEffect(() => {
-    // Check for token - try multiple possible storage keys
+    // Skip login check - allow direct access to chat
+    // Token check removed for development/testing
     const token = apiClient.getToken() || 
                   localStorage.getItem('token') || 
                   localStorage.getItem('zantara_token') ||
                   localStorage.getItem('zantara_session_token')
     
-    console.log('[ChatPage] Token check:', {
+    console.log('[ChatPage] Token check (login skipped):', {
       apiClient: apiClient.getToken() ? 'found' : 'not found',
       localStorage_token: localStorage.getItem('token') ? 'found' : 'not found',
       zantara_token: localStorage.getItem('zantara_token') ? 'found' : 'not found',
       zantara_session_token: localStorage.getItem('zantara_session_token') ? 'found' : 'not found',
-      allKeys: Object.keys(localStorage).filter(k => k.toLowerCase().includes('token'))
+      allKeys: Object.keys(localStorage).filter(k => k.toLowerCase().includes('token')),
+      note: 'Login check bypassed - direct access enabled'
     })
     
-    if (!token) {
-      console.log('[ChatPage] No token found, redirecting to login')
-      router.push("/login")
-      return
-    }
+    // Login check disabled - allow access without token
+    // if (!token) {
+    //   console.log('[ChatPage] No token found, redirecting to login')
+    //   router.push("/login")
+    //   return
+    // }
 
     // Load conversation history from localStorage
     const savedMessages = localStorage.getItem("zantara_conversation")
