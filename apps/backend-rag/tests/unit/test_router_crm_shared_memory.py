@@ -459,25 +459,84 @@ async def test_get_db_connection_missing_database_url():
 
 
 @pytest.mark.asyncio
+async def test_get_db_connection_success():
+    """Test get_db_connection success path (covers line 30)"""
+    from app.routers.crm_shared_memory import get_db_connection
+
+    mock_settings_obj = MagicMock()
+    mock_settings_obj.database_url = "postgresql://test:test@localhost/test"
+    mock_connection = MagicMock()
+
+    with patch("app.routers.crm_shared_memory.settings", mock_settings_obj):
+        with patch("app.routers.crm_shared_memory.psycopg2.connect", return_value=mock_connection) as mock_connect:
+            result = get_db_connection()
+
+            # Verify connection was created with correct parameters
+            mock_connect.assert_called_once()
+            assert result == mock_connection
+
+
+@pytest.mark.asyncio
 async def test_search_shared_memory_practice_type_search(mock_db_connection, mock_settings):
     """Test practice type specific search (covers lines 165-210)"""
     from app.routers.crm_shared_memory import search_shared_memory
 
     conn, cursor = mock_db_connection
 
-    # First query returns empty results (clients, practices, interactions all empty)
-    # This triggers the practice type specific search on lines 165-210
+    # Mock _get_practice_codes to return practice types
+    practice_types = ["KITAS", "KITAP", "PT_PMA"]
+
+    # Setup cursor fetchall to return appropriate data
     cursor.fetchall.side_effect = [
-        [],  # clients query
-        [],  # practices for clients query (not executed since clients is empty)
-        [{"id": 1, "practice_type_name": "KITAS", "client_name": "Test Client", "status": "in_progress"}],  # practice type specific query
+        [],  # clients query (no clients found)
+        [{"id": 1, "practice_type_name": "KITAS", "client_name": "Test Client", "status": "in_progress"}],  # practice type search
     ]
 
     with patch("app.routers.crm_shared_memory.settings", mock_settings):
         with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
-            # Search for specific practice type
-            result = await search_shared_memory(q="KITAS practices", limit=20)
+            with patch("app.routers.crm_shared_memory._get_practice_codes", return_value=practice_types):
+                # Search for specific practice type
+                result = await search_shared_memory(q="KITAS practices", limit=20)
 
-            assert "practices" in result
-            # Verify practice type search was executed
-            assert cursor.execute.call_count >= 1
+                assert "practices" in result
+                assert len(result["practices"]) == 1
+                assert "interpretation" in result
+                # Verify practice type search was detected
+                any_interpretation = any("practice type" in interp.lower() for interp in result["interpretation"])
+                assert any_interpretation
+
+
+@pytest.mark.asyncio
+async def test_get_client_full_context_without_action_items(mock_db_connection, mock_settings):
+    """Test client full context when interactions have no action_items (covers line 414)"""
+    from datetime import datetime
+
+    conn, cursor = mock_db_connection
+
+    # Mock fetchone for client
+    cursor.fetchone.return_value = {
+        "id": 1,
+        "full_name": "Test Client",
+        "email": "test@example.com",
+        "first_contact_date": datetime.now(),
+        "last_interaction_date": datetime.now(),
+    }
+
+    # Mock fetchall - interactions without action_items
+    cursor.fetchall.side_effect = [
+        [{"id": 1, "status": "in_progress", "practice_type_name": "KITAS"}],  # practices
+        [
+            {"id": 1, "interaction_date": datetime.now()},  # interaction without action_items
+            {"id": 2, "interaction_date": datetime.now(), "action_items": None},  # interaction with None action_items
+        ],  # interactions
+        [],  # renewals
+    ]
+
+    with patch("app.routers.crm_shared_memory.settings", mock_settings):
+        with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
+            result = await get_client_full_context(client_id=1)
+
+            assert "client" in result
+            assert "action_items" in result
+            # When no interactions have action_items, list should be empty
+            assert result["action_items"] == []
