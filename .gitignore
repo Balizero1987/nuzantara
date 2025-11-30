@@ -33,7 +33,7 @@ venv/
 *.sublime-*
 
 # Fly.io
-deploy/fly.toml
+# fly.toml is now checked in
 
 # Temporary files
 *.tmp
@@ -228,9 +228,6 @@ DevAI-Architect/
 *.example.env
 config.example.env
 .env.vars.json
-*.toml
-!pyproject.toml
-!Cargo.toml
 Dockerfile
 !apps/**/Dockerfile*
 docker/docker-compose.yml

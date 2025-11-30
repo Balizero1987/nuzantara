@@ -66,7 +66,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 cd apps/backend-rag
 
 # Run tests
-pytest tests/unit -v --cov=backend --cov-report=term-missing --cov-report=json:coverage.json || {
+pytest tests/unit -v --cov=backend --cov-config=.coveragerc --cov-report=term-missing --cov-report=json:coverage.json || {
     echo -e "${RED}❌ Some tests failed${NC}"
     exit 1
 }

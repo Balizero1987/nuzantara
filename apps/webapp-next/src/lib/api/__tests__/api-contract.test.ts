@@ -1,0 +1,142 @@
+/**
+ * API Contract Tests - Verify Frontend-Backend Contract Alignment
+ * 
+ * These tests verify that:
+ * 1. TypeScript types match backend API contracts
+ * 2. Request/response formats are compatible
+ * 3. All required fields are present
+ */
+
+import type { LoginRequest, LoginResponse, User } from '../types'
+import type { ChatMetadata, ChatMessage } from '../types'
+
+describe('API Contract Alignment', () => {
+  describe('Authentication API Contract', () => {
+    it('should match LoginRequest structure', () => {
+      const loginRequest: LoginRequest = {
+        email: 'test@example.com',
+        pin: '1234',
+      }
+
+      expect(loginRequest).toHaveProperty('email')
+      expect(loginRequest).toHaveProperty('pin')
+      expect(typeof loginRequest.email).toBe('string')
+      expect(typeof loginRequest.pin).toBe('string')
+    })
+
+    it('should match LoginResponse structure', () => {
+      const loginResponse: LoginResponse = {
+        token: 'jwt-token-123',
+        user: {
+          id: '1',
+          email: 'test@example.com',
+          name: 'Test User',
+          role: 'user',
+        },
+        expiresIn: 3600,
+      }
+
+      expect(loginResponse).toHaveProperty('token')
+      expect(loginResponse).toHaveProperty('user')
+      expect(loginResponse.user).toHaveProperty('id')
+      expect(loginResponse.user).toHaveProperty('email')
+      expect(loginResponse.user).toHaveProperty('name')
+      expect(loginResponse.user).toHaveProperty('role')
+    })
+
+    it('should match User structure', () => {
+      const user: User = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: 'user',
+        avatar: null,
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+      }
+
+      expect(user).toHaveProperty('id')
+      expect(user).toHaveProperty('email')
+      expect(user).toHaveProperty('name')
+      expect(user).toHaveProperty('role')
+    })
+  })
+
+  describe('Chat API Contract', () => {
+    it('should match ChatMessage structure', () => {
+      const chatMessage: ChatMessage = {
+        role: 'user',
+        content: 'Hello',
+        metadata: {
+          memory_used: true,
+          intent: 'question',
+        },
+      }
+
+      expect(chatMessage).toHaveProperty('role')
+      expect(chatMessage).toHaveProperty('content')
+      expect(['user', 'assistant']).toContain(chatMessage.role)
+    })
+
+    it('should match ChatMetadata structure', () => {
+      const metadata: ChatMetadata = {
+        memory_used: true,
+        rag_sources: [
+          {
+            collection: 'visa',
+            document: 'visa-requirements.pdf',
+            score: 0.95,
+            text_preview: 'Preview text',
+          },
+        ],
+        intent: 'question',
+        timestamp: '2024-01-01T00:00:00.000Z',
+      }
+
+      expect(metadata).toHaveProperty('memory_used')
+      expect(typeof metadata.memory_used).toBe('boolean')
+      if (metadata.rag_sources) {
+        expect(Array.isArray(metadata.rag_sources)).toBe(true)
+        metadata.rag_sources.forEach((source) => {
+          expect(source).toHaveProperty('collection')
+          expect(source).toHaveProperty('document')
+          expect(source).toHaveProperty('score')
+        })
+      }
+    })
+  })
+
+  describe('Generated Client Contract', () => {
+    it('should have all required services', () => {
+      const { NuzantaraClient } = require('../generated/NuzantaraClient')
+      
+      // Verify client has all expected services
+      const client = new NuzantaraClient({
+        BASE: 'http://localhost:8000',
+      })
+
+      expect(client).toHaveProperty('authentication')
+      expect(client).toHaveProperty('oracleV53UltraHybrid')
+      expect(client).toHaveProperty('conversations')
+      expect(client).toHaveProperty('identity')
+      expect(client).toHaveProperty('health')
+    })
+
+    it('should match backend endpoint structure', () => {
+      // Verify that frontend client methods match backend routes
+      const { NuzantaraClient } = require('../generated/NuzantaraClient')
+      const client = new NuzantaraClient({
+        BASE: 'http://localhost:8000',
+      })
+
+      // Authentication service should have login method
+      expect(client.identity).toBeDefined()
+      expect(typeof client.identity.teamLoginApiAuthTeamLoginPost).toBe('function')
+
+      // Oracle service should have query method
+      expect(client.oracleV53UltraHybrid).toBeDefined()
+      expect(typeof client.oracleV53UltraHybrid.hybridOracleQueryApiOracleQueryPost).toBe('function')
+    })
+  })
+})
+

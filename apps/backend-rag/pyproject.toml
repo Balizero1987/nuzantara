@@ -148,11 +148,6 @@ python_functions = ["test_*"]
 addopts = [
     "--strict-markers",
     "--strict-config",
-    "--cov=.",
-    "--cov-report=term-missing",
-    "--cov-report=html",
-    "--cov-report=xml",
-    "--cov-fail-under=70",
     "--verbose",
 ]
 markers = [
@@ -160,42 +155,6 @@ markers = [
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
 ]
-
-# ============================================================================
-# COVERAGE - Code Coverage
-# ============================================================================
-[tool.coverage.run]
-source = ["."]
-omit = [
-    "*/tests/*",
-    "*/test_*.py",
-    "*/__pycache__/*",
-    "*/.venv/*",
-    "*/migrations/*",
-    "setup.py",
-]
-branch = true
-
-[tool.coverage.report]
-precision = 2
-show_missing = true
-skip_covered = false
-fail_under = 70
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-    "@abstractmethod",
-]
-
-[tool.coverage.html]
-directory = "htmlcov"
-
-[tool.coverage.xml]
-output = "coverage.xml"
 
 # ============================================================================
 # BANDIT - Security Linter

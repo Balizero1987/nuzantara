@@ -78,7 +78,7 @@ omit =
 precision = 2
 show_missing = True
 skip_covered = False
-fail_under = 75
+fail_under = 96
 exclude_lines =
     pragma: no cover
     def __repr__

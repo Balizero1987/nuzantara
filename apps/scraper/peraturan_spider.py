@@ -15,6 +15,8 @@ Features:
 import asyncio
 import json
 import re
+import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -42,11 +44,110 @@ REQUEST_DELAY = 5.0
 MAX_RETRIES = 3
 RETRY_DELAY = 5.0
 
+# Cache for browser installation check (avoid checking multiple times)
+_playwright_browsers_checked = False
+
+
+def _ensure_playwright_browsers_installed():
+    """Ensure Playwright browsers are installed. Install if missing."""
+    global _playwright_browsers_checked
+    
+    # Skip check if already verified in this session
+    if _playwright_browsers_checked:
+        logger.debug("Playwright browsers already checked in this session, skipping...")
+        return
+    
+    try:
+        from playwright.sync_api import sync_playwright
+        
+        # Check if browser executable exists by getting its path
+        # This is faster and more reliable than trying to launch it
+        try:
+            with sync_playwright() as p:
+                browser_path = p.chromium.executable_path
+                
+                # Check if the executable file actually exists
+                if browser_path and Path(browser_path).exists():
+                    logger.debug(f"Playwright Chromium found at: {browser_path}")
+                    _playwright_browsers_checked = True
+                    return
+                else:
+                    logger.info(f"Playwright Chromium executable not found at: {browser_path}")
+        except Exception as e:
+            logger.debug(f"Could not get browser path: {e}")
+            # Fallback: try to launch browser (slower but more thorough)
+            try:
+                with sync_playwright() as p:
+                    browser = p.chromium.launch(headless=True)
+                    browser.close()
+                    logger.debug("Playwright browsers are already installed (verified by launch)")
+                    _playwright_browsers_checked = True
+                    return
+            except Exception as launch_error:
+                logger.debug(f"Browser launch test failed: {launch_error}")
+                # Continue to installation
+                pass
+    except ImportError:
+        logger.warning("Could not import playwright.sync_api for browser check")
+        return
+    
+    # Install browsers using playwright CLI
+    logger.info("Playwright browsers not found. Installing Chromium...")
+    logger.info("This may take a few minutes on first run...")
+    
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "playwright", "install", "chromium"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=600,  # 10 minute timeout
+        )
+        logger.info("✓ Playwright Chromium installed successfully")
+        
+        # Verify installation after installing
+        try:
+            with sync_playwright() as p:
+                browser_path = p.chromium.executable_path
+                if browser_path and Path(browser_path).exists():
+                    logger.info(f"✓ Verified Chromium at: {browser_path}")
+                    _playwright_browsers_checked = True
+                else:
+                    logger.warning("Chromium installed but executable not found at expected path")
+        except Exception as verify_error:
+            logger.warning(f"Could not verify installation: {verify_error}")
+            
+    except subprocess.TimeoutExpired:
+        logger.error("Playwright installation timed out after 10 minutes")
+        raise RuntimeError(
+            "Playwright browser installation timed out. "
+            "Please run manually: playwright install chromium"
+        )
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to install Playwright browsers")
+        logger.error(f"Command output: {e.stdout}")
+        logger.error(f"Error output: {e.stderr}")
+        raise RuntimeError(
+            "Playwright browsers installation failed. "
+            "Please run manually: playwright install chromium"
+        )
+    except FileNotFoundError:
+        logger.error("Could not find playwright CLI")
+        raise RuntimeError(
+            "Playwright CLI not found. "
+            "Please ensure playwright is installed: pip install playwright"
+        )
+
 
 class PeraturanSpider:
     """Spider for scraping Indonesian legal documents from peraturan.bpk.go.id"""
 
-    def __init__(self):
+    def __init__(self, auto_install_browsers: bool = True):
+        """Initialize the spider
+        
+        Args:
+            auto_install_browsers: If True, automatically install Playwright browsers if missing
+        """
         self.data_dir = DATA_DIR
         self.raw_laws_dir = RAW_LAWS_DIR
         self.metadata_file = METADATA_FILE
@@ -54,6 +155,10 @@ class PeraturanSpider:
         # Create directories
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.raw_laws_dir.mkdir(parents=True, exist_ok=True)
+
+        # Ensure Playwright browsers are installed
+        if auto_install_browsers:
+            _ensure_playwright_browsers_installed()
 
         # User agent rotation
         self.ua = UserAgent()
@@ -215,6 +320,333 @@ class PeraturanSpider:
             logger.error(f"Error finding detail links on {source_url}: {e}")
 
         return detail_links
+
+    async def _find_next_page_link(self, page: Page) -> Optional[str]:
+        """Find the 'Next' pagination link on the current page using a robust strategy pattern
+        
+        Returns:
+            URL of next page if found, None otherwise
+        """
+        current_url = page.url
+        logger.info(f"Searching for next page link on: {current_url}")
+        
+        # Debug: Save page HTML for inspection (only first time)
+        try:
+            debug_dir = Path(__file__).parent / "debug"
+            debug_dir.mkdir(exist_ok=True)
+            html_content = await page.content()
+            debug_file = debug_dir / f"pagination_page_{int(asyncio.get_event_loop().time())}.html"
+            debug_file.write_text(html_content, encoding="utf-8")
+            logger.debug(f"Saved page HTML to: {debug_file}")
+        except Exception as e:
+            logger.debug(f"Could not save debug HTML: {e}")
+        
+        # Strategy 1: Text-based search (most reliable)
+        # Look for links containing common "next" text patterns
+        logger.info("Strategy 1: Searching for text-based next links...")
+        next_text_patterns = ["selanjutnya", "next", ">>", ">", "»", "berikutnya"]
+        
+        try:
+            all_links = await page.query_selector_all("a")
+            logger.debug(f"Found {len(all_links)} total links on page")
+            
+            # Log all link texts for debugging
+            link_texts = []
+            for link in all_links[:50]:  # Limit to first 50 for logging
+                try:
+                    text = await link.inner_text()
+                    href = await link.get_attribute("href")
+                    if text and href:
+                        link_texts.append(f"'{text.strip()}' -> {href}")
+                except Exception:
+                    pass
+            
+            if link_texts:
+                logger.debug(f"Sample links found: {link_texts[:10]}")
+            
+            for link in all_links:
+                try:
+                    text = await link.inner_text()
+                    href = await link.get_attribute("href")
+                    
+                    if not href:
+                        continue
+                    
+                    text_lower = text.lower().strip()
+                    
+                    # Check if text matches any next pattern
+                    matches_text = any(pattern in text_lower for pattern in next_text_patterns)
+                    
+                    if matches_text:
+                        # Check if disabled
+                        is_disabled = await link.get_attribute("disabled")
+                        class_attr = await link.get_attribute("class") or ""
+                        
+                        # Check parent element's class using evaluate
+                        try:
+                            parent_class = await link.evaluate("el => el.parentElement?.className || ''")
+                            parent_class = parent_class or ""
+                        except Exception:
+                            parent_class = ""
+                        
+                        # Skip if disabled
+                        if is_disabled or "disabled" in class_attr.lower() or "disabled" in parent_class.lower():
+                            logger.debug(f"Skipping disabled link with text: {text}")
+                            continue
+                        
+                        full_url = urljoin(BASE_URL, href)
+                        
+                        # Verify it's not the same page
+                        if full_url != current_url and full_url != current_url + "#":
+                            logger.info(f"✓ Found next page using text '{text.strip()}' -> {full_url}")
+                            return full_url
+                        else:
+                            logger.debug(f"Link '{text.strip()}' points to same page, skipping")
+                except Exception as e:
+                    logger.debug(f"Error checking link: {e}")
+                    continue
+            
+            logger.info(f"Strategy 1: No matching text-based links found (checked {len(all_links)} links)")
+        except Exception as e:
+            logger.warning(f"Error in text-based search: {e}")
+        
+        # Strategy 2: Attribute-based search
+        logger.info("Strategy 2: Searching for rel='next' attribute...")
+        try:
+            rel_next_links = await page.query_selector_all('a[rel="next"]')
+            logger.debug(f"Found {len(rel_next_links)} links with rel='next'")
+            for link in rel_next_links:
+                try:
+                    href = await link.get_attribute("href")
+                    if href:
+                        full_url = urljoin(BASE_URL, href)
+                        if full_url != current_url:
+                            text = await link.inner_text()
+                            logger.info(f"✓ Found next page using rel='next' attribute (text: '{text.strip()}') -> {full_url}")
+                            return full_url
+                except Exception:
+                    continue
+            logger.info(f"Strategy 2: No valid rel='next' links found")
+        except Exception as e:
+            logger.warning(f"Error in attribute-based search: {e}")
+        
+        # Strategy 3: Class-based search (Bootstrap/pagination classes)
+        logger.info("Strategy 3: Searching for class-based pagination links...")
+        class_selectors = [
+            '.pagination .next a',
+            '.pagination .next-page a',
+            '.pagination a.next',
+            '.pager .next a',
+            '.paging .next a',
+            '.PagedList-skipToNext a',
+            '.pagination-next a',
+            'a.pagination-next',
+            '.next a',
+            'a.next',
+        ]
+        
+        for selector in class_selectors:
+            try:
+                links = await page.query_selector_all(selector)
+                if links:
+                    logger.debug(f"Found {len(links)} links with selector '{selector}'")
+                for link in links:
+                    try:
+                        # Check if disabled
+                        is_disabled = await link.get_attribute("disabled")
+                        class_attr = await link.get_attribute("class") or ""
+                        
+                        # Check parent element's class
+                        try:
+                            parent_class = await link.evaluate("el => el.parentElement?.className || ''")
+                            parent_class = parent_class or ""
+                        except Exception:
+                            parent_class = ""
+                        
+                        if is_disabled or "disabled" in class_attr.lower() or "disabled" in parent_class.lower():
+                            continue
+                        
+                        href = await link.get_attribute("href")
+                        if href:
+                            full_url = urljoin(BASE_URL, href)
+                            if full_url != current_url:
+                                text = await link.inner_text()
+                                logger.info(f"✓ Found next page using class selector '{selector}' (text: '{text.strip()}') -> {full_url}")
+                                return full_url
+                    except Exception:
+                        continue
+            except Exception as e:
+                logger.debug(f"Selector '{selector}' failed: {e}")
+                continue
+        
+        logger.info("Strategy 3: No matching class-based links found")
+        
+        # Strategy 4: Look for pagination container and find next link within it
+        logger.info("Strategy 4: Searching within pagination containers...")
+        pagination_containers = [
+            '.pagination',
+            '.pager',
+            '.paging',
+            '[class*="pagination"]',
+            '[class*="pager"]',
+        ]
+        
+        for container_selector in pagination_containers:
+            try:
+                containers = await page.query_selector_all(container_selector)
+                if containers:
+                    logger.debug(f"Found {len(containers)} containers with selector '{container_selector}'")
+                for container in containers:
+                    try:
+                        # Look for links within this container
+                        links = await container.query_selector_all("a")
+                        for link in links:
+                            try:
+                                text = await link.inner_text()
+                                href = await link.get_attribute("href")
+                                
+                                if not href:
+                                    continue
+                                
+                                text_lower = text.lower().strip()
+                                
+                                # Check if it looks like a next link
+                                if any(pattern in text_lower for pattern in next_text_patterns):
+                                    # Check if disabled
+                                    is_disabled = await link.get_attribute("disabled")
+                                    class_attr = await link.get_attribute("class") or ""
+                                    
+                                    if is_disabled or "disabled" in class_attr.lower():
+                                        continue
+                                    
+                                    full_url = urljoin(BASE_URL, href)
+                                    if full_url != current_url:
+                                        logger.info(f"✓ Found next page in container '{container_selector}' using text '{text.strip()}' -> {full_url}")
+                                        return full_url
+                            except Exception:
+                                continue
+                    except Exception:
+                        continue
+            except Exception as e:
+                logger.debug(f"Container selector '{container_selector}' failed: {e}")
+                continue
+        
+        logger.info("Strategy 4: No matching links found in pagination containers")
+        
+        # Strategy 5: Look for links with page number patterns (e.g., page=2, page/2, etc.)
+        logger.info("Strategy 5: Searching for page number patterns...")
+        try:
+            all_links = await page.query_selector_all("a")
+            current_page_num = None
+            
+            # Try to detect current page number from URL or active pagination element
+            try:
+                url_match = re.search(r'[?&]page[=_](\d+)', current_url)
+                if url_match:
+                    current_page_num = int(url_match.group(1))
+            except Exception:
+                pass
+            
+            for link in all_links:
+                try:
+                    href = await link.get_attribute("href")
+                    if not href:
+                        continue
+                    
+                    full_url = urljoin(BASE_URL, href)
+                    
+                    # Check if URL contains page number pattern
+                    page_match = re.search(r'[?&]page[=_](\d+)', full_url)
+                    if page_match:
+                        next_page_num = int(page_match.group(1))
+                        if current_page_num and next_page_num == current_page_num + 1:
+                            # Check if disabled
+                            is_disabled = await link.get_attribute("disabled")
+                            class_attr = await link.get_attribute("class") or ""
+                            
+                            if not is_disabled and "disabled" not in class_attr.lower():
+                                text = await link.inner_text()
+                                logger.info(f"✓ Found next page using page number pattern (page {next_page_num}, text: '{text.strip()}') -> {full_url}")
+                                return full_url
+                except Exception:
+                    continue
+            logger.info("Strategy 5: No matching page number patterns found")
+        except Exception as e:
+            logger.warning(f"Error in page number pattern search: {e}")
+        
+        # Strategy 6: Look for any link that might be pagination (numbers, arrows, etc.)
+        logger.info("Strategy 6: Searching for any potential pagination links...")
+        try:
+            all_links = await page.query_selector_all("a")
+            potential_pagination_patterns = [
+                r'page[=_]?\d+',
+                r'p[=_]?\d+',
+                r'\d+',
+            ]
+            
+            # Get current page number if available
+            current_page_num = None
+            try:
+                url_match = re.search(r'[?&](?:page|p)[=_](\d+)', current_url)
+                if url_match:
+                    current_page_num = int(url_match.group(1))
+                    logger.debug(f"Detected current page number: {current_page_num}")
+            except Exception:
+                pass
+            
+            for link in all_links:
+                try:
+                    href = await link.get_attribute("href")
+                    text = await link.inner_text()
+                    
+                    if not href:
+                        continue
+                    
+                    full_url = urljoin(BASE_URL, href)
+                    
+                    # Skip if same page
+                    if full_url == current_url or full_url == current_url + "#":
+                        continue
+                    
+                    # Check if URL contains page number
+                    for pattern in potential_pagination_patterns:
+                        match = re.search(pattern, full_url, re.IGNORECASE)
+                        if match:
+                            try:
+                                # Try to extract page number
+                                page_num_match = re.search(r'(\d+)', match.group(0))
+                                if page_num_match:
+                                    page_num = int(page_num_match.group(1))
+                                    # If we know current page, check if this is next page
+                                    if current_page_num and page_num == current_page_num + 1:
+                                        logger.info(f"✓ Found potential next page (page {page_num}) using URL pattern: {full_url}")
+                                        return full_url
+                                    # If no current page known, assume any number > 1 might be next
+                                    elif not current_page_num and page_num > 1:
+                                        logger.info(f"✓ Found potential next page (page {page_num}) using URL pattern: {full_url}")
+                                        return full_url
+                            except (ValueError, AttributeError):
+                                continue
+                    
+                    # Check if link text looks like pagination (numbers, arrows)
+                    text_clean = text.strip()
+                    if text_clean.isdigit() and int(text_clean) > 1:
+                        logger.debug(f"Found numeric link: '{text_clean}' -> {full_url}")
+                        if current_page_num and int(text_clean) == current_page_num + 1:
+                            logger.info(f"✓ Found next page using numeric text '{text_clean}' -> {full_url}")
+                            return full_url
+                            
+                except Exception as e:
+                    logger.debug(f"Error in Strategy 6 link check: {e}")
+                    continue
+            
+            logger.info("Strategy 6: No potential pagination links found")
+        except Exception as e:
+            logger.warning(f"Error in Strategy 6: {e}")
+        
+        logger.warning("❌ No next page link found using any strategy")
+        logger.info("💡 Tip: Check debug/pagination_page_*.html file to inspect the page structure")
+        return None
 
     async def _extract_metadata_from_detail_page(
         self, page: Page, detail_url: str
@@ -454,9 +886,18 @@ class PeraturanSpider:
         except Exception as e:
             logger.error(f"Error saving metadata: {e}")
 
-    async def scrape(self, max_items: Optional[int] = None) -> List[Dict[str, Any]]:
-        """Main scraping method"""
+    async def scrape(
+        self, max_items: Optional[int] = None, jenis_filter: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Main scraping method
+        
+        Args:
+            max_items: Maximum number of items to scrape
+            jenis_filter: Filter by regulation type (e.g., 'UU', 'PP', 'Perpres')
+        """
         logger.info("Starting BPK scrape...")
+        if jenis_filter:
+            logger.info(f"Filtering by jenis: {jenis_filter}")
         all_items = []
         visited_detail_urls = set()  # Track visited URLs to avoid duplicates
 
@@ -476,66 +917,122 @@ class PeraturanSpider:
             page = await context.new_page()
 
             try:
-                # Step 1: Find detail links directly from homepage
-                # BPK site has /Details/ links directly on homepage
-                logger.info("Finding detail links from homepage...")
-                all_detail_links = await self._find_detail_links(page, HOME_URL)
-
-                # If not enough links found, try finding year links and exploring them
-                if len(all_detail_links) < (max_items or 10):
-                    logger.info("Not enough links from homepage, trying year links...")
-                    year_links = await self._find_year_links(page)
-                    logger.info(f"Found {len(year_links)} year links to explore")
-
-                    for year_url in year_links:
-                        await self._rate_limit()
-                        detail_links = await self._find_detail_links(page, year_url)
-                        all_detail_links.extend(detail_links)
-
-                        # If we have enough links, break
-                        if max_items and len(all_detail_links) >= max_items * 2:
+                # Start with homepage
+                current_url = HOME_URL
+                page_number = 1
+                
+                # Pagination loop: continue until we have enough items or no more pages
+                while True:
+                    # Check if we have enough items
+                    if max_items and len(all_items) >= max_items:
+                        logger.info(f"Reached limit of {max_items} items. Stopping.")
+                        break
+                    
+                    logger.info(f"Navigating to page {page_number}...")
+                    
+                    # Find detail links on current page
+                    page_detail_links = await self._find_detail_links(page, current_url)
+                    
+                    if not page_detail_links:
+                        logger.info(f"No detail links found on page {page_number}. Stopping.")
+                        break
+                    
+                    # Process detail links from current page
+                    for detail_url in page_detail_links:
+                        # Check if we've reached the limit
+                        if max_items and len(all_items) >= max_items:
                             break
 
-                # Remove duplicates while preserving order
-                seen = set()
-                unique_detail_links = []
-                for link in all_detail_links:
-                    if link not in seen:
-                        seen.add(link)
-                        unique_detail_links.append(link)
+                        if detail_url in visited_detail_urls:
+                            continue
 
-                logger.info(f"Found {len(unique_detail_links)} unique detail links")
-                all_detail_links = unique_detail_links
+                        visited_detail_urls.add(detail_url)
+                        await self._rate_limit()
 
-                # Step 3: Visit each detail page and extract metadata
-                for detail_url in all_detail_links:
+                        # Extract metadata
+                        metadata = await self._extract_metadata_from_detail_page(
+                            page, detail_url
+                        )
+
+                        if not metadata:
+                            continue
+
+                        # Filter by jenis if specified
+                        if jenis_filter:
+                            extracted_type = metadata.get("type", "").lower()
+                            jenis_normalized = jenis_filter.lower()
+                            
+                            # Check if jenis matches (case-insensitive)
+                            # Handle both abbreviations and full names
+                            jenis_mapping = {
+                                "uu": ["uu", "undang-undang"],
+                                "pp": ["pp", "peraturan pemerintah"],
+                                "perpres": ["perpres", "peraturan presiden"],
+                                "permen": ["permen", "peraturan menteri"],
+                                "kepres": ["kepres", "keputusan presiden"],
+                                "instruksi": ["instruksi", "instruksi presiden"],
+                                "keputusan": ["keputusan"],
+                                "peraturan": ["peraturan"],
+                            }
+                            
+                            # Check if jenis_filter matches any mapped values
+                            matches = False
+                            if jenis_normalized in jenis_mapping:
+                                # Check if extracted_type contains any of the mapped values
+                                for mapped_value in jenis_mapping[jenis_normalized]:
+                                    if mapped_value in extracted_type:
+                                        matches = True
+                                        break
+                            else:
+                                # Direct match if not in mapping
+                                if jenis_normalized in extracted_type:
+                                    matches = True
+                            
+                            if not matches:
+                                logger.debug(
+                                    f"Skipping {detail_url}: jenis '{metadata.get('type')}' "
+                                    f"does not match filter '{jenis_filter}'"
+                                )
+                                continue
+
+                        # Download PDF if URL exists
+                        if metadata.get("pdf_download_url"):
+                            filename = self._generate_filename(metadata)
+                            metadata["local_filename"] = filename
+                            await self._download_pdf(metadata["pdf_download_url"], filename)
+
+                        # Save metadata
+                        self._save_metadata(metadata)
+                        all_items.append(metadata)
+                        self.stats["total_scraped"] += 1
+                        
+                        logger.info(
+                            f"Scraped {len(all_items)}/{max_items or 'unlimited'} items "
+                            f"(Type: {metadata.get('type', 'Unknown')})"
+                        )
+                    
+                    # Check if we've reached the limit after processing this page
                     if max_items and len(all_items) >= max_items:
                         break
-
-                    if detail_url in visited_detail_urls:
-                        continue
-
-                    visited_detail_urls.add(detail_url)
+                    
+                    # Navigate back to listing page to find next page link
+                    # (We may have navigated away while processing detail pages)
                     await self._rate_limit()
-
-                    # Extract metadata
-                    metadata = await self._extract_metadata_from_detail_page(
-                        page, detail_url
-                    )
-
-                    if not metadata:
-                        continue
-
-                    # Download PDF if URL exists
-                    if metadata.get("pdf_download_url"):
-                        filename = self._generate_filename(metadata)
-                        metadata["local_filename"] = filename
-                        await self._download_pdf(metadata["pdf_download_url"], filename)
-
-                    # Save metadata
-                    self._save_metadata(metadata)
-                    all_items.append(metadata)
-                    self.stats["total_scraped"] += 1
+                    await page.goto(current_url, wait_until="domcontentloaded", timeout=60000)
+                    await asyncio.sleep(2)  # Wait for page to load
+                    
+                    # Look for next page link
+                    next_page_url = await self._find_next_page_link(page)
+                    
+                    if not next_page_url:
+                        logger.info(f"No next page found. Reached end of pagination at page {page_number}.")
+                        break
+                    
+                    # Navigate to next page
+                    current_url = next_page_url
+                    page_number += 1
+                    await page.goto(current_url, wait_until="domcontentloaded", timeout=60000)
+                    await asyncio.sleep(2)  # Wait for page to load
 
             finally:
                 await browser.close()
@@ -596,6 +1093,12 @@ async def main():
         "--limit", type=int, default=None, help="Maximum number of items to scrape"
     )
     parser.add_argument(
+        "--jenis",
+        type=str,
+        default=None,
+        help="Filter by regulation type (e.g., 'uu', 'pp', 'perpres', 'permen', 'kepres')",
+    )
+    parser.add_argument(
         "--test",
         action="store_true",
         help="Run test mode (scrape 5 items and verify)",
@@ -607,7 +1110,7 @@ async def main():
         await test_scraper(limit=5)
     else:
         async with PeraturanSpider() as spider:
-            await spider.scrape(max_items=args.limit)
+            await spider.scrape(max_items=args.limit, jenis_filter=args.jenis)
 
 
 if __name__ == "__main__":

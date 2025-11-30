@@ -14,11 +14,8 @@ The project is a **Monorepo** containing multiple applications and packages, man
 
 | App Name | Path | Type | Description |
 | :--- | :--- | :--- | :--- |
-| **webapp** | `apps/webapp` | Frontend | Static SPA (Single Page Application) served via Nginx. |
-| **backend-ts** | `apps/backend-ts` | Backend | Main application logic, Node.js + TypeScript + Express. |
+| **webapp-next** | `apps/webapp-next` | Frontend | Next.js 14 application with React Server Components. |
 | **backend-rag** | `apps/backend-rag` | Backend | AI/RAG service, Python + FastAPI + Qdrant. |
-| **bali-intel-scraper** | `apps/bali-intel-scraper` | Service | Scraper service (likely Node.js). |
-| **memory-service** | `apps/memory-service` | Service | Memory management service. |
 
 ---
 
@@ -28,14 +25,8 @@ The project is a **Monorepo** containing multiple applications and packages, man
 
 ```mermaid
 graph TD
-    User[User Browser] -->|HTTPS| Nginx[Webapp Nginx]
-    Nginx -->|Static Files| User
-    Nginx -->|/api/* Proxy| BackendRAG[Backend RAG (Python)]
-    Nginx -->|/bali-zero/chat-stream Proxy| BackendRAG
-
-    BackendTS[Backend TS (Node.js)] <-->|Internal API| BackendRAG
-    BackendTS -->|DB Access| Postgres[(PostgreSQL)]
-    BackendTS -->|Cache| Redis[(Redis)]
+    User[User Browser] -->|HTTPS| WebApp[WebApp (Next.js)]
+    WebApp -->|/api/*| BackendRAG[Backend RAG (Python)]
 
     BackendRAG -->|Vector Search| Qdrant[(Qdrant Cloud)]
     BackendRAG -->|LLM API| AI_Providers[OpenAI / Anthropic / Google]
@@ -50,8 +41,7 @@ graph TD
 ```
 
 ### Critical Dependencies
-- **Frontend -> Backend RAG**: The Nginx configuration explicitly proxies `/api/` and `/bali-zero/chat-stream` to `https://nuzantara-rag.fly.dev`.
-- **Backend TS -> Database**: Uses Prisma for PostgreSQL interaction.
+- **Frontend -> Backend RAG**: The Next.js application calls the `nuzantara-rag.fly.dev` API.
 - **Backend RAG -> AI Services**: Heavily relies on external AI APIs and Qdrant for vector storage.
 - **Jaksel AI System**: Multi-tier fallback system ensuring 99%+ uptime for personality responses.
 
@@ -109,17 +99,12 @@ Jaksel AI is a custom personality module for the Zantara AI system that provides
 
 ## 4. Technology Stack
 
-### Frontend (`apps/webapp`)
-- **Core**: HTML5, CSS3, JavaScript (Vanilla/ES6+).
-- **Server**: Nginx (Alpine Slim).
-- **Build**: Static file serving, no complex build step visible in Dockerfile.
-
-### Backend TS (`apps/backend-ts`)
-- **Runtime**: Node.js 20 (Alpine).
-- **Language**: TypeScript.
-- **Framework**: Express (inferred from `server.ts` usage).
-- **ORM**: Prisma.
-- **Build Tool**: `tsc` (TypeScript Compiler), `esbuild`.
+### Frontend (`apps/webapp-next`)
+- **Framework**: Next.js 14
+- **Language**: TypeScript
+- **UI**: React, Tailwind CSS, shadcn/ui
+- **State Management**: React Context / Zustand (TBD)
+- **Package Manager**: npm
 
 ### Backend RAG (`apps/backend-rag`)
 - **Runtime**: Python 3.11 (Slim).
@@ -151,6 +136,4 @@ The project employs a "Full-Stack Observability" approach, ensuring health and c
 ## 7. Known Issues & Risks
 
 1.  **`fly.toml` Gitignored**: The `fly.toml` configuration files are present in `.gitignore` or effectively ignored. This is a **HIGH RISK** for deployment consistency. If the local file is lost, deployment configuration is lost.
-2.  **Port Conflicts**: Both backends default to port `8080` internally. While Docker isolates them, confusion may arise during local development if not managed carefully.
-3.  **Complex Monorepo Scripts**: The root `package.json` has many scripts, some of which might be obsolete or overlapping (e.g., `start` vs `start:dev`).
-4.  **Hardcoded Proxies**: Nginx configuration hardcodes `https://nuzantara-rag.fly.dev`. This makes testing against a staging environment difficult without changing code.
+2.  **Complex Monorepo Scripts**: The root `package.json` has many scripts, some of which might be obsolete or overlapping (e.g., `start` vs `start:dev`).
