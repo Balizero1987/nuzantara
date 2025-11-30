@@ -55,6 +55,58 @@ class InteractionResponse(BaseModel):
     created_at: datetime
 
 
+class InteractionDetailResponse(BaseModel):
+    """Interaction with client info joined"""
+    id: int
+    client_id: int | None
+    practice_id: int | None
+    interaction_type: str
+    channel: str | None
+    subject: str | None
+    summary: str | None
+    full_content: str | None
+    team_member: str
+    direction: str
+    sentiment: str | None
+    interaction_date: datetime
+    created_at: datetime
+    client_name: str | None = None
+    client_email: str | None = None
+
+
+class ClientTimelineResponse(BaseModel):
+    client_id: int
+    total_interactions: int
+    timeline: list[dict]
+
+
+class PracticeHistoryResponse(BaseModel):
+    practice_id: int
+    total_interactions: int
+    history: list[dict]
+
+
+class InteractionsStatsResponse(BaseModel):
+    total_interactions: int
+    last_7_days: int
+    by_type: dict[str, int]
+    by_sentiment: dict[str, int]
+    by_team_member: list[dict]
+
+
+class ConversationInteractionResponse(BaseModel):
+    success: bool
+    interaction_id: int
+    client_id: int
+    was_new_client: bool
+
+
+class GmailSyncResponse(BaseModel):
+    success: bool
+    processed_count: int
+    results: list[dict]
+
+
 # ================================================
 # ENDPOINTS
 # ================================================
@@ -137,7 +189,7 @@ async def create_interaction(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/", response_model=list[dict])
+@router.get("/", response_model=list[InteractionResponse])
 async def list_interactions(
     client_id: int | None = Query(None, description="Filter by client"),
     practice_id: int | None = Query(None, description="Filter by practice"),
@@ -189,7 +241,7 @@ async def list_interactions(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/{interaction_id}")
+@router.get("/{interaction_id}", response_model=InteractionDetailResponse)
 async def get_interaction(
     interaction_id: int,
     db: asyncpg.Pool = Depends(get_db_pool)
@@ -223,7 +275,7 @@ async def get_interaction(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/client/{client_id}/timeline")
+@router.get("/client/{client_id}/timeline", response_model=ClientTimelineResponse)
 async def get_client_timeline(
     client_id: int,
     limit: int = Query(50, le=200),
@@ -266,7 +318,7 @@ async def get_client_timeline(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/practice/{practice_id}/history")
+@router.get("/practice/{practice_id}/history", response_model=PracticeHistoryResponse)
 async def get_practice_history(
     practice_id: int,
     db: asyncpg.Pool = Depends(get_db_pool)
@@ -299,7 +351,7 @@ async def get_practice_history(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/stats/overview")
+@router.get("/stats/overview", response_model=InteractionsStatsResponse)
 async def get_interactions_stats(
     team_member: str | None = Query(None, description="Stats for specific team member"),
     db: asyncpg.Pool = Depends(get_db_pool),
@@ -381,7 +433,7 @@ async def get_interactions_stats(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.post("/from-conversation")
+@router.post("/from-conversation", response_model=ConversationInteractionResponse)
 async def create_interaction_from_conversation(
     conversation_id: int = Query(...),
     client_email: str = Query(...),
@@ -496,7 +548,7 @@ async def create_interaction_from_conversation(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.post("/sync-gmail")
+@router.post("/sync-gmail", response_model=GmailSyncResponse)
 async def sync_gmail_interactions(
     limit: int = Query(5, description="Max emails to process"),
     team_member: str = Query("system", description="Team member handling sync"),

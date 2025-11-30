@@ -72,6 +72,41 @@ class ClientResponse(BaseModel):
     updated_at: datetime
 
 
+class PracticesSummary(BaseModel):
+    total: int
+    active: int
+    completed: int
+    list: list[dict]
+
+
+class InteractionsSummary(BaseModel):
+    total: int
+    recent: list[dict]
+
+
+class RenewalsSummary(BaseModel):
+    upcoming: list[dict]
+
+
+class ClientSummaryResponse(BaseModel):
+    client: dict
+    practices: PracticesSummary
+    interactions: InteractionsSummary
+    renewals: RenewalsSummary
+
+
+class TeamMemberCount(BaseModel):
+    assigned_to: str | None
+    count: int
+
+
+class ClientsStatsResponse(BaseModel):
+    total: int
+    by_status: dict[str, int]
+    by_team_member: list[TeamMemberCount]
+    new_last_30_days: int
+
+
 # ================================================
 # ENDPOINTS
 # ================================================
@@ -389,7 +424,7 @@ async def delete_client(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/{client_id}/summary")
+@router.get("/{client_id}/summary", response_model=ClientSummaryResponse)
 async def get_client_summary(
     client_id: int,
     db: asyncpg.Pool = Depends(get_db_pool),
@@ -472,7 +507,7 @@ async def get_client_summary(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/stats/overview")
+@router.get("/stats/overview", response_model=ClientsStatsResponse)
 async def get_clients_stats(
     db: asyncpg.Pool = Depends(get_db_pool),
 ):

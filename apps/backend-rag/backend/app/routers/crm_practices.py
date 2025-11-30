@@ -69,6 +69,55 @@ class PracticeResponse(BaseModel):
     created_at: datetime
 
 
+class PracticeDetailResponse(BaseModel):
+    """Practice with client and type info joined"""
+    id: int
+    uuid: str
+    client_id: int
+    practice_type_id: int
+    status: str
+    priority: str
+    quoted_price: Decimal | None
+    actual_price: Decimal | None
+    payment_status: str
+    assigned_to: str | None
+    start_date: datetime | None
+    completion_date: datetime | None
+    expiry_date: date | None
+    notes: str | None
+    documents: list[dict] | None
+    missing_documents: list[str] | None
+    created_at: datetime
+    updated_at: datetime | None
+    client_name: str
+    client_email: str | None
+    client_phone: str | None
+    practice_type_name: str
+    practice_type_code: str
+    practice_category: str
+    required_documents: list[str] | None = None
+
+
+class DocumentAddResponse(BaseModel):
+    success: bool
+    document: dict
+    total_documents: int
+
+
+class RevenueStats(BaseModel):
+    total_revenue: Decimal | None
+    paid_revenue: Decimal | None
+    outstanding_revenue: Decimal | None
+
+
+class PracticesStatsResponse(BaseModel):
+    total_practices: int
+    active_practices: int
+    by_status: dict[str, int]
+    by_type: list[dict]
+    revenue: RevenueStats
+
+
 # ================================================
 # ENDPOINTS
 # ================================================
@@ -166,7 +215,7 @@ async def create_practice(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/", response_model=list[dict])
+@router.get("/", response_model=list[PracticeDetailResponse])
 async def list_practices(
     client_id: int | None = Query(None, description="Filter by client ID"),
     status: str | None = Query(None, description="Filter by status"),
@@ -240,7 +289,7 @@ async def list_practices(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/active")
+@router.get("/active", response_model=list[dict])
 async def get_active_practices(
     assigned_to: str | None = Query(None),
     db: asyncpg.Pool = Depends(get_db_pool),
@@ -274,7 +323,7 @@ async def get_active_practices(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/renewals/upcoming")
+@router.get("/renewals/upcoming", response_model=list[dict])
 async def get_upcoming_renewals(
     _days: int = Query(90, description="Days to look ahead"),
     db: asyncpg.Pool = Depends(get_db_pool),
@@ -296,7 +345,7 @@ async def get_upcoming_renewals(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/{practice_id}")
+@router.get("/{practice_id}", response_model=PracticeDetailResponse)
 async def get_practice(
     practice_id: int,
     db: asyncpg.Pool = Depends(get_db_pool),
@@ -336,7 +385,7 @@ async def get_practice(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.patch("/{practice_id}")
+@router.patch("/{practice_id}", response_model=PracticeResponse)
 async def update_practice(
     practice_id: int,
     updates: PracticeUpdate,
@@ -440,7 +489,7 @@ async def update_practice(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.post("/{practice_id}/documents/add")
+@router.post("/{practice_id}/documents/add", response_model=DocumentAddResponse)
 async def add_document_to_practice(
     practice_id: int,
     document_name: str = Query(...),
@@ -499,7 +548,7 @@ async def add_document_to_practice(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/stats/overview")
+@router.get("/stats/overview", response_model=PracticesStatsResponse)
 async def get_practices_stats(db: asyncpg.Pool = Depends(get_db_pool)):
     """
     Get overall practice statistics

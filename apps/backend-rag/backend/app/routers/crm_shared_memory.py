@@ -9,12 +9,77 @@ import logging
 
 import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 
 from ..dependencies import get_db_pool
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/crm/shared-memory", tags=["crm-shared-memory"])
+
+
+# ================================================
+# PYDANTIC MODELS
+# ================================================
+
+
+class SearchSummary(BaseModel):
+    clients_found: int
+    practices_found: int
+    interactions_found: int
+
+
+class SharedMemorySearchResponse(BaseModel):
+    query: str
+    clients: list[dict]
+    practices: list[dict]
+    interactions: list[dict]
+    interpretation: list[str]
+    summary: SearchSummary
+
+
+class UpcomingRenewalsResponse(BaseModel):
+    total_renewals: int
+    days_ahead: int
+    renewals: list[dict]
+
+
+class PracticesContext(BaseModel):
+    total: int
+    active: int
+    completed: int
+    list: list[dict]
+
+
+class InteractionsContext(BaseModel):
+    total: int
+    recent: list[dict]
+
+
+class ContextSummary(BaseModel):
+    first_contact: str | None
+    last_interaction: str | None
+    total_practices: int
+    total_interactions: int
+    upcoming_renewals: int
+
+
+class ClientFullContextResponse(BaseModel):
+    client: dict
+    practices: PracticesContext
+    interactions: InteractionsContext
+    renewals: list[dict]
+    action_items: list[dict]
+    summary: ContextSummary
+
+
+class TeamOverviewResponse(BaseModel):
+    total_active_clients: int
+    practices_by_status: dict[str, int]
+    active_practices_by_team_member: list[dict]
+    renewals_next_30_days: int
+    interactions_last_7_days: int
+    active_practices_by_type: list[dict]
 
 
 # ================================================
@@ -42,7 +107,7 @@ async def _get_practice_codes(db: asyncpg.Pool):
 # ================================================
 
 
-@router.get("/search")
+@router.get("/search", response_model=SharedMemorySearchResponse)
 async def search_shared_memory(
     q: str = Query(..., description="Natural language query"),
     limit: int = Query(20, le=100),
@@ -297,7 +362,7 @@ async def search_shared_memory(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/upcoming-renewals")
+@router.get("/upcoming-renewals", response_model=UpcomingRenewalsResponse)
 async def get_upcoming_renewals(
     days: int = Query(90, description="Look ahead days"), db: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -342,7 +407,7 @@ async def get_upcoming_renewals(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/client/{client_id}/full-context")
+@router.get("/client/{client_id}/full-context", response_model=ClientFullContextResponse)
 async def get_client_full_context(client_id: int, db: asyncpg.Pool = Depends(get_db_pool)):
     """
     Get complete context for a client
@@ -448,7 +513,7 @@ async def get_client_full_context(client_id: int, db: asyncpg.Pool = Depends(get
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/team-overview")
+@router.get("/team-overview", response_model=TeamOverviewResponse)
 async def get_team_overview(db: asyncpg.Pool = Depends(get_db_pool)):
     """
     Get team-wide CRM overview
