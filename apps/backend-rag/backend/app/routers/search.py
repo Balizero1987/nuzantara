@@ -1,6 +1,12 @@
 """
 ZANTARA RAG - Search Router
 Semantic search with tier-based access control
+
+DEPRECATED: This router is NOT registered in main_cloud.py.
+The active search functionality is provided by:
+  - /app/modules/knowledge/router.py (registered as knowledge_router)
+
+This file is kept for reference but should be removed in a future cleanup.
 """
 
 import logging

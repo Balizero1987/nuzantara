@@ -1,6 +1,14 @@
 """
 Simple Jaksel Caller - Sistema diretto per chiamare Jaksel via Ollama
 Priorità: Ollama CloudFlare Tunnel > Ollama Local > Gemini Fallback
+
+DEPRECATED: This is a legacy implementation.
+Use simple_jaksel_caller_translation.py instead (imported in oracle_universal.py).
+
+Other deprecated variants:
+  - simple_jaksel_caller_hf.py
+  - simple_jaksel_caller_hf_italian.py
+  - simple_jaksel_caller_original.py
 """
 
 import logging

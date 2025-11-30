@@ -1,5 +1,8 @@
 """
 SimpleJakselCallerHF versione migliorata per supporto multilingua
+
+DEPRECATED: Use simple_jaksel_caller_translation.py instead.
+This file is kept for reference but is not imported anywhere.
 """
 
 import logging

@@ -3,6 +3,11 @@ ORACLE INGEST API Router
 Endpoint per caricare massivamente documenti legali su Qdrant
 
 POST /api/oracle/ingest - Bulk upload di chunks con embeddings
+
+NOTE: This router shares the /api/oracle prefix with oracle_universal.py.
+Both are registered in main_cloud.py. This is intentional:
+  - oracle_ingest.py: Document ingestion endpoints (/ingest, /collections)
+  - oracle_universal.py: Query and utility endpoints (/query, /health, etc.)
 """
 
 import logging

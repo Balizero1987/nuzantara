@@ -1,5 +1,8 @@
 """
 Simple Jaksel Caller - Sistema diretto per chiamare Jaksel (Gemma 9B)
+
+DEPRECATED: Use simple_jaksel_caller_translation.py instead.
+This file is kept for reference but is not imported anywhere.
 """
 
 import logging
