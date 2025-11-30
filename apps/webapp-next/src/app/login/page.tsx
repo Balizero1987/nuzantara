@@ -12,11 +12,11 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    // Check if already logged in
-    const token = apiClient.getToken()
-    if (token) {
-      router.push("/chat")
-    }
+    // Skip redirect - allow direct access to chat without login
+    // const token = apiClient.getToken()
+    // if (token) {
+    //   router.push("/chat")
+    // }
   }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
