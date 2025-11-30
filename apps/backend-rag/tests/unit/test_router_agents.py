@@ -444,9 +444,17 @@ async def test_get_ingestion_status():
 async def test_cross_oracle_synthesis():
     """Test cross-oracle synthesis"""
     mock_request = MagicMock()
+    # Mock the app.state to return None for services (missing dependencies)
+    mock_request.app.state = MagicMock()
+    mock_request.app.state.intelligent_router = None
+    mock_request.app.state.search_service = None
+    mock_request.app.state.ai_client = None
+
     result = await cross_oracle_synthesis(request=mock_request, query="Tax regulations", domains=["tax", "legal"])
 
-    assert result["success"] is True
+    # Expect failure response when dependencies are missing
+    assert result["success"] is False
+    assert result["error"] == "CrossOracleSynthesisService not available - missing dependencies"
     assert result["query"] == "Tax regulations"
     assert result["domains"] == ["tax", "legal"]
 
@@ -470,6 +478,12 @@ async def test_calculate_dynamic_pricing():
 async def test_run_autonomous_research():
     """Test autonomous research"""
     mock_request = MagicMock()
+    # Mock the app.state to return None for services (missing dependencies)
+    mock_request.app.state = MagicMock()
+    mock_request.app.state.search_service = None
+    mock_request.app.state.ai_client = None
+    mock_request.app.state.query_router = None
+
     result = await run_autonomous_research(
         request=mock_request,
         topic="Indonesian tax law",
@@ -477,7 +491,9 @@ async def test_run_autonomous_research():
         sources=["oracle_collections"]
     )
 
-    assert result["success"] is True
+    # Expect failure response when dependencies are missing
+    assert result["success"] is False
+    assert result["error"] == "AutonomousResearchService not available - missing dependencies"
     assert result["topic"] == "Indonesian tax law"
     assert result["depth"] == "deep"
 
