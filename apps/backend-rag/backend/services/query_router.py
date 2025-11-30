@@ -449,6 +449,10 @@ class QueryRouter:
             "team": team_score + team_enum_score,
         }
 
+        # DEBUG: Log team score calculation
+        logger.info(f"🔍 DEBUG Query: '{query}' | team_score={team_score} | team_enum={team_enum_score} | total_team={team_score + team_enum_score}")
+        logger.info(f"🔍 DEBUG Domain scores: {domain_scores}")
+
         primary_domain = max(domain_scores, key=domain_scores.get)
         primary_score = domain_scores[primary_domain]
 
