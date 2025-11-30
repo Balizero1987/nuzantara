@@ -267,15 +267,24 @@ async def test_translate_to_personality_exception(personality_service):
 async def test_fast_chat_success(personality_service):
     """Test fast_chat successful"""
     service, mock_client = personality_service
-    
+
     # Mock aiohttp for HTTP calls
     mock_response = MagicMock()
     mock_response.status = 200
     mock_response.json = AsyncMock(return_value={"text": "Fast response"})
-    
+
     with patch("aiohttp.ClientSession") as mock_session:
-        mock_session.return_value.__aenter__.return_value.post.return_value.__aenter__.return_value = mock_response
-        
+        # Properly mock async context managers
+        mock_post_cm = AsyncMock()
+        mock_post_cm.__aenter__.return_value = mock_response
+        mock_post_cm.__aexit__.return_value = AsyncMock()
+
+        mock_session_instance = AsyncMock()
+        mock_session_instance.__aenter__.return_value.post.return_value = mock_post_cm
+        mock_session_instance.__aexit__.return_value = AsyncMock()
+
+        mock_session.return_value = mock_session_instance
+
         result = await service.fast_chat("amanda@balizero.com", "Hello")
 
         assert isinstance(result, dict)

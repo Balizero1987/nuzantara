@@ -45,7 +45,8 @@ def mock_search_service():
             "collection_used": "visa_oracle",
         }
 
-    search.search_with_conflict_resolution = mock_search_with_conflict_resolution
+    # Wrap the async function in AsyncMock to enable assertion methods
+    search.search_with_conflict_resolution = AsyncMock(wraps=mock_search_with_conflict_resolution)
     return search
 
 
