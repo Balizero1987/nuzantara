@@ -5,7 +5,7 @@ Unit tests for Agents Router
 import sys
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -161,9 +161,36 @@ async def test_create_client_journey_error():
         assert exc_info.value.status_code == 400
 
 
-# Skipped - Complex mocking issue with journey_orchestrator
-# Coverage: The success path is tested implicitly through other tests
-# The not_found path is tested below
+@pytest.mark.asyncio
+async def test_get_journey_success():
+    """Test successful journey retrieval"""
+    # Create simple object instead of MagicMock to avoid boolean evaluation issues
+    class MockJourney:
+        def __init__(self):
+            self.journey_id = "journey-123"
+            self.journey_type = "pt_pma_setup"
+            self.status = "in_progress"
+
+        @property
+        def __dict__(self):
+            return {
+                "journey_id": self.journey_id,
+                "journey_type": self.journey_type,
+                "status": self.status,
+            }
+
+    mock_journey = MockJourney()
+    mock_progress = {"completed": 2, "total": 5, "percentage": 40.0}
+
+    with patch("app.routers.agents.journey_orchestrator.get_journey", return_value=mock_journey):
+        with patch("app.routers.agents.journey_orchestrator.get_progress", return_value=mock_progress):
+            result = await get_journey("journey-123")
+
+            assert result["success"] is True
+            assert "journey" in result
+            assert "progress" in result
+            assert result["progress"] == mock_progress
+            assert result["journey"]["journey_id"] == "journey-123"
 
 
 @pytest.mark.asyncio
@@ -288,12 +315,46 @@ async def test_get_compliance_alerts_with_severity_filter(mock_alert):
         # Alert should be filtered if severity matches
 
 
-# Skipped - Import path issue with create_notification_from_template
-# Coverage: The auto_notify=False path is already tested
+@pytest.mark.asyncio
+async def test_get_compliance_alerts_with_auto_notify(mock_alert):
+    """Test get compliance alerts with auto_notify enabled"""
+    mock_notification_hub = AsyncMock()
+    mock_notification_hub.send = AsyncMock(return_value={"notification_id": "notif-123", "status": "sent"})
+
+    with patch("app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]):
+        with patch("services.notification_hub.create_notification_from_template") as mock_create:
+            with patch("services.notification_hub.notification_hub", mock_notification_hub):
+                mock_notification = MagicMock()
+                mock_notification.notification_id = "notif-123"
+                mock_create.return_value = mock_notification
+
+                result = await get_compliance_alerts(auto_notify=True)
+
+                assert result["success"] is True
+                assert result["count"] == 1
+                assert result["notifications_sent"] is not None
+                assert len(result["notifications_sent"]) == 1
+                mock_create.assert_called_once()
+                mock_notification_hub.send.assert_called_once()
 
 
-# Skipped - Import path issue
-# Coverage: Error handling is tested in other tests
+@pytest.mark.asyncio
+async def test_get_compliance_alerts_auto_notify_error(mock_alert):
+    """Test auto_notify with notification sending error"""
+    mock_notification_hub = AsyncMock()
+    mock_notification_hub.send = AsyncMock(side_effect=Exception("Notification failed"))
+
+    with patch("app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]):
+        with patch("services.notification_hub.create_notification_from_template") as mock_create:
+            with patch("services.notification_hub.notification_hub", mock_notification_hub):
+                mock_notification = MagicMock()
+                mock_create.return_value = mock_notification
+
+                # Should not raise exception, just log error
+                result = await get_compliance_alerts(auto_notify=True)
+
+                assert result["success"] is True
+                # Notification send failed but endpoint still succeeds
 
 
 @pytest.mark.asyncio
@@ -320,6 +381,7 @@ async def test_get_compliance_alerts_with_dict_alert():
 
 # Skipped - Method get_client_items doesn't exist on ProactiveComplianceMonitor
 # Coverage: Endpoint exists but method not implemented in service yet
+# Lines 341-342 cannot be tested until service method is implemented
 
 
 # ============================================================================
