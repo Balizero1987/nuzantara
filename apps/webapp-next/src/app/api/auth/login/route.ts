@@ -20,10 +20,12 @@ export async function POST(request: Request) {
       user: data.user,
       message: "Login successful",
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[AuthAPI] Production login error:", error)
-    const status = error.status || 500
-    const message = error.body?.detail || "Authentication service unavailable"
+    // Handle API client errors with status and body
+    const apiError = error as { status?: number; body?: { detail?: string } }
+    const status = apiError.status || 500
+    const message = apiError.body?.detail || "Authentication service unavailable"
     return NextResponse.json({ error: message }, { status })
   }
 }
