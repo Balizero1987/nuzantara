@@ -632,3 +632,156 @@ async def test_get_practices_stats_database_error(mock_db_connection, mock_setti
                 await get_practices_stats()
 
             assert exc_info.value.status_code == 500
+
+
+# ============================================================================
+# Additional Tests for 100% Coverage
+# ============================================================================
+
+
+@pytest.mark.asyncio
+async def test_get_db_connection_no_database_url():
+    """Test database connection fails when DATABASE_URL not set"""
+    from app.routers.crm_practices import get_db_connection
+
+    mock_settings_no_db = MagicMock()
+    mock_settings_no_db.database_url = None
+
+    with patch("app.routers.crm_practices.settings", mock_settings_no_db):
+        with pytest.raises(Exception, match="DATABASE_URL environment variable not set"):
+            get_db_connection()
+
+
+@pytest.mark.asyncio
+async def test_list_practices_with_all_filters(mock_db_connection, mock_settings, sample_practice_data):
+    """Test list practices with all optional filters provided"""
+    conn, cursor = mock_db_connection
+    cursor.fetchall.return_value = [sample_practice_data]
+
+    with patch("app.routers.crm_practices.settings", mock_settings):
+        with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
+            result = await list_practices(
+                client_id=1,
+                status="active",
+                assigned_to="john@example.com",
+                practice_type="kitas",
+                priority="high",
+                limit=10,
+                offset=0
+            )
+
+            assert len(result) == 1
+            # Verify all filters were applied in query
+            call_args = cursor.execute.call_args
+            query = call_args[0][0]
+            assert "client_id" in query
+            assert "status" in query
+            assert "assigned_to" in query
+            assert "pt.code" in query
+            assert "priority" in query
+
+
+@pytest.mark.asyncio
+async def test_list_practices_no_optional_filters(mock_db_connection, mock_settings, sample_practice_data):
+    """Test list practices with no optional filters (only required params)"""
+    conn, cursor = mock_db_connection
+    cursor.fetchall.return_value = [sample_practice_data]
+
+    with patch("app.routers.crm_practices.settings", mock_settings):
+        with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
+            result = await list_practices(
+                client_id=None,
+                status=None,
+                assigned_to=None,
+                practice_type=None,
+                priority=None,
+                limit=10,
+                offset=0
+            )
+
+            assert len(result) == 1
+            # Verify no optional filters in query
+            call_args = cursor.execute.call_args
+            query = call_args[0][0]
+            # Base query should not have WHERE clauses for optional filters
+            assert "ORDER BY" in query
+
+
+@pytest.mark.asyncio
+async def test_get_active_practices_without_assigned_to(mock_db_connection, mock_settings, sample_practice_data):
+    """Test get active practices without assigned_to filter"""
+    conn, cursor = mock_db_connection
+    cursor.fetchall.return_value = [sample_practice_data]
+
+    with patch("app.routers.crm_practices.settings", mock_settings):
+        with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
+            result = await get_active_practices(assigned_to=None)
+
+            assert len(result) == 1
+            # Verify assigned_to filter not in query
+            call_args = cursor.execute.call_args
+            query = call_args[0][0]
+            params = call_args[0][1]
+            # Should not have assigned_to parameter
+            assert len(params) == 0
+
+
+@pytest.mark.asyncio
+async def test_update_practice_with_none_values(mock_db_connection, mock_settings, sample_practice_data):
+    """Test update practice skips None values in update dict"""
+    conn, cursor = mock_db_connection
+
+    # Mock existing practice
+    cursor.fetchone.return_value = sample_practice_data
+
+    with patch("app.routers.crm_practices.settings", mock_settings):
+        with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
+            # Create update with some None values
+            updates = PracticeUpdate(
+                status="completed",
+                notes="Updated notes",
+                assigned_to=None,  # This should be skipped
+                priority=None,     # This should be skipped
+            )
+
+            result = await update_practice(practice_id=1, updates=updates)
+
+            # Verify update was called
+            update_call = [call for call in cursor.execute.call_args_list if "UPDATE practices" in str(call)]
+            assert len(update_call) > 0
+
+            # The None values should not be in the update
+            query = update_call[0][0][0]
+            assert "status" in query
+            assert "notes" in query
+
+
+@pytest.mark.asyncio
+async def test_list_practices_partial_filters(mock_db_connection, mock_settings, sample_practice_data):
+    """Test list practices with some filters provided, others None"""
+    conn, cursor = mock_db_connection
+    cursor.fetchall.return_value = [sample_practice_data]
+
+    with patch("app.routers.crm_practices.settings", mock_settings):
+        with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
+            # Test with only client_id and status
+            result = await list_practices(
+                client_id=1,
+                status="active",
+                assigned_to=None,
+                practice_type=None,
+                priority=None,
+                limit=10,
+                offset=0
+            )
+
+            assert len(result) == 1
+            call_args = cursor.execute.call_args
+            query = call_args[0][0]
+            params = call_args[0][1]
+
+            # Should have client_id and status in query
+            assert "client_id" in query
+            assert "status" in query
+            # Should have exactly 4 params: client_id, status, limit, offset
+            assert len(params) == 4

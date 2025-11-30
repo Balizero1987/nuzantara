@@ -8,10 +8,9 @@ import os
 import sys
 import subprocess
 import json
-import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
+
 
 class EnhancedSentinel:
     def __init__(self):
@@ -20,13 +19,13 @@ class EnhancedSentinel:
         self.results_dir.mkdir(exist_ok=True)
 
         # Colors for output
-        self.RED = '\033[0;31m'
-        self.GREEN = '\033[0;32m'
-        self.YELLOW = '\033[1;33m'
-        self.BLUE = '\033[0;34m'
-        self.PURPLE = '\033[0;35m'
-        self.CYAN = '\033[0;36m'
-        self.NC = '\033[0m'  # No Color
+        self.RED = "\033[0;31m"
+        self.GREEN = "\033[0;32m"
+        self.YELLOW = "\033[1;33m"
+        self.BLUE = "\033[0;34m"
+        self.PURPLE = "\033[0;35m"
+        self.CYAN = "\033[0;36m"
+        self.NC = "\033[0m"  # No Color
 
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.status = {
@@ -36,12 +35,13 @@ class EnhancedSentinel:
             "deep_analysis": "UNKNOWN",
             "critical_issues": 0,
             "warnings": 0,
-            "recommendations": []
+            "recommendations": [],
         }
 
     def banner(self):
         """Print enhanced sentinel banner"""
-        print(f"""
+        print(
+            f"""
 {self.CYAN}╔════════════════════════════════════════════╗
 ║     ENHANCED SENTINEL: ULTIMATE GUARDIAN     ║
 ║  Now with Deep Analysis & Security Scanning   ║
@@ -49,7 +49,8 @@ class EnhancedSentinel:
 {self.CYAN}Time:{self.NC} {self.timestamp}
 {self.CYAN}Root:{self.NC} {self.root}
 {self.CYAN}Mode:{self.NC} Full Stack + Deep Security Analysis
-        """)
+        """
+        )
 
     def run_original_sentinel(self):
         """Run the original sentinel checks"""
@@ -57,13 +58,14 @@ class EnhancedSentinel:
         print("-" * 50)
 
         try:
-            # Change to sentinel directory and run
+            # Run sentinel.py directly to avoid infinite recursion
+            sentinel_script = self.root / "apps" / "core" / "sentinel.py"
             os.chdir(self.root)
             result = subprocess.run(
-                ["./sentinel"],
+                ["python3", str(sentinel_script)],
                 capture_output=True,
                 text=True,
-                timeout=300
+                timeout=300,
             )
 
             if result.returncode == 0:
@@ -93,7 +95,7 @@ class EnhancedSentinel:
                     [str(script_path)],
                     capture_output=True,
                     text=True,
-                    timeout=600  # 10 minutes
+                    timeout=600,  # 10 minutes
                 )
 
                 # Parse results
@@ -104,7 +106,9 @@ class EnhancedSentinel:
                     print(f"{self.GREEN}✅ Deep analysis completed{self.NC}")
                 else:
                     self.status["deep_analysis"] = "PARTIAL"
-                    print(f"{self.YELLOW}⚠️ Deep analysis completed with warnings{self.NC}")
+                    print(
+                        f"{self.YELLOW}⚠️ Deep analysis completed with warnings{self.NC}"
+                    )
 
             else:
                 print(f"{self.RED}❌ Deep analysis script not found{self.NC}")
@@ -146,8 +150,12 @@ class EnhancedSentinel:
                         )
 
                     print(f"  {self.CYAN}Semgrep:{self.NC} {len(findings)} findings")
-                    print(f"    {self.RED}Critical: {self.status['critical_issues']}{self.NC}")
-                    print(f"    {self.YELLOW}Warnings: {self.status['warnings']}{self.NC}")
+                    print(
+                        f"    {self.RED}Critical: {self.status['critical_issues']}{self.NC}"
+                    )
+                    print(
+                        f"    {self.YELLOW}Warnings: {self.status['warnings']}{self.NC}"
+                    )
 
             except Exception as e:
                 print(f"  {self.RED}Error parsing Semgrep results: {e}{self.NC}")
@@ -164,7 +172,7 @@ class EnhancedSentinel:
                     ["python3", str(contract_script)],
                     capture_output=True,
                     text=True,
-                    timeout=180
+                    timeout=180,
                 )
 
                 if result.returncode == 0:
@@ -185,9 +193,17 @@ class EnhancedSentinel:
 
         # Overall status
         health_score = self.calculate_health_score()
-        health_color = self.GREEN if health_score >= 80 else self.YELLOW if health_score >= 60 else self.RED
+        health_color = (
+            self.GREEN
+            if health_score >= 80
+            else self.YELLOW
+            if health_score >= 60
+            else self.RED
+        )
 
-        print(f"{self.CYAN}System Health Score:{self.NC} {health_color}{health_score}/100{self.NC}")
+        print(
+            f"{self.CYAN}System Health Score:{self.NC} {health_color}{health_score}/100{self.NC}"
+        )
         print(f"{self.CYAN}Timestamp:{self.NC} {self.timestamp}")
 
         print(f"\n{self.BLUE}Component Status:{self.NC}")
@@ -209,7 +225,9 @@ class EnhancedSentinel:
 
         # Exit code based on critical issues
         if self.status["critical_issues"] > 0:
-            print(f"\n{self.RED}❌ CRITICAL ISSUES DETECTED - IMMEDIATE ACTION REQUIRED{self.NC}")
+            print(
+                f"\n{self.RED}❌ CRITICAL ISSUES DETECTED - IMMEDIATE ACTION REQUIRED{self.NC}"
+            )
             return 1
         elif health_score < 80:
             print(f"\n{self.YELLOW}⚠️ SYSTEM DEGRADATION DETECTED{self.NC}")
@@ -228,7 +246,7 @@ class EnhancedSentinel:
             "BREACH": f"{self.RED}❌ BREACH{self.NC}",
             "ERROR": f"{self.RED}❌ ERROR{self.NC}",
             "TIMEOUT": f"{self.RED}❌ TIMEOUT{self.NC}",
-            "UNKNOWN": f"{self.YELLOW}❓ UNKNOWN{self.NC}"
+            "UNKNOWN": f"{self.YELLOW}❓ UNKNOWN{self.NC}",
         }
         return status_colors.get(status, f"{self.YELLOW}{status}{self.NC}")
 
@@ -252,7 +270,10 @@ class EnhancedSentinel:
 
     def save_report(self):
         """Save detailed report to file"""
-        report_file = self.results_dir / f"sentinel-report-{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
+        report_file = (
+            self.results_dir
+            / f"sentinel-report-{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
+        )
 
         report_data = {
             "timestamp": self.timestamp,
@@ -260,16 +281,16 @@ class EnhancedSentinel:
             "status": self.status,
             "findings": {
                 "critical_issues": self.status["critical_issues"],
-                "warnings": self.status["warnings"]
+                "warnings": self.status["warnings"],
             },
             "components": {
                 "backend": self.status["backend"],
                 "contract": self.status["contract"],
-                "deep_analysis": self.status["deep_analysis"]
-            }
+                "deep_analysis": self.status["deep_analysis"],
+            },
         }
 
-        with open(report_file, 'w') as f:
+        with open(report_file, "w") as f:
             json.dump(report_data, f, indent=2)
 
         print(f"\n{self.CYAN}📁 Report saved: {report_file}{self.NC}")

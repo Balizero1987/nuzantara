@@ -928,8 +928,6 @@ async def hybrid_oracle_query(
 
             except Exception as e:
                 logger.error(f"❌ JAKSEL EXCEPTION: {e}")
-                import traceback
-
                 logger.error(f"❌ JAKSEL TRACEBACK: {traceback.format_exc()}")
                 # Keep original answer if Jaksel call fails
 
@@ -975,6 +973,12 @@ async def hybrid_oracle_query(
         asyncio.create_task(db_manager.store_query_analytics(analytics_data))
 
         # 8. Build response
+        # Convert database user_profile to Pydantic model (map 'id' to 'user_id')
+        user_profile_model = None
+        if user_profile:
+            profile_dict = {**user_profile, "user_id": user_profile.get("id")}
+            user_profile_model = UserProfile(**profile_dict)
+
         response = OracleQueryResponse(
             success=True,
             query=request.query,
@@ -987,7 +991,7 @@ async def hybrid_oracle_query(
             collection_used=collection_used,
             routing_reason=f"Routed to {collection_used} based on intelligent keyword analysis",
             domain_confidence=routing_stats.get("domain_scores", {}),
-            user_profile=UserProfile(**user_profile) if user_profile else None,
+            user_profile=user_profile_model,
             language_detected=target_language,
             execution_time_ms=execution_time,
             search_time_ms=search_time,
@@ -1022,6 +1026,12 @@ async def hybrid_oracle_query(
 
         asyncio.create_task(db_manager.store_query_analytics(error_analytics))
 
+        # Convert database user_profile to Pydantic model (map 'id' to 'user_id')
+        error_user_profile_model = None
+        if user_profile:
+            profile_dict = {**user_profile, "user_id": user_profile.get("id")}
+            error_user_profile_model = UserProfile(**profile_dict)
+
         return OracleQueryResponse(
             success=False,
             query=request.query,
@@ -1034,7 +1044,7 @@ async def hybrid_oracle_query(
             collection_used="error",
             routing_reason=None,
             domain_confidence=None,
-            user_profile=UserProfile(**user_profile) if user_profile else None,
+            user_profile=error_user_profile_model,
             language_detected=target_language if "target_language" in locals() else "en",
             execution_time_ms=execution_time,
             search_time_ms=search_time,

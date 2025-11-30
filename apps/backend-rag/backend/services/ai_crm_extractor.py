@@ -74,7 +74,9 @@ class AICRMExtractor:
 
         existing_data_str = "NO EXISTING CLIENT DATA"
         if existing_client_data:
-            existing_data_str = "EXISTING CLIENT DATA:\\n" + json.dumps(existing_client_data, indent=2)
+            existing_data_str = "EXISTING CLIENT DATA:\\n" + json.dumps(
+                existing_client_data, indent=2
+            )
 
         # Extraction prompt
         extraction_prompt = f"""You are an AI assistant analyzing a customer service conversation for Bali Zero, a company providing immigration, visa, company setup, and tax services in Bali, Indonesia.
@@ -136,11 +138,10 @@ RULES:
 
         try:
             # Use ZANTARA AI for extraction
-            content = await self.client.generate_text(
-                prompt=extraction_prompt,
-                max_tokens=1500,
-                temperature=0.1,  # Low temperature for consistent extraction
+            response = await self.client.conversational(
+                message=extraction_prompt, user_id="system_crm_extractor", max_tokens=1000
             )
+            content = response["text"]
             content = content.strip()
 
             # Remove markdown code blocks if present

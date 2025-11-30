@@ -4,12 +4,13 @@ Supports both OpenAI and Sentence Transformers
 """
 
 import logging
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 # Import settings - try both absolute paths
 try:
-    from app.config import settings
+    from app.config import settings as _default_settings
 except ImportError:
     try:
         import sys
@@ -17,19 +18,22 @@ except ImportError:
 
         # Add parent dir to path for imports
         sys.path.insert(0, str(Path(__file__).parent.parent))
-        from app.config import settings
+        from app.config import settings as _default_settings
     except ImportError:
         # Fallback if config not available
-        settings = None
+        _default_settings = None
 
 
 class EmbeddingsGenerator:
     """
     Generate embeddings using configured provider (OpenAI or Sentence Transformers).
     Automatically chooses provider based on settings.
+    
+    Singleton pattern: Only initializes once per process.
+    For testing, use reset_instance() to reset the singleton.
     """
 
-    _instance = None
+    _instance: Optional["EmbeddingsGenerator"] = None
 
     def __new__(cls, *_args, **_kwargs):
         if cls._instance is None:
@@ -37,7 +41,13 @@ class EmbeddingsGenerator:
             cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self, api_key: str = None, model: str = None, provider: str = None):
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        model: Optional[str] = None,
+        provider: Optional[str] = None,
+        settings: Optional[object] = None,
+    ):
         """
         Initialize embeddings generator.
         Automatically chooses provider based on settings.
@@ -47,18 +57,20 @@ class EmbeddingsGenerator:
             api_key: OpenAI API key (only needed if using OpenAI provider)
             model: Embedding model name (default from settings)
             provider: "openai" or "sentence-transformers" (default from settings)
+            settings: Optional settings object (for testing). If None, uses module-level settings.
         """
         # Singleton check
         if getattr(self, "_initialized", False):
             return
 
         self._initialized = True
+        self._settings = settings if settings is not None else _default_settings
 
         # Determine provider from settings or parameter
         if provider:
             self.provider = provider
-        elif settings:
-            self.provider = settings.embedding_provider
+        elif self._settings:
+            self.provider = getattr(self._settings, "embedding_provider", "sentence-transformers")
         else:
             # Default to sentence-transformers for local deployment
             self.provider = "sentence-transformers"
@@ -70,14 +82,18 @@ class EmbeddingsGenerator:
             # Default to sentence-transformers (local, no API key needed)
             self._init_sentence_transformers(model)
 
-    def _init_openai(self, api_key: str = None, model: str = None):
+    def _init_openai(self, api_key: Optional[str] = None, model: Optional[str] = None):
         """Initialize OpenAI embeddings provider"""
         from openai import OpenAI
 
         self.provider = "openai"  # Ensure provider is set to openai
-        self.model = model or (settings.embedding_model if settings else "text-embedding-3-small")
+        self.model = model or (
+            getattr(self._settings, "embedding_model", None) if self._settings else None
+        ) or "text-embedding-3-small"
         self.dimensions = 1536  # OpenAI text-embedding-3-small is always 1536
-        self.api_key = api_key or (settings.openai_api_key if settings else None)
+        self.api_key = api_key or (
+            getattr(self._settings, "openai_api_key", None) if self._settings else None
+        )
 
         if not self.api_key:
             raise ValueError("OpenAI API key is required for OpenAI provider")
@@ -87,11 +103,11 @@ class EmbeddingsGenerator:
             f"🔌 [EmbeddingsGenerator] Initialized with OpenAI: {self.model} ({self.dimensions} dims)"
         )
 
-    def _init_sentence_transformers(self, model: str = None):
+    def _init_sentence_transformers(self, model: Optional[str] = None):
         """Initialize Sentence Transformers local embeddings provider"""
         self.model = model or (
-            settings.embedding_model if settings else "sentence-transformers/all-MiniLM-L6-v2"
-        )
+            getattr(self._settings, "embedding_model", None) if self._settings else None
+        ) or "sentence-transformers/all-MiniLM-L6-v2"
 
         logger.info(
             f"🔌 [EmbeddingsGenerator] Attempting to load Sentence Transformers: {self.model}"
@@ -214,6 +230,20 @@ class EmbeddingsGenerator:
         # For text-embedding-3-small, same process as document embedding
         return self.generate_single_embedding(query)
 
+    def generate_batch_embeddings(self, texts: list[str]) -> list[list[float]]:
+        """
+        Generate embeddings for a batch of texts.
+        
+        Alias for generate_embeddings() for backward compatibility.
+
+        Args:
+            texts: List of text strings to embed
+
+        Returns:
+            List of embedding vectors (each vector is a list of floats)
+        """
+        return self.generate_embeddings(texts)
+
     def get_model_info(self) -> dict:
         """
         Get information about the embedding model.
@@ -229,9 +259,19 @@ class EmbeddingsGenerator:
             "cost": cost_info,
         }
 
+    @classmethod
+    def reset_instance(cls):
+        """
+        Reset the singleton instance.
+        
+        WARNING: This method is primarily for testing purposes.
+        Resetting the singleton in production code can cause unexpected behavior.
+        """
+        cls._instance = None
+
 
 # Convenience function
-def generate_embeddings(texts: list[str], api_key: str = None) -> list[list[float]]:
+def generate_embeddings(texts: list[str], api_key: Optional[str] = None) -> list[list[float]]:
     """
     Quick function to generate embeddings without instantiating class.
 

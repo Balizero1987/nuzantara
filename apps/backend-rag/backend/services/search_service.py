@@ -52,13 +52,16 @@ class SearchService:
         # FIX 2025-11-20: Migrated to Qdrant with OpenAI 1536-dim embeddings
         logger.info("✅ Using Qdrant with OpenAI 1536-dim embeddings")
 
-        # Initialize collections pointing to Qdrant (25,415 docs total)
+        # Initialize collections pointing to Qdrant (25,437 docs total)
         # Map old Qdrant collection names to Qdrant collections
-        logger.info("🔄 Initializing 16 Qdrant collection clients...")
+        logger.info("🔄 Initializing 17 Qdrant collection clients...")
         self.collections = {
             "bali_zero_pricing": QdrantClient(
                 qdrant_url=qdrant_url, collection_name="bali_zero_pricing"
             ),  # 29 docs
+            "bali_zero_team": QdrantClient(
+                qdrant_url=qdrant_url, collection_name="bali_zero_team"
+            ),  # 22 docs (team member profiles)
             # PRODUCTION COLLECTIONS: All migrated with 1536-dim OpenAI embeddings
             "visa_oracle": QdrantClient(
                 qdrant_url=qdrant_url, collection_name="visa_oracle"
@@ -255,31 +258,10 @@ class SearchService:
                 if collection_name == "bali_zero_pricing":
                     metadata = {**metadata, "pricing_priority": "high"}
 
-                # Phase 3: Redact prices to prevent hallucinations
-                import re
-
-                def redact_prices(text: str) -> str:
-                    patterns = [
-                        r"IDR\s*[\d,.]+",
-                        r"Rp\.?\s*[\d,.]+",
-                        r"USD\s*[\d,.]+",
-                        r"\$\s*[\d,.]+",
-                        r"[\d,.]+\s*IDR",  # NEW: Matches "7.500.000 IDR"
-                        r"[\d,.]+\s*USD",  # NEW: Matches "500 USD"
-                        r"[\d,.]+\s*(million|billion|juta|miliar)\s*(IDR|USD|Rp)?",
-                        r"price\s*[:=]\s*[\d,.]+",
-                        r"cost\s*[:=]\s*[\d,.]+",
-                    ]
-                    for pattern in patterns:
-                        text = re.sub(
-                            pattern, "[PRICE REDACTED - CONTACT SALES]", text, flags=re.IGNORECASE
-                        )
-                    return text
-
+                # Get document content (NO PRICE REDACTION - users need pricing info!)
                 doc_content = (
                     raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else ""
                 )
-                doc_content = redact_prices(doc_content)
 
                 formatted_results.append(
                     {
@@ -572,6 +554,9 @@ class SearchService:
                         score = min(1.0, score * 1.1)
                     # Boost pricing collection
                     if collection_name == "bali_zero_pricing":
+                        score = min(1.0, score + 0.15)
+                    # Boost team collection
+                    if collection_name == "bali_zero_team":
                         score = min(1.0, score + 0.15)
 
                     metadata = (

@@ -14,8 +14,11 @@ import json
 import logging
 from collections.abc import AsyncIterator
 
+import asyncio
 import asyncpg
 import httpx
+import time
+from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -68,6 +71,8 @@ from app.routers import (
     oracle_universal,
     productivity,
     team_activity,
+    whatsapp,
+    instagram,
 )
 from services.auto_crm_service import get_auto_crm_service
 
@@ -204,6 +209,8 @@ def include_routers(api: FastAPI) -> None:
     api.include_router(oracle_ingest.router)
     api.include_router(oracle_universal.router)
     api.include_router(productivity.router)
+    api.include_router(whatsapp.router)
+    api.include_router(instagram.router)
     # Identity module (Prime Standard - team login)
     api.include_router(identity_router, prefix="/api/auth")
     # Knowledge module (Prime Standard - replaces old search router)

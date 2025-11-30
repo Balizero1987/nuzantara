@@ -94,7 +94,7 @@ def sample_query_request():
 class TestConfiguration:
     """Test Configuration class"""
 
-    @patch("app.routers.oracle_universal.settings")
+    @patch("app.core.config.settings")
     def test_configuration_valid_environment(self, mock_settings_module):
         """Test configuration with valid environment variables"""
         from app.routers.oracle_universal import Configuration
@@ -108,7 +108,7 @@ class TestConfiguration:
         assert config.database_url == "postgresql://test:test@localhost/db"
         assert config.google_api_key == "test_key"
 
-    @patch("app.routers.oracle_universal.settings")
+    @patch("app.core.config.settings")
     def test_configuration_missing_vars_warning(self, mock_settings_module, caplog):
         """Test configuration with missing environment variables"""
         from app.routers.oracle_universal import Configuration
@@ -122,7 +122,7 @@ class TestConfiguration:
         assert "Missing environment variables" in caplog.text
         assert config.database_url == "postgresql://user:pass@localhost/db"
 
-    @patch("app.routers.oracle_universal.settings")
+    @patch("app.core.config.settings")
     def test_configuration_openai_key_warning(self, mock_settings_module, caplog):
         """Test warning when OPENAI_API_KEY not set"""
         from app.routers.oracle_universal import Configuration
@@ -612,8 +612,11 @@ class TestUtilityFunctions:
 
         prompt = build_user_context_prompt(user_profile, override_language="en")
 
-        assert "English" in prompt
-        assert "Bahasa Indonesia" not in prompt
+        # Should respond in English (override)
+        assert "ANSWER ONLY in English" in prompt
+        assert "Language: English (Mandatory" in prompt
+        # Should still mention source documents are in Bahasa Indonesia
+        assert "documents are in Bahasa Indonesia" in prompt
 
     def test_build_user_context_prompt_without_profile(self):
         """Test building user context prompt without profile"""
@@ -1281,7 +1284,11 @@ class TestAPIEndpoints:
     @pytest.mark.asyncio
     async def test_startup_event(self, caplog):
         """Test startup event handler"""
+        import logging
+
         from app.routers.oracle_universal import startup_event
+
+        caplog.set_level(logging.INFO)
 
         with patch("app.routers.oracle_universal.google_services") as mock_google:
             mock_google.gemini_available = True
@@ -1295,7 +1302,11 @@ class TestAPIEndpoints:
     @pytest.mark.asyncio
     async def test_startup_event_warnings(self, caplog):
         """Test startup event with service warnings"""
+        import logging
+
         from app.routers.oracle_universal import startup_event
+
+        caplog.set_level(logging.INFO)
 
         with patch("app.routers.oracle_universal.google_services") as mock_google:
             mock_google.gemini_available = False
@@ -1309,7 +1320,11 @@ class TestAPIEndpoints:
     @pytest.mark.asyncio
     async def test_shutdown_event(self, caplog):
         """Test shutdown event handler"""
+        import logging
+
         from app.routers.oracle_universal import shutdown_event
+
+        caplog.set_level(logging.INFO)
 
         await shutdown_event()
 

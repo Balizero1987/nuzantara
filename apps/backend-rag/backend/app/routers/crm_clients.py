@@ -293,8 +293,17 @@ async def update_client(
 
         # Build update query with field validation
         allowed_fields = {
-            "name", "email", "phone", "company", "status", "value",
-            "source", "assigned_to", "notes", "tags", "custom_fields"
+            "name",
+            "email",
+            "phone",
+            "company",
+            "status",
+            "value",
+            "source",
+            "assigned_to",
+            "notes",
+            "tags",
+            "custom_fields",
         }
 
         update_fields = []
@@ -303,10 +312,7 @@ async def update_client(
         for field, value in updates.dict(exclude_unset=True).items():
             # Validate field name to prevent SQL injection
             if field not in allowed_fields:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Invalid field name: {field}"
-                )
+                raise HTTPException(status_code=400, detail=f"Invalid field name: {field}")
 
             if value is not None:
                 if field in ["tags", "custom_fields"]:

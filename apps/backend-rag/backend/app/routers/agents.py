@@ -252,15 +252,23 @@ async def get_compliance_alerts(
         severity: Filter by severity
         auto_notify: Automatically send notifications for alerts
     """
-    alerts = compliance_monitor.generate_alerts()
+    alerts = compliance_monitor.check_compliance_items()
 
     # Filter by client if specified
     if client_id:
-        alerts = [a for a in alerts if a.client_id == client_id]
+        alerts = [
+            a for a in alerts
+            if (hasattr(a, 'client_id') and a.client_id == client_id)
+            or (isinstance(a, dict) and a.get('client_id') == client_id)
+        ]
 
     # Filter by severity if specified
     if severity:
-        alerts = [a for a in alerts if a.severity.value == severity]
+        alerts = [
+            a for a in alerts
+            if (hasattr(a, 'severity') and a.severity.value == severity)
+            or (isinstance(a, dict) and a.get('severity') == severity)
+        ]
 
     # Auto-notify if requested
     notifications_sent = []
@@ -268,33 +276,44 @@ async def get_compliance_alerts(
         from services.notification_hub import create_notification_from_template, notification_hub
 
         for alert in alerts:
+            # Get days_until from alert (dict or object)
+            days_until = (
+                alert.days_until_deadline if hasattr(alert, 'days_until_deadline')
+                else alert.get('days_until', 0) if isinstance(alert, dict) else 0
+            )
+            
             # Determine template based on days until deadline
-            if alert.days_until_deadline <= 7:
+            if days_until <= 7:
                 template_id = "compliance_7_days"
-            elif alert.days_until_deadline <= 30:
+            elif days_until <= 30:
                 template_id = "compliance_30_days"
             else:
                 template_id = "compliance_60_days"
 
             try:
+                # Get alert fields (dict or object)
+                alert_client_id = alert.client_id if hasattr(alert, 'client_id') else alert.get('client_id', '')
+                alert_title = alert.title if hasattr(alert, 'title') else alert.get('title', '')
+                alert_deadline = alert.deadline if hasattr(alert, 'deadline') else alert.get('deadline', '')
+                alert_estimated_cost = alert.estimated_cost if hasattr(alert, 'estimated_cost') else alert.get('estimated_cost')
+                
                 # Create and send notification
                 notification = create_notification_from_template(
                     template_id=template_id,
-                    recipient_id=alert.client_id,
+                    recipient_id=alert_client_id,
                     template_data={
-                        "client_name": alert.client_id,
-                        "item_title": alert.title,
-                        "deadline": alert.deadline,
-                        "cost": f"IDR {alert.estimated_cost:,.0f}"
-                        if alert.estimated_cost
-                        else "TBD",
+                        "client_name": alert_client_id,
+                        "item_title": alert_title,
+                        "deadline": alert_deadline.isoformat() if hasattr(alert_deadline, 'isoformat') else str(alert_deadline),
+                        "cost": f"IDR {alert_estimated_cost:,.0f}" if alert_estimated_cost else "TBD",
                     },
                 )
 
                 result = await notification_hub.send(notification)
+                alert_id = alert.alert_id if hasattr(alert, 'alert_id') else alert.get('alert_id', '')
                 notifications_sent.append(
                     {
-                        "alert_id": alert.alert_id,
+                        "alert_id": alert_id,
                         "notification_id": result["notification_id"],
                         "status": result["status"],
                     }
@@ -304,13 +323,13 @@ async def get_compliance_alerts(
 
     return {
         "success": True,
-        "alerts": [alert.__dict__ for alert in alerts],
+        "alerts": [alert.__dict__ if hasattr(alert, '__dict__') else alert for alert in alerts],
         "count": len(alerts),
         "breakdown": {
-            "critical": len([a for a in alerts if a.severity == AlertSeverity.CRITICAL]),
-            "urgent": len([a for a in alerts if a.severity == AlertSeverity.URGENT]),
-            "warning": len([a for a in alerts if a.severity == AlertSeverity.WARNING]),
-            "info": len([a for a in alerts if a.severity == AlertSeverity.INFO]),
+            "critical": len([a for a in alerts if (hasattr(a, 'severity') and a.severity == AlertSeverity.CRITICAL) or (isinstance(a, dict) and a.get('severity') == AlertSeverity.CRITICAL.value)]),
+            "urgent": len([a for a in alerts if (hasattr(a, 'severity') and a.severity == AlertSeverity.URGENT) or (isinstance(a, dict) and a.get('severity') == AlertSeverity.URGENT.value)]),
+            "warning": len([a for a in alerts if (hasattr(a, 'severity') and a.severity == AlertSeverity.WARNING) or (isinstance(a, dict) and a.get('severity') == AlertSeverity.WARNING.value)]),
+            "info": len([a for a in alerts if (hasattr(a, 'severity') and a.severity == AlertSeverity.INFO) or (isinstance(a, dict) and a.get('severity') == AlertSeverity.INFO.value)]),
         },
         "notifications_sent": notifications_sent if auto_notify else None,
     }

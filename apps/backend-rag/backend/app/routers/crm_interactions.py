@@ -404,7 +404,8 @@ async def get_interactions_stats(
             {where_clause}
             AND interaction_date >= NOW() - INTERVAL '7 days'
         """
-        cursor.execute(recent_query,
+        cursor.execute(
+            recent_query,
             params,
         )
         recent_count = cursor.fetchone()["count"]

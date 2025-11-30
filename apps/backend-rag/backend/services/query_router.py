@@ -193,6 +193,7 @@ class QueryRouter:
         "consulting",
         "accounting",
         "founder",
+        "fondatore",
         "ceo",
         "director",
         "manager",

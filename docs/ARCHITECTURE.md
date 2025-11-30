@@ -60,21 +60,19 @@ graph TD
 ## 5. Jaksel AI System Architecture
 
 ### Overview
-Jaksel AI is a custom Gemma 9B model fine-tuned with Jakarta Selatan personality, providing casual and friendly responses with Indonesian slang. The system includes automatic translation capabilities for Italian queries.
+Jaksel AI is a custom personality module for the Zantara AI system that provides casual, friendly responses using Jakarta Selatan (Jaksel) slang. It is designed to be model-agnostic, currently utilizing a robust fallback mechanism to ensure availability.
 
 ### Core Components
 
-#### 5.1 SimpleJakselCallerTranslation
-**Location**: `apps/backend-rag/backend/app/routers/simple_jaksel_caller_translation.py`
+#### 5.1 SimpleJakselCallerHF
+**Location**: `apps/backend-rag/backend/app/routers/simple_jaksel_caller.py`
 
 **Features**:
-- **Multi-level Fallback System**:
-  1. **Primary**: Hugging Face Inference API (`api-inference.huggingface.co`)
-  2. **Fallback 1**: Hugging Face Spaces (`zeroai87-jaksel-ai.hf.space`)
-  3. **Fallback 2**: Ollama via Tunnel (`jaksel-ollama.nuzantara.com`)
-  4. **Fallback 3**: Local Ollama (`127.0.0.1:11434`)
-
-- **Translation Layer**: Automatic Indonesian → Italian translation for Italian queries
+- **Routing Logic**:
+  1.  **Primary**: Hugging Face Inference API (Currently disabled due to model format mismatch).
+  2.  **Ultimate Fallback**: **Gemini 2.5** with style-transfer system prompt.
+- **Style Transfer**: Converts professional AI responses into Jaksel slang (e.g., "jujurly", "basically", "lo/gue").
+- **No-Info Handling**: Translates standard "I don't know" responses into character-appropriate apologies.
 - **User Mapping**: Only authorized users get Jaksel responses:
   ```python
   jaksel_users = {
@@ -85,29 +83,27 @@ Jaksel AI is a custom Gemma 9B model fine-tuned with Jakarta Selatan personality
   ```
 
 #### 5.2 Integration Points
-- **Called From**: `oracle_universal.py` when user is in jaksel_users mapping
-- **API Endpoint**: `/api/oracle/universal-chat` in backend-rag
+- **Called From**: `IntelligentRouter` (`stream_chat` and `route_chat`) when user is in `jaksel_users`.
+- **Mechanism**: Post-processing of the standard AI response.
 - **Response Format**:
   ```json
   {
     "success": true,
-    "response": "Jaksel-style response (translated if needed)",
-    "model_used": "huggingface-jaksel-ai",
-    "connected_via": "huggingface-inference-api",
-    "translated": true
+    "response": "Halo bro! Basically ini jawabannya...",
+    "metadata": {
+      "model_used": "gemini-2.5-flash",
+      "style_applied": true,
+      "fallback_active": true
+    }
   }
   ```
 
-#### 5.3 Language Support
-- **Native**: Bahasa Indonesia with Jakarta Selatan slang
-- **Translated**: Automatic translation to Italian for Italian queries
-- **Preserved**: Jaksel personality maintained in all languages
-
 ### Deployment Details
-- **Hugging Face Model**: `zeroai87/jaksel-ai` (Gemma 9B fine-tuned)
-- **Production Status**: ✅ Deployed and active on Fly.io
-- **Health Monitoring**: Logs track success/failure rates and response times
-- **Error Handling**: Graceful fallback to professional responses if all endpoints fail
+- **Current Status**: **Active via Production Endpoint**.
+- **Primary Endpoint**: `https://jaksel.balizero.com` (Oracle Cloud VM + Ollama).
+- **Model**: `zantara:latest` (Gemma 9B Fine-tuned).
+- **Fallback**: Gemini 2.5 Flash.
+- **Health Monitoring**: Logs track success/failure rates and fallback activation.
 
 ---
 

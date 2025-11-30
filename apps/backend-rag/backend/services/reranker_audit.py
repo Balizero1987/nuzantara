@@ -41,7 +41,10 @@ class RerankerAuditService:
             log_file: Path to audit log file (default: ./data/reranker_audit.jsonl)
         """
         self.enabled = enabled
-        self.log_file = log_file or Path(__file__).parent.parent / "data" / "reranker_audit.jsonl"
+        if log_file:
+            self.log_file = Path(log_file) if isinstance(log_file, str) else log_file
+        else:
+            self.log_file = Path(__file__).parent.parent / "data" / "reranker_audit.jsonl"
         self._lock = threading.Lock()
         self._ensure_data_dir()
 

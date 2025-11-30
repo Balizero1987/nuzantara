@@ -26,6 +26,8 @@ import asyncio
 import logging
 from typing import Any
 
+from app.routers.simple_jaksel_caller import SimpleJakselCallerHF
+
 # Import modular components
 from .classification import IntentClassifier
 from .context import ContextBuilder, RAGManager
@@ -89,6 +91,9 @@ class IntelligentRouter:
         self.response_handler = ResponseHandler()
         # ToolManager removed - using tool_executor directly
         self.tool_executor = tool_executor
+
+        # Initialize Jaksel Caller
+        self.jaksel_caller = SimpleJakselCallerHF()
 
         logger.info("🎯 [IntelligentRouter] Initialized (ZANTARA AI, MODULAR)")
         logger.info(f"   Classification: {'✅' if True else '❌'} (Pattern Matching)")
@@ -162,7 +167,7 @@ class IntelligentRouter:
                 if tools_to_use:
                     logger.info(f"🔧 [Router] Using {len(tools_to_use)} tools from BACKEND")
             else:
-                logger.info(f"🔧 [Router] Using {len(tools_to_use)} tools from FRONTEND")
+                logger.info(f"🔧 [Router] Using {len(tools_to_use or [])} tools from FRONTEND")
 
             # STEP 2: Classify query type for RAG and sanitization
             query_type = self.response_handler.classify_query(message)
@@ -252,6 +257,21 @@ class IntelligentRouter:
             sanitized_response = self.response_handler.sanitize_response(
                 result["text"], query_type, apply_santai=True, add_contact=True
             )
+
+            # STEP 13: Jaksel Style Transfer (if applicable)
+            if user_id in self.jaksel_caller.jaksel_users:
+                logger.info(f"🦎 [Router] Applying Jaksel style for user {user_id}")
+                jaksel_result = await self.jaksel_caller.call_jaksel_direct(
+                    query=message,
+                    user_email=user_id,
+                    gemini_answer=sanitized_response,
+                    ai_client=self.ai,
+                )
+                if jaksel_result.get("success"):
+                    sanitized_response = jaksel_result.get("response", sanitized_response)
+                    logger.info("✅ [Router] Jaksel style applied successfully")
+                else:
+                    logger.warning(f"⚠️ [Router] Jaksel style failed: {jaksel_result.get('error')}")
 
             return {
                 "response": sanitized_response,
@@ -387,12 +407,18 @@ class IntelligentRouter:
             # STEP 9: Stream from ZANTARA AI
             logger.info("🎯 [Router Stream] Using ZANTARA AI with REAL token-by-token streaming")
 
+            # Initialize buffer for Jaksel users
+            full_response_buffer = ""
+
             # Yield metadata first (custom format for frontend)
             # Format: [METADATA]json_string[METADATA]
             metadata = {
                 "memory_used": bool(memory and (memory.get("facts") or memory.get("summary"))),
+                "used_rag": rag_result.get("used_rag", False) if rag_result else False,
                 "rag_sources": [
-                    doc.metadata.get("source", "Unknown") for doc in rag_result.get("docs", [])
+                    doc.get("metadata", {}).get("source")
+                    or doc.get("metadata", {}).get("source_collection", "Unknown")
+                    for doc in rag_result.get("docs", [])
                 ]
                 if rag_result
                 else [],
@@ -410,7 +436,46 @@ class IntelligentRouter:
                 memory_context=combined_context,
                 max_tokens=max_tokens_to_use,
             ):
-                yield chunk
+                # DEBUG: Check Jaksel user
+                logger.info(
+                    f"DEBUG: Checking user {user_id} against {list(self.jaksel_caller.jaksel_users.keys())}"
+                )
+
+                # Check if user is Jaksel - if so, buffer response for style transfer
+                if user_id in self.jaksel_caller.jaksel_users:
+                    full_response_buffer += chunk
+                else:
+                    yield chunk
+
+            # If Jaksel user, process the buffered response and yield the styled result
+            if user_id in self.jaksel_caller.jaksel_users and full_response_buffer:
+                logger.info(
+                    f"🦎 [Router Stream] Buffering complete for Jaksel user {user_id}. Applying style..."
+                )
+
+                # Sanitize first (standard procedure)
+                sanitized_buffer = self.response_handler.sanitize_response(
+                    full_response_buffer, query_type, apply_santai=True, add_contact=True
+                )
+
+                # Call Jaksel
+                jaksel_result = await self.jaksel_caller.call_jaksel_direct(
+                    query=message,
+                    user_email=user_id,
+                    gemini_answer=sanitized_buffer,
+                    ai_client=self.ai,
+                )
+
+                final_response = sanitized_buffer
+                if jaksel_result.get("success"):
+                    final_response = jaksel_result.get("response", sanitized_buffer)
+                    logger.info("✅ [Router Stream] Jaksel style applied successfully")
+
+                # Yield the styled response (simulating stream or chunks)
+                # We yield words to make it feel like a stream, though it's delayed
+                for word in final_response.split(" "):
+                    yield word + " "
+                    await asyncio.sleep(0.05)  # Slight delay for natural feel
 
             logger.info(f"✅ [Router Stream] Stream completed for user {user_id}")
 

@@ -223,13 +223,14 @@ class MemoryServicePostgres:
         logger.debug(f"💾 Memory saved to cache only for {memory.user_id}")
         return True
 
-    async def add_fact(self, user_id: str, fact: str) -> bool:
+    async def add_fact(self, user_id: str, fact: str, fact_type: str = "profile_fact") -> bool:
         """
         Add a profile fact (auto-deduplicated, max 10).
 
         Args:
             user_id: User/collaborator ID
             fact: New fact to add
+            fact_type: Type of fact (default: "profile_fact")
 
         Returns:
             True if added successfully
@@ -258,7 +259,7 @@ class MemoryServicePostgres:
                         """,
                         user_id,
                         fact,
-                        "profile_fact",
+                        fact_type,
                         1.0,
                         "system",
                         datetime.now(),
@@ -334,7 +335,7 @@ class MemoryServicePostgres:
             )
         return success
 
-    async def save_fact(self, user_id: str, content: str, _fact_type: str = "general") -> bool:
+    async def save_fact(self, user_id: str, content: str, fact_type: str = "general") -> bool:
         """
         Save a fact to memory_facts table (alias for add_fact).
 
@@ -346,7 +347,7 @@ class MemoryServicePostgres:
         Returns:
             True if saved successfully
         """
-        return await self.add_fact(user_id, content)
+        return await self.add_fact(user_id, content, fact_type=fact_type)
 
     async def retrieve(self, user_id: str, category: str | None = None) -> dict[str, Any]:
         """

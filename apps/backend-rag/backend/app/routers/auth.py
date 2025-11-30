@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import bcrypt
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel, EmailStr
@@ -146,45 +146,80 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 
 
 @router.post("/login", response_model=LoginResponse)
-async def login(request: LoginRequest):
+async def login(request: LoginRequest, req: Request = None):
     """
     User login with email and PIN
-
+    
     Returns JWT token and user profile on successful authentication
     """
+    from services.audit_service import get_audit_service
+    audit_service = get_audit_service()
+    if not audit_service.pool:
+        await audit_service.connect()
+
+    client_ip = req.client.host if req else None
+    user_agent = req.headers.get("user-agent") if req else None
+
     conn = await get_db_connection()
     try:
         # Real database authentication using team_members
         query = """
-            SELECT id, email, full_name as name, pin_hash as password_hash, role, 'active' as status, permissions as metadata, language as language_preference
+            SELECT id, email, full_name as name, pin_hash as password_hash, role, 'active' as status, permissions as metadata, language as language_preference, active
             FROM team_members
-            WHERE email = $1 AND active = true
+            WHERE email = $1
         """
         user = await conn.fetchrow(query, request.email)
 
         if not user:
+            await audit_service.log_auth_event(
+                email=request.email,
+                action="failed_login",
+                success=False,
+                ip_address=client_ip,
+                user_agent=user_agent,
+                failure_reason="User not found"
+            )
             raise HTTPException(status_code=401, detail="Invalid email or PIN")
+
+        if not user['active']:
+             await audit_service.log_auth_event(
+                email=request.email,
+                action="failed_login",
+                success=False,
+                ip_address=client_ip,
+                user_agent=user_agent,
+                failure_reason="Account inactive"
+            )
+             raise HTTPException(status_code=401, detail="Account inactive")
 
         # Verify PIN
         if not verify_password(request.password, user["password_hash"]):
+            await audit_service.log_auth_event(
+                email=request.email,
+                action="failed_login",
+                success=False,
+                ip_address=client_ip,
+                user_agent=user_agent,
+                failure_reason="Invalid PIN"
+            )
             raise HTTPException(status_code=401, detail="Invalid email or PIN")
 
-        # Update last login (TODO: add last_login column to users table)
-        # await conn.execute(
-        #     "UPDATE users SET last_login = NOW() WHERE id = $1",
-        #     user['id']
-        # )
+        # Update last login
+        await conn.execute(
+            "UPDATE team_members SET last_login = NOW(), failed_attempts = 0 WHERE id = $1",
+            user['id']
+        )
 
         # Create JWT token
         access_token_expires = timedelta(hours=JWT_ACCESS_TOKEN_EXPIRE_HOURS)
         access_token = create_access_token(
-            data={"sub": user["id"], "email": user["email"], "role": user["role"]},
+            data={"sub": str(user["id"]), "email": user["email"], "role": user["role"]},
             expires_delta=access_token_expires,
         )
 
         # Prepare user profile
         user_profile = {
-            "id": user["id"],
+            "id": str(user["id"]),
             "email": user["email"],
             "name": user["name"],
             "role": user["role"],
@@ -193,22 +228,26 @@ async def login(request: LoginRequest):
             "language_preference": user.get("language_preference", "en"),
         }
 
+        # Log success
+        await audit_service.log_auth_event(
+            email=user["email"],
+            action="login",
+            success=True,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            user_id=str(user["id"])
+        )
+
         return LoginResponse(
             success=True,
             message="Login successful",
             data={
                 "token": access_token,
                 "token_type": "Bearer",
-                "expiresIn": JWT_ACCESS_TOKEN_EXPIRE_HOURS * 3600,  # Convert to seconds
+                "expiresIn": JWT_ACCESS_TOKEN_EXPIRE_HOURS * 3600,
                 "user": user_profile,
             },
         )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"❌ Login failed: {e}")
-        raise HTTPException(status_code=500, detail="Authentication service unavailable") from None
     finally:
         await conn.close()
 
