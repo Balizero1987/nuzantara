@@ -274,16 +274,19 @@ async def test_fast_chat_success(personality_service):
     mock_response.json = AsyncMock(return_value={"text": "Fast response"})
 
     with patch("aiohttp.ClientSession") as mock_session:
-        # Properly mock async context managers
-        mock_post_cm = AsyncMock()
-        mock_post_cm.__aenter__.return_value = mock_response
-        mock_post_cm.__aexit__.return_value = AsyncMock()
+        # Properly mock async context managers for grouped async with
+        mock_post_cm = MagicMock()
+        mock_post_cm.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_post_cm.__aexit__ = AsyncMock(return_value=None)
 
-        mock_session_instance = AsyncMock()
-        mock_session_instance.__aenter__.return_value.post.return_value = mock_post_cm
-        mock_session_instance.__aexit__.return_value = AsyncMock()
+        mock_session_instance = MagicMock()
+        mock_session_instance.post = MagicMock(return_value=mock_post_cm)
 
-        mock_session.return_value = mock_session_instance
+        mock_session_cm = MagicMock()
+        mock_session_cm.__aenter__ = AsyncMock(return_value=mock_session_instance)
+        mock_session_cm.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.return_value = mock_session_cm
 
         result = await service.fast_chat("amanda@balizero.com", "Hello")
 
@@ -295,15 +298,27 @@ async def test_fast_chat_success(personality_service):
 async def test_fast_chat_unknown_user(personality_service):
     """Test fast_chat for unknown user"""
     service, mock_client = personality_service
-    
+
     # Mock aiohttp for HTTP calls
     mock_response = MagicMock()
     mock_response.status = 200
     mock_response.json = AsyncMock(return_value={"text": "Response"})
-    
+
     with patch("aiohttp.ClientSession") as mock_session:
-        mock_session.return_value.__aenter__.return_value.post.return_value.__aenter__.return_value = mock_response
-        
+        # Properly mock async context managers for grouped async with
+        mock_post_cm = MagicMock()
+        mock_post_cm.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_post_cm.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session_instance = MagicMock()
+        mock_session_instance.post = MagicMock(return_value=mock_post_cm)
+
+        mock_session_cm = MagicMock()
+        mock_session_cm.__aenter__ = AsyncMock(return_value=mock_session_instance)
+        mock_session_cm.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.return_value = mock_session_cm
+
         result = await service.fast_chat("unknown@example.com", "Hello")
 
         assert isinstance(result, dict)
@@ -313,15 +328,27 @@ async def test_fast_chat_unknown_user(personality_service):
 async def test_test_personality(personality_service):
     """Test test_personality"""
     service, mock_client = personality_service
-    
+
     # Mock aiohttp for HTTP calls
     mock_response = MagicMock()
     mock_response.status = 200
     mock_response.json = AsyncMock(return_value={"text": "Test response"})
-    
+
     with patch("aiohttp.ClientSession") as mock_session:
-        mock_session.return_value.__aenter__.return_value.post.return_value.__aenter__.return_value = mock_response
-        
+        # Properly mock async context managers for grouped async with
+        mock_post_cm = MagicMock()
+        mock_post_cm.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_post_cm.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session_instance = MagicMock()
+        mock_session_instance.post = MagicMock(return_value=mock_post_cm)
+
+        mock_session_cm = MagicMock()
+        mock_session_cm.__aenter__ = AsyncMock(return_value=mock_session_instance)
+        mock_session_cm.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.return_value = mock_session_cm
+
         result = await service.test_personality("jaksel", "Test message")
 
         assert isinstance(result, dict)
@@ -352,15 +379,27 @@ async def test_translate_to_personality_gemini_only(personality_service):
 async def test_enhance_with_zantara_model(personality_service):
     """Test _enhance_with_zantara_model"""
     service, mock_client = personality_service
-    
+
     # Mock aiohttp for HTTP calls
     mock_response = MagicMock()
     mock_response.status = 200
     mock_response.json = AsyncMock(return_value={"text": "Enhanced response"})
-    
+
     with patch("aiohttp.ClientSession") as mock_session:
-        mock_session.return_value.__aenter__.return_value.post.return_value.__aenter__.return_value = mock_response
-        
+        # Properly mock async context managers for grouped async with
+        mock_post_cm = MagicMock()
+        mock_post_cm.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_post_cm.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session_instance = MagicMock()
+        mock_session_instance.post = MagicMock(return_value=mock_post_cm)
+
+        mock_session_cm = MagicMock()
+        mock_session_cm.__aenter__ = AsyncMock(return_value=mock_session_instance)
+        mock_session_cm.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.return_value = mock_session_cm
+
         personality = {
             "name": "Jaksel",
             "description": "Test personality",
