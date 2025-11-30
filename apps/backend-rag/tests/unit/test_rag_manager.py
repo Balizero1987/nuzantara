@@ -24,10 +24,11 @@ from services.context.rag_manager import RAGManager
 @pytest.fixture
 def mock_search_service():
     """Mock SearchService"""
-    search = AsyncMock()
-    # Fix: RAGManager calls search_with_conflict_resolution, not search
-    search.search_with_conflict_resolution = AsyncMock(
-        return_value={
+    search = MagicMock()
+
+    # Create proper async function for mocking
+    async def mock_search_with_conflict_resolution(query, user_level, limit, enable_fallbacks=True):
+        return {
             "query": "Test query",
             "results": [
                 {
@@ -43,7 +44,8 @@ def mock_search_service():
             ],
             "collection_used": "visa_oracle",
         }
-    )
+
+    search.search_with_conflict_resolution = mock_search_with_conflict_resolution
     return search
 
 
