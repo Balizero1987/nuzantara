@@ -6,18 +6,21 @@ Semantic search with tier-based access control
 import logging
 import time
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
-from services.search_service import SearchService
-
+from ..dependencies import get_search_service
 from ..models import ChunkMetadata, SearchQuery, SearchResponse, SearchResult
+from services.search_service import SearchService
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/search", tags=["search"])
 
 
 @router.post("/", response_model=SearchResponse)
-async def semantic_search(query: SearchQuery):
+async def semantic_search(
+    query: SearchQuery,
+    search_service: SearchService = Depends(get_search_service),
+):
     """
     Semantic search with tier-based access control.
 
@@ -39,9 +42,6 @@ async def semantic_search(query: SearchQuery):
         # Validate level
         if query.level < 0 or query.level > 3:
             raise HTTPException(status_code=400, detail="Invalid access level. Must be 0-3.")
-
-        # Initialize search service
-        search_service = SearchService()
 
         # Perform search
         raw_results = await search_service.search(
@@ -107,10 +107,12 @@ async def semantic_search(query: SearchQuery):
 
 
 @router.get("/health")
-async def search_health():
+async def search_health(
+    search_service: SearchService = Depends(get_search_service),
+):
     """Quick health check for search service"""
     try:
-        SearchService()  # Verify service is available
+        # Service already verified by dependency injection
         return {
             "status": "operational",
             "service": "search",

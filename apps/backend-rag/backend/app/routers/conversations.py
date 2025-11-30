@@ -9,10 +9,11 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-import psycopg2
-from fastapi import APIRouter, HTTPException
-from psycopg2.extras import Json, RealDictCursor
+import asyncpg
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+
+from ..dependencies import get_db_pool
 
 # Add parent directory to path for services
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -57,21 +58,12 @@ class ConversationHistoryResponse(BaseModel):
     error: str | None = None
 
 
-# Database connection helper
-def get_db_connection():
-    """Get PostgreSQL connection"""
-    from app.core.config import settings
-
-    database_url = settings.database_url
-    if not database_url:
-        raise Exception("DATABASE_URL environment variable not set")
-
-    # Parse Fly.io's DATABASE_URL format
-    return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
 
 
 @router.post("/save")
-async def save_conversation(request: SaveConversationRequest):
+async def save_conversation(
+    request: SaveConversationRequest, db: asyncpg.Pool = Depends(get_db_pool)
+):
     """
     Save conversation messages to PostgreSQL
     + Auto-populate CRM with client/practice data
@@ -101,30 +93,23 @@ async def save_conversation(request: SaveConversationRequest):
     }
     """
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Insert conversation
-        cursor.execute(
-            """
-            INSERT INTO conversations (user_id, session_id, messages, metadata, created_at)
-            VALUES (%s, %s, %s, %s, %s)
-            RETURNING id
-        """,
-            (
+        async with db.acquire() as conn:
+            # Insert conversation
+            row = await conn.fetchrow(
+                """
+                INSERT INTO conversations (user_id, session_id, messages, metadata, created_at)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING id
+            """,
                 request.user_email,
-                request.session_id or f"session-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
-                Json(request.messages),
-                Json(request.metadata or {}),
+                request.session_id
+                or f"session-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
+                request.messages,
+                request.metadata or {},
                 datetime.now(),
-            ),
-        )
+            )
 
-        conversation_id = cursor.fetchone()["id"]
-        conn.commit()
-
-        cursor.close()
-        conn.close()
+            conversation_id = row["id"]
 
         logger.info(
             f"✅ Saved conversation for {request.user_email} (ID: {conversation_id}, {len(request.messages)} messages)"
@@ -176,7 +161,10 @@ async def save_conversation(request: SaveConversationRequest):
 
 @router.get("/history")
 async def get_conversation_history(
-    user_email: str, limit: int = 20, session_id: str | None = None
+    user_email: str,
+    limit: int = 20,
+    session_id: str | None = None,
+    db: asyncpg.Pool = Depends(get_db_pool),
 ) -> ConversationHistoryResponse:
     """
     Get conversation history for a user
@@ -187,37 +175,31 @@ async def get_conversation_history(
     - session_id: Optional session filter
     """
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Get most recent conversation for user
-        if session_id:
-            cursor.execute(
-                """
-                SELECT messages, created_at
-                FROM conversations
-                WHERE user_id = %s AND session_id = %s
-                ORDER BY created_at DESC
-                LIMIT 1
-            """,
-                (user_email, session_id),
-            )
-        else:
-            cursor.execute(
-                """
-                SELECT messages, created_at
-                FROM conversations
-                WHERE user_id = %s
-                ORDER BY created_at DESC
-                LIMIT 1
-            """,
-                (user_email,),
-            )
-
-        result = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
+        async with db.acquire() as conn:
+            # Get most recent conversation for user
+            if session_id:
+                result = await conn.fetchrow(
+                    """
+                    SELECT messages, created_at
+                    FROM conversations
+                    WHERE user_id = $1 AND session_id = $2
+                    ORDER BY created_at DESC
+                    LIMIT 1
+                """,
+                    user_email,
+                    session_id,
+                )
+            else:
+                result = await conn.fetchrow(
+                    """
+                    SELECT messages, created_at
+                    FROM conversations
+                    WHERE user_id = $1
+                    ORDER BY created_at DESC
+                    LIMIT 1
+                """,
+                    user_email,
+                )
 
         if not result:
             return ConversationHistoryResponse(success=True, messages=[], total_messages=0)
@@ -242,7 +224,9 @@ async def get_conversation_history(
 
 
 @router.delete("/clear")
-async def clear_conversation_history(user_email: str, session_id: str | None = None):
+async def clear_conversation_history(
+    user_email: str, session_id: str | None = None, db: asyncpg.Pool = Depends(get_db_pool)
+):
     """
     Clear conversation history for a user
 
@@ -251,31 +235,27 @@ async def clear_conversation_history(user_email: str, session_id: str | None = N
     - session_id: Optional session filter (if omitted, clears ALL conversations for user)
     """
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            if session_id:
+                result = await conn.execute(
+                    """
+                    DELETE FROM conversations
+                    WHERE user_id = $1 AND session_id = $2
+                """,
+                    user_email,
+                    session_id,
+                )
+            else:
+                result = await conn.execute(
+                    """
+                    DELETE FROM conversations
+                    WHERE user_id = $1
+                """,
+                    user_email,
+                )
 
-        if session_id:
-            cursor.execute(
-                """
-                DELETE FROM conversations
-                WHERE user_id = %s AND session_id = %s
-            """,
-                (user_email, session_id),
-            )
-        else:
-            cursor.execute(
-                """
-                DELETE FROM conversations
-                WHERE user_id = %s
-            """,
-                (user_email,),
-            )
-
-        deleted_count = cursor.rowcount
-        conn.commit()
-
-        cursor.close()
-        conn.close()
+            # asyncpg execute returns a string like "DELETE 5"
+            deleted_count = int(result.split()[-1]) if result.split()[-1].isdigit() else 0
 
         logger.info(f"✅ Cleared {deleted_count} conversations for {user_email}")
 
@@ -287,7 +267,7 @@ async def clear_conversation_history(user_email: str, session_id: str | None = N
 
 
 @router.get("/stats")
-async def get_conversation_stats(user_email: str):
+async def get_conversation_stats(user_email: str, db: asyncpg.Pool = Depends(get_db_pool)):
     """
     Get conversation statistics for a user
 
@@ -295,25 +275,18 @@ async def get_conversation_stats(user_email: str):
     - user_email: User's email address
     """
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            SELECT
-                COUNT(*) as total_conversations,
-                SUM(jsonb_array_length(messages)) as total_messages,
-                MAX(created_at) as last_conversation
-            FROM conversations
-            WHERE user_id = %s
-        """,
-            (user_email,),
-        )
-
-        stats = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
+        async with db.acquire() as conn:
+            stats = await conn.fetchrow(
+                """
+                SELECT
+                    COUNT(*) as total_conversations,
+                    SUM(jsonb_array_length(messages)) as total_messages,
+                    MAX(created_at) as last_conversation
+                FROM conversations
+                WHERE user_id = $1
+            """,
+                user_email,
+            )
 
         return {
             "success": True,

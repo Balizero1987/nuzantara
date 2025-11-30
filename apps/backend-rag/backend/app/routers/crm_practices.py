@@ -3,16 +3,16 @@ ZANTARA CRM - Practices Management Router
 Endpoints for managing practices (KITAS, PT PMA, Visas, etc.)
 """
 
+import json
 import logging
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
-import psycopg2
-from fastapi import APIRouter, HTTPException, Query
-from psycopg2.extras import Json, RealDictCursor
+import asyncpg
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
-from app.core.config import settings
+from ..dependencies import get_db_pool
 
 logger = logging.getLogger(__name__)
 
@@ -70,19 +70,6 @@ class PracticeResponse(BaseModel):
 
 
 # ================================================
-# DATABASE CONNECTION
-# ================================================
-
-
-def get_db_connection():
-    """Get PostgreSQL connection"""
-    database_url = settings.database_url
-    if not database_url:
-        raise Exception("DATABASE_URL environment variable not set")
-    return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
-
-
-# ================================================
 # ENDPOINTS
 # ================================================
 
@@ -91,6 +78,7 @@ def get_db_connection():
 async def create_practice(
     practice: PracticeCreate,
     created_by: str = Query(..., description="Team member creating this practice"),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     Create a new practice for a client
@@ -103,37 +91,33 @@ async def create_practice(
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Get practice_type_id from code
-        cursor.execute(
-            "SELECT id, base_price FROM practice_types WHERE code = %s",
-            (practice.practice_type_code,),
-        )
-        practice_type = cursor.fetchone()
-
-        if not practice_type:
-            raise HTTPException(
-                status_code=404, detail=f"Practice type '{practice.practice_type_code}' not found"
+        async with db.acquire() as conn:
+            # Get practice_type_id from code
+            practice_type = await conn.fetchrow(
+                "SELECT id, base_price FROM practice_types WHERE code = $1",
+                practice.practice_type_code,
             )
 
-        # Use base_price if no quoted price provided
-        quoted_price = practice.quoted_price or practice_type["base_price"]
+            if not practice_type:
+                raise HTTPException(
+                    status_code=404, detail=f"Practice type '{practice.practice_type_code}' not found"
+                )
 
-        # Insert practice
-        cursor.execute(
-            """
-            INSERT INTO practices (
-                client_id, practice_type_id, status, priority,
-                quoted_price, assigned_to, notes, internal_notes,
-                inquiry_date, created_by
-            ) VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-            )
-            RETURNING *
-        """,
-            (
+            # Use base_price if no quoted price provided
+            quoted_price = practice.quoted_price or practice_type["base_price"]
+
+            # Insert practice
+            new_practice = await conn.fetchrow(
+                """
+                INSERT INTO practices (
+                    client_id, practice_type_id, status, priority,
+                    quoted_price, assigned_to, notes, internal_notes,
+                    inquiry_date, created_by
+                ) VALUES (
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+                )
+                RETURNING *
+            """,
                 practice.client_id,
                 practice_type["id"],
                 practice.status,
@@ -144,46 +128,36 @@ async def create_practice(
                 practice.internal_notes,
                 datetime.now(),
                 created_by,
-            ),
-        )
+            )
 
-        new_practice = cursor.fetchone()
+            # Update client's last_interaction_date
+            await conn.execute(
+                """
+                UPDATE clients
+                SET last_interaction_date = NOW()
+                WHERE id = $1
+            """,
+                practice.client_id,
+            )
 
-        # Update client's last_interaction_date
-        cursor.execute(
-            """
-            UPDATE clients
-            SET last_interaction_date = NOW()
-            WHERE id = %s
-        """,
-            (practice.client_id,),
-        )
-
-        # Log activity
-        cursor.execute(
-            """
-            INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description)
-            VALUES (%s, %s, %s, %s, %s)
-        """,
-            (
+            # Log activity
+            await conn.execute(
+                """
+                INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description)
+                VALUES ($1, $2, $3, $4, $5)
+            """,
                 "practice",
                 new_practice["id"],
                 "created",
                 created_by,
                 f"New {practice.practice_type_code} practice created",
-            ),
-        )
+            )
 
-        conn.commit()
+            logger.info(
+                f"✅ Created practice: {practice.practice_type_code} for client {practice.client_id}"
+            )
 
-        cursor.close()
-        conn.close()
-
-        logger.info(
-            f"✅ Created practice: {practice.practice_type_code} for client {practice.client_id}"
-        )
-
-        return PracticeResponse(**new_practice)
+            return PracticeResponse(**dict(new_practice))
 
     except HTTPException:
         raise
@@ -201,6 +175,7 @@ async def list_practices(
     priority: str | None = Query(None, description="Filter by priority"),
     limit: int = Query(50, le=200),
     offset: int = Query(0),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     List practices with optional filtering
@@ -209,56 +184,56 @@ async def list_practices(
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            # Build query with joins
+            query = """
+                SELECT
+                    p.*,
+                    c.full_name as client_name,
+                    c.email as client_email,
+                    c.phone as client_phone,
+                    pt.name as practice_type_name,
+                    pt.code as practice_type_code,
+                    pt.category as practice_category
+                FROM practices p
+                JOIN clients c ON p.client_id = c.id
+                JOIN practice_types pt ON p.practice_type_id = pt.id
+                WHERE 1=1
+            """
+            params = []
+            param_count = 1
 
-        # Build query with joins
-        query = """
-            SELECT
-                p.*,
-                c.full_name as client_name,
-                c.email as client_email,
-                c.phone as client_phone,
-                pt.name as practice_type_name,
-                pt.code as practice_type_code,
-                pt.category as practice_category
-            FROM practices p
-            JOIN clients c ON p.client_id = c.id
-            JOIN practice_types pt ON p.practice_type_id = pt.id
-            WHERE 1=1
-        """
-        params = []
+            if client_id:
+                query += f" AND p.client_id = ${param_count}"
+                params.append(client_id)
+                param_count += 1
 
-        if client_id:
-            query += " AND p.client_id = %s"
-            params.append(client_id)
+            if status:
+                query += f" AND p.status = ${param_count}"
+                params.append(status)
+                param_count += 1
 
-        if status:
-            query += " AND p.status = %s"
-            params.append(status)
+            if assigned_to:
+                query += f" AND p.assigned_to = ${param_count}"
+                params.append(assigned_to)
+                param_count += 1
 
-        if assigned_to:
-            query += " AND p.assigned_to = %s"
-            params.append(assigned_to)
+            if practice_type:
+                query += f" AND pt.code = ${param_count}"
+                params.append(practice_type)
+                param_count += 1
 
-        if practice_type:
-            query += " AND pt.code = %s"
-            params.append(practice_type)
+            if priority:
+                query += f" AND p.priority = ${param_count}"
+                params.append(priority)
+                param_count += 1
 
-        if priority:
-            query += " AND p.priority = %s"
-            params.append(priority)
+            query += f" ORDER BY p.created_at DESC LIMIT ${param_count} OFFSET ${param_count + 1}"
+            params.extend([limit, offset])
 
-        query += " ORDER BY p.created_at DESC LIMIT %s OFFSET %s"
-        params.extend([limit, offset])
+            practices = await conn.fetch(query, *params)
 
-        cursor.execute(query, params)
-        practices = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
-
-        return [dict(p) for p in practices]
+            return [dict(p) for p in practices]
 
     except Exception as e:
         logger.error(f"❌ Failed to list practices: {e}")
@@ -266,7 +241,10 @@ async def list_practices(
 
 
 @router.get("/active")
-async def get_active_practices(assigned_to: str | None = Query(None)):
+async def get_active_practices(
+    assigned_to: str | None = Query(None),
+    db: asyncpg.Pool = Depends(get_db_pool),
+):
     """
     Get all active practices (in progress, not completed/cancelled)
 
@@ -274,28 +252,22 @@ async def get_active_practices(assigned_to: str | None = Query(None)):
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            query = """
+                SELECT * FROM active_practices_view
+                WHERE 1=1
+            """
+            params = []
 
-        query = """
-            SELECT * FROM active_practices_view
-            WHERE 1=1
-        """
-        params = []
+            if assigned_to:
+                query += " AND assigned_to = $1"
+                params.append(assigned_to)
 
-        if assigned_to:
-            query += " AND assigned_to = %s"
-            params.append(assigned_to)
+            query += " ORDER BY priority DESC, start_date ASC"
 
-        query += " ORDER BY priority DESC, start_date ASC"
+            practices = await conn.fetch(query, *params)
 
-        cursor.execute(query, params)
-        practices = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
-
-        return [dict(p) for p in practices]
+            return [dict(p) for p in practices]
 
     except Exception as e:
         logger.error(f"❌ Failed to get active practices: {e}")
@@ -303,7 +275,10 @@ async def get_active_practices(assigned_to: str | None = Query(None)):
 
 
 @router.get("/renewals/upcoming")
-async def get_upcoming_renewals(_days: int = Query(90, description="Days to look ahead")):
+async def get_upcoming_renewals(
+    _days: int = Query(90, description="Days to look ahead"),
+    db: asyncpg.Pool = Depends(get_db_pool),
+):
     """
     Get practices with upcoming renewal dates
 
@@ -311,16 +286,10 @@ async def get_upcoming_renewals(_days: int = Query(90, description="Days to look
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            renewals = await conn.fetch("SELECT * FROM upcoming_renewals_view")
 
-        cursor.execute("SELECT * FROM upcoming_renewals_view")
-        renewals = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
-
-        return [dict(r) for r in renewals]
+            return [dict(r) for r in renewals]
 
     except Exception as e:
         logger.error(f"❌ Failed to get upcoming renewals: {e}")
@@ -328,41 +297,37 @@ async def get_upcoming_renewals(_days: int = Query(90, description="Days to look
 
 
 @router.get("/{practice_id}")
-async def get_practice(practice_id: int):
+async def get_practice(
+    practice_id: int,
+    db: asyncpg.Pool = Depends(get_db_pool),
+):
     """Get practice details by ID with full client and type info"""
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            practice = await conn.fetchrow(
+                """
+                SELECT
+                    p.*,
+                    c.full_name as client_name,
+                    c.email as client_email,
+                    c.phone as client_phone,
+                    pt.name as practice_type_name,
+                    pt.code as practice_type_code,
+                    pt.category as practice_category,
+                    pt.required_documents as required_documents
+                FROM practices p
+                JOIN clients c ON p.client_id = c.id
+                JOIN practice_types pt ON p.practice_type_id = pt.id
+                WHERE p.id = $1
+            """,
+                practice_id,
+            )
 
-        cursor.execute(
-            """
-            SELECT
-                p.*,
-                c.full_name as client_name,
-                c.email as client_email,
-                c.phone as client_phone,
-                pt.name as practice_type_name,
-                pt.code as practice_type_code,
-                pt.category as practice_category,
-                pt.required_documents as required_documents
-            FROM practices p
-            JOIN clients c ON p.client_id = c.id
-            JOIN practice_types pt ON p.practice_type_id = pt.id
-            WHERE p.id = %s
-        """,
-            (practice_id,),
-        )
+            if not practice:
+                raise HTTPException(status_code=404, detail="Practice not found")
 
-        practice = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
-
-        if not practice:
-            raise HTTPException(status_code=404, detail="Practice not found")
-
-        return dict(practice)
+            return dict(practice)
 
     except HTTPException:
         raise
@@ -376,6 +341,7 @@ async def update_practice(
     practice_id: int,
     updates: PracticeUpdate,
     updated_by: str = Query(..., description="Team member making the update"),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     Update practice information
@@ -393,84 +359,79 @@ async def update_practice(
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            # Build update query
+            update_fields = []
+            params = []
+            param_count = 1
 
-        # Build update query
-        update_fields = []
-        params = []
+            for field, value in updates.dict(exclude_unset=True).items():
+                if value is not None:
+                    if field in ["documents", "missing_documents"]:
+                        update_fields.append(f"{field} = ${param_count}")
+                        params.append(json.dumps(value))
+                    else:
+                        update_fields.append(f"{field} = ${param_count}")
+                        params.append(value)
+                    param_count += 1
 
-        for field, value in updates.dict(exclude_unset=True).items():
-            if value is not None:
-                if field in ["documents", "missing_documents"]:
-                    update_fields.append(f"{field} = %s")
-                    params.append(Json(value))
-                else:
-                    update_fields.append(f"{field} = %s")
-                    params.append(value)
+            if not update_fields:
+                raise HTTPException(status_code=400, detail="No fields to update")
 
-        if not update_fields:
-            raise HTTPException(status_code=400, detail="No fields to update")
-
-        query = f"""
-            UPDATE practices
-            SET {", ".join(update_fields)}, updated_at = NOW()
-            WHERE id = %s
-            RETURNING *
-        """
-        params.append(practice_id)
-
-        cursor.execute(query, params)
-        updated_practice = cursor.fetchone()
-
-        if not updated_practice:
-            raise HTTPException(status_code=404, detail="Practice not found")
-
-        # Log activity
-        changed_fields = list(updates.dict(exclude_unset=True).keys())
-        cursor.execute(
+            query = f"""
+                UPDATE practices
+                SET {", ".join(update_fields)}, updated_at = NOW()
+                WHERE id = ${param_count}
+                RETURNING *
             """
-            INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description, changes)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """,
-            (
+            params.append(practice_id)
+
+            updated_practice = await conn.fetchrow(query, *params)
+
+            if not updated_practice:
+                raise HTTPException(status_code=404, detail="Practice not found")
+
+            # Log activity
+            changed_fields = list(updates.dict(exclude_unset=True).keys())
+            await conn.execute(
+                """
+                INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description, changes)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            """,
                 "practice",
                 practice_id,
                 "updated",
                 updated_by,
                 f"Updated: {', '.join(changed_fields)}",
-                Json(updates.dict(exclude_unset=True)),
-            ),
-        )
-
-        # If status changed to 'completed' and there's an expiry date, create renewal alert
-        if updates.status == "completed" and updates.expiry_date:
-            alert_date = updates.expiry_date - timedelta(days=60)  # 60 days before expiry
-
-            cursor.execute(
-                """
-                INSERT INTO renewal_alerts (
-                    practice_id, client_id, alert_type, description,
-                    target_date, alert_date, notify_team_member
-                )
-                SELECT
-                    %s, client_id, 'renewal_due',
-                    'Practice renewal due soon',
-                    %s, %s, assigned_to
-                FROM practices
-                WHERE id = %s
-            """,
-                (practice_id, updates.expiry_date, alert_date, practice_id),
+                json.dumps(updates.dict(exclude_unset=True)),
             )
 
-        conn.commit()
+            # If status changed to 'completed' and there's an expiry date, create renewal alert
+            if updates.status == "completed" and updates.expiry_date:
+                alert_date = updates.expiry_date - timedelta(days=60)  # 60 days before expiry
 
-        cursor.close()
-        conn.close()
+                await conn.execute(
+                    """
+                    INSERT INTO renewal_alerts (
+                        practice_id, client_id, alert_type, description,
+                        target_date, alert_date, notify_team_member
+                    )
+                    SELECT
+                        $1, client_id, 'renewal_due',
+                        'Practice renewal due soon',
+                        $2, $3, assigned_to
+                    FROM practices
+                    WHERE id = $4
+                """,
+                    practice_id,
+                    updates.expiry_date,
+                    alert_date,
+                    practice_id,
+                )
 
-        logger.info(f"✅ Updated practice ID {practice_id} by {updated_by}")
+            logger.info(f"✅ Updated practice ID {practice_id} by {updated_by}")
 
-        return dict(updated_practice)
+            return dict(updated_practice)
 
     except HTTPException:
         raise
@@ -485,6 +446,7 @@ async def add_document_to_practice(
     document_name: str = Query(...),
     drive_file_id: str = Query(...),
     uploaded_by: str = Query(...),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     Add a document to a practice
@@ -495,47 +457,40 @@ async def add_document_to_practice(
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            # Get current documents
+            result = await conn.fetchrow("SELECT documents FROM practices WHERE id = $1", practice_id)
 
-        # Get current documents
-        cursor.execute("SELECT documents FROM practices WHERE id = %s", (practice_id,))
-        result = cursor.fetchone()
+            if not result:
+                raise HTTPException(status_code=404, detail="Practice not found")
 
-        if not result:
-            raise HTTPException(status_code=404, detail="Practice not found")
+            documents = result["documents"] or []
 
-        documents = result["documents"] or []
+            # Add new document
+            new_doc = {
+                "name": document_name,
+                "drive_file_id": drive_file_id,
+                "uploaded_at": datetime.now().isoformat(),
+                "uploaded_by": uploaded_by,
+                "status": "received",
+            }
 
-        # Add new document
-        new_doc = {
-            "name": document_name,
-            "drive_file_id": drive_file_id,
-            "uploaded_at": datetime.now().isoformat(),
-            "uploaded_by": uploaded_by,
-            "status": "received",
-        }
+            documents.append(new_doc)
 
-        documents.append(new_doc)
+            # Update practice
+            await conn.execute(
+                """
+                UPDATE practices
+                SET documents = $1, updated_at = NOW()
+                WHERE id = $2
+            """,
+                json.dumps(documents),
+                practice_id,
+            )
 
-        # Update practice
-        cursor.execute(
-            """
-            UPDATE practices
-            SET documents = %s, updated_at = NOW()
-            WHERE id = %s
-        """,
-            (Json(documents), practice_id),
-        )
+            logger.info(f"✅ Added document '{document_name}' to practice {practice_id}")
 
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-
-        logger.info(f"✅ Added document '{document_name}' to practice {practice_id}")
-
-        return {"success": True, "document": new_doc, "total_documents": len(documents)}
+            return {"success": True, "document": new_doc, "total_documents": len(documents)}
 
     except HTTPException:
         raise
@@ -545,7 +500,7 @@ async def add_document_to_practice(
 
 
 @router.get("/stats/overview")
-async def get_practices_stats():
+async def get_practices_stats(db: asyncpg.Pool = Depends(get_db_pool)):
     """
     Get overall practice statistics
 
@@ -555,64 +510,56 @@ async def get_practices_stats():
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # By status
-        cursor.execute(
+        async with db.acquire() as conn:
+            # By status
+            by_status = await conn.fetch(
+                """
+                SELECT status, COUNT(*) as count
+                FROM practices
+                GROUP BY status
             """
-            SELECT status, COUNT(*) as count
-            FROM practices
-            GROUP BY status
-        """
-        )
-        by_status = cursor.fetchall()
+            )
 
-        # By practice type
-        cursor.execute(
+            # By practice type
+            by_type = await conn.fetch(
+                """
+                SELECT pt.code, pt.name, COUNT(p.id) as count
+                FROM practices p
+                JOIN practice_types pt ON p.practice_type_id = pt.id
+                GROUP BY pt.code, pt.name
+                ORDER BY count DESC
             """
-            SELECT pt.code, pt.name, COUNT(p.id) as count
-            FROM practices p
-            JOIN practice_types pt ON p.practice_type_id = pt.id
-            GROUP BY pt.code, pt.name
-            ORDER BY count DESC
-        """
-        )
-        by_type = cursor.fetchall()
+            )
 
-        # Revenue stats
-        cursor.execute(
+            # Revenue stats
+            revenue = await conn.fetchrow(
+                """
+                SELECT
+                    SUM(actual_price) as total_revenue,
+                    SUM(CASE WHEN payment_status = 'paid' THEN actual_price ELSE 0 END) as paid_revenue,
+                    SUM(CASE WHEN payment_status IN ('unpaid', 'partial') THEN actual_price - COALESCE(paid_amount, 0) ELSE 0 END) as outstanding_revenue
+                FROM practices
+                WHERE actual_price IS NOT NULL
             """
-            SELECT
-                SUM(actual_price) as total_revenue,
-                SUM(CASE WHEN payment_status = 'paid' THEN actual_price ELSE 0 END) as paid_revenue,
-                SUM(CASE WHEN payment_status IN ('unpaid', 'partial') THEN actual_price - COALESCE(paid_amount, 0) ELSE 0 END) as outstanding_revenue
-            FROM practices
-            WHERE actual_price IS NOT NULL
-        """
-        )
-        revenue = cursor.fetchone()
+            )
 
-        # Active practices count
-        cursor.execute(
+            # Active practices count
+            active_count_row = await conn.fetchrow(
+                """
+                SELECT COUNT(*) as count
+                FROM practices
+                WHERE status IN ('inquiry', 'in_progress', 'waiting_documents', 'submitted_to_gov')
             """
-            SELECT COUNT(*) as count
-            FROM practices
-            WHERE status IN ('inquiry', 'in_progress', 'waiting_documents', 'submitted_to_gov')
-        """
-        )
-        active_count = cursor.fetchone()["count"]
+            )
+            active_count = active_count_row["count"]
 
-        cursor.close()
-        conn.close()
-
-        return {
-            "total_practices": sum(row["count"] for row in by_status),
-            "active_practices": active_count,
-            "by_status": {row["status"]: row["count"] for row in by_status},
-            "by_type": [dict(row) for row in by_type],
-            "revenue": dict(revenue),
-        }
+            return {
+                "total_practices": sum(row["count"] for row in by_status),
+                "active_practices": active_count,
+                "by_status": {row["status"]: row["count"] for row in by_status},
+                "by_type": [dict(row) for row in by_type],
+                "revenue": dict(revenue),
+            }
 
     except Exception as e:
         logger.error(f"❌ Failed to get practices stats: {e}")

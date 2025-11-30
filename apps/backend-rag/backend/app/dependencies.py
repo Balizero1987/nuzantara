@@ -8,7 +8,8 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from fastapi import HTTPException
+import asyncpg
+from fastapi import HTTPException, Request
 
 # Add parent to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -67,3 +68,29 @@ def get_intelligent_router() -> Any | None:
     Returns router instance for handling WhatsApp and other integrations.
     """
     return intelligent_router
+
+
+async def get_db_pool(request: Request) -> asyncpg.Pool:
+    """
+    Dependency injection for asyncpg database pool.
+    Provides async PostgreSQL connection pool to all endpoints.
+
+    Usage:
+        @router.get("/")
+        async def my_endpoint(db: asyncpg.Pool = Depends(get_db_pool)):
+            async with db.acquire() as conn:
+                result = await conn.fetch("SELECT * FROM table")
+
+    Returns:
+        asyncpg.Pool: Async connection pool
+
+    Raises:
+        HTTPException: 503 if pool not initialized
+    """
+    db_pool = getattr(request.app.state, "db_pool", None)
+    if db_pool is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Database pool not initialized. Server may still be starting up.",
+        )
+    return db_pool

@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { chatAPI } from "@/src/lib/api/chat"
+import { chatAPI } from "@/lib/api/chat"
 import { authAPI } from "@/lib/api/auth"
 import { apiClient } from "@/lib/api/client"
 import { RAGDrawer } from "@/components/chat/RAGDrawer"

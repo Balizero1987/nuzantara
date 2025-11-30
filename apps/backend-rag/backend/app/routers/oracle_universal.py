@@ -51,11 +51,10 @@ from pydantic import BaseModel, ConfigDict, Field
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 # Database Connection (PostgreSQL)
-import psycopg2
+import asyncpg
 from core.embeddings import EmbeddingsGenerator
-from psycopg2.extras import RealDictCursor
 
-from app.dependencies import get_search_service
+from app.dependencies import get_db_pool, get_search_service
 from app.routers.simple_jaksel_caller_translation import SimpleJakselCaller
 from services.personality_service import PersonalityService
 from services.search_service import SearchService
@@ -279,25 +278,18 @@ google_services = GoogleServices()
 class DatabaseManager:
     """PostgreSQL database manager for user profiles and analytics"""
 
-    def __init__(self, database_url: str):
-        self.database_url = database_url
-        self._pool = None
-
-    async def get_user_profile(self, user_email: str) -> dict[str, Any] | None:
+    async def get_user_profile(
+        self, pool: asyncpg.Pool, user_email: str
+    ) -> dict[str, Any] | None:
         """Retrieve user profile with localization preferences"""
         try:
-            # For production, use async connection pool
-            # For now, using synchronous connection for simplicity
-            conn = psycopg2.connect(self.database_url)
-
-            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            async with pool.acquire() as conn:
                 query = """
                 SELECT id, email, name, role, status, language_preference, meta_json, role_level, timezone
                 FROM users
-                WHERE email = %s AND status = 'active'
+                WHERE email = $1 AND status = 'active'
                 """
-                cursor.execute(query, (user_email,))
-                result = cursor.fetchone()
+                result = await conn.fetchrow(query, user_email)
 
                 if result:
                     user_profile = dict(result)
@@ -311,85 +303,68 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"❌ Error retrieving user profile for {user_email}: {e}")
             return None
-        finally:
-            if "conn" in locals():
-                conn.close()
 
-    async def store_query_analytics(self, analytics_data: dict[str, Any]):
+    async def store_query_analytics(
+        self, pool: asyncpg.Pool, analytics_data: dict[str, Any]
+    ):
         """Store query analytics for performance monitoring"""
         try:
-            conn = psycopg2.connect(self.database_url)
-
-            with conn.cursor() as cursor:
+            async with pool.acquire() as conn:
                 query = """
                 INSERT INTO query_analytics (
                     user_id, query_hash, query_text, response_text,
                     language_preference, model_used, response_time_ms,
                     document_count, session_id, metadata
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 """
-                cursor.execute(
+                await conn.execute(
                     query,
-                    (
-                        analytics_data.get("user_id"),
-                        analytics_data.get("query_hash"),
-                        analytics_data.get("query_text"),
-                        analytics_data.get("response_text"),
-                        analytics_data.get("language_preference"),
-                        analytics_data.get("model_used"),
-                        analytics_data.get("response_time_ms"),
-                        analytics_data.get("document_count"),
-                        analytics_data.get("session_id"),
-                        json.dumps(analytics_data.get("metadata", {})),
-                    ),
+                    analytics_data.get("user_id"),
+                    analytics_data.get("query_hash"),
+                    analytics_data.get("query_text"),
+                    analytics_data.get("response_text"),
+                    analytics_data.get("language_preference"),
+                    analytics_data.get("model_used"),
+                    analytics_data.get("response_time_ms"),
+                    analytics_data.get("document_count"),
+                    analytics_data.get("session_id"),
+                    json.dumps(analytics_data.get("metadata", {})),
                 )
-                conn.commit()
 
         except Exception as e:
             logger.error(f"❌ Error storing query analytics: {e}")
-        finally:
-            if "conn" in locals():
-                conn.close()
 
-    async def store_feedback(self, feedback_data: dict[str, Any]):
+    async def store_feedback(self, pool: asyncpg.Pool, feedback_data: dict[str, Any]):
         """Store user feedback for continuous learning"""
         try:
-            conn = psycopg2.connect(self.database_url)
-
-            with conn.cursor() as cursor:
+            async with pool.acquire() as conn:
                 query = """
                 INSERT INTO knowledge_feedback (
                     user_id, query_text, original_answer, user_correction,
                     feedback_type, model_used, response_time_ms,
                     user_rating, session_id, metadata
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 """
-                cursor.execute(
+                await conn.execute(
                     query,
-                    (
-                        feedback_data.get("user_id"),
-                        feedback_data.get("query_text"),
-                        feedback_data.get("original_answer"),
-                        feedback_data.get("user_correction"),
-                        feedback_data.get("feedback_type"),
-                        feedback_data.get("model_used"),
-                        feedback_data.get("response_time_ms"),
-                        feedback_data.get("user_rating"),
-                        feedback_data.get("session_id"),
-                        json.dumps(feedback_data.get("metadata", {})),
-                    ),
+                    feedback_data.get("user_id"),
+                    feedback_data.get("query_text"),
+                    feedback_data.get("original_answer"),
+                    feedback_data.get("user_correction"),
+                    feedback_data.get("feedback_type"),
+                    feedback_data.get("model_used"),
+                    feedback_data.get("response_time_ms"),
+                    feedback_data.get("user_rating"),
+                    feedback_data.get("session_id"),
+                    json.dumps(feedback_data.get("metadata", {})),
                 )
-                conn.commit()
 
         except Exception as e:
             logger.error(f"❌ Error storing feedback: {e}")
-        finally:
-            if "conn" in locals():
-                conn.close()
 
 
 # Initialize database manager
-db_manager = DatabaseManager(config.database_url)
+db_manager = DatabaseManager()
 
 # ========================================
 # PYDANTIC MODELS FOR API REQUESTS/RESPONSES
@@ -728,7 +703,9 @@ personality_service = PersonalityService()
 
 @router.post("/query", response_model=OracleQueryResponse)
 async def hybrid_oracle_query(
-    request: OracleQueryRequest, service: SearchService = Depends(get_search_service)
+    request: OracleQueryRequest,
+    service: SearchService = Depends(get_search_service),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     Ultra Hybrid Oracle Query - v5.3
@@ -748,7 +725,7 @@ async def hybrid_oracle_query(
 
         # 1. Get user profile if email provided
         if request.user_email:
-            user_profile = await db_manager.get_user_profile(request.user_email)
+            user_profile = await db_manager.get_user_profile(db, request.user_email)
             if user_profile:
                 logger.info(f"✅ Loaded user profile for {request.user_email}")
             else:
@@ -970,7 +947,7 @@ async def hybrid_oracle_query(
         }
 
         # Store analytics asynchronously
-        asyncio.create_task(db_manager.store_query_analytics(analytics_data))
+        asyncio.create_task(db_manager.store_query_analytics(db, analytics_data))
 
         # 8. Build response
         # Convert database user_profile to Pydantic model (map 'id' to 'user_id')
@@ -1024,7 +1001,7 @@ async def hybrid_oracle_query(
             "metadata": {"error": str(e), "error_type": type(e).__name__},
         }
 
-        asyncio.create_task(db_manager.store_query_analytics(error_analytics))
+        asyncio.create_task(db_manager.store_query_analytics(db, error_analytics))
 
         # Convert database user_profile to Pydantic model (map 'id' to 'user_id')
         error_user_profile_model = None
@@ -1054,7 +1031,9 @@ async def hybrid_oracle_query(
 
 
 @router.post("/feedback")
-async def submit_user_feedback(feedback: FeedbackRequest):
+async def submit_user_feedback(
+    feedback: FeedbackRequest, db: asyncpg.Pool = Depends(get_db_pool)
+):
     """
     Submit user feedback for continuous learning and system improvement
     Stores feedback for training data and model refinement
@@ -1063,7 +1042,7 @@ async def submit_user_feedback(feedback: FeedbackRequest):
         logger.info(f"📝 Processing feedback from {feedback.user_email}")
 
         # Get user profile
-        user_profile = await db_manager.get_user_profile(feedback.user_email)
+        user_profile = await db_manager.get_user_profile(db, feedback.user_email)
 
         feedback_data = {
             "user_id": user_profile.get("id") if user_profile else None,
@@ -1083,7 +1062,7 @@ async def submit_user_feedback(feedback: FeedbackRequest):
         }
 
         # Store feedback
-        await db_manager.store_feedback(feedback_data)
+        await db_manager.store_feedback(db, feedback_data)
 
         logger.info(f"✅ Feedback stored successfully for {feedback.user_email}")
 
@@ -1154,13 +1133,15 @@ async def oracle_health_check():
 
 
 @router.get("/user/profile/{user_email}")
-async def get_user_profile_endpoint(user_email: str):
+async def get_user_profile_endpoint(
+    user_email: str, db: asyncpg.Pool = Depends(get_db_pool)
+):
     """
     Get user profile with localization preferences
     Integrates with PostgreSQL user management system
     """
     try:
-        user_profile = await db_manager.get_user_profile(user_email)
+        user_profile = await db_manager.get_user_profile(db, user_email)
 
         if not user_profile:
             raise HTTPException(

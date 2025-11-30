@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createPublicClient } from "@/src/lib/api/client"
+import { createPublicClient } from "@/lib/api/client"
 
 export async function POST(request: Request) {
   try {

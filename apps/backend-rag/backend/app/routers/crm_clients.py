@@ -3,15 +3,15 @@ ZANTARA CRM - Clients Management Router
 Endpoints for managing client data (anagrafica clienti)
 """
 
+import json
 import logging
 from datetime import datetime
 
-import psycopg2
-from fastapi import APIRouter, HTTPException, Query
-from psycopg2.extras import Json, RealDictCursor
+import asyncpg
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, EmailStr
 
-from app.core.config import settings
+from ..dependencies import get_db_pool
 
 logger = logging.getLogger(__name__)
 
@@ -73,19 +73,6 @@ class ClientResponse(BaseModel):
 
 
 # ================================================
-# DATABASE CONNECTION
-# ================================================
-
-
-def get_db_connection():
-    """Get PostgreSQL connection"""
-    database_url = settings.database_url
-    if not database_url:
-        raise Exception("DATABASE_URL environment variable not set")
-    return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
-
-
-# ================================================
 # ENDPOINTS
 # ================================================
 
@@ -94,6 +81,7 @@ def get_db_connection():
 async def create_client(
     client: ClientCreate,
     created_by: str = Query(..., description="Team member email creating this client"),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     Create a new client
@@ -109,22 +97,19 @@ async def create_client(
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Insert client
-        cursor.execute(
-            """
-            INSERT INTO clients (
-                full_name, email, phone, whatsapp, nationality, passport_number,
-                client_type, assigned_to, address, notes, tags, custom_fields,
-                first_contact_date, created_by, status
-            ) VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-            )
-            RETURNING *
-        """,
-            (
+        async with db.acquire() as conn:
+            # Insert client
+            new_client = await conn.fetchrow(
+                """
+                INSERT INTO clients (
+                    full_name, email, phone, whatsapp, nationality, passport_number,
+                    client_type, assigned_to, address, notes, tags, custom_fields,
+                    first_contact_date, created_by, status
+                ) VALUES (
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+                )
+                RETURNING *
+                """,
                 client.full_name,
                 client.email,
                 client.phone,
@@ -135,25 +120,17 @@ async def create_client(
                 client.assigned_to,
                 client.address,
                 client.notes,
-                Json(client.tags),
-                Json(client.custom_fields),
+                json.dumps(client.tags),
+                json.dumps(client.custom_fields),
                 datetime.now(),
                 created_by,
                 "active",
-            ),
-        )
-
-        new_client = cursor.fetchone()
-        conn.commit()
-
-        cursor.close()
-        conn.close()
+            )
 
         logger.info(f"✅ Created client: {client.full_name} (ID: {new_client['id']})")
+        return ClientResponse(**dict(new_client))
 
-        return ClientResponse(**new_client)
-
-    except psycopg2.IntegrityError as e:
+    except asyncpg.UniqueViolationError as e:
         logger.error(f"❌ Integrity error creating client: {e}")
         raise HTTPException(
             status_code=400, detail="Client with this email or phone already exists"
@@ -171,6 +148,7 @@ async def list_clients(
     search: str | None = Query(None, description="Search by name, email, or phone"),
     limit: int = Query(50, le=200, description="Max results to return"),
     offset: int = Query(0, description="Offset for pagination"),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     List all clients with optional filtering
@@ -183,40 +161,41 @@ async def list_clients(
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            # Build query with parameterized placeholders
+            conditions = ["1=1"]
+            params = []
+            param_idx = 1
 
-        # Build query
-        query = "SELECT * FROM clients WHERE 1=1"
-        params = []
+            if status:
+                conditions.append(f"status = ${param_idx}")
+                params.append(status)
+                param_idx += 1
 
-        if status:
-            query += " AND status = %s"
-            params.append(status)
+            if assigned_to:
+                conditions.append(f"assigned_to = ${param_idx}")
+                params.append(assigned_to)
+                param_idx += 1
 
-        if assigned_to:
-            query += " AND assigned_to = %s"
-            params.append(assigned_to)
+            if search:
+                search_pattern = f"%{search}%"
+                conditions.append(
+                    f"(full_name ILIKE ${param_idx} OR email ILIKE ${param_idx + 1} OR phone ILIKE ${param_idx + 2})"
+                )
+                params.extend([search_pattern, search_pattern, search_pattern])
+                param_idx += 3
 
-        if search:
-            query += """ AND (
-                full_name ILIKE %s OR
-                email ILIKE %s OR
-                phone ILIKE %s
-            )"""
-            search_pattern = f"%{search}%"
-            params.extend([search_pattern, search_pattern, search_pattern])
+            query = f"""
+                SELECT * FROM clients
+                WHERE {' AND '.join(conditions)}
+                ORDER BY created_at DESC
+                LIMIT ${param_idx} OFFSET ${param_idx + 1}
+            """
+            params.extend([limit, offset])
 
-        query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
-        params.extend([limit, offset])
+            clients = await conn.fetch(query, *params)
 
-        cursor.execute(query, params)
-        clients = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
-
-        return [ClientResponse(**client) for client in clients]
+        return [ClientResponse(**dict(client)) for client in clients]
 
     except Exception as e:
         logger.error(f"❌ Failed to list clients: {e}")
@@ -224,23 +203,20 @@ async def list_clients(
 
 
 @router.get("/{client_id}", response_model=ClientResponse)
-async def get_client(client_id: int):
+async def get_client(
+    client_id: int,
+    db: asyncpg.Pool = Depends(get_db_pool),
+):
     """Get client by ID"""
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT * FROM clients WHERE id = %s", (client_id,))
-        client = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
+        async with db.acquire() as conn:
+            client = await conn.fetchrow("SELECT * FROM clients WHERE id = $1", client_id)
 
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
 
-        return ClientResponse(**client)
+        return ClientResponse(**dict(client))
 
     except HTTPException:
         raise
@@ -249,24 +225,21 @@ async def get_client(client_id: int):
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.get("/by-email/{email}")
-async def get_client_by_email(email: str):
+@router.get("/by-email/{email}", response_model=ClientResponse)
+async def get_client_by_email(
+    email: str,
+    db: asyncpg.Pool = Depends(get_db_pool),
+):
     """Get client by email address"""
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT * FROM clients WHERE email = %s", (email,))
-        client = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
+        async with db.acquire() as conn:
+            client = await conn.fetchrow("SELECT * FROM clients WHERE email = $1", email)
 
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
 
-        return ClientResponse(**client)
+        return ClientResponse(**dict(client))
 
     except HTTPException:
         raise
@@ -280,6 +253,7 @@ async def update_client(
     client_id: int,
     updates: ClientUpdate,
     updated_by: str = Query(..., description="Team member making the update"),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     Update client information
@@ -288,80 +262,73 @@ async def update_client(
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
         # Build update query with field validation
         allowed_fields = {
-            "name",
+            "full_name",
             "email",
             "phone",
-            "company",
+            "whatsapp",
+            "nationality",
+            "passport_number",
             "status",
-            "value",
-            "source",
+            "client_type",
             "assigned_to",
+            "address",
             "notes",
             "tags",
             "custom_fields",
         }
 
-        update_fields = []
+        update_parts = []
         params = []
+        param_idx = 1
 
-        for field, value in updates.dict(exclude_unset=True).items():
+        for field, value in updates.model_dump(exclude_unset=True).items():
             # Validate field name to prevent SQL injection
             if field not in allowed_fields:
                 raise HTTPException(status_code=400, detail=f"Invalid field name: {field}")
 
             if value is not None:
                 if field in ["tags", "custom_fields"]:
-                    update_fields.append(f"{field} = %s")
-                    params.append(Json(value))
+                    update_parts.append(f"{field} = ${param_idx}")
+                    params.append(json.dumps(value))
                 else:
-                    update_fields.append(f"{field} = %s")
+                    update_parts.append(f"{field} = ${param_idx}")
                     params.append(value)
+                param_idx += 1
 
-        if not update_fields:
+        if not update_parts:
             raise HTTPException(status_code=400, detail="No fields to update")
 
-        query = f"""
-            UPDATE clients
-            SET {", ".join(update_fields)}, updated_at = NOW()
-            WHERE id = %s
-            RETURNING *
-        """
-        params.append(client_id)
-
-        cursor.execute(query, params)
-        updated_client = cursor.fetchone()
-
-        if not updated_client:
-            raise HTTPException(status_code=404, detail="Client not found")
-
-        # Log activity
-        cursor.execute(
+        async with db.acquire() as conn:
+            query = f"""
+                UPDATE clients
+                SET {", ".join(update_parts)}, updated_at = NOW()
+                WHERE id = ${param_idx}
+                RETURNING *
             """
-            INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description)
-            VALUES (%s, %s, %s, %s, %s)
-        """,
-            (
+            params.append(client_id)
+
+            updated_client = await conn.fetchrow(query, *params)
+
+            if not updated_client:
+                raise HTTPException(status_code=404, detail="Client not found")
+
+            # Log activity
+            await conn.execute(
+                """
+                INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description)
+                VALUES ($1, $2, $3, $4, $5)
+                """,
                 "client",
                 client_id,
                 "updated",
                 updated_by,
-                f"Updated fields: {', '.join(updates.dict(exclude_unset=True).keys())}",
-            ),
-        )
-
-        conn.commit()
-
-        cursor.close()
-        conn.close()
+                f"Updated fields: {', '.join(updates.model_dump(exclude_unset=True).keys())}",
+            )
 
         logger.info(f"✅ Updated client ID {client_id} by {updated_by}")
-
-        return ClientResponse(**updated_client)
+        return ClientResponse(**dict(updated_client))
 
     except HTTPException:
         raise
@@ -372,7 +339,9 @@ async def update_client(
 
 @router.delete("/{client_id}")
 async def delete_client(
-    client_id: int, deleted_by: str = Query(..., description="Team member deleting the client")
+    client_id: int,
+    deleted_by: str = Query(..., description="Team member deleting the client"),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     Delete a client (soft delete - marks as inactive)
@@ -382,41 +351,35 @@ async def delete_client(
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            # Soft delete (mark as inactive)
+            result = await conn.fetchrow(
+                """
+                UPDATE clients
+                SET status = 'inactive', updated_at = NOW()
+                WHERE id = $1
+                RETURNING id
+                """,
+                client_id,
+            )
 
-        # Soft delete (mark as inactive)
-        cursor.execute(
-            """
-            UPDATE clients
-            SET status = 'inactive', updated_at = NOW()
-            WHERE id = %s
-            RETURNING id
-        """,
-            (client_id,),
-        )
+            if not result:
+                raise HTTPException(status_code=404, detail="Client not found")
 
-        result = cursor.fetchone()
-
-        if not result:
-            raise HTTPException(status_code=404, detail="Client not found")
-
-        # Log activity
-        cursor.execute(
-            """
-            INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description)
-            VALUES (%s, %s, %s, %s, %s)
-        """,
-            ("client", client_id, "deleted", deleted_by, "Client marked as inactive"),
-        )
-
-        conn.commit()
-
-        cursor.close()
-        conn.close()
+            # Log activity
+            await conn.execute(
+                """
+                INSERT INTO activity_log (entity_type, entity_id, action, performed_by, description)
+                VALUES ($1, $2, $3, $4, $5)
+                """,
+                "client",
+                client_id,
+                "deleted",
+                deleted_by,
+                "Client marked as inactive",
+            )
 
         logger.info(f"✅ Deleted (soft) client ID {client_id} by {deleted_by}")
-
         return {"success": True, "message": "Client marked as inactive"}
 
     except HTTPException:
@@ -427,7 +390,10 @@ async def delete_client(
 
 
 @router.get("/{client_id}/summary")
-async def get_client_summary(client_id: int):
+async def get_client_summary(
+    client_id: int,
+    db: asyncpg.Pool = Depends(get_db_pool),
+):
     """
     Get comprehensive client summary including:
     - Basic client info
@@ -438,56 +404,47 @@ async def get_client_summary(client_id: int):
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            # Get client basic info
+            client = await conn.fetchrow("SELECT * FROM clients WHERE id = $1", client_id)
 
-        # Get client basic info
-        cursor.execute("SELECT * FROM clients WHERE id = %s", (client_id,))
-        client = cursor.fetchone()
+            if not client:
+                raise HTTPException(status_code=404, detail="Client not found")
 
-        if not client:
-            raise HTTPException(status_code=404, detail="Client not found")
+            # Get practices
+            practices = await conn.fetch(
+                """
+                SELECT p.*, pt.name as practice_type_name, pt.category
+                FROM practices p
+                JOIN practice_types pt ON p.practice_type_id = pt.id
+                WHERE p.client_id = $1
+                ORDER BY p.created_at DESC
+                """,
+                client_id,
+            )
 
-        # Get practices
-        cursor.execute(
-            """
-            SELECT p.*, pt.name as practice_type_name, pt.category
-            FROM practices p
-            JOIN practice_types pt ON p.practice_type_id = pt.id
-            WHERE p.client_id = %s
-            ORDER BY p.created_at DESC
-        """,
-            (client_id,),
-        )
-        practices = cursor.fetchall()
+            # Get recent interactions
+            interactions = await conn.fetch(
+                """
+                SELECT *
+                FROM interactions
+                WHERE client_id = $1
+                ORDER BY interaction_date DESC
+                LIMIT 10
+                """,
+                client_id,
+            )
 
-        # Get recent interactions
-        cursor.execute(
-            """
-            SELECT *
-            FROM interactions
-            WHERE client_id = %s
-            ORDER BY interaction_date DESC
-            LIMIT 10
-        """,
-            (client_id,),
-        )
-        interactions = cursor.fetchall()
-
-        # Get upcoming renewals
-        cursor.execute(
-            """
-            SELECT *
-            FROM renewal_alerts
-            WHERE client_id = %s AND status = 'pending'
-            ORDER BY alert_date ASC
-        """,
-            (client_id,),
-        )
-        renewals = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
+            # Get upcoming renewals
+            renewals = await conn.fetch(
+                """
+                SELECT *
+                FROM renewal_alerts
+                WHERE client_id = $1 AND status = 'pending'
+                ORDER BY alert_date ASC
+                """,
+                client_id,
+            )
 
         return {
             "client": dict(client),
@@ -516,7 +473,9 @@ async def get_client_summary(client_id: int):
 
 
 @router.get("/stats/overview")
-async def get_clients_stats():
+async def get_clients_stats(
+    db: asyncpg.Pool = Depends(get_db_pool),
+):
     """
     Get overall client statistics
 
@@ -524,49 +483,41 @@ async def get_clients_stats():
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            # Total clients by status
+            by_status = await conn.fetch(
+                """
+                SELECT status, COUNT(*) as count
+                FROM clients
+                GROUP BY status
+                """
+            )
 
-        # Total clients by status
-        cursor.execute(
-            """
-            SELECT status, COUNT(*) as count
-            FROM clients
-            GROUP BY status
-        """
-        )
-        by_status = cursor.fetchall()
+            # Clients by assigned team member
+            by_team_member = await conn.fetch(
+                """
+                SELECT assigned_to, COUNT(*) as count
+                FROM clients
+                WHERE assigned_to IS NOT NULL
+                GROUP BY assigned_to
+                ORDER BY count DESC
+                """
+            )
 
-        # Clients by assigned team member
-        cursor.execute(
-            """
-            SELECT assigned_to, COUNT(*) as count
-            FROM clients
-            WHERE assigned_to IS NOT NULL
-            GROUP BY assigned_to
-            ORDER BY count DESC
-        """
-        )
-        by_team_member = cursor.fetchall()
-
-        # New clients last 30 days
-        cursor.execute(
-            """
-            SELECT COUNT(*) as count
-            FROM clients
-            WHERE created_at >= NOW() - INTERVAL '30 days'
-        """
-        )
-        new_last_30_days = cursor.fetchone()["count"]
-
-        cursor.close()
-        conn.close()
+            # New clients last 30 days
+            new_count = await conn.fetchval(
+                """
+                SELECT COUNT(*) as count
+                FROM clients
+                WHERE created_at >= NOW() - INTERVAL '30 days'
+                """
+            )
 
         return {
             "total": sum(row["count"] for row in by_status),
             "by_status": {row["status"]: row["count"] for row in by_status},
             "by_team_member": [dict(row) for row in by_team_member],
-            "new_last_30_days": new_last_30_days,
+            "new_last_30_days": new_count,
         }
 
     except Exception as e:

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { createServerClient } from "@/src/lib/api/client"
-import { CalendarEvent } from "@/src/lib/api/generated"
+import { createServerClient } from "@/lib/api/client"
+import { CalendarEvent } from "@/lib/api/generated"
 
 export async function POST(request: Request) {
   try {

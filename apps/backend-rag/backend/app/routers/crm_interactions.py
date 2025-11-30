@@ -3,15 +3,15 @@ ZANTARA CRM - Interactions Tracking Router
 Endpoints for logging and retrieving team-client interactions
 """
 
+import json
 import logging
 from datetime import datetime
 
-import psycopg2
-from fastapi import APIRouter, HTTPException, Query
-from psycopg2.extras import Json, RealDictCursor
+import asyncpg
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
-from app.core.config import settings
+from ..dependencies import get_db_pool
 
 logger = logging.getLogger(__name__)
 
@@ -56,25 +56,15 @@ class InteractionResponse(BaseModel):
 
 
 # ================================================
-# DATABASE CONNECTION
-# ================================================
-
-
-def get_db_connection():
-    """Get PostgreSQL connection"""
-    database_url = settings.database_url
-    if not database_url:
-        raise Exception("DATABASE_URL environment variable not set")
-    return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
-
-
-# ================================================
 # ENDPOINTS
 # ================================================
 
 
 @router.post("/", response_model=InteractionResponse)
-async def create_interaction(interaction: InteractionCreate):
+async def create_interaction(
+    interaction: InteractionCreate,
+    db: asyncpg.Pool = Depends(get_db_pool)
+):
     """
     Log a new interaction
 
@@ -95,22 +85,19 @@ async def create_interaction(interaction: InteractionCreate):
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Insert interaction
-        cursor.execute(
-            """
-            INSERT INTO interactions (
-                client_id, practice_id, conversation_id, interaction_type, channel,
-                subject, summary, full_content, sentiment, team_member, direction,
-                duration_minutes, extracted_entities, action_items, interaction_date
-            ) VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-            )
-            RETURNING *
-        """,
-            (
+        async with db.acquire() as conn:
+            # Insert interaction
+            new_interaction = await conn.fetchrow(
+                """
+                INSERT INTO interactions (
+                    client_id, practice_id, conversation_id, interaction_type, channel,
+                    subject, summary, full_content, sentiment, team_member, direction,
+                    duration_minutes, extracted_entities, action_items, interaction_date
+                ) VALUES (
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+                )
+                RETURNING *
+            """,
                 interaction.client_id,
                 interaction.practice_id,
                 interaction.conversation_id,
@@ -123,35 +110,27 @@ async def create_interaction(interaction: InteractionCreate):
                 interaction.team_member,
                 interaction.direction,
                 interaction.duration_minutes,
-                Json(interaction.extracted_entities),
-                Json(interaction.action_items),
+                json.dumps(interaction.extracted_entities),
+                json.dumps(interaction.action_items),
                 datetime.now(),
-            ),
-        )
-
-        new_interaction = cursor.fetchone()
-
-        # Update client's last_interaction_date if client_id provided
-        if interaction.client_id:
-            cursor.execute(
-                """
-                UPDATE clients
-                SET last_interaction_date = NOW()
-                WHERE id = %s
-            """,
-                (interaction.client_id,),
             )
 
-        conn.commit()
+            # Update client's last_interaction_date if client_id provided
+            if interaction.client_id:
+                await conn.execute(
+                    """
+                    UPDATE clients
+                    SET last_interaction_date = NOW()
+                    WHERE id = $1
+                """,
+                    interaction.client_id,
+                )
 
-        cursor.close()
-        conn.close()
+            logger.info(
+                f"✅ Logged {interaction.interaction_type} interaction by {interaction.team_member}"
+            )
 
-        logger.info(
-            f"✅ Logged {interaction.interaction_type} interaction by {interaction.team_member}"
-        )
-
-        return InteractionResponse(**new_interaction)
+            return InteractionResponse(**dict(new_interaction))
 
     except Exception as e:
         logger.error(f"❌ Failed to create interaction: {e}")
@@ -167,48 +146,43 @@ async def list_interactions(
     sentiment: str | None = Query(None, description="Filter by sentiment"),
     limit: int = Query(50, le=200),
     offset: int = Query(0),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     List interactions with optional filtering
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            query = "SELECT * FROM interactions WHERE 1=1"
+            params = []
 
-        query = "SELECT * FROM interactions WHERE 1=1"
-        params = []
+            if client_id:
+                params.append(client_id)
+                query += f" AND client_id = ${len(params)}"
 
-        if client_id:
-            query += " AND client_id = %s"
-            params.append(client_id)
+            if practice_id:
+                params.append(practice_id)
+                query += f" AND practice_id = ${len(params)}"
 
-        if practice_id:
-            query += " AND practice_id = %s"
-            params.append(practice_id)
+            if team_member:
+                params.append(team_member)
+                query += f" AND team_member = ${len(params)}"
 
-        if team_member:
-            query += " AND team_member = %s"
-            params.append(team_member)
+            if interaction_type:
+                params.append(interaction_type)
+                query += f" AND interaction_type = ${len(params)}"
 
-        if interaction_type:
-            query += " AND interaction_type = %s"
-            params.append(interaction_type)
+            if sentiment:
+                params.append(sentiment)
+                query += f" AND sentiment = ${len(params)}"
 
-        if sentiment:
-            query += " AND sentiment = %s"
-            params.append(sentiment)
+            params.extend([limit, offset])
+            query += f" ORDER BY interaction_date DESC LIMIT ${len(params) - 1} OFFSET ${len(params)}"
 
-        query += " ORDER BY interaction_date DESC LIMIT %s OFFSET %s"
-        params.extend([limit, offset])
+            interactions = await conn.fetch(query, *params)
 
-        cursor.execute(query, params)
-        interactions = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
-
-        return [dict(i) for i in interactions]
+            return [dict(i) for i in interactions]
 
     except Exception as e:
         logger.error(f"❌ Failed to list interactions: {e}")
@@ -216,35 +190,31 @@ async def list_interactions(
 
 
 @router.get("/{interaction_id}")
-async def get_interaction(interaction_id: int):
+async def get_interaction(
+    interaction_id: int,
+    db: asyncpg.Pool = Depends(get_db_pool)
+):
     """Get full interaction details by ID"""
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            interaction = await conn.fetchrow(
+                """
+                SELECT
+                    i.*,
+                    c.full_name as client_name,
+                    c.email as client_email
+                FROM interactions i
+                LEFT JOIN clients c ON i.client_id = c.id
+                WHERE i.id = $1
+            """,
+                interaction_id,
+            )
 
-        cursor.execute(
-            """
-            SELECT
-                i.*,
-                c.full_name as client_name,
-                c.email as client_email
-            FROM interactions i
-            LEFT JOIN clients c ON i.client_id = c.id
-            WHERE i.id = %s
-        """,
-            (interaction_id,),
-        )
+            if not interaction:
+                raise HTTPException(status_code=404, detail="Interaction not found")
 
-        interaction = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
-
-        if not interaction:
-            raise HTTPException(status_code=404, detail="Interaction not found")
-
-        return dict(interaction)
+            return dict(interaction)
 
     except HTTPException:
         raise
@@ -254,7 +224,11 @@ async def get_interaction(interaction_id: int):
 
 
 @router.get("/client/{client_id}/timeline")
-async def get_client_timeline(client_id: int, limit: int = Query(50, le=200)):
+async def get_client_timeline(
+    client_id: int,
+    limit: int = Query(50, le=200),
+    db: asyncpg.Pool = Depends(get_db_pool)
+):
     """
     Get complete interaction timeline for a client
 
@@ -262,36 +236,30 @@ async def get_client_timeline(client_id: int, limit: int = Query(50, le=200)):
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            timeline = await conn.fetch(
+                """
+                SELECT
+                    i.*,
+                    p.id as practice_id,
+                    pt.name as practice_type_name,
+                    pt.code as practice_type_code
+                FROM interactions i
+                LEFT JOIN practices p ON i.practice_id = p.id
+                LEFT JOIN practice_types pt ON p.practice_type_id = pt.id
+                WHERE i.client_id = $1
+                ORDER BY i.interaction_date DESC
+                LIMIT $2
+            """,
+                client_id,
+                limit,
+            )
 
-        cursor.execute(
-            """
-            SELECT
-                i.*,
-                p.id as practice_id,
-                pt.name as practice_type_name,
-                pt.code as practice_type_code
-            FROM interactions i
-            LEFT JOIN practices p ON i.practice_id = p.id
-            LEFT JOIN practice_types pt ON p.practice_type_id = pt.id
-            WHERE i.client_id = %s
-            ORDER BY i.interaction_date DESC
-            LIMIT %s
-        """,
-            (client_id, limit),
-        )
-
-        timeline = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
-
-        return {
-            "client_id": client_id,
-            "total_interactions": len(timeline),
-            "timeline": [dict(t) for t in timeline],
-        }
+            return {
+                "client_id": client_id,
+                "total_interactions": len(timeline),
+                "timeline": [dict(t) for t in timeline],
+            }
 
     except Exception as e:
         logger.error(f"❌ Failed to get client timeline: {e}")
@@ -299,7 +267,10 @@ async def get_client_timeline(client_id: int, limit: int = Query(50, le=200)):
 
 
 @router.get("/practice/{practice_id}/history")
-async def get_practice_history(practice_id: int):
+async def get_practice_history(
+    practice_id: int,
+    db: asyncpg.Pool = Depends(get_db_pool)
+):
     """
     Get all interactions related to a specific practice
 
@@ -307,28 +278,21 @@ async def get_practice_history(practice_id: int):
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            history = await conn.fetch(
+                """
+                SELECT * FROM interactions
+                WHERE practice_id = $1
+                ORDER BY interaction_date DESC
+            """,
+                practice_id,
+            )
 
-        cursor.execute(
-            """
-            SELECT * FROM interactions
-            WHERE practice_id = %s
-            ORDER BY interaction_date DESC
-        """,
-            (practice_id,),
-        )
-
-        history = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
-
-        return {
-            "practice_id": practice_id,
-            "total_interactions": len(history),
-            "history": [dict(h) for h in history],
-        }
+            return {
+                "practice_id": practice_id,
+                "total_interactions": len(history),
+                "history": [dict(h) for h in history],
+            }
 
     except Exception as e:
         logger.error(f"❌ Failed to get practice history: {e}")
@@ -338,6 +302,7 @@ async def get_practice_history(practice_id: int):
 @router.get("/stats/overview")
 async def get_interactions_stats(
     team_member: str | None = Query(None, description="Stats for specific team member"),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     Get interaction statistics
@@ -349,77 +314,67 @@ async def get_interactions_stats(
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            # Base query with parameterized filters
+            params = []
+            base_conditions = []
 
-        # Base query with parameterized filters
-        params = []
-        base_conditions = []
+            if team_member:
+                params.append(team_member)
+                base_conditions.append(f"team_member = ${len(params)}")
 
-        if team_member:
-            base_conditions.append("team_member = %s")
-            params.append(team_member)
+            where_clause = "WHERE " + " AND ".join(base_conditions) if base_conditions else ""
 
-        where_clause = "WHERE " + " AND ".join(base_conditions) if base_conditions else ""
-
-        # By type
-        type_query = f"""
-            SELECT interaction_type, COUNT(*) as count
-            FROM interactions
-            {where_clause}
-            GROUP BY interaction_type
-        """
-        cursor.execute(type_query, params)
-        by_type = cursor.fetchall()
-
-        # By sentiment
-        sentiment_query = f"""
-            SELECT sentiment, COUNT(*) as count
-            FROM interactions
-            {where_clause}
-            AND sentiment IS NOT NULL
-            GROUP BY sentiment
-        """
-        cursor.execute(sentiment_query, params)
-        by_sentiment = cursor.fetchall()
-
-        # By team member (if not filtered)
-        if not team_member:
-            cursor.execute(
-                """
-                SELECT team_member, COUNT(*) as count
+            # By type
+            type_query = f"""
+                SELECT interaction_type, COUNT(*) as count
                 FROM interactions
-                GROUP BY team_member
-                ORDER BY count DESC
+                {where_clause}
+                GROUP BY interaction_type
             """
-            )
-            by_team_member = cursor.fetchall()
-        else:
-            by_team_member = []
+            by_type = await conn.fetch(type_query, *params)
 
-        # Recent activity (last 7 days)
-        recent_query = f"""
-            SELECT COUNT(*) as count
-            FROM interactions
-            {where_clause}
-            AND interaction_date >= NOW() - INTERVAL '7 days'
-        """
-        cursor.execute(
-            recent_query,
-            params,
-        )
-        recent_count = cursor.fetchone()["count"]
+            # By sentiment
+            sentiment_query = f"""
+                SELECT sentiment, COUNT(*) as count
+                FROM interactions
+                {where_clause}
+                {"AND" if where_clause else "WHERE"} sentiment IS NOT NULL
+                GROUP BY sentiment
+            """
+            by_sentiment = await conn.fetch(sentiment_query, *params)
 
-        cursor.close()
-        conn.close()
+            # By team member (if not filtered)
+            if not team_member:
+                by_team_member = await conn.fetch(
+                    """
+                    SELECT team_member, COUNT(*) as count
+                    FROM interactions
+                    GROUP BY team_member
+                    ORDER BY count DESC
+                """
+                )
+            else:
+                by_team_member = []
 
-        return {
-            "total_interactions": sum(row["count"] for row in by_type),
-            "last_7_days": recent_count,
-            "by_type": {row["interaction_type"]: row["count"] for row in by_type},
-            "by_sentiment": {row["sentiment"]: row["count"] for row in by_sentiment},
-            "by_team_member": [dict(row) for row in by_team_member] if not team_member else [],
-        }
+            # Recent activity (last 7 days)
+            params_recent = list(params)
+            recent_query = f"""
+                SELECT COUNT(*) as count
+                FROM interactions
+                {where_clause}
+                {"AND" if where_clause else "WHERE"} interaction_date >= NOW() - INTERVAL '7 days'
+            """
+            recent_result = await conn.fetchrow(recent_query, *params_recent)
+            recent_count = recent_result["count"]
+
+            return {
+                "total_interactions": sum(row["count"] for row in by_type),
+                "last_7_days": recent_count,
+                "by_type": {row["interaction_type"]: row["count"] for row in by_type},
+                "by_sentiment": {row["sentiment"]: row["count"] for row in by_sentiment},
+                "by_team_member": [dict(row) for row in by_team_member] if not team_member else [],
+            }
 
     except Exception as e:
         logger.error(f"❌ Failed to get interaction stats: {e}")
@@ -432,6 +387,7 @@ async def create_interaction_from_conversation(
     client_email: str = Query(...),
     team_member: str = Query(...),
     summary: str | None = Query(None, description="AI-generated summary"),
+    db: asyncpg.Pool = Depends(get_db_pool),
 ):
     """
     Auto-create interaction record from a chat conversation
@@ -440,72 +396,69 @@ async def create_interaction_from_conversation(
     """
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        async with db.acquire() as conn:
+            # Get or create client by email
+            client = await conn.fetchrow(
+                "SELECT id FROM clients WHERE email = $1",
+                client_email
+            )
 
-        # Get or create client by email
-        cursor.execute("SELECT id FROM clients WHERE email = %s", (client_email,))
-        client = cursor.fetchone()
-
-        if not client:
-            # Create new client (prospect)
-            cursor.execute(
-                """
-                INSERT INTO clients (full_name, email, status, first_contact_date, created_by)
-                VALUES (%s, %s, %s, %s, %s)
-                RETURNING id
-            """,
-                (
+            was_new_client = False
+            if not client:
+                # Create new client (prospect)
+                client = await conn.fetchrow(
+                    """
+                    INSERT INTO clients (full_name, email, status, first_contact_date, created_by)
+                    VALUES ($1, $2, $3, $4, $5)
+                    RETURNING id
+                """,
                     client_email.split("@")[0],  # Use email prefix as temp name
                     client_email,
                     "prospect",
                     datetime.now(),
                     team_member,
-                ),
-            )
-            client = cursor.fetchone()
-            logger.info(f"✅ Auto-created prospect client: {client_email}")
+                )
+                was_new_client = True
+                logger.info(f"✅ Auto-created prospect client: {client_email}")
 
-        client_id = client["id"]
+            client_id = client["id"]
 
-        # Get conversation from conversations table
-        cursor.execute(
-            """
-            SELECT messages FROM conversations WHERE id = %s
-        """,
-            (conversation_id,),
-        )
-        conv = cursor.fetchone()
-
-        full_content = ""
-        if conv and conv["messages"]:
-            # Format messages into readable text
-            messages = conv["messages"]
-            full_content = "\n\n".join(
-                [
-                    f"{msg.get('role', 'unknown').upper()}: {msg.get('content', '')}"
-                    for msg in messages
-                ]
+            # Get conversation from conversations table
+            conv = await conn.fetchrow(
+                """
+                SELECT messages FROM conversations WHERE id = $1
+            """,
+                conversation_id,
             )
 
-        # Auto-generate summary if not provided (take first user message)
-        if not summary and conv and conv["messages"]:
-            first_user_msg = next((m for m in conv["messages"] if m.get("role") == "user"), None)
-            if first_user_msg:
-                summary = first_user_msg.get("content", "")[:200]  # First 200 chars
+            full_content = ""
+            if conv and conv["messages"]:
+                # Format messages into readable text
+                messages = conv["messages"]
+                full_content = "\n\n".join(
+                    [
+                        f"{msg.get('role', 'unknown').upper()}: {msg.get('content', '')}"
+                        for msg in messages
+                    ]
+                )
 
-        # Create interaction
-        cursor.execute(
-            """
-            INSERT INTO interactions (
-                client_id, conversation_id, interaction_type, channel,
-                summary, full_content, team_member, direction, interaction_date
-            ) VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s
-            )
-            RETURNING *
-        """,
-            (
+            # Auto-generate summary if not provided (take first user message)
+            if not summary and conv and conv["messages"]:
+                first_user_msg = next((m for m in conv["messages"] if m.get("role") == "user"), None)
+                if first_user_msg:
+                    summary = first_user_msg.get("content", "")[:200]  # First 200 chars
+
+            # Create interaction
+            new_interaction = await conn.fetchrow(
+                """
+                INSERT INTO interactions (
+                    client_id, conversation_id, interaction_type, channel,
+                    summary, full_content, team_member, direction, interaction_date
+                ) VALUES (
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9
+                )
+                RETURNING *
+            """,
                 client_id,
                 conversation_id,
                 "chat",
@@ -515,36 +468,28 @@ async def create_interaction_from_conversation(
                 team_member,
                 "inbound",
                 datetime.now(),
-            ),
-        )
+            )
 
-        new_interaction = cursor.fetchone()
+            # Update client last interaction
+            await conn.execute(
+                """
+                UPDATE clients
+                SET last_interaction_date = NOW()
+                WHERE id = $1
+            """,
+                client_id,
+            )
 
-        # Update client last interaction
-        cursor.execute(
-            """
-            UPDATE clients
-            SET last_interaction_date = NOW()
-            WHERE id = %s
-        """,
-            (client_id,),
-        )
+            logger.info(
+                f"✅ Created interaction from conversation {conversation_id} for client {client_id}"
+            )
 
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-
-        logger.info(
-            f"✅ Created interaction from conversation {conversation_id} for client {client_id}"
-        )
-
-        return {
-            "success": True,
-            "interaction_id": new_interaction["id"],
-            "client_id": client_id,
-            "was_new_client": client is None,
-        }
+            return {
+                "success": True,
+                "interaction_id": new_interaction["id"],
+                "client_id": client_id,
+                "was_new_client": was_new_client,
+            }
 
     except Exception as e:
         logger.error(f"❌ Failed to create interaction from conversation: {e}")
