@@ -1,6 +1,6 @@
 /**
  * Integration Tests - Frontend-Backend Alignment
- * 
+ *
  * These tests verify that:
  * 1. Frontend API proxy routes correctly call backend endpoints
  * 2. Data formats match between frontend and backend
@@ -17,11 +17,11 @@ describe('Frontend-Backend Integration', () => {
       const loginRequestFormat = {
         email: 'test@example.com',
         pin: '1234',
-      }
-      
-      expect(loginRequestFormat).toHaveProperty('email')
-      expect(loginRequestFormat).toHaveProperty('pin')
-    })
+      };
+
+      expect(loginRequestFormat).toHaveProperty('email');
+      expect(loginRequestFormat).toHaveProperty('pin');
+    });
 
     it('should verify chat endpoint structure', () => {
       // Backend endpoint: POST /api/oracle/query
@@ -29,12 +29,12 @@ describe('Frontend-Backend Integration', () => {
       const chatRequestFormat = {
         messages: [{ role: 'user', content: 'Hello' }],
         user_id: 'test-user',
-      }
-      
-      expect(chatRequestFormat).toHaveProperty('messages')
-      expect(chatRequestFormat).toHaveProperty('user_id')
-      expect(Array.isArray(chatRequestFormat.messages)).toBe(true)
-    })
+      };
+
+      expect(chatRequestFormat).toHaveProperty('messages');
+      expect(chatRequestFormat).toHaveProperty('user_id');
+      expect(Array.isArray(chatRequestFormat.messages)).toBe(true);
+    });
 
     it('should verify chat stream endpoint structure', () => {
       // Backend endpoint: GET /bali-zero/chat-stream
@@ -42,12 +42,12 @@ describe('Frontend-Backend Integration', () => {
       const streamRequestFormat = {
         message: 'Hello',
         conversation_history: [],
-      }
-      
-      expect(streamRequestFormat).toHaveProperty('message')
-      expect(streamRequestFormat).toHaveProperty('conversation_history')
-    })
-  })
+      };
+
+      expect(streamRequestFormat).toHaveProperty('message');
+      expect(streamRequestFormat).toHaveProperty('conversation_history');
+    });
+  });
 
   describe('Data Format Compatibility', () => {
     it('should match backend login request format', () => {
@@ -55,13 +55,13 @@ describe('Frontend-Backend Integration', () => {
       const backendFormat = {
         email: 'test@example.com',
         pin: '1234',
-      }
-      
-      expect(backendFormat).toHaveProperty('email')
-      expect(backendFormat).toHaveProperty('pin')
-      expect(typeof backendFormat.email).toBe('string')
-      expect(typeof backendFormat.pin).toBe('string')
-    })
+      };
+
+      expect(backendFormat).toHaveProperty('email');
+      expect(backendFormat).toHaveProperty('pin');
+      expect(typeof backendFormat.email).toBe('string');
+      expect(typeof backendFormat.pin).toBe('string');
+    });
 
     it('should match backend chat request format', () => {
       // Backend expects: { query: string, user_email: string }
@@ -70,18 +70,18 @@ describe('Frontend-Backend Integration', () => {
       const frontendFormat = {
         messages: [{ role: 'user', content: 'Test query' }],
         user_id: 'user@example.com',
-      }
-      
+      };
+
       // Transformation happens in route handler
       const backendFormat = {
         query: frontendFormat.messages[frontendFormat.messages.length - 1]?.content || '',
         user_email: frontendFormat.user_id,
-      }
-      
-      expect(backendFormat).toHaveProperty('query')
-      expect(backendFormat).toHaveProperty('user_email')
-    })
-  })
+      };
+
+      expect(backendFormat).toHaveProperty('query');
+      expect(backendFormat).toHaveProperty('user_email');
+    });
+  });
 
   describe('Error Handling Compatibility', () => {
     it('should handle backend error format', () => {
@@ -91,41 +91,41 @@ describe('Frontend-Backend Integration', () => {
         body: {
           detail: 'Error message',
         },
-      }
-      
-      expect(backendError.body).toHaveProperty('detail')
-      expect(typeof backendError.body.detail).toBe('string')
-    })
+      };
+
+      expect(backendError.body).toHaveProperty('detail');
+      expect(typeof backendError.body.detail).toBe('string');
+    });
 
     it('should map backend errors to frontend format', () => {
       // Frontend expects: { error: string }
       const backendError = {
         status: 401,
         body: { detail: 'Unauthorized' },
-      }
-      
+      };
+
       // Frontend mapping
       const frontendError = {
         error: backendError.body.detail || 'Unknown error',
-      }
-      
-      expect(frontendError.error).toBe('Unauthorized')
-    })
-  })
+      };
+
+      expect(frontendError.error).toBe('Unauthorized');
+    });
+  });
 
   describe('Authentication Flow', () => {
     it('should extract token from Authorization header', () => {
-      const authHeader = 'Bearer extracted-token-123'
-      const token = authHeader?.replace('Bearer ', '') || ''
-      
-      expect(token).toBe('extracted-token-123')
-    })
+      const authHeader: string | null = 'Bearer extracted-token-123';
+      const token = authHeader ? authHeader.replace('Bearer ', '') : '';
+
+      expect(token).toBe('extracted-token-123');
+    });
 
     it('should handle missing token gracefully', () => {
-      const authHeader = null
-      const token = authHeader?.replace('Bearer ', '') || ''
-      
-      expect(token).toBe('')
-    })
-  })
-})
+      const authHeader = null;
+      const token = authHeader?.replace('Bearer ', '') || '';
+
+      expect(token).toBe('');
+    });
+  });
+});

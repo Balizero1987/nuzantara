@@ -62,6 +62,7 @@ const customJestConfig = {
     '<rootDir>/node_modules/',
     '<rootDir>/coverage/',
     '<rootDir>/e2e/', // Exclude E2E tests (run with Playwright)
+    'e2e/.*\\.spec\\.ts$', // Exclude all Playwright test files
   ],
   modulePathIgnorePatterns: [
     '<rootDir>/.next/',
