@@ -12,7 +12,7 @@ import sys
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from agents.client_value_predictor import ClientValuePredictor
+from agents.agents.client_value_predictor import ClientValuePredictor
 
 # Configure logging
 logging.basicConfig(

@@ -13,7 +13,7 @@ import sys
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from agents.knowledge_graph_builder import KnowledgeGraphBuilder
+from agents.agents.knowledge_graph_builder import KnowledgeGraphBuilder
 
 # Configure logging
 logging.basicConfig(
