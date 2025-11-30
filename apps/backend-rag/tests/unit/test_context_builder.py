@@ -82,7 +82,7 @@ def test_build_memory_context_with_facts(context_builder, mock_memory):
 
     assert result is not None
     assert isinstance(result, str)
-    assert "Context about this conversation" in result
+    assert "Riassunto conversazione precedente:" in result or "business setup" in result.lower()
     assert "CEO" in result or "John Doe" in result
 
 
@@ -97,6 +97,7 @@ def test_build_memory_context_empty_facts(context_builder):
     """Test build_memory_context with empty facts"""
     memory = MagicMock()
     memory.profile_facts = []
+    memory.summary = None  # Add summary attribute
 
     result = context_builder.build_memory_context(memory)
 
@@ -108,7 +109,7 @@ def test_build_memory_context_with_summary(context_builder, mock_memory):
     result = context_builder.build_memory_context(mock_memory)
 
     assert result is not None
-    assert "Previous conversation context" in result
+    assert "Riassunto conversazione precedente:" in result
     assert "business setup" in result.lower() or "Indonesia" in result
 
 
@@ -152,6 +153,7 @@ def test_build_memory_context_no_profile_facts_attribute(context_builder):
     """Test build_memory_context handles missing profile_facts attribute"""
     memory = MagicMock()
     # No profile_facts attribute
+    memory.summary = ""  # Add empty summary
 
     result = context_builder.build_memory_context(memory)
 
@@ -316,7 +318,7 @@ def test_combine_contexts_all_sources(context_builder):
     assert team_context in result
     assert rag_context in result
     assert cultural_context in result
-    assert "<relevant_knowledge>" in result  # RAG wrapped in XML
+    assert "<knowledge_base>" in result  # RAG wrapped in knowledge_base XML
 
 
 def test_combine_contexts_team_first(context_builder):
@@ -339,8 +341,8 @@ def test_combine_contexts_rag_wrapped_in_xml(context_builder):
     result = context_builder.combine_contexts(None, None, rag_context)
 
     assert result is not None
-    assert "<relevant_knowledge>" in result
-    assert "</relevant_knowledge>" in result
+    assert "<knowledge_base>" in result
+    assert "</knowledge_base>" in result
     assert rag_context in result
 
 
@@ -395,7 +397,7 @@ def test_build_memory_context_only_other_facts(context_builder):
     result = context_builder.build_memory_context(memory)
 
     assert result is not None
-    assert "You also know that" in result
+    assert "Contesto aggiuntivo:" in result  # Italian for "Additional context"
     assert "coffee" in result or "meetings" in result
 
 
@@ -437,10 +439,10 @@ def test_build_memory_context_only_other_facts_no_personal(context_builder):
     result = context_builder.build_memory_context(memory)
 
     assert result is not None
-    # Should include "You also know that" for other_facts (branch 68->71)
-    assert "You also know that" in result
-    # Should include summary (branch 71->74)
-    assert "Previous conversation context" in result
+    # Should include "Contesto aggiuntivo:" for other_facts (Italian)
+    assert "Contesto aggiuntivo:" in result
+    # Should include summary with Italian prefix
+    assert "Riassunto conversazione precedente:" in result
     # Should NOT include personal facts section (personal_facts is empty)
     # The branch 68->71 is taken when other_facts exists but personal_facts doesn't
     assert "talking to" not in result.lower() or "role:" not in result.lower()
@@ -465,7 +467,7 @@ def test_build_memory_context_no_personal_facts_branch(context_builder):
     # Should have other_facts but no personal_facts
     # This tests branch 68->71: when other_facts exists but personal_facts is empty
     # The branch 68->71 is the path from line 68 (if other_facts) to line 71 (if summary)
-    assert "You also know that" in result
+    assert "Contesto aggiuntivo:" in result  # Italian for "Additional context"
     # Should NOT have personal facts section
     assert "talking to" not in result.lower()
     assert "role:" not in result.lower()
