@@ -141,9 +141,10 @@ async def test_retrieve_context_skips_casual(rag_manager):
 
     result = await rag_manager.retrieve_context(query, query_type, user_level, limit)
 
-    assert result["used_rag"] is False
-    assert result["context"] is None
-    assert result["document_count"] == 0
+    # Casual queries now trigger a light search (limit=1)
+    assert result["used_rag"] is True
+    assert result["context"] is not None
+    assert result["document_count"] > 0
 
 
 @pytest.mark.asyncio

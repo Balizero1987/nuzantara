@@ -904,7 +904,7 @@ Natural language search across CRM data
 Examples:
 - "clients with KITAS expiring soon"
 - "active practices for John Smith"
-- "recent interactions with antonello@balizero.com"
+- "recent interactions with Zero@balizero.com"
 - "urgent practices"
 - "PT PMA practices in progress"
 

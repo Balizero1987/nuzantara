@@ -240,12 +240,17 @@ async def test_route_chat_greeting_fast_track(intelligent_router):
     """Test route_chat with greeting triggers fast track"""
     router, mocks = intelligent_router
     
-    router.classifier = AsyncMock()
     router.classifier.classify_intent = AsyncMock(return_value={
         "category": "greeting",
         "suggested_ai": "zantara-ai",
         "confidence": 0.9,
     })
+
+    # Mock context builder to avoid fall-through and ensure fast track
+    router.context_builder = MagicMock()
+    router.context_builder.detect_identity_query = MagicMock(return_value=False)
+    router.context_builder.detect_zantara_query = MagicMock(return_value=False)
+    router.context_builder.detect_team_query = MagicMock(return_value=False)
 
     result = await router.route_chat("Hello", "user123")
 
