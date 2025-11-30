@@ -122,8 +122,8 @@ describe('Frontend-Backend Integration', () => {
     });
 
     it('should handle missing token gracefully', () => {
-      const authHeader = null;
-      const token = authHeader?.replace('Bearer ', '') || '';
+      const authHeader: string | null = null;
+      const token = authHeader ? authHeader.replace('Bearer ', '') : '';
 
       expect(token).toBe('');
     });

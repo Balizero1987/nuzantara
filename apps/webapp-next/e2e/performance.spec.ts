@@ -224,11 +224,17 @@ test.describe('Performance Tests', () => {
     const jsRequests = await page.evaluate(() => {
       return performance
         .getEntriesByType('resource')
-        .filter((entry: PerformanceResourceTiming) => entry.name.includes('.js'))
-        .map((entry: PerformanceResourceTiming) => ({
-          name: entry.name,
-          size: entry.transferSize,
-        }));
+        .filter((entry) => {
+          const resourceEntry = entry as PerformanceResourceTiming;
+          return resourceEntry.name.includes('.js');
+        })
+        .map((entry) => {
+          const resourceEntry = entry as PerformanceResourceTiming;
+          return {
+            name: resourceEntry.name,
+            size: resourceEntry.transferSize,
+          };
+        });
     });
 
     // Total JS should be reasonable
