@@ -20,18 +20,20 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
 }
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(globalThis, 'localStorage', {
   value: localStorageMock,
   writable: true,
+  configurable: true,
 })
 
 // Mock window.location
 const mockLocation = {
   href: '',
 }
-Object.defineProperty(window, 'location', {
+Object.defineProperty(globalThis, 'location', {
   value: mockLocation,
   writable: true,
+  configurable: true,
 })
 
 describe('authAPI', () => {

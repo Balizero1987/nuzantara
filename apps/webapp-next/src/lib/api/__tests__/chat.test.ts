@@ -1,10 +1,4 @@
-import { chatAPI } from '../chat';
-import * as clientModule from '../client';
-
-// Mock fetch globally
-global.fetch = jest.fn();
-
-// Mock apiClient
+// Mock apiClient BEFORE imports
 jest.mock('../client', () => ({
   apiClient: {
     getToken: jest.fn(() => 'test-token-123'),
@@ -12,6 +6,12 @@ jest.mock('../client', () => ({
     clearToken: jest.fn(),
   },
 }));
+
+import { chatAPI } from '../chat';
+import * as clientModule from '../client';
+
+// Mock fetch globally
+global.fetch = jest.fn();
 
 // Helper to encode string to Uint8Array (polyfill for TextEncoder)
 function encodeString(str: string): Uint8Array {

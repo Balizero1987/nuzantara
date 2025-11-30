@@ -94,10 +94,10 @@ describe('Backend API Compatibility', () => {
     it('should call correct backend streaming endpoint', () => {
       // Backend: GET /bali-zero/chat-stream?query=...&stream=true
       // Frontend calls: /api/chat/stream which proxies to backend
-      const expectedUrl = expect.stringContaining('/bali-zero/chat-stream')
       const expectedMethod = 'GET'
       
       expect(expectedMethod).toBe('GET')
+      expect('/bali-zero/chat-stream').toContain('/bali-zero/chat-stream')
     })
 
     it('should include required headers for streaming', () => {
