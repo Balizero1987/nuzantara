@@ -23,13 +23,14 @@ export class DefaultService {
     /**
      * Search Intel
      * Search intel news with semantic search
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public searchIntelApiIntelSearchPost(
+    public searchIntelApiIntelSearchPost({
+        requestBody,
+    }: {
         requestBody: IntelSearchRequest,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/intel/search',
@@ -43,13 +44,14 @@ export class DefaultService {
     /**
      * Store Intel
      * Store intel news item in Qdrant
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public storeIntelApiIntelStorePost(
+    public storeIntelApiIntelStorePost({
+        requestBody,
+    }: {
         requestBody: IntelStoreRequest,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/intel/store',
@@ -63,15 +65,16 @@ export class DefaultService {
     /**
      * Get Critical Items
      * Get critical impact items
-     * @param category
-     * @param days
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getCriticalItemsApiIntelCriticalGet(
+    public getCriticalItemsApiIntelCriticalGet({
+        category,
+        days = 7,
+    }: {
         category?: (string | null),
-        days: number = 7,
-    ): CancelablePromise<any> {
+        days?: number,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/intel/critical',
@@ -87,15 +90,16 @@ export class DefaultService {
     /**
      * Get Trends
      * Get trending topics and keywords
-     * @param category
-     * @param days
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getTrendsApiIntelTrendsGet(
+    public getTrendsApiIntelTrendsGet({
+        category,
+        days = 30,
+    }: {
         category?: (string | null),
-        days: number = 30,
-    ): CancelablePromise<any> {
+        days?: number,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/intel/trends',
@@ -111,13 +115,14 @@ export class DefaultService {
     /**
      * Get Collection Stats
      * Get statistics for a specific intel collection
-     * @param collection
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getCollectionStatsApiIntelStatsCollectionGet(
+    public getCollectionStatsApiIntelStatsCollectionGet({
+        collection,
+    }: {
         collection: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/intel/stats/{collection}',
@@ -157,23 +162,24 @@ export class DefaultService {
     /**
      * Bali Zero Chat Stream
      * Streaming chat endpoint using IntelligentRouter for RAG-based responses.
-     * @param query
-     * @param userEmail
-     * @param userRole
-     * @param conversationHistory
-     * @param authToken
-     * @param authorization
      * @returns any Successful Response
      * @throws ApiError
      */
-    public baliZeroChatStreamBaliZeroChatStreamGet(
+    public baliZeroChatStreamBaliZeroChatStreamGet({
+        query,
+        userEmail,
+        userRole = 'member',
+        conversationHistory,
+        authToken,
+        authorization,
+    }: {
         query: string,
         userEmail?: (string | null),
-        userRole: string = 'member',
+        userRole?: string,
         conversationHistory?: (string | null),
         authToken?: (string | null),
         authorization?: (string | null),
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/bali-zero/chat-stream',
@@ -195,23 +201,24 @@ export class DefaultService {
     /**
      * Bali Zero Chat Stream
      * Streaming chat endpoint using IntelligentRouter for RAG-based responses.
-     * @param query
-     * @param userEmail
-     * @param userRole
-     * @param conversationHistory
-     * @param authToken
-     * @param authorization
      * @returns any Successful Response
      * @throws ApiError
      */
-    public baliZeroChatStreamApiV2BaliZeroChatStreamGet(
+    public baliZeroChatStreamApiV2BaliZeroChatStreamGet({
+        query,
+        userEmail,
+        userRole = 'member',
+        conversationHistory,
+        authToken,
+        authorization,
+    }: {
         query: string,
         userEmail?: (string | null),
-        userRole: string = 'member',
+        userRole?: string,
         conversationHistory?: (string | null),
         authToken?: (string | null),
         authorization?: (string | null),
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/v2/bali-zero/chat-stream',

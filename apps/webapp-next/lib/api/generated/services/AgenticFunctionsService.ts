@@ -35,13 +35,14 @@ export class AgenticFunctionsService {
      * - pt_pma_setup: Complete PT PMA company setup (7 steps)
      * - kitas_application: KITAS visa application (5 steps)
      * - property_purchase: Property purchase process (6 steps)
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public createClientJourneyApiAgentsJourneyCreatePost(
+    public createClientJourneyApiAgentsJourneyCreatePost({
+        requestBody,
+    }: {
         requestBody: CreateJourneyRequest,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/agents/journey/create',
@@ -55,13 +56,14 @@ export class AgenticFunctionsService {
     /**
      * Get Journey
      * Get journey details and progress
-     * @param journeyId
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getJourneyApiAgentsJourneyJourneyIdGet(
+    public getJourneyApiAgentsJourneyJourneyIdGet({
+        journeyId,
+    }: {
         journeyId: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/agents/journey/{journey_id}',
@@ -76,17 +78,18 @@ export class AgenticFunctionsService {
     /**
      * Complete Journey Step
      * Mark a journey step as completed
-     * @param journeyId
-     * @param stepId
-     * @param notes
      * @returns any Successful Response
      * @throws ApiError
      */
-    public completeJourneyStepApiAgentsJourneyJourneyIdStepStepIdCompletePost(
+    public completeJourneyStepApiAgentsJourneyJourneyIdStepStepIdCompletePost({
+        journeyId,
+        stepId,
+        notes,
+    }: {
         journeyId: string,
         stepId: string,
         notes?: (string | null),
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/agents/journey/{journey_id}/step/{step_id}/complete',
@@ -105,13 +108,14 @@ export class AgenticFunctionsService {
     /**
      * Get Next Steps
      * Get next available steps in the journey
-     * @param journeyId
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getNextStepsApiAgentsJourneyJourneyIdNextStepsGet(
+    public getNextStepsApiAgentsJourneyJourneyIdNextStepsGet({
+        journeyId,
+    }: {
         journeyId: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/agents/journey/{journey_id}/next-steps',
@@ -134,13 +138,14 @@ export class AgenticFunctionsService {
      * - tax_filing: SPT Tahunan, PPh, PPn deadlines
      * - license_renewal: IMTA, NIB, business permits
      * - regulatory_change: Law/regulation changes
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public addComplianceTrackingApiAgentsComplianceTrackPost(
+    public addComplianceTrackingApiAgentsComplianceTrackPost({
+        requestBody,
+    }: {
         requestBody: AddComplianceItemRequest,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/agents/compliance/track',
@@ -159,17 +164,18 @@ export class AgenticFunctionsService {
      * client_id: Filter by client
      * severity: Filter by severity
      * auto_notify: Automatically send notifications for alerts
-     * @param clientId
-     * @param severity
-     * @param autoNotify
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getComplianceAlertsApiAgentsComplianceAlertsGet(
+    public getComplianceAlertsApiAgentsComplianceAlertsGet({
+        clientId,
+        severity,
+        autoNotify = false,
+    }: {
         clientId?: (string | null),
         severity?: (string | null),
-        autoNotify: boolean = false,
-    ): CancelablePromise<any> {
+        autoNotify?: boolean,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/agents/compliance/alerts',
@@ -186,13 +192,14 @@ export class AgenticFunctionsService {
     /**
      * Get Client Compliance
      * Get all compliance items for a client
-     * @param clientId
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getClientComplianceApiAgentsComplianceClientClientIdGet(
+    public getClientComplianceApiAgentsComplianceClientClientIdGet({
+        clientId,
+    }: {
         clientId: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/agents/compliance/client/{client_id}',
@@ -212,13 +219,17 @@ export class AgenticFunctionsService {
      *
      * Entities: Person, Organization, Location, Document, Concept
      * Relationships: WORKS_FOR, LOCATED_IN, REQUIRES, RELATED_TO, etc.
-     * @param text Text to extract entities and relationships from
      * @returns any Successful Response
      * @throws ApiError
      */
-    public extractKnowledgeGraphApiAgentsKnowledgeGraphExtractPost(
+    public extractKnowledgeGraphApiAgentsKnowledgeGraphExtractPost({
+        text,
+    }: {
+        /**
+         * Text to extract entities and relationships from
+         */
         text: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/agents/knowledge-graph/extract',
@@ -241,13 +252,14 @@ export class AgenticFunctionsService {
      * - neo4j: Cypher queries for Neo4j
      * - json: JSON format
      * - graphml: GraphML format
-     * @param format
      * @returns any Successful Response
      * @throws ApiError
      */
-    public exportKnowledgeGraphApiAgentsKnowledgeGraphExportGet(
-        format: string = 'neo4j',
-    ): CancelablePromise<any> {
+    public exportKnowledgeGraphApiAgentsKnowledgeGraphExportGet({
+        format = 'neo4j',
+    }: {
+        format?: string,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/agents/knowledge-graph/export',
@@ -273,15 +285,16 @@ export class AgenticFunctionsService {
      * - https://peraturan.bpk.go.id (Legal documents)
      * - https://jdih.kemendag.go.id (Trade regulations)
      * - https://ortax.org (Tax news)
-     * @param force
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public runAutoIngestionApiAgentsIngestionRunPost(
-        force: boolean = false,
+    public runAutoIngestionApiAgentsIngestionRunPost({
+        force = false,
+        requestBody,
+    }: {
+        force?: boolean,
         requestBody?: (Array<string> | null),
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/agents/ingestion/run',
@@ -312,15 +325,19 @@ export class AgenticFunctionsService {
      * 🔍 AGENT 5: Cross-Oracle Synthesis
      *
      * Search across multiple Oracle collections and synthesize results
-     * @param query
-     * @param domains Domains to search: tax, legal, property, visa, kbli
      * @returns any Successful Response
      * @throws ApiError
      */
-    public crossOracleSynthesisApiAgentsSynthesisCrossOraclePost(
+    public crossOracleSynthesisApiAgentsSynthesisCrossOraclePost({
+        query,
+        domains,
+    }: {
         query: string,
+        /**
+         * Domains to search: tax, legal, property, visa, kbli
+         */
         domains: Array<string>,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/agents/synthesis/cross-oracle',
@@ -338,17 +355,18 @@ export class AgenticFunctionsService {
      * 💰 AGENT 6: Dynamic Pricing Service
      *
      * Calculate pricing based on service type, complexity, and urgency
-     * @param serviceType
-     * @param complexity
-     * @param urgency
      * @returns any Successful Response
      * @throws ApiError
      */
-    public calculateDynamicPricingApiAgentsPricingCalculatePost(
+    public calculateDynamicPricingApiAgentsPricingCalculatePost({
+        serviceType,
+        complexity = 'standard',
+        urgency = 'normal',
+    }: {
         serviceType: string,
-        complexity: string = 'standard',
-        urgency: string = 'normal',
-    ): CancelablePromise<any> {
+        complexity?: string,
+        urgency?: string,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/agents/pricing/calculate',
@@ -367,17 +385,18 @@ export class AgenticFunctionsService {
      * 🔬 AGENT 7: Autonomous Research Service
      *
      * Conduct autonomous research on a topic using multiple sources
-     * @param topic
-     * @param depth
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public runAutonomousResearchApiAgentsResearchAutonomousPost(
+    public runAutonomousResearchApiAgentsResearchAutonomousPost({
+        topic,
+        depth = 'standard',
+        requestBody,
+    }: {
         topic: string,
-        depth: string = 'standard',
+        depth?: string,
         requestBody?: (Array<string> | null),
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/agents/research/autonomous',

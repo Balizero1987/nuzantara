@@ -42,13 +42,14 @@ export class NotificationsService {
      * - high: Email + WhatsApp + In-app
      * - urgent: Email + WhatsApp + SMS + In-app
      * - critical: All channels
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public sendNotificationApiNotificationsSendPost(
+    public sendNotificationApiNotificationsSendPost({
+        requestBody,
+    }: {
         requestBody: SendNotificationRequest,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/notifications/send',
@@ -71,13 +72,14 @@ export class NotificationsService {
      * - journey_completed: Journey completion celebration
      * - document_request: Document request
      * - payment_reminder: Payment reminder
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public sendTemplateNotificationApiNotificationsSendTemplatePost(
+    public sendTemplateNotificationApiNotificationsSendTemplatePost({
+        requestBody,
+    }: {
         requestBody: TemplateNotificationRequest,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/notifications/send-template',
@@ -93,17 +95,18 @@ export class NotificationsService {
      * Test notification channels with a test message
      *
      * Useful for verifying configuration
-     * @param email
-     * @param phone
-     * @param whatsapp
      * @returns any Successful Response
      * @throws ApiError
      */
-    public testNotificationChannelsApiNotificationsTestPost(
+    public testNotificationChannelsApiNotificationsTestPost({
+        email,
+        phone,
+        whatsapp,
+    }: {
         email?: (string | null),
         phone?: (string | null),
         whatsapp?: (string | null),
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/notifications/test',

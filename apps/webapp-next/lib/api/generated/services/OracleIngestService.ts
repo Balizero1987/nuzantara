@@ -37,13 +37,14 @@ export class OracleIngestService {
                      * **Rate Limits:**
                      * - Max 1000 documents per request
                      * - Batch processing for large uploads
-                     * @param requestBody
                      * @returns IngestResponse Successful Response
                      * @throws ApiError
                      */
-                    public ingestDocumentsApiOracleIngestPost(
+                    public ingestDocumentsApiOracleIngestPost({
+                        requestBody,
+                    }: {
                         requestBody: IngestRequest,
-                    ): CancelablePromise<IngestResponse> {
+                    }): CancelablePromise<IngestResponse> {
                         return this.httpRequest.request({
                             method: 'POST',
                             url: '/api/oracle/ingest',

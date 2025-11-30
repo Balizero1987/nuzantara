@@ -22,13 +22,14 @@ export class HandlersService {
     /**
      * Search Handlers
      * Search handlers by name, path, or description
-     * @param query
      * @returns any Successful Response
      * @throws ApiError
      */
-    public searchHandlersApiHandlersSearchGet(
+    public searchHandlersApiHandlersSearchGet({
+        query,
+    }: {
         query: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/handlers/search',
@@ -43,13 +44,14 @@ export class HandlersService {
     /**
      * Get Handlers By Category
      * Get all handlers in a specific category
-     * @param category
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getHandlersByCategoryApiHandlersCategoryCategoryGet(
+    public getHandlersByCategoryApiHandlersCategoryCategoryGet({
+        category,
+    }: {
         category: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/handlers/category/{category}',

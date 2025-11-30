@@ -11,13 +11,14 @@ export class ProductivityService {
     /**
      * Draft Email
      * Draft an email in Gmail
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public draftEmailApiProductivityGmailDraftPost(
+    public draftEmailApiProductivityGmailDraftPost({
+        requestBody,
+    }: {
         requestBody: EmailDraft,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/productivity/gmail/draft',
@@ -31,13 +32,14 @@ export class ProductivityService {
     /**
      * Schedule Meeting
      * Schedule a meeting in Google Calendar
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public scheduleMeetingApiProductivityCalendarSchedulePost(
+    public scheduleMeetingApiProductivityCalendarSchedulePost({
+        requestBody,
+    }: {
         requestBody: CalendarEvent,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/productivity/calendar/schedule',
@@ -51,13 +53,14 @@ export class ProductivityService {
     /**
      * List Events
      * List upcoming calendar events
-     * @param limit
      * @returns any Successful Response
      * @throws ApiError
      */
-    public listEventsApiProductivityCalendarEventsGet(
-        limit: number = 10,
-    ): CancelablePromise<any> {
+    public listEventsApiProductivityCalendarEventsGet({
+        limit = 10,
+    }: {
+        limit?: number,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/productivity/calendar/events',
@@ -72,13 +75,14 @@ export class ProductivityService {
     /**
      * Search Drive
      * Search Google Drive files
-     * @param query
      * @returns any Successful Response
      * @throws ApiError
      */
-    public searchDriveApiProductivityDriveSearchGet(
+    public searchDriveApiProductivityDriveSearchGet({
+        query,
+    }: {
         query: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/productivity/drive/search',
