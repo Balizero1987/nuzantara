@@ -46,7 +46,7 @@ from fastapi.security import HTTPBearer
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
@@ -430,6 +430,8 @@ class OracleQueryRequest(BaseModel):
 
 class OracleQueryResponse(BaseModel):
     """Universal Oracle query response with full context"""
+
+    model_config = ConfigDict(protected_namespaces=())
 
     success: bool
     query: str
