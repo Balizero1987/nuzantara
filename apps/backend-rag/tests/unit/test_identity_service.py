@@ -921,3 +921,305 @@ async def test_authenticate_user_success_logging(
                     if "authenticated" in str(call).lower()
                 ]
                 assert len(success_calls) > 0
+
+
+# ============================================================================
+# Additional Edge Cases and Error Scenarios
+# ============================================================================
+
+
+@pytest.mark.asyncio
+async def test_authenticate_user_execute_fails_on_failed_attempt_increment(
+    mock_settings, identity_service, mock_asyncpg_connection, sample_db_row
+):
+    """Test that authentication handles execute failure when incrementing failed attempts"""
+    mock_asyncpg_connection.fetchrow = AsyncMock(return_value=sample_db_row)
+    mock_asyncpg_connection.execute = AsyncMock(side_effect=Exception("Database write error"))
+
+    # Mock password verification to return False (triggering failed attempt increment)
+    with patch.object(identity_service, "verify_password", return_value=False):
+        with patch("asyncpg.connect", return_value=mock_asyncpg_connection):
+            with patch("app.modules.identity.service.logger") as mock_logger:
+                user = await identity_service.authenticate_user("test@example.com", "1234")
+
+                assert user is None
+                # Should still close connection even if execute fails
+                assert mock_asyncpg_connection.close.called
+
+
+@pytest.mark.asyncio
+async def test_authenticate_user_execute_fails_on_success_reset(
+    mock_settings, identity_service, mock_asyncpg_connection, sample_db_row
+):
+    """Test that authentication handles execute failure when resetting failed attempts"""
+    mock_asyncpg_connection.fetchrow = AsyncMock(return_value=sample_db_row)
+    # Execute fails during reset (after successful PIN verification)
+    mock_asyncpg_connection.execute = AsyncMock(side_effect=Exception("Database write error"))
+
+    # Mock password verification to return True (triggering reset)
+    with patch.object(identity_service, "verify_password", return_value=True):
+        with patch("asyncpg.connect", return_value=mock_asyncpg_connection):
+            with patch("app.modules.identity.service.logger") as mock_logger:
+                user = await identity_service.authenticate_user("test@example.com", "1234")
+
+                # When execute fails, exception is caught and None is returned
+                assert user is None
+                mock_logger.error.assert_called_once()
+                assert "Authentication error" in mock_logger.error.call_args[0][0]
+                assert mock_asyncpg_connection.close.called
+
+
+@pytest.mark.asyncio
+async def test_authenticate_user_pin_hash_none(
+    mock_settings, identity_service, mock_asyncpg_connection, sample_db_row
+):
+    """Test authentication when pin_hash is None in database"""
+    sample_db_row["pin_hash"] = None
+    mock_asyncpg_connection.fetchrow = AsyncMock(return_value=sample_db_row)
+    mock_asyncpg_connection.execute = AsyncMock()
+
+    with patch("asyncpg.connect", return_value=mock_asyncpg_connection):
+        with patch("app.modules.identity.service.logger") as mock_logger:
+            # verify_password should handle None gracefully
+            result = identity_service.verify_password("1234", None)
+            assert result is False
+
+            user = await identity_service.authenticate_user("test@example.com", "1234")
+            assert user is None
+
+
+@pytest.mark.asyncio
+async def test_authenticate_user_pin_hash_empty_string(
+    mock_settings, identity_service, mock_asyncpg_connection, sample_db_row
+):
+    """Test authentication when pin_hash is empty string in database"""
+    sample_db_row["pin_hash"] = ""
+    mock_asyncpg_connection.fetchrow = AsyncMock(return_value=sample_db_row)
+    mock_asyncpg_connection.execute = AsyncMock()
+
+    with patch.object(identity_service, "verify_password", return_value=False):
+        with patch("asyncpg.connect", return_value=mock_asyncpg_connection):
+            user = await identity_service.authenticate_user("test@example.com", "1234")
+            assert user is None
+
+
+@pytest.mark.asyncio
+async def test_authenticate_user_locked_until_exact_current_time(
+    mock_settings, identity_service, mock_asyncpg_connection, sample_db_row
+):
+    """Test authentication when locked_until is exactly current time (edge case)"""
+    # Set locked_until to exactly now (should be considered locked)
+    # Note: locked_until > now() means locked, so == now() is NOT locked
+    # But we test the edge case where it's exactly equal
+    current_time = datetime.now(timezone.utc)
+    sample_db_row["locked_until"] = current_time
+    mock_asyncpg_connection.fetchrow = AsyncMock(return_value=sample_db_row)
+
+    with patch("asyncpg.connect", return_value=mock_asyncpg_connection):
+        with patch("app.modules.identity.service.logger") as mock_logger:
+            # Mock verify_password to avoid bcrypt issues with invalid hash
+            with patch.object(identity_service, "verify_password", return_value=True):
+                user = await identity_service.authenticate_user("test@example.com", "1234")
+                # locked_until == now() means NOT locked (only > now() is locked)
+                # So authentication should succeed
+                assert user is not None
+
+
+@pytest.mark.asyncio
+async def test_authenticate_user_connection_close_fails(
+    mock_settings, identity_service, mock_asyncpg_connection, sample_db_row
+):
+    """Test that authentication handles connection close failure"""
+    mock_asyncpg_connection.fetchrow = AsyncMock(return_value=sample_db_row)
+    mock_asyncpg_connection.execute = AsyncMock()
+    mock_asyncpg_connection.close = AsyncMock(side_effect=Exception("Close error"))
+
+    with patch.object(identity_service, "verify_password", return_value=True):
+        with patch("asyncpg.connect", return_value=mock_asyncpg_connection):
+            # When close fails in finally block, exception is propagated
+            # This is expected behavior - close errors should be visible
+            with pytest.raises(Exception, match="Close error"):
+                await identity_service.authenticate_user("test@example.com", "1234")
+
+
+def test_get_password_hash_empty_string(identity_service):
+    """Test password hashing with empty string"""
+    hashed = identity_service.get_password_hash("")
+    assert hashed is not None
+    assert isinstance(hashed, str)
+    assert hashed.startswith("$2b$")
+    # Should be able to verify empty password
+    assert identity_service.verify_password("", hashed)
+
+
+def test_get_password_hash_unicode_characters(identity_service):
+    """Test password hashing with unicode/special characters"""
+    password = "test🔐1234àéîöü"
+    hashed = identity_service.get_password_hash(password)
+    assert hashed is not None
+    assert isinstance(hashed, str)
+    assert hashed.startswith("$2b$")
+    # Should be able to verify unicode password
+    assert identity_service.verify_password(password, hashed)
+
+
+def test_get_password_hash_very_long_password(identity_service):
+    """Test password hashing with very long password"""
+    password = "a" * 1000  # Very long password
+    hashed = identity_service.get_password_hash(password)
+    assert hashed is not None
+    assert isinstance(hashed, str)
+    assert hashed.startswith("$2b$")
+    # Should be able to verify long password
+    assert identity_service.verify_password(password, hashed)
+
+
+def test_verify_password_none_hash(identity_service):
+    """Test password verification with None hash"""
+    result = identity_service.verify_password("test1234", None)
+    assert result is False
+
+
+def test_verify_password_empty_hash(identity_service):
+    """Test password verification with empty hash"""
+    result = identity_service.verify_password("test1234", "")
+    assert result is False
+
+
+def test_verify_password_empty_password(identity_service):
+    """Test password verification with empty password"""
+    # Hash an empty password
+    hashed = identity_service.get_password_hash("")
+    # Verify it works
+    assert identity_service.verify_password("", hashed)
+    # Verify wrong empty password fails
+    assert not identity_service.verify_password("wrong", hashed)
+
+
+def test_verify_password_unicode_password(identity_service):
+    """Test password verification with unicode password"""
+    password = "test🔐1234àéîöü"
+    hashed = identity_service.get_password_hash(password)
+    assert identity_service.verify_password(password, hashed)
+    assert not identity_service.verify_password("wrong", hashed)
+
+
+def test_create_access_token_jwt_encode_failure(identity_service, sample_user):
+    """Test that create_access_token handles JWT encode failure"""
+    session_id = "session_12345"
+
+    with patch("jose.jwt.encode", side_effect=Exception("JWT encoding error")):
+        with pytest.raises(Exception, match="JWT encoding error"):
+            identity_service.create_access_token(sample_user, session_id)
+
+
+def test_create_access_token_with_none_session_id(identity_service, sample_user):
+    """Test create_access_token with None session_id"""
+    token = identity_service.create_access_token(sample_user, None)
+
+    assert token is not None
+    decoded = jwt.decode(
+        token, identity_service.jwt_secret, algorithms=[identity_service.jwt_algorithm]
+    )
+    assert decoded["sessionId"] is None
+
+
+def test_create_access_token_with_empty_session_id(identity_service, sample_user):
+    """Test create_access_token with empty session_id"""
+    token = identity_service.create_access_token(sample_user, "")
+
+    assert token is not None
+    decoded = jwt.decode(
+        token, identity_service.jwt_secret, algorithms=[identity_service.jwt_algorithm]
+    )
+    assert decoded["sessionId"] == ""
+
+
+@pytest.mark.asyncio
+async def test_authenticate_user_with_all_none_fields(
+    mock_settings, identity_service, mock_asyncpg_connection
+):
+    """Test authentication with user that has all optional fields as None"""
+    db_row = {
+        "id": "test-user-id-123",
+        "name": "Test User",
+        "email": "test@example.com",
+        "pin_hash": bcrypt.hashpw("1234".encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+        "role": None,
+        "department": None,
+        "language": None,
+        "personalized_response": None,
+        "is_active": True,
+        "last_login": None,
+        "failed_attempts": 0,
+        "locked_until": None,
+        "created_at": datetime.now(timezone.utc),
+        "updated_at": datetime.now(timezone.utc),
+    }
+    mock_asyncpg_connection.fetchrow = AsyncMock(return_value=db_row)
+    mock_asyncpg_connection.execute = AsyncMock()
+
+    with patch("asyncpg.connect", return_value=mock_asyncpg_connection):
+        user = await identity_service.authenticate_user("test@example.com", "1234")
+
+        assert user is not None
+        assert user.role is None
+        assert user.department is None
+        assert user.language == "en"  # Default fallback
+        assert user.personalized_response is False  # Default fallback
+
+
+@pytest.mark.asyncio
+async def test_authenticate_user_fetchrow_returns_none_after_connection(
+    mock_settings, identity_service, mock_asyncpg_connection
+):
+    """Test authentication when fetchrow returns None after successful connection"""
+    mock_asyncpg_connection.fetchrow = AsyncMock(return_value=None)
+
+    with patch("asyncpg.connect", return_value=mock_asyncpg_connection):
+        with patch("app.modules.identity.service.logger") as mock_logger:
+            user = await identity_service.authenticate_user("test@example.com", "1234")
+
+            assert user is None
+            mock_logger.warning.assert_called()
+            assert mock_asyncpg_connection.close.called
+
+
+def test_get_permissions_for_role_case_sensitivity(identity_service):
+    """Test that permissions are case-sensitive (role matching)"""
+    # CEO should work
+    permissions_ceo = identity_service.get_permissions_for_role("CEO")
+    assert "all" in permissions_ceo
+
+    # Lowercase should not match
+    permissions_lower = identity_service.get_permissions_for_role("ceo")
+    assert permissions_lower == ["clients"]  # Default fallback
+
+
+def test_get_permissions_for_role_with_whitespace(identity_service):
+    """Test permissions with role that has whitespace"""
+    permissions = identity_service.get_permissions_for_role("  CEO  ")
+    # Should not match due to whitespace
+    assert permissions == ["clients"]  # Default fallback
+
+
+@pytest.mark.asyncio
+async def test_authenticate_user_pin_hash_logging_with_none(
+    mock_settings, identity_service, mock_asyncpg_connection, sample_db_row
+):
+    """Test PIN hash logging when pin_hash is None (handles gracefully)"""
+    sample_db_row["pin_hash"] = None
+    mock_asyncpg_connection.fetchrow = AsyncMock(return_value=sample_db_row)
+    mock_asyncpg_connection.execute = AsyncMock()
+
+    with patch("asyncpg.connect", return_value=mock_asyncpg_connection):
+        with patch("app.modules.identity.service.logger") as mock_logger:
+            # When pin_hash is None, len() will fail, causing exception
+            # This is caught by the exception handler
+            with patch.object(identity_service, "verify_password", return_value=False):
+                user = await identity_service.authenticate_user("test@example.com", "1234")
+                
+                # Should return None due to exception in logging or verification
+                assert user is None
+                # Exception should be logged
+                assert mock_logger.error.called
