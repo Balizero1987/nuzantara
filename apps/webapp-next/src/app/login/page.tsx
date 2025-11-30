@@ -60,20 +60,39 @@ export default function LoginPage() {
           localStorage.setItem("zantara_user", JSON.stringify(data.user))
         }
 
-        // Small delay to ensure localStorage write completes
-        await new Promise(resolve => setTimeout(resolve, 200))
+        // Force synchronous write and verify token is persisted
+        // Save token multiple times to ensure it's available
+        if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+          const storage = globalThis.localStorage;
+          storage.setItem('token', data.token);
+          storage.setItem('zantara_token', data.token);
+          // Force sync
+          storage.getItem('token'); // Force read to ensure write completed
+        }
         
-        // Double-check token before redirect
-        const finalCheck = apiClient.getToken() || (typeof window !== 'undefined' ? localStorage.getItem('token') : null)
+        // Verify token is accessible immediately
+        const finalCheck = apiClient.getToken() || (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('token') : null)
         if (!finalCheck) {
           console.error("[Login] ERROR: Token not found after save!")
           setError("Failed to save authentication token. Please try again.")
+          setIsLoading(false)
           return
         }
         
-        console.log("[Login] Token verified, redirecting to chat")
-        // Redirect to chat
-        router.push("/chat")
+        console.log("[Login] Token verified and persisted, redirecting to chat")
+        console.log("[Login] Final token check:", {
+          apiClient: apiClient.getToken() ? 'OK' : 'FAIL',
+          localStorage: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('token') ? 'OK' : 'FAIL',
+          zantara_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_token') ? 'OK' : 'FAIL'
+        })
+        
+        // Use window.location instead of router.push for more reliable navigation
+        // This ensures the page fully reloads and can access the token
+        if (typeof globalThis !== 'undefined' && 'location' in globalThis) {
+          (globalThis as any).location.href = "/chat"
+        } else {
+          router.push("/chat")
+        }
       } else {
         // Handle error - could be string, object, or array
         let errorMessage = "Login failed. Please try again."
