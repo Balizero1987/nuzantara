@@ -168,7 +168,7 @@ def test_init_initializes_all_components(mock_settings):
                     service = SearchService()
 
                     assert service.embedder == mock_embedder
-                    assert len(service.collections) == 17  # Updated: actual count is 17
+                    assert len(service.collections) == 18  # Updated: actual count is 18
                     assert service.router == mock_router
                     assert service.health_monitor == mock_health
                     assert service.conflict_stats["total_multi_collection_searches"] == 0
@@ -176,7 +176,7 @@ def test_init_initializes_all_components(mock_settings):
 
 
 def test_init_creates_all_collections(mock_settings):
-    """Test that all 17 collections are initialized"""
+    """Test that all 18 collections are initialized"""
     with patch("services.search_service.EmbeddingsGenerator"):
         with patch("services.search_service.QdrantClient") as mock_qdrant_class:
             mock_qdrant_class.return_value = MagicMock()
@@ -313,7 +313,7 @@ async def test_search_unknown_collection_fallback(search_service):
 
 @pytest.mark.asyncio
 async def test_search_price_redaction(search_service):
-    """Test that prices are redacted in results"""
+    """Test that prices are NOT redacted (as per current implementation)"""
     query = "What is the price?"
     user_level = 2
 
@@ -333,7 +333,8 @@ async def test_search_price_redaction(search_service):
     result = await search_service.search(query, user_level)
 
     assert len(result["results"]) == 1
-    assert "[PRICE REDACTED" in result["results"][0]["text"]
+    # Price redaction removed - users need pricing info
+    assert "IDR 1,000,000" in result["results"][0]["text"]
 
 
 @pytest.mark.asyncio
