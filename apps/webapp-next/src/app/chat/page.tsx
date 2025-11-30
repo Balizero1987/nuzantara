@@ -38,9 +38,22 @@ export default function ChatPage() {
   ])
 
   useEffect(() => {
-    const token = apiClient.getToken()
+    // Check for token - try multiple possible storage keys
+    const token = apiClient.getToken() || 
+                  localStorage.getItem('token') || 
+                  localStorage.getItem('zantara_token')
+    
+    console.log('[ChatPage] Token check:', {
+      apiClient: apiClient.getToken() ? 'found' : 'not found',
+      localStorage_token: localStorage.getItem('token') ? 'found' : 'not found',
+      zantara_token: localStorage.getItem('zantara_token') ? 'found' : 'not found',
+      allKeys: Object.keys(localStorage)
+    })
+    
     if (!token) {
-      router.push("/")
+      console.log('[ChatPage] No token found, redirecting to login')
+      router.push("/login")
+      return
     }
 
     // Load conversation history from localStorage

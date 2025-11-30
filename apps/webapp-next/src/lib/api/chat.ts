@@ -11,15 +11,34 @@ export const chatAPI = {
     onError: (error: Error) => void,
     conversationHistory?: Array<{ role: string; content: string }>
   ): Promise<void> {
-    const token = apiClient.getToken();
+    // Try multiple ways to get token
+    let token = apiClient.getToken();
+
+    // Fallback: try localStorage directly (only in browser)
+    if (!token && typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+      const storage = globalThis.localStorage;
+      token = storage.getItem('token') || storage.getItem('zantara_token') || '';
+    }
+
     console.log(
       '[ChatClient] Token available:',
       !!token,
       token ? `${token.substring(0, 10)}...` : 'None'
     );
+
+    // Log token sources only in browser
+    if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+      const storage = globalThis.localStorage;
+      console.log('[ChatClient] Token sources:', {
+        apiClient: apiClient.getToken() ? 'found' : 'not found',
+        localStorage_token: storage.getItem('token') ? 'found' : 'not found',
+        zantara_token: storage.getItem('zantara_token') ? 'found' : 'not found',
+      });
+    }
     console.log('[ChatClient] Conversation history length:', conversationHistory?.length || 0);
 
     if (!token) {
+      console.error('[ChatClient] No token found in any storage location');
       onError(new Error('No authentication token found. Please log in.'));
       return;
     }

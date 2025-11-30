@@ -7,11 +7,11 @@ import { NuzantaraClient } from './generated/NuzantaraClient';
 export const client = new NuzantaraClient({
     BASE: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
     TOKEN: async () => {
-        if (typeof window !== 'undefined') {
+        if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
             // Try to get token from localStorage
             // Note: The auth system might store it as 'token' or inside a JSON object
             // We'll need to align this with how auth.ts currently stores it.
-            return localStorage.getItem('token') || '';
+            return globalThis.localStorage.getItem('token') || '';
         }
         return '';
     }
@@ -51,19 +51,19 @@ export const createPublicClient = () => {
  */
 export const apiClient = {
     getToken: () => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('token') || '';
+        if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+            return globalThis.localStorage.getItem('token') || '';
         }
         return '';
     },
     setToken: (token: string) => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('token', token);
+        if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+            globalThis.localStorage.setItem('token', token);
         }
     },
     clearToken: () => {
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem('token');
+        if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+            globalThis.localStorage.removeItem('token');
         }
     }
 };
