@@ -13,7 +13,7 @@ import sys
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from agents.conversation_trainer import ConversationTrainer
+from agents.agents.conversation_trainer import ConversationTrainer
 
 # Configure logging
 logging.basicConfig(
