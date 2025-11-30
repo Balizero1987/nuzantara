@@ -43,16 +43,10 @@ export const chatAPI = {
     }
     console.log('[ChatClient] Conversation history length:', conversationHistory?.length || 0);
 
-    // Skip token check - allow chat without authentication
-    // if (!token) {
-    //   console.error('[ChatClient] No token found in any storage location');
-    //   onError(new Error('No authentication token found. Please log in.'));
-    //   return;
-    // }
-
-    // Use empty token if not found (backend may handle unauthenticated requests)
     if (!token) {
-      console.warn('[ChatClient] No token found - proceeding without authentication');
+      console.error('[ChatClient] No token found in any storage location');
+      onError(new Error('No authentication token found. Please log in.'));
+      return;
     }
 
     try {
