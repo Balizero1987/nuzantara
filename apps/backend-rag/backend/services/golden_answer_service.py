@@ -342,7 +342,7 @@ async def test_service():
         await service.close()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     import asyncio
 
     asyncio.run(test_service())
