@@ -36,13 +36,14 @@ export class ConversationsService {
                  * "interaction_id": 88
                  * }
                  * }
-                 * @param requestBody
                  * @returns any Successful Response
                  * @throws ApiError
                  */
-                public saveConversationApiBaliZeroConversationsSavePost(
+                public saveConversationApiBaliZeroConversationsSavePost({
+                    requestBody,
+                }: {
                     requestBody: SaveConversationRequest,
-                ): CancelablePromise<any> {
+                }): CancelablePromise<any> {
                     return this.httpRequest.request({
                         method: 'POST',
                         url: '/api/bali-zero/conversations/save',
@@ -61,17 +62,18 @@ export class ConversationsService {
                  * - user_email: User's email address
                  * - limit: Max number of messages to return (default: 20)
                  * - session_id: Optional session filter
-                 * @param userEmail
-                 * @param limit
-                 * @param sessionId
                  * @returns ConversationHistoryResponse Successful Response
                  * @throws ApiError
                  */
-                public getConversationHistoryApiBaliZeroConversationsHistoryGet(
+                public getConversationHistoryApiBaliZeroConversationsHistoryGet({
+                    userEmail,
+                    limit = 20,
+                    sessionId,
+                }: {
                     userEmail: string,
-                    limit: number = 20,
+                    limit?: number,
                     sessionId?: (string | null),
-                ): CancelablePromise<ConversationHistoryResponse> {
+                }): CancelablePromise<ConversationHistoryResponse> {
                     return this.httpRequest.request({
                         method: 'GET',
                         url: '/api/bali-zero/conversations/history',
@@ -92,15 +94,16 @@ export class ConversationsService {
                  * Query params:
                  * - user_email: User's email address
                  * - session_id: Optional session filter (if omitted, clears ALL conversations for user)
-                 * @param userEmail
-                 * @param sessionId
                  * @returns any Successful Response
                  * @throws ApiError
                  */
-                public clearConversationHistoryApiBaliZeroConversationsClearDelete(
+                public clearConversationHistoryApiBaliZeroConversationsClearDelete({
+                    userEmail,
+                    sessionId,
+                }: {
                     userEmail: string,
                     sessionId?: (string | null),
-                ): CancelablePromise<any> {
+                }): CancelablePromise<any> {
                     return this.httpRequest.request({
                         method: 'DELETE',
                         url: '/api/bali-zero/conversations/clear',
@@ -119,13 +122,14 @@ export class ConversationsService {
                  *
                  * Query params:
                  * - user_email: User's email address
-                 * @param userEmail
                  * @returns any Successful Response
                  * @throws ApiError
                  */
-                public getConversationStatsApiBaliZeroConversationsStatsGet(
+                public getConversationStatsApiBaliZeroConversationsStatsGet({
+                    userEmail,
+                }: {
                     userEmail: string,
-                ): CancelablePromise<any> {
+                }): CancelablePromise<any> {
                     return this.httpRequest.request({
                         method: 'GET',
                         url: '/api/bali-zero/conversations/stats',

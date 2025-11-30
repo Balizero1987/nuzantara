@@ -20,19 +20,20 @@ export class IngestionService {
      * - **title**: Optional book title (auto-detected if not provided)
      * - **author**: Optional author name
      * - **tier_override**: Optional manual tier (S/A/B/C/D)
-     * @param formData
-     * @param title
-     * @param author
-     * @param tierOverride
      * @returns BookIngestionResponse Successful Response
      * @throws ApiError
      */
-    public uploadAndIngestApiIngestUploadPost(
+    public uploadAndIngestApiIngestUploadPost({
+        formData,
+        title,
+        author,
+        tierOverride,
+    }: {
         formData: Body_upload_and_ingest_api_ingest_upload_post,
         title?: (string | null),
         author?: (string | null),
         tierOverride?: (TierLevel | null),
-    ): CancelablePromise<BookIngestionResponse> {
+    }): CancelablePromise<BookIngestionResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/ingest/upload',
@@ -56,13 +57,14 @@ export class IngestionService {
      * - **title**: Optional book title
      * - **author**: Optional author name
      * - **tier_override**: Optional manual tier classification
-     * @param requestBody
      * @returns BookIngestionResponse Successful Response
      * @throws ApiError
      */
-    public ingestLocalFileApiIngestFilePost(
+    public ingestLocalFileApiIngestFilePost({
+        requestBody,
+    }: {
         requestBody: BookIngestionRequest,
-    ): CancelablePromise<BookIngestionResponse> {
+    }): CancelablePromise<BookIngestionResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/ingest/file',
@@ -80,13 +82,14 @@ export class IngestionService {
      * - **directory_path**: Path to directory containing books
      * - **file_patterns**: File patterns to match (default: ["*.pdf", "*.epub"])
      * - **skip_existing**: Skip books already in database
-     * @param requestBody
      * @returns BatchIngestionResponse Successful Response
      * @throws ApiError
      */
-    public batchIngestApiIngestBatchPost(
+    public batchIngestApiIngestBatchPost({
+        requestBody,
+    }: {
         requestBody: BatchIngestionRequest,
-    ): CancelablePromise<BatchIngestionResponse> {
+    }): CancelablePromise<BatchIngestionResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/ingest/batch',

@@ -26,13 +26,14 @@ export class CrmInteractionsService {
      * - whatsapp: WhatsApp Business
      * - phone: Phone call
      * - in_person: Face-to-face meeting
-     * @param requestBody
      * @returns InteractionResponse Successful Response
      * @throws ApiError
      */
-    public createInteractionApiCrmInteractionsPost(
+    public createInteractionApiCrmInteractionsPost({
+        requestBody,
+    }: {
         requestBody: InteractionCreate,
-    ): CancelablePromise<InteractionResponse> {
+    }): CancelablePromise<InteractionResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/crm/interactions/',
@@ -46,25 +47,41 @@ export class CrmInteractionsService {
     /**
      * List Interactions
      * List interactions with optional filtering
-     * @param clientId Filter by client
-     * @param practiceId Filter by practice
-     * @param teamMember Filter by team member
-     * @param interactionType Filter by type
-     * @param sentiment Filter by sentiment
-     * @param limit
-     * @param offset
      * @returns any Successful Response
      * @throws ApiError
      */
-    public listInteractionsApiCrmInteractionsGet(
+    public listInteractionsApiCrmInteractionsGet({
+        clientId,
+        practiceId,
+        teamMember,
+        interactionType,
+        sentiment,
+        limit = 50,
+        offset,
+    }: {
+        /**
+         * Filter by client
+         */
         clientId?: (number | null),
+        /**
+         * Filter by practice
+         */
         practiceId?: (number | null),
+        /**
+         * Filter by team member
+         */
         teamMember?: (string | null),
+        /**
+         * Filter by type
+         */
         interactionType?: (string | null),
+        /**
+         * Filter by sentiment
+         */
         sentiment?: (string | null),
-        limit: number = 50,
+        limit?: number,
         offset?: number,
-    ): CancelablePromise<Array<Record<string, any>>> {
+    }): CancelablePromise<Array<Record<string, any>>> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/interactions/',
@@ -85,13 +102,14 @@ export class CrmInteractionsService {
     /**
      * Get Interaction
      * Get full interaction details by ID
-     * @param interactionId
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getInteractionApiCrmInteractionsInteractionIdGet(
+    public getInteractionApiCrmInteractionsInteractionIdGet({
+        interactionId,
+    }: {
         interactionId: number,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/interactions/{interaction_id}',
@@ -108,15 +126,16 @@ export class CrmInteractionsService {
      * Get complete interaction timeline for a client
      *
      * Returns all interactions sorted by date (newest first)
-     * @param clientId
-     * @param limit
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getClientTimelineApiCrmInteractionsClientClientIdTimelineGet(
+    public getClientTimelineApiCrmInteractionsClientClientIdTimelineGet({
+        clientId,
+        limit = 50,
+    }: {
         clientId: number,
-        limit: number = 50,
-    ): CancelablePromise<any> {
+        limit?: number,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/interactions/client/{client_id}/timeline',
@@ -136,13 +155,14 @@ export class CrmInteractionsService {
      * Get all interactions related to a specific practice
      *
      * Useful for tracking communication history for a KITAS, PT PMA, etc.
-     * @param practiceId
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getPracticeHistoryApiCrmInteractionsPracticePracticeIdHistoryGet(
+    public getPracticeHistoryApiCrmInteractionsPracticePracticeIdHistoryGet({
+        practiceId,
+    }: {
         practiceId: number,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/interactions/practice/{practice_id}/history',
@@ -162,13 +182,17 @@ export class CrmInteractionsService {
      * - By type (chat, email, call, etc.)
      * - By sentiment
      * - By team member
-     * @param teamMember Stats for specific team member
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getInteractionsStatsApiCrmInteractionsStatsOverviewGet(
+    public getInteractionsStatsApiCrmInteractionsStatsOverviewGet({
+        teamMember,
+    }: {
+        /**
+         * Stats for specific team member
+         */
         teamMember?: (string | null),
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/interactions/stats/overview',
@@ -185,19 +209,23 @@ export class CrmInteractionsService {
      * Auto-create interaction record from a chat conversation
      *
      * This is called automatically when a chat session ends or at intervals
-     * @param conversationId
-     * @param clientEmail
-     * @param teamMember
-     * @param summary AI-generated summary
      * @returns any Successful Response
      * @throws ApiError
      */
-    public createInteractionFromConversationApiCrmInteractionsFromConversationPost(
+    public createInteractionFromConversationApiCrmInteractionsFromConversationPost({
+        conversationId,
+        clientEmail,
+        teamMember,
+        summary,
+    }: {
         conversationId: number,
         clientEmail: string,
         teamMember: string,
+        /**
+         * AI-generated summary
+         */
         summary?: (string | null),
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/crm/interactions/from-conversation',
@@ -215,15 +243,22 @@ export class CrmInteractionsService {
     /**
      * Sync Gmail Interactions
      * Manually trigger Gmail sync to Auto-CRM
-     * @param limit Max emails to process
-     * @param teamMember Team member handling sync
      * @returns any Successful Response
      * @throws ApiError
      */
-    public syncGmailInteractionsApiCrmInteractionsSyncGmailPost(
-        limit: number = 5,
-        teamMember: string = 'system',
-    ): CancelablePromise<any> {
+    public syncGmailInteractionsApiCrmInteractionsSyncGmailPost({
+        limit = 5,
+        teamMember = 'system',
+    }: {
+        /**
+         * Max emails to process
+         */
+        limit?: number,
+        /**
+         * Team member handling sync
+         */
+        teamMember?: string,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/crm/interactions/sync-gmail',

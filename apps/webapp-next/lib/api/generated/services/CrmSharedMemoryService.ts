@@ -18,15 +18,19 @@ export class CrmSharedMemoryService {
      * - "PT PMA practices in progress"
      *
      * Returns relevant results from clients, practices, and interactions
-     * @param q Natural language query
-     * @param limit
      * @returns any Successful Response
      * @throws ApiError
      */
-    public searchSharedMemoryApiCrmSharedMemorySearchGet(
+    public searchSharedMemoryApiCrmSharedMemorySearchGet({
+        q,
+        limit = 20,
+    }: {
+        /**
+         * Natural language query
+         */
         q: string,
-        limit: number = 20,
-    ): CancelablePromise<any> {
+        limit?: number,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/shared-memory/search',
@@ -44,13 +48,17 @@ export class CrmSharedMemoryService {
      * Get all practices with upcoming renewal dates
      *
      * Default: next 90 days
-     * @param days Look ahead days
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getUpcomingRenewalsApiCrmSharedMemoryUpcomingRenewalsGet(
-        days: number = 90,
-    ): CancelablePromise<any> {
+    public getUpcomingRenewalsApiCrmSharedMemoryUpcomingRenewalsGet({
+        days = 90,
+    }: {
+        /**
+         * Look ahead days
+         */
+        days?: number,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/shared-memory/upcoming-renewals',
@@ -73,13 +81,14 @@ export class CrmSharedMemoryService {
      * - Recent interactions (last 20)
      * - Upcoming renewals
      * - Action items
-     * @param clientId
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getClientFullContextApiCrmSharedMemoryClientClientIdFullContextGet(
+    public getClientFullContextApiCrmSharedMemoryClientClientIdFullContextGet({
+        clientId,
+    }: {
         clientId: number,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/shared-memory/client/{client_id}/full-context',

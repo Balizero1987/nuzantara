@@ -14,13 +14,14 @@ export class AuthenticationService {
      * User login with email and PIN
      *
      * Returns JWT token and user profile on successful authentication
-     * @param requestBody
      * @returns app__routers__auth__LoginResponse Successful Response
      * @throws ApiError
      */
-    public loginApiAuthLoginPost(
+    public loginApiAuthLoginPost({
+        requestBody,
+    }: {
         requestBody: app__routers__auth__LoginRequest,
-    ): CancelablePromise<app__routers__auth__LoginResponse> {
+    }): CancelablePromise<app__routers__auth__LoginResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/auth/login',

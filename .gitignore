@@ -279,5 +279,6 @@ node_modules
 apps/backend-ts/build-working.js
 *.gguf
 models/
+!apps/webapp-next/**/generated/models/
 apps/backend-rag/oracle_ssh_key
 oracle_zantara_key.pem

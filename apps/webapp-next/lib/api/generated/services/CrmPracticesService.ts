@@ -18,15 +18,19 @@ export class CrmPracticesService {
      * - **status**: Initial status (default: 'inquiry')
      * - **quoted_price**: Price quoted to client
      * - **assigned_to**: Team member email to handle this
-     * @param createdBy Team member creating this practice
-     * @param requestBody
      * @returns PracticeResponse Successful Response
      * @throws ApiError
      */
-    public createPracticeApiCrmPracticesPost(
+    public createPracticeApiCrmPracticesPost({
+        createdBy,
+        requestBody,
+    }: {
+        /**
+         * Team member creating this practice
+         */
         createdBy: string,
         requestBody: PracticeCreate,
-    ): CancelablePromise<PracticeResponse> {
+    }): CancelablePromise<PracticeResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/crm/practices/',
@@ -45,25 +49,41 @@ export class CrmPracticesService {
      * List practices with optional filtering
      *
      * Returns practices with client and practice type information joined
-     * @param clientId Filter by client ID
-     * @param status Filter by status
-     * @param assignedTo Filter by assigned team member
-     * @param practiceType Filter by practice type code
-     * @param priority Filter by priority
-     * @param limit
-     * @param offset
      * @returns any Successful Response
      * @throws ApiError
      */
-    public listPracticesApiCrmPracticesGet(
+    public listPracticesApiCrmPracticesGet({
+        clientId,
+        status,
+        assignedTo,
+        practiceType,
+        priority,
+        limit = 50,
+        offset,
+    }: {
+        /**
+         * Filter by client ID
+         */
         clientId?: (number | null),
+        /**
+         * Filter by status
+         */
         status?: (string | null),
+        /**
+         * Filter by assigned team member
+         */
         assignedTo?: (string | null),
+        /**
+         * Filter by practice type code
+         */
         practiceType?: (string | null),
+        /**
+         * Filter by priority
+         */
         priority?: (string | null),
-        limit: number = 50,
+        limit?: number,
         offset?: number,
-    ): CancelablePromise<Array<Record<string, any>>> {
+    }): CancelablePromise<Array<Record<string, any>>> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/practices/',
@@ -86,13 +106,14 @@ export class CrmPracticesService {
      * Get all active practices (in progress, not completed/cancelled)
      *
      * Optionally filter by assigned team member
-     * @param assignedTo
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getActivePracticesApiCrmPracticesActiveGet(
+    public getActivePracticesApiCrmPracticesActiveGet({
+        assignedTo,
+    }: {
         assignedTo?: (string | null),
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/practices/active',
@@ -109,13 +130,17 @@ export class CrmPracticesService {
      * Get practices with upcoming renewal dates
      *
      * Default: next 90 days
-     * @param days Days to look ahead
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getUpcomingRenewalsApiCrmPracticesRenewalsUpcomingGet(
-        days: number = 90,
-    ): CancelablePromise<any> {
+    public getUpcomingRenewalsApiCrmPracticesRenewalsUpcomingGet({
+        days = 90,
+    }: {
+        /**
+         * Days to look ahead
+         */
+        days?: number,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/practices/renewals/upcoming',
@@ -130,13 +155,14 @@ export class CrmPracticesService {
     /**
      * Get Practice
      * Get practice details by ID with full client and type info
-     * @param practiceId
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getPracticeApiCrmPracticesPracticeIdGet(
+    public getPracticeApiCrmPracticesPracticeIdGet({
+        practiceId,
+    }: {
         practiceId: number,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/practices/{practice_id}',
@@ -162,17 +188,21 @@ export class CrmPracticesService {
      * - approved
      * - completed
      * - cancelled
-     * @param practiceId
-     * @param updatedBy Team member making the update
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public updatePracticeApiCrmPracticesPracticeIdPatch(
+    public updatePracticeApiCrmPracticesPracticeIdPatch({
+        practiceId,
+        updatedBy,
+        requestBody,
+    }: {
         practiceId: number,
+        /**
+         * Team member making the update
+         */
         updatedBy: string,
         requestBody: PracticeUpdate,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/api/crm/practices/{practice_id}',
@@ -196,19 +226,20 @@ export class CrmPracticesService {
      * - **document_name**: Name/type of document (e.g., "Passport Copy")
      * - **drive_file_id**: Google Drive file ID
      * - **uploaded_by**: Email of person uploading
-     * @param practiceId
-     * @param documentName
-     * @param driveFileId
-     * @param uploadedBy
      * @returns any Successful Response
      * @throws ApiError
      */
-    public addDocumentToPracticeApiCrmPracticesPracticeIdDocumentsAddPost(
+    public addDocumentToPracticeApiCrmPracticesPracticeIdDocumentsAddPost({
+        practiceId,
+        documentName,
+        driveFileId,
+        uploadedBy,
+    }: {
         practiceId: number,
         documentName: string,
         driveFileId: string,
         uploadedBy: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/crm/practices/{practice_id}/documents/add',

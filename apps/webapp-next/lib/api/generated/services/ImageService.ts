@@ -17,13 +17,14 @@ export class ImageService {
      *
      * Returns:
      * ImageGenerationResponse with generated images or error
-     * @param requestBody
      * @returns ImageGenerationResponse Successful Response
      * @throws ApiError
      */
-    public generateImageApiV1ImageGeneratePost(
+    public generateImageApiV1ImageGeneratePost({
+        requestBody,
+    }: {
         requestBody: ImageGenerationRequest,
-    ): CancelablePromise<ImageGenerationResponse> {
+    }): CancelablePromise<ImageGenerationResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/v1/image/generate',
