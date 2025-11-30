@@ -61,18 +61,12 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_with_custom_days(self):
         """Test: Main accepts --days argument"""
-        import importlib
-        import agents.run_conversation_trainer
-
         with patch("agents.agents.conversation_trainer.ConversationTrainer") as mock_trainer_class, \
              patch("sys.argv", ["run_conversation_trainer.py", "--days", "14"]):
 
             mock_trainer = MagicMock()
             mock_trainer.analyze_winning_patterns = AsyncMock(return_value=None)
             mock_trainer_class.return_value = mock_trainer
-
-            # Reload module to ensure patch is applied
-            importlib.reload(agents.run_conversation_trainer)
             from agents.run_conversation_trainer import main
 
             result = await main()
@@ -80,30 +74,18 @@ class TestRunConversationTrainer:
             assert result == 0
             mock_trainer.analyze_winning_patterns.assert_called_once_with(days_back=14)
 
-        # Reload again to restore normal behavior
-        importlib.reload(agents.run_conversation_trainer)
-
     @pytest.mark.asyncio
     async def test_main_exception_handling(self):
         """Test: Main handles exceptions and returns error code"""
-        import importlib
-        import agents.run_conversation_trainer
-
         with patch("agents.agents.conversation_trainer.ConversationTrainer") as mock_trainer_class, \
              patch("sys.argv", ["run_conversation_trainer.py"]):
 
             mock_trainer_class.side_effect = Exception("Trainer initialization failed")
-
-            # Reload module to ensure patch is applied
-            importlib.reload(agents.run_conversation_trainer)
             from agents.run_conversation_trainer import main
 
             result = await main()
 
             assert result == 1
-
-        # Reload again to restore normal behavior
-        importlib.reload(agents.run_conversation_trainer)
 
 
 """
