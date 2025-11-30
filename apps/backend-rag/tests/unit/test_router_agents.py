@@ -445,10 +445,14 @@ async def test_cross_oracle_synthesis():
     """Test cross-oracle synthesis"""
     mock_request = MagicMock()
     # Mock the app.state to return None for services (missing dependencies)
-    mock_request.app.state = MagicMock()
-    mock_request.app.state.intelligent_router = None
-    mock_request.app.state.search_service = None
-    mock_request.app.state.ai_client = None
+    # Use configure_mock to ensure getattr returns None, not MagicMock
+    mock_state = MagicMock()
+    mock_state.configure_mock(
+        intelligent_router=None,
+        search_service=None,
+        ai_client=None
+    )
+    mock_request.app.state = mock_state
 
     result = await cross_oracle_synthesis(request=mock_request, query="Tax regulations", domains=["tax", "legal"])
 
@@ -479,10 +483,14 @@ async def test_run_autonomous_research():
     """Test autonomous research"""
     mock_request = MagicMock()
     # Mock the app.state to return None for services (missing dependencies)
-    mock_request.app.state = MagicMock()
-    mock_request.app.state.search_service = None
-    mock_request.app.state.ai_client = None
-    mock_request.app.state.query_router = None
+    # Use configure_mock to ensure getattr returns None, not MagicMock
+    mock_state = MagicMock()
+    mock_state.configure_mock(
+        search_service=None,
+        ai_client=None,
+        query_router=None
+    )
+    mock_request.app.state = mock_state
 
     result = await run_autonomous_research(
         request=mock_request,
