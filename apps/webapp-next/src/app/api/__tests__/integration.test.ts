@@ -123,6 +123,7 @@ describe('Frontend-Backend Integration', () => {
 
     it('should handle missing token gracefully', () => {
       const authHeader: string | null = null;
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const token = authHeader ? authHeader.replace('Bearer ', '') : '';
 
       expect(token).toBe('');
