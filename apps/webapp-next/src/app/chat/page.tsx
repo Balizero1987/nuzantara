@@ -41,13 +41,15 @@ export default function ChatPage() {
     // Check for token - try multiple possible storage keys
     const token = apiClient.getToken() || 
                   localStorage.getItem('token') || 
-                  localStorage.getItem('zantara_token')
+                  localStorage.getItem('zantara_token') ||
+                  localStorage.getItem('zantara_session_token')
     
     console.log('[ChatPage] Token check:', {
       apiClient: apiClient.getToken() ? 'found' : 'not found',
       localStorage_token: localStorage.getItem('token') ? 'found' : 'not found',
       zantara_token: localStorage.getItem('zantara_token') ? 'found' : 'not found',
-      allKeys: Object.keys(localStorage)
+      zantara_session_token: localStorage.getItem('zantara_session_token') ? 'found' : 'not found',
+      allKeys: Object.keys(localStorage).filter(k => k.toLowerCase().includes('token'))
     })
     
     if (!token) {

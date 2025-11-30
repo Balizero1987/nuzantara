@@ -7,8 +7,10 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
 }
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(globalThis, 'localStorage', {
   value: localStorageMock,
+  writable: true,
+  configurable: true,
 })
 
 describe('API Client', () => {
@@ -75,11 +77,11 @@ describe('API Client', () => {
       }
     })
 
-    it('should return empty string when window is undefined (server-side)', async () => {
-      // Mock window as undefined
-      const originalWindow = global.window
+    it('should return empty string when localStorage is undefined (server-side)', async () => {
+      // Mock localStorage as undefined
+      const originalLocalStorage = (globalThis as any).localStorage
       // @ts-ignore
-      delete global.window
+      delete (globalThis as any).localStorage
       
       jest.resetModules()
       const { client } = require('../client')
@@ -90,7 +92,9 @@ describe('API Client', () => {
         expect(token).toBe('')
       }
       
-      global.window = originalWindow
+      if (originalLocalStorage) {
+        (globalThis as any).localStorage = originalLocalStorage
+      }
     })
   })
 
@@ -150,11 +154,11 @@ describe('API Client', () => {
         expect(token).toBe('')
       })
 
-      it('should return empty string when window is undefined (server-side)', () => {
-        // Mock window as undefined
-        const originalWindow = global.window
+      it('should return empty string when localStorage is undefined (server-side)', () => {
+        // Mock localStorage as undefined
+        const originalLocalStorage = (globalThis as any).localStorage
         // @ts-ignore
-        delete global.window
+        delete (globalThis as any).localStorage
 
         jest.resetModules()
         const { apiClient: serverApiClient } = require('../client')
@@ -162,7 +166,9 @@ describe('API Client', () => {
 
         expect(token).toBe('')
 
-        global.window = originalWindow
+        if (originalLocalStorage) {
+          (globalThis as any).localStorage = originalLocalStorage
+        }
       })
     })
 

@@ -17,7 +17,11 @@ export const chatAPI = {
     // Fallback: try localStorage directly (only in browser)
     if (!token && typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
       const storage = globalThis.localStorage;
-      token = storage.getItem('token') || storage.getItem('zantara_token') || '';
+      token =
+        storage.getItem('token') ||
+        storage.getItem('zantara_token') ||
+        storage.getItem('zantara_session_token') ||
+        '';
     }
 
     console.log(
@@ -33,6 +37,8 @@ export const chatAPI = {
         apiClient: apiClient.getToken() ? 'found' : 'not found',
         localStorage_token: storage.getItem('token') ? 'found' : 'not found',
         zantara_token: storage.getItem('zantara_token') ? 'found' : 'not found',
+        zantara_session_token: storage.getItem('zantara_session_token') ? 'found' : 'not found',
+        allKeys: Object.keys(storage).filter((k) => k.toLowerCase().includes('token')),
       });
     }
     console.log('[ChatClient] Conversation history length:', conversationHistory?.length || 0);
