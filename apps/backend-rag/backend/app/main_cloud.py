@@ -85,9 +85,15 @@ from services.query_router import QueryRouter
 
 # --- Core Services ---
 from services.alert_service import AlertService
+from services.health_monitor import HealthMonitor
 from services.search_service import SearchService
 from services.tool_executor import ToolExecutor
 from services.zantara_tools import ZantaraTools
+
+# --- Plugin System ---
+from plugins.analytics_plugin import AnalyticsPlugin
+from plugins.monitoring_plugin import MonitoringPlugin
+from plugins.registry import plugin_registry
 
 # Setup Logging
 logger = logging.getLogger("zantara.backend")
@@ -577,6 +583,36 @@ async def initialize_services() -> None:
         app.state.query_router = query_router
         app.state.ts_backend_url = ts_backend_url
 
+        # 8. Plugin System Initialization
+        try:
+            logger.info("🔌 Initializing Plugin System...")
+
+            # Register plugins
+            analytics_plugin = AnalyticsPlugin()
+            monitoring_plugin = MonitoringPlugin()
+
+            plugin_registry.register(analytics_plugin)
+            plugin_registry.register(monitoring_plugin)
+
+            # Initialize all registered plugins
+            initialized_count = await plugin_registry.initialize_all()
+            logger.info(f"✅ Plugin System: {initialized_count}/{plugin_registry.get_plugin_count()} plugins initialized")
+
+            app.state.plugin_registry = plugin_registry
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize Plugin System: {e}")
+
+        # 9. Health Monitor (Self-Healing Monitoring)
+        try:
+            logger.info("🏥 Initializing Health Monitor (Self-Healing System)...")
+            health_monitor = HealthMonitor(alert_service=alert_service, check_interval=60)
+            await health_monitor.start()
+
+            app.state.health_monitor = health_monitor
+            logger.info("✅ Health Monitor: Active (check_interval=60s)")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize Health Monitor: {e}")
+
         app.state.services_initialized = True
         logger.info("✅ ZANTARA Services Initialization Complete.")
 
@@ -591,9 +627,27 @@ async def on_startup() -> None:
 
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
+    logger.info("🛑 Shutting down ZANTARA services...")
+
+    # Shutdown Health Monitor
+    health_monitor: HealthMonitor | None = getattr(app.state, "health_monitor", None)
+    if health_monitor:
+        await health_monitor.stop()
+        logger.info("✅ Health Monitor stopped")
+
+    # Shutdown Plugin System
+    registry = getattr(app.state, "plugin_registry", None)
+    if registry:
+        await registry.shutdown_all()
+        logger.info("✅ Plugin System shutdown complete")
+
+    # Close HTTP clients
     handler_proxy: HandlerProxyService | None = getattr(app.state, "handler_proxy", None)
     if handler_proxy and handler_proxy.client:
         await handler_proxy.client.aclose()
+        logger.info("✅ HTTP clients closed")
+
+    logger.info("✅ ZANTARA shutdown complete")
 
 
 # --- Routes -----------------------------------------------------------------
