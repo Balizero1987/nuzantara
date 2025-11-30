@@ -43,17 +43,16 @@ jobs:
 
       - name: Install SonarScanner
         run: |
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.3.0.5189-linux.zip
-          unzip sonar-scanner-cli-7.3.0.5189-linux.zip
-          echo "SONAR_SCANNER_HOME=$PWD/sonar-scanner-7.3.0.5189-linux" >> $GITHUB_ENV
+          # Use GitHub releases instead of sonarsource.com (which returns 403)
+          wget https://github.com/SonarSource/sonar-scanner-cli/releases/download/7.3.0.5189/sonar-scanner-cli-7.3.0.5189-linux-x64.zip
+          unzip sonar-scanner-cli-7.3.0.5189-linux-x64.zip
+          echo "SONAR_SCANNER_HOME=$PWD/sonar-scanner-7.3.0.5189-linux-x64" >> $GITHUB_ENV
           echo "$SONAR_SCANNER_HOME/bin" >> $GITHUB_PATH
 
       - name: Setup Node.js for frontend
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: apps/webapp-next/package-lock.json
 
       - name: Install Python dependencies
         run: |
