@@ -289,3 +289,4 @@ models/
 apps/backend-rag/oracle_ssh_key
 oracle_zantara_key.pem
 .coverage
+coverage.json
