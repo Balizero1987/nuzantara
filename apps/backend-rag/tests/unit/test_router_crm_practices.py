@@ -653,6 +653,25 @@ async def test_get_db_connection_no_database_url():
 
 
 @pytest.mark.asyncio
+async def test_get_db_connection_success():
+    """Test database connection succeeds with valid DATABASE_URL"""
+    from app.routers.crm_practices import get_db_connection
+
+    mock_settings_with_db = MagicMock()
+    mock_settings_with_db.database_url = "postgresql://test:test@localhost/test"
+
+    mock_connection = MagicMock()
+
+    with patch("app.routers.crm_practices.settings", mock_settings_with_db):
+        with patch("app.routers.crm_practices.psycopg2.connect", return_value=mock_connection) as mock_connect:
+            result = get_db_connection()
+
+            # Verify psycopg2.connect was called with correct parameters
+            mock_connect.assert_called_once()
+            assert result == mock_connection
+
+
+@pytest.mark.asyncio
 async def test_list_practices_with_all_filters(mock_db_connection, mock_settings, sample_practice_data):
     """Test list practices with all optional filters provided"""
     conn, cursor = mock_db_connection
