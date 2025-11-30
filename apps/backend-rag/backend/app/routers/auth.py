@@ -10,7 +10,7 @@ from typing import Any
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import jwt
+from jose import JWTError, jwt
 from pydantic import BaseModel, EmailStr
 
 from app.core.config import settings
@@ -116,12 +116,13 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         email: str = payload.get("email")
         if user_id is None or email is None:
             raise credentials_exception
-    except jwt.PyJWTError as e:
+    except JWTError as e:
         raise credentials_exception from e
 
     # Get user from database
     conn = await get_db_connection()
     try:
+        logger.info(f"🔍 Validating user: {user_id} / {email}")
         query = """
             SELECT id::text, email, full_name as name, role, 'active' as status, permissions as metadata, language as language_preference
             FROM team_members
@@ -130,8 +131,10 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         row = await conn.fetchrow(query, user_id, email)
 
         if not row:
+            logger.error(f"❌ User not found in DB: {user_id} / {email}")
             raise credentials_exception
-
+            
+        logger.info(f"✅ User validated: {row['email']}")
         return dict(row)
     finally:
         await conn.close()
