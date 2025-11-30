@@ -46,9 +46,10 @@ export const authAPI = {
       apiClient.setToken(authResponse.token)
       return authResponse
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login error:", error)
-      throw new Error(error.message || "Login failed")
+      const errorMessage = error instanceof Error ? error.message : "Login failed"
+      throw new Error(errorMessage)
     }
   },
 

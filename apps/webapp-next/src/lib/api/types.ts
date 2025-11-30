@@ -15,6 +15,13 @@ export interface LoginRequest {
   pin: string
 }
 
+/**
+ * Normalized login response for application use.
+ * This abstracts over different backend response formats:
+ * - app__modules__identity__router__LoginResponse (identity module)
+ * - app__routers__auth__LoginResponse (auth router)
+ * See auth.ts for the mapping logic.
+ */
 export interface LoginResponse {
   token: string
   user: User
