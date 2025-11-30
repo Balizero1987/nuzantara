@@ -392,7 +392,8 @@ async def test_get_compliance_alerts_with_dict_alert():
 @pytest.mark.asyncio
 async def test_extract_knowledge_graph():
     """Test knowledge graph extraction"""
-    result = await extract_knowledge_graph(text="John works for PT ABC in Jakarta")
+    mock_request = MagicMock()
+    result = await extract_knowledge_graph(request=mock_request, text="John works for PT ABC in Jakarta")
 
     assert result["success"] is True
     assert result["text_length"] == len("John works for PT ABC in Jakarta")
@@ -442,7 +443,8 @@ async def test_get_ingestion_status():
 @pytest.mark.asyncio
 async def test_cross_oracle_synthesis():
     """Test cross-oracle synthesis"""
-    result = await cross_oracle_synthesis(query="Tax regulations", domains=["tax", "legal"])
+    mock_request = MagicMock()
+    result = await cross_oracle_synthesis(request=mock_request, query="Tax regulations", domains=["tax", "legal"])
 
     assert result["success"] is True
     assert result["query"] == "Tax regulations"
@@ -467,7 +469,9 @@ async def test_calculate_dynamic_pricing():
 @pytest.mark.asyncio
 async def test_run_autonomous_research():
     """Test autonomous research"""
+    mock_request = MagicMock()
     result = await run_autonomous_research(
+        request=mock_request,
         topic="Indonesian tax law",
         depth="deep",
         sources=["oracle_collections"]
