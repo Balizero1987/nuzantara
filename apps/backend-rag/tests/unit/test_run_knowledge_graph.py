@@ -24,9 +24,6 @@ class TestRunKnowledgeGraph:
     @pytest.mark.asyncio
     async def test_main_success_default_args(self):
         """Test: Main executes successfully with default args"""
-        import importlib
-        import agents.run_knowledge_graph
-
         with patch("agents.agents.knowledge_graph_builder.KnowledgeGraphBuilder") as mock_builder_class, \
              patch("sys.argv", ["run_knowledge_graph.py"]):
 
@@ -38,9 +35,6 @@ class TestRunKnowledgeGraph:
                 "relationship_types": {}
             })
             mock_builder_class.return_value = mock_builder
-
-            # Reload module to ensure patch is applied
-            importlib.reload(agents.run_knowledge_graph)
             from agents.run_knowledge_graph import main
 
             result = await main()
@@ -49,15 +43,9 @@ class TestRunKnowledgeGraph:
             mock_builder.build_graph_from_all_conversations.assert_called_once_with(days_back=30)
             mock_builder.get_entity_insights.assert_called_once()
 
-        # Reload again to restore normal behavior
-        importlib.reload(agents.run_knowledge_graph)
-
     @pytest.mark.asyncio
     async def test_main_with_custom_days(self):
         """Test: Main accepts --days argument"""
-        import importlib
-        import agents.run_knowledge_graph
-
         with patch("agents.agents.knowledge_graph_builder.KnowledgeGraphBuilder") as mock_builder_class, \
              patch("sys.argv", ["run_knowledge_graph.py", "--days", "7"]):
 
@@ -69,9 +57,6 @@ class TestRunKnowledgeGraph:
                 "relationship_types": {}
             })
             mock_builder_class.return_value = mock_builder
-
-            # Reload module to ensure patch is applied
-            importlib.reload(agents.run_knowledge_graph)
             from agents.run_knowledge_graph import main
 
             result = await main()
@@ -79,15 +64,9 @@ class TestRunKnowledgeGraph:
             assert result == 0
             mock_builder.build_graph_from_all_conversations.assert_called_once_with(days_back=7)
 
-        # Reload again to restore normal behavior
-        importlib.reload(agents.run_knowledge_graph)
-
     @pytest.mark.asyncio
     async def test_main_with_init_schema(self):
         """Test: Main initializes schema when --init-schema flag provided"""
-        import importlib
-        import agents.run_knowledge_graph
-
         with patch("agents.agents.knowledge_graph_builder.KnowledgeGraphBuilder") as mock_builder_class, \
              patch("sys.argv", ["run_knowledge_graph.py", "--init-schema"]):
 
@@ -100,9 +79,6 @@ class TestRunKnowledgeGraph:
                 "relationship_types": {}
             })
             mock_builder_class.return_value = mock_builder
-
-            # Reload module to ensure patch is applied
-            importlib.reload(agents.run_knowledge_graph)
             from agents.run_knowledge_graph import main
 
             result = await main()
@@ -110,37 +86,22 @@ class TestRunKnowledgeGraph:
             assert result == 0
             mock_builder.init_graph_schema.assert_called_once()
 
-        # Reload again to restore normal behavior
-        importlib.reload(agents.run_knowledge_graph)
-
     @pytest.mark.asyncio
     async def test_main_error_handling(self):
         """Test: Main handles exceptions and returns error code"""
-        import importlib
-        import agents.run_knowledge_graph
-
         with patch("agents.agents.knowledge_graph_builder.KnowledgeGraphBuilder") as mock_builder_class, \
              patch("sys.argv", ["run_knowledge_graph.py"]):
 
             mock_builder_class.side_effect = Exception("Builder initialization failed")
-
-            # Reload module to ensure patch is applied
-            importlib.reload(agents.run_knowledge_graph)
             from agents.run_knowledge_graph import main
 
             result = await main()
 
             assert result == 1
 
-        # Reload again to restore normal behavior
-        importlib.reload(agents.run_knowledge_graph)
-
     @pytest.mark.asyncio
     async def test_main_with_insights_data(self):
         """Test: Main displays insights when available"""
-        import importlib
-        import agents.run_knowledge_graph
-
         with patch("agents.agents.knowledge_graph_builder.KnowledgeGraphBuilder") as mock_builder_class, \
              patch("sys.argv", ["run_knowledge_graph.py"]):
 
@@ -159,17 +120,11 @@ class TestRunKnowledgeGraph:
                 }
             })
             mock_builder_class.return_value = mock_builder
-
-            # Reload module to ensure patch is applied
-            importlib.reload(agents.run_knowledge_graph)
             from agents.run_knowledge_graph import main
 
             result = await main()
 
             assert result == 0
-
-        # Reload again to restore normal behavior
-        importlib.reload(agents.run_knowledge_graph)
 
 
 """
