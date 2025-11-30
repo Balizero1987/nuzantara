@@ -268,8 +268,80 @@ async def test_get_cultural_topics_coverage_success(cultural_rag_service):
 @pytest.mark.asyncio
 async def test_get_cultural_topics_coverage_exception(cultural_rag_service):
     """Test get_cultural_topics_coverage handles exception"""
-    # Should not raise exception
-    result = await cultural_rag_service.get_cultural_topics_coverage()
+    # Mock to trigger exception path
+    with patch("services.cultural_rag_service.logger") as mock_logger:
+        # Force an exception by making dict.fromkeys fail
+        with patch("builtins.dict") as mock_dict:
+            mock_dict.fromkeys.side_effect = Exception("Dict error")
+            result = await cultural_rag_service.get_cultural_topics_coverage()
+            # Should return empty dict on exception
+            assert result == {}
+            # Should log error
+            mock_logger.error.assert_called()
 
-    assert isinstance(result, dict)
+
+@pytest.mark.asyncio
+async def test_get_cultural_context_emotional_support_intent(cultural_rag_service, mock_search_service):
+    """Test get_cultural_context with emotional_support intent"""
+    mock_search_service.query_cultural_insights.return_value = []
+
+    context_params = {
+        "query": "I'm feeling sad",
+        "intent": "emotional_support",
+        "conversation_stage": "ongoing",
+    }
+
+    await cultural_rag_service.get_cultural_context(context_params)
+
+    call_args = mock_search_service.query_cultural_insights.call_args
+    assert call_args.kwargs["when_to_use"] == "casual_chat"
+
+
+@pytest.mark.asyncio
+async def test_get_cultural_context_business_complex_intent(cultural_rag_service, mock_search_service):
+    """Test get_cultural_context with business_complex intent"""
+    mock_search_service.query_cultural_insights.return_value = []
+
+    context_params = {
+        "query": "Complex business question",
+        "intent": "business_complex",
+        "conversation_stage": "ongoing",
+    }
+
+    await cultural_rag_service.get_cultural_context(context_params)
+
+    call_args = mock_search_service.query_cultural_insights.call_args
+    assert call_args.kwargs["when_to_use"] is None
+
+
+def test_build_cultural_prompt_injection_missing_score(cultural_rag_service):
+    """Test build_cultural_prompt_injection handles missing score"""
+    cultural_chunks = [
+        {
+            "content": "Test insight without explicit score",
+            "metadata": {"topic": "test"},
+            # score will default to 0.0 via chunk.get("score", 0.0)
+        }
+    ]
+
+    result = cultural_rag_service.build_cultural_prompt_injection(cultural_chunks)
+
+    # Should filter out chunk with score 0.0 (< 0.3 threshold)
+    assert "Test insight without explicit score" not in result
+
+
+def test_build_cultural_prompt_injection_exact_threshold(cultural_rag_service):
+    """Test build_cultural_prompt_injection with score exactly at threshold"""
+    cultural_chunks = [
+        {
+            "content": "Threshold insight",
+            "metadata": {"topic": "test"},
+            "score": 0.3,  # Exactly at threshold
+        }
+    ]
+
+    result = cultural_rag_service.build_cultural_prompt_injection(cultural_chunks)
+
+    # Should include chunk with score >= 0.3
+    assert "Threshold insight" in result
 
