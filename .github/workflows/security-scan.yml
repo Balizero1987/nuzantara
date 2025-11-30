@@ -64,7 +64,7 @@ jobs:
       - name: Install Node.js dependencies
         run: |
           cd apps/webapp-next
-          npm ci
+          npm ci --ignore-scripts
 
       - name: Run Semgrep Security Scan
         id: semgrep
