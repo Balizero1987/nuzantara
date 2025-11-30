@@ -211,13 +211,15 @@ async def test_get_critical_intel_success(client, mock_qdrant_client):
         }]],
         "distances": [[0.05]]
     }
-    
+
     with patch("app.routers.intel.QdrantClient", return_value=mock_qdrant_client):
         response = client.get("/api/intel/critical")
 
         assert response.status_code == 200
         data = response.json()
-        assert "results" in data or isinstance(data, list)
+        assert "count" in data
+        assert "items" in data
+        assert isinstance(data["items"], list)
 
 
 # ============================================================================
@@ -255,14 +257,15 @@ async def test_get_trends_success(client, mock_qdrant_client):
 @pytest.mark.asyncio
 async def test_get_stats_success(client, mock_qdrant_client):
     """Test get_stats successful"""
-    mock_qdrant_client.get_collection_info = AsyncMock(return_value={
-        "points_count": 100,
+    mock_qdrant_client.get_collection_stats = MagicMock(return_value={
+        "total_documents": 100,
         "vectors_count": 100
     })
-    
+
     with patch("app.routers.intel.QdrantClient", return_value=mock_qdrant_client):
-        response = client.get("/api/intel/stats/bali_intel_immigration")
+        response = client.get("/api/intel/stats/immigration")
 
         assert response.status_code == 200
         data = response.json()
-        assert "collection" in data or "count" in data
+        assert "collection_name" in data
+        assert "total_documents" in data
