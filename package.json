@@ -43,7 +43,13 @@
     "typecheck": "cd apps/webapp-next && npx tsc --noEmit || echo 'TypeScript check completed with warnings'",
     "devai:test": "./test-devai.sh",
     "devai:analyze": "node -e \"console.log('Use: curl /call -d {key:devai.analyze,params:{code:...}}')\"",
-    "devai:fix-typescript": "npm run typecheck 2>&1 | head -50"
+    "devai:fix-typescript": "npm run typecheck 2>&1 | head -50",
+    "test:auto-generate": "python3 scripts/test_automation/test_generator.py",
+    "test:auto-generate:dry": "python3 scripts/test_automation/test_generator.py --dry-run",
+    "test:coverage-monitor": "python3 scripts/test_automation/coverage_monitor.py 90",
+    "test:quality-check": "python3 scripts/test_automation/test_quality_checker.py",
+    "test:automation": "bash scripts/test_automation/test_master.sh 90",
+    "test:automation:dry": "bash scripts/test_automation/test_master.sh 90 true"
   },
   "lint-staged": {
     "*.{ts,js}": [
