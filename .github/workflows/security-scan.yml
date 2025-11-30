@@ -212,7 +212,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd apps/webapp-next
-          npm ci
+          npm ci --ignore-scripts
 
       - name: Run npm audit
         run: |
