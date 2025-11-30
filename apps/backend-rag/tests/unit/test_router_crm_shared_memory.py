@@ -507,6 +507,50 @@ async def test_search_shared_memory_practice_type_search(mock_db_connection, moc
 
 
 @pytest.mark.asyncio
+async def test_search_shared_memory_practice_type_active_filter(mock_db_connection, mock_settings):
+    """Test practice type search with 'active' keyword (covers line 171)"""
+    from app.routers.crm_shared_memory import search_shared_memory
+
+    conn, cursor = mock_db_connection
+    practice_types = ["PT_PMA"]
+
+    cursor.fetchall.side_effect = [
+        [],  # clients query
+        [{"id": 1, "practice_type_name": "PT PMA", "status": "in_progress"}],  # practice type search
+    ]
+
+    with patch("app.routers.crm_shared_memory.settings", mock_settings):
+        with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
+            with patch("app.routers.crm_shared_memory._get_practice_codes", return_value=practice_types):
+                result = await search_shared_memory(q="active PT_PMA practices", limit=20)
+
+                assert "practices" in result
+                assert len(result["practices"]) == 1
+
+
+@pytest.mark.asyncio
+async def test_search_shared_memory_practice_type_completed_filter(mock_db_connection, mock_settings):
+    """Test practice type search with 'completed' keyword (covers line 180)"""
+    from app.routers.crm_shared_memory import search_shared_memory
+
+    conn, cursor = mock_db_connection
+    practice_types = ["KITAS"]
+
+    cursor.fetchall.side_effect = [
+        [],  # clients query
+        [{"id": 1, "practice_type_name": "KITAS", "status": "completed"}],  # practice type search
+    ]
+
+    with patch("app.routers.crm_shared_memory.settings", mock_settings):
+        with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
+            with patch("app.routers.crm_shared_memory._get_practice_codes", return_value=practice_types):
+                result = await search_shared_memory(q="completed KITAS", limit=20)
+
+                assert "practices" in result
+                assert len(result["practices"]) == 1
+
+
+@pytest.mark.asyncio
 async def test_get_client_full_context_without_action_items(mock_db_connection, mock_settings):
     """Test client full context when interactions have no action_items (covers line 414)"""
     from datetime import datetime
