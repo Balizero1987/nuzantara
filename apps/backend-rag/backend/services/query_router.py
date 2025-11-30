@@ -424,6 +424,11 @@ class QueryRouter:
         """
         query_lower = query.lower()
 
+        # EXPLICIT OVERRIDE: Force team routing for founder queries
+        if "fondatore" in query_lower or "founder" in query_lower:
+            logger.info(f"🧭 Route: bali_zero_team (EXPLICIT OVERRIDE: founder query detected)")
+            return "bali_zero_team"
+
         # Calculate domain scores
         visa_score = sum(1 for kw in self.VISA_KEYWORDS if kw in query_lower)
         kbli_score = sum(1 for kw in self.KBLI_KEYWORDS if kw in query_lower)
