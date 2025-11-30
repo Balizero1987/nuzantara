@@ -113,7 +113,7 @@ async def analyze_content_intent(state: CollectiveMemoryState) -> CollectiveMemo
         state["detected_category"] = MemoryCategory.PREFERENCE
     elif any(word in query for word in ["compleanno", "anniversario", "festa", "celebrazione"]):
         state["detected_category"] = MemoryCategory.MILESTONE
-    elif any(word in query for word in ["amicizia", "conosco", "incontri", "social"]):
+    elif any(word in query for word in ["amicizia", "conosco", "incontri", "incontrato", "social", "amico"]):
         state["detected_category"] = MemoryCategory.RELATIONSHIP
     elif any(word in query for word in ["cultura", "tradizione", "costume", "locale"]):
         state["detected_category"] = MemoryCategory.CULTURAL
@@ -248,7 +248,7 @@ async def store_collective_memory(
 
             if content and user_id:
                 # Save as fact
-                await memory_service.add_fact(user_id, content)
+                await memory_service.add_fact(user_id, content, fact_type="collective_memory")
                 logger.info(f"💾 Stored collective memory fact for {user_id}: {content}")
 
                 # Also update summary if needed (simplified logic)
@@ -257,6 +257,10 @@ async def store_collective_memory(
 
         except Exception as e:
             logger.error(f"❌ Failed to store collective memory: {e}")
+            # Add error to state for tracking
+            if "errors" not in state:
+                state["errors"] = []
+            state["errors"].append(str(e))
 
     return state
 

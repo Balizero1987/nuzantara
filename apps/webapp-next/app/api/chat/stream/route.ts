@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 const API_URL = process.env.NUZANTARA_API_URL || "https://nuzantara-rag.fly.dev"
-const API_KEY = process.env.NUZANTARA_API_KEY || "nuzantara-api-key-2024-secure"
+const API_KEY = process.env.NUZANTARA_API_KEY || "zantara-secret-2024"
 
 export async function POST(request: Request) {
   try {
@@ -18,12 +18,19 @@ export async function POST(request: Request) {
       stream: "true"
     })
 
+    const outgoingToken = request.headers.get("Authorization")?.replace("Bearer ", "") || "";
+    console.log("[ChatAPI] Outgoing to Backend:", {
+      url: `${API_URL}/bali-zero/chat-stream`,
+      apiKey: API_KEY,
+      tokenPrefix: outgoingToken.substring(0, 10) + "..."
+    });
+
     const response = await fetch(`${API_URL}/bali-zero/chat-stream?${params.toString()}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "X-API-Key": API_KEY,
-        "Authorization": `Bearer ${request.headers.get("Authorization")?.replace("Bearer ", "") || ""}`,
+        "Authorization": `Bearer ${outgoingToken}`,
       },
     })
 

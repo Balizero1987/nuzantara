@@ -31,7 +31,7 @@ nuzantara/
 - **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
 - **Backend RAG**: Python 3.11+, FastAPI, PostgreSQL, Redis, Qdrant
 - **Memory Service**: Node.js, TypeScript, PostgreSQL, Redis
-- **AI Providers**: OpenAI, Anthropic, Google Gemini, Custom Models, **Jaksel AI (Hugging Face)**
+- **AI Providers**: OpenAI, Anthropic, Google Gemini, Custom Models, **Jaksel AI (Gemini Fallback / Custom)**
 - **Deployment**: Docker, Fly.io, Hugging Face
 - **Database**: PostgreSQL, Redis, Qdrant Vector DB
 

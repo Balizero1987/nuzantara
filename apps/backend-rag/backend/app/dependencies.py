@@ -26,6 +26,7 @@ else:
 search_service: SearchService | None = None
 # anthropic_client removed - using ZANTARA AI only
 bali_zero_router: Any | None = None
+intelligent_router: Any | None = None
 
 
 def get_search_service() -> SearchService:
@@ -58,3 +59,11 @@ def get_bali_zero_router() -> Any | None:
     Returns None in production.
     """
     return bali_zero_router
+
+
+def get_intelligent_router() -> Any | None:
+    """
+    Dependency injection for Intelligent Router.
+    Returns router instance for handling WhatsApp and other integrations.
+    """
+    return intelligent_router

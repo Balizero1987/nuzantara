@@ -10,7 +10,7 @@ from typing import Any
 from fastapi import HTTPException, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_503_SERVICE_UNAVAILABLE
+from starlette.status import HTTP_503_SERVICE_UNAVAILABLE
 
 from app.core.config import settings
 from app.services.api_key_auth import APIKeyAuth
@@ -43,9 +43,11 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
             "/docs",
             "/docs/",
             "/openapi.json",
+            "/api/v1/openapi.json",  # OpenAPI spec for contract verification
             "/redoc",
             "/metrics",
-            "/metrics/"
+            "/metrics/",
+            "/api/auth/team/login",  # Login endpoint must be public
         ]
 
         logger.info(
@@ -61,14 +63,16 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         """
         Fail-Closed request dispatch through authentication middleware
-
+        
         Authentication Priority:
         1. Public endpoints (health, docs, metrics) - no authentication
         2. API Key (X-API-Key header) - fastest, bypasses database
         3. JWT Token (Authorization header) - standard JWT flow
-
+        
         SECURITY: Any authentication error = deny access (fail-closed)
         """
+        print(f"DEBUG: Middleware dispatching: {request.url.path}")
+        print(f"DEBUG: Headers: {request.headers}")
         try:
             # Step 1: Check if this is a public endpoint
             if self.is_public_endpoint(request):
@@ -83,20 +87,28 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
 
                 # Fail-Closed: authentication required for non-public endpoints
                 if not auth_result:
-                    logger.warning(f"Authentication failed for: {request.url.path} from {request.client.host}")
-                    raise HTTPException(
+                    logger.warning(
+                        f"Authentication failed for: {request.url.path} from {request.client.host}"
+                    )
+                    from fastapi.responses import JSONResponse
+                    return JSONResponse(
                         status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Authentication required",
-                        headers={"WWW-Authenticate": "Bearer"}
+                        content={"detail": "Authentication required"},
+                        headers={"WWW-Authenticate": "Bearer"},
                     )
 
                 # Inject authenticated user context into request state
-                request.state.user = auth_result
-                request.state.auth_type = getattr(auth_result, "auth_method", "unknown")
+                if auth_result:
+                    request.state.user = auth_result
+                    request.state.auth_type = getattr(auth_result, "auth_method", "unknown")
+                else:
+                    request.state.user = {"id": "debug", "email": "debug@debug.com"}
+                    request.state.auth_type = "debug"
 
+                user_email = auth_result.get('email', 'unknown') if auth_result else "debug_user"
                 logger.debug(
                     f"Request authenticated: {request.url.path} - "
-                    f"User: {auth_result.get('email', 'unknown')} via {request.state.auth_type}"
+                    f"User: {user_email} via {request.state.auth_type}"
                 )
 
             # Step 3: Process the authenticated request
@@ -108,48 +120,63 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
 
             return response
 
-        except HTTPException:
-            # Re-raise HTTP exceptions (proper error responses)
-            raise
+        except HTTPException as exc:
+            # Return JSONResponse for HTTP exceptions to avoid 500 error in BaseHTTPMiddleware
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
+                status_code=exc.status_code,
+                content={"detail": exc.detail},
+                headers=exc.headers
+            )
         except Exception as e:
             # FAIL-CLOSED: Any system error = deny access for security
+            client_host = request.client.host if request.client else "unknown"
+            print(f"CRITICAL: Authentication system failure: {e}")
             logger.critical(
                 f"Authentication system failure - ACCESS DENIED: {e}. "
-                f"Request: {request.url.path} from {request.client.host}"
+                f"Request: {request.url.path} from {client_host}"
             )
-            raise HTTPException(
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
                 status_code=HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Authentication service temporarily unavailable"
+                content={"detail": "Authentication service temporarily unavailable"}
             )
 
     async def authenticate_request(self, request: Request) -> dict[str, Any] | None:
         """
         Fail-Closed hybrid authentication
-
+        
         Returns user context if authenticated, None if authentication fails
         SECURITY: None result = access denied (handled by dispatch)
         """
+        client_host = request.client.host if request.client else "unknown"
+        
         # Priority 1: API Key Authentication (fastest, bypasses database)
         api_key = request.headers.get("X-API-Key")
         if api_key:
-            logger.debug(f"API Key authentication attempt from {request.client.host}")
+            logger.debug(f"API Key authentication attempt from {client_host}")
             user_context = self.api_key_auth.validate_api_key(api_key)
             if user_context:
-                logger.info(f"API Key authenticated: {user_context.get('role', 'unknown')} from {request.client.host}")
+                logger.info(
+                    f"API Key authenticated: {user_context.get('role', 'unknown')} from {client_host}"
+                )
                 return user_context
             else:
                 # API Key provided but invalid = immediate failure
-                logger.warning(f"Invalid API Key attempt from {request.client.host}")
+                logger.warning(f"Invalid API Key attempt from {client_host}")
                 return None
 
         # Priority 2: JWT Authentication (fallback to existing system)
         auth_header = request.headers.get("Authorization")
+        
         if auth_header and auth_header.startswith("Bearer "):
             if not self.api_auth_bypass_db:
-                logger.debug(f"JWT authentication attempt from {request.client.host}")
+                logger.debug(f"JWT authentication attempt from {client_host}")
                 jwt_user = await self.authenticate_jwt(request)
                 if jwt_user:
-                    logger.info(f"JWT authenticated: {jwt_user.get('email', 'unknown')} from {request.client.host}")
+                    logger.info(
+                        f"JWT authenticated: {jwt_user.get('email', 'unknown')} from {request.client.host}"
+                    )
                     return jwt_user
                 else:
                     # JWT provided but invalid = immediate failure
@@ -165,13 +192,11 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
 
     async def authenticate_jwt(self, request: Request) -> dict[str, Any] | None:
         """
-        JWT authentication with proper error handling
-
-        Uses existing JWT validation system
+        Stateless JWT authentication
         """
         try:
-            from app.routers.auth import get_current_user
-
+            from jose import jwt, JWTError
+            
             # Extract JWT token from Authorization header
             auth_header = request.headers.get("Authorization")
             if not auth_header or not auth_header.startswith("Bearer "):
@@ -179,13 +204,33 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
 
             jwt_token = auth_header[7:]  # Remove "Bearer " prefix
 
-            # Call JWT validation through existing system
-            user_context = await get_current_user(request)
-            return user_context
+            # Stateless validation using secret key
+            payload = jwt.decode(
+                jwt_token, 
+                settings.jwt_secret_key, 
+                algorithms=[settings.jwt_algorithm]
+            )
+            
+            # Validate required fields
+            if not payload.get("sub") or not payload.get("email"):
+                logger.warning("JWT missing required claims")
+                return None
+                
+            # Construct user context from token
+            return {
+                "id": payload.get("sub"),
+                "email": payload.get("email"),
+                "role": payload.get("role", "member"),
+                "auth_method": "jwt_stateless",
+                "name": payload.get("name", payload.get("email").split("@")[0]),
+                "status": "active"
+            }
 
+        except JWTError as e:
+            logger.warning(f"JWT validation failed: {e}")
+            return None
         except Exception as e:
-            # Log JWT validation failures for security monitoring
-            logger.warning(f"JWT authentication failed: {e}")
+            logger.warning(f"Unexpected JWT error: {e}")
             return None
 
     def get_auth_stats(self) -> dict[str, Any]:

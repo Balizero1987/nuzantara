@@ -129,7 +129,7 @@ class Settings(BaseSettings):
     # ========================================
     api_keys: str = "zantara-secret-2024,zantara-test-2024"
     api_auth_enabled: bool = True
-    api_auth_bypass_db: bool = True
+    api_auth_bypass_db: bool = False  # Must be False to enable JWT auth
 
     # ========================================
     # TYPESCRIPT BACKEND INTEGRATION
@@ -163,6 +163,21 @@ class Settings(BaseSettings):
     slack_webhook_url: str | None = None  # Set via SLACK_WEBHOOK_URL env var
     discord_webhook_url: str | None = None  # Set via DISCORD_WEBHOOK_URL env var
     github_token: str | None = None  # Set via GITHUB_TOKEN env var
+
+    # ========================================
+    # META WHATSAPP CONFIGURATION
+    # ========================================
+    whatsapp_verify_token: str = "zantara-balizero-2025-secure-token"  # Matches Node.js
+    whatsapp_access_token: str | None = None  # Set via WHATSAPP_ACCESS_TOKEN env var
+    whatsapp_phone_number_id: str | None = None  # Set via WHATSAPP_PHONE_NUMBER_ID env var
+    whatsapp_business_account_id: str | None = None  # Set via WHATSAPP_BUSINESS_ACCOUNT_ID env var
+
+    # ========================================
+    # META INSTAGRAM CONFIGURATION
+    # ========================================
+    instagram_verify_token: str = "zantara-balizero-2025-secure-token"  # Matches Node.js
+    instagram_access_token: str | None = None  # Set via INSTAGRAM_ACCESS_TOKEN env var
+    instagram_account_id: str | None = None  # Set via INSTAGRAM_ACCOUNT_ID env var
 
     # ========================================
     # ORACLE CONFIGURATION

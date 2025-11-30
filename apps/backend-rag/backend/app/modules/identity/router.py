@@ -300,7 +300,7 @@ async def seed_team_endpoint() -> dict:
                         await conn.execute(
                             """
                             UPDATE team_members
-                            SET full_name = $1, pin_hash = $2, role = $3, department = $4,
+                            SET name = $1, full_name = $1, pin_hash = $2, role = $3, department = $4,
                                 language = $5, notes = $6, active = true,
                                 failed_attempts = 0, locked_until = NULL, updated_at = NOW()
                             WHERE LOWER(email) = LOWER($7)
@@ -317,8 +317,8 @@ async def seed_team_endpoint() -> dict:
                     else:
                         await conn.execute(
                             """
-                            INSERT INTO team_members (full_name, email, pin_hash, role, department, language, notes, active)
-                            VALUES ($1, $2, $3, $4, $5, $6, $7, true)
+                            INSERT INTO team_members (name, full_name, email, pin_hash, role, department, language, notes, active)
+                            VALUES ($1, $1, $2, $3, $4, $5, $6, $7, true)
                             """,
                             member["name"],
                             member["email"],

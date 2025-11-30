@@ -405,13 +405,30 @@ def create_notification_from_template(
     # Generate notification ID
     notification_id = f"notif_{int(datetime.now().timestamp() * 1000)}"
 
-    # Fill template
-    title = template["title"].format(**template_data) if template_data else template["title"]
-    message = (
-        template.get("email_body", template.get("whatsapp", "")).format(**template_data)
-        if template_data
-        else ""
-    )
+    # Fill template - use safe formatting to handle missing keys
+    try:
+        title = template["title"].format(**template_data) if template_data else template["title"]
+    except KeyError as e:
+        logger.warning(f"Missing key in template title: {e}")
+        title = template["title"]
+    
+    try:
+        message = (
+            template.get("email_body", template.get("whatsapp", "")).format(**template_data)
+            if template_data
+            else ""
+        )
+    except KeyError as e:
+        logger.warning(f"Missing key in template message: {e}")
+        # Try to format with available keys only
+        message_template = template.get("email_body", template.get("whatsapp", ""))
+        if template_data:
+            # Use SafeFormatter or fallback to original template
+            message = message_template
+            for key, value in template_data.items():
+                message = message.replace(f"{{{key}}}", str(value))
+        else:
+            message = ""
 
     # Auto-select channels based on priority
     channels = []

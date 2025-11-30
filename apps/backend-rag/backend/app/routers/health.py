@@ -47,8 +47,8 @@ async def health_check():
                 database={
                     "status": "connected",
                     "type": "qdrant",
-                    "collections": 16,
-                    "total_documents": 25415,
+                    "collections": 17,
+                    "total_documents": 25437,
                 },
                 embeddings={
                     "status": "operational",

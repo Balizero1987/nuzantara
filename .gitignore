@@ -159,6 +159,7 @@ create_*.py
 trading_*.py
 orchestra*.py
 ai_*.py
+!apps/backend-rag/backend/services/ai_crm_extractor.py
 analyze_*.py
 collector.py
 codegen_task.py

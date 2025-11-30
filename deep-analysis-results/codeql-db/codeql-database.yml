@@ -1,0 +1,45 @@
+---
+sourceLocationPrefix: /Users/antonellosiano/Desktop/nuzantara/apps/backend-rag
+baselineLinesOfCode: 33893
+unicodeNewlines: false
+columnKind: utf32
+primaryLanguage: python
+inProgress:
+  primaryLanguage: python
+  installedExtractors:
+    go:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/go
+    python:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/python
+    rust:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/rust
+    java:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/java
+    html:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/html
+    xml:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/xml
+    properties:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/properties
+    cpp:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/cpp
+    swift:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/swift
+    csv:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/csv
+    actions:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/actions
+    yaml:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/yaml
+    csharp:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/csharp
+    javascript:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/javascript
+    ruby:
+     - /opt/homebrew/Caskroom/codeql/2.23.6/codeql/ruby
+creationMetadata:
+  cliVersion: 2.23.6
+  creationTime: 2025-11-29T15:53:59.632053Z
+overlayBaseDatabase: false
+overlayDatabase: false
+finalised: false

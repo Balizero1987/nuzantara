@@ -24,7 +24,7 @@ export const client = new NuzantaraClient({
  */
 export const createServerClient = (token: string) => {
     return new NuzantaraClient({
-        BASE: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+        BASE: process.env.NUZANTARA_API_URL || 'http://localhost:8000',
         TOKEN: token,
         HEADERS: {
             'X-API-Key': process.env.NUZANTARA_API_KEY || ''
@@ -38,9 +38,32 @@ export const createServerClient = (token: string) => {
  */
 export const createPublicClient = () => {
     return new NuzantaraClient({
-        BASE: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+        BASE: process.env.NUZANTARA_API_URL || 'http://localhost:8000',
         HEADERS: {
             'X-API-Key': process.env.NUZANTARA_API_KEY || ''
         }
     });
+};
+
+/**
+ * Legacy API Client Export (for backward compatibility)
+ * @deprecated Use `client` instead
+ */
+export const apiClient = {
+    getToken: () => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('token') || '';
+        }
+        return '';
+    },
+    setToken: (token: string) => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('token', token);
+        }
+    },
+    clearToken: () => {
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('token');
+        }
+    }
 };

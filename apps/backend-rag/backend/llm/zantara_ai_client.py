@@ -166,6 +166,7 @@ CRITICAL PROHIBITIONS:
         temperature: float = 0.7,
         system: str | None = None,
         memory_context: str | None = None,
+        safety_settings: list[dict] | None = None,
     ) -> dict:
         """
         Generate chat response using ZANTARA AI
@@ -176,15 +177,7 @@ CRITICAL PROHIBITIONS:
             temperature: Sampling temperature
             system: Optional system prompt override
             memory_context: Optional memory context to inject
-
-        Returns:
-            {
-                "text": "response",
-                "model": str,
-                "provider": "openrouter",
-                "tokens": {"input": X, "output": Y},
-                "cost": 0.00X
-            }
+            safety_settings: Optional safety settings for Gemini
         """
 
         # Build system prompt
@@ -241,6 +234,7 @@ CRITICAL PROHIBITIONS:
                     generation_config=genai.types.GenerationConfig(
                         max_output_tokens=max_tokens, temperature=temperature
                     ),
+                    safety_settings=safety_settings,
                 )
 
                 answer = response.text
@@ -687,7 +681,7 @@ CRITICAL PROHIBITIONS:
                 # Fall back to regular conversational
                 result = await self.conversational(
                     message=message,
-                    user_id=user_id,
+                    _user_id=user_id,
                     conversation_history=conversation_history,
                     memory_context=memory_context,
                     max_tokens=max_tokens,
@@ -699,7 +693,7 @@ CRITICAL PROHIBITIONS:
         # No tools - use standard conversational
         result = await self.conversational(
             message=message,
-            user_id=user_id,
+            _user_id=user_id,
             conversation_history=conversation_history,
             memory_context=memory_context,
             max_tokens=max_tokens,
