@@ -30,11 +30,9 @@ import logging
 import os
 
 # Database & Search Service
-import sys
 import time
 import traceback
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 # Google Cloud Integration
@@ -48,8 +46,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 from pydantic import BaseModel, ConfigDict, Field
 
-sys.path.append(str(Path(__file__).parent.parent.parent))
-
+# Note: PYTHONPATH is set in Docker to /app:/app/backend
 # Database Connection (PostgreSQL)
 import asyncpg
 from core.embeddings import EmbeddingsGenerator

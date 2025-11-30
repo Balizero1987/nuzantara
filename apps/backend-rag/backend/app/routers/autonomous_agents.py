@@ -9,18 +9,13 @@ Agents:
 """
 
 import logging
-
-# Import autonomous agents
-import sys
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
+# Note: PYTHONPATH is set in Docker to /app:/app/backend
 from agents.agents.client_value_predictor import ClientValuePredictor
 from agents.agents.conversation_trainer import ConversationTrainer
 from agents.agents.knowledge_graph_builder import KnowledgeGraphBuilder

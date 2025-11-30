@@ -4,11 +4,8 @@ Applies response sanitization and quality enforcement
 """
 
 import logging
-import sys
-from pathlib import Path
 
-# Add utils to path for response_sanitizer import
-sys.path.append(str(Path(__file__).parent.parent.parent))
+# Note: PYTHONPATH is set in Docker to /app:/app/backend
 from utils.response_sanitizer import classify_query_type as classify_query_for_rag
 from utils.response_sanitizer import process_zantara_response
 

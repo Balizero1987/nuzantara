@@ -4,16 +4,12 @@ Centralized dependencies for all routers to avoid circular imports.
 Note: Qdrant references are legacy - system now uses Qdrant exclusively.
 """
 
-import sys
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import asyncpg
 from fastapi import HTTPException, Request
 
-# Add parent to path
-sys.path.append(str(Path(__file__).parent.parent))
-
+# Note: PYTHONPATH is set in Docker to /app:/app/backend
 from services.search_service import SearchService
 
 # LEGACY CODE CLEANED: Anthropic/Claude removed - using ZANTARA AI only

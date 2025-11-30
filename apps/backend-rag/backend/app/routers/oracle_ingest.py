@@ -6,17 +6,13 @@ POST /api/oracle/ingest - Bulk upload di chunks con embeddings
 """
 
 import logging
-import sys
 import time
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-# Add backend to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-
+# Note: PYTHONPATH is set in Docker to /app:/app/backend
 from core.embeddings import EmbeddingsGenerator
 
 from app.dependencies import get_search_service

@@ -15,13 +15,11 @@ import re
 
 # Note: Google services will be injected to avoid circular imports
 # Team members database
-import sys
-from pathlib import Path
+# Note: PYTHONPATH is set in Docker to /app:/app/backend
 from typing import Any
 
 import aiohttp
 
-sys.path.append(str(Path(__file__).parent.parent))
 from data.team_members import TEAM_MEMBERS
 
 logger = logging.getLogger(__name__)

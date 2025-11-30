@@ -5,9 +5,7 @@ Endpoints for persistent conversation history with PostgreSQL
 """
 
 import logging
-import sys
 from datetime import datetime
-from pathlib import Path
 
 import asyncpg
 from fastapi import APIRouter, Depends, HTTPException
@@ -15,8 +13,7 @@ from pydantic import BaseModel
 
 from ..dependencies import get_db_pool
 
-# Add parent directory to path for services
-sys.path.append(str(Path(__file__).parent.parent.parent))
+# Note: PYTHONPATH is set in Docker to /app:/app/backend
 
 logger = logging.getLogger(__name__)
 
