@@ -1,0 +1,111 @@
+name: Backend Tests & Coverage
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'apps/backend-rag/**'
+      - '.github/workflows/backend-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'apps/backend-rag/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/backend-rag
+
+    strategy:
+      matrix:
+        python-version: ['3.11']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-asyncio
+
+    - name: Run tests with coverage
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL_TEST || 'postgresql://test:test@localhost/test' }}
+        JWT_SECRET_KEY: test-secret-key-for-ci
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'sk-test' }}
+        QDRANT_URL: http://localhost:6333
+      run: |
+        pytest tests/unit/ \
+          --cov=backend \
+          --cov-report=xml \
+          --cov-report=term-missing \
+          --cov-fail-under=70 \
+          -v \
+          --tb=short \
+          --maxfail=5
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      if: matrix.python-version == '3.11'
+      with:
+        file: ./apps/backend-rag/coverage.xml
+        flags: backend
+        name: backend-coverage
+        fail_ci_if_error: false
+
+    - name: Comment coverage on PR
+      uses: py-cov-action/python-coverage-comment-action@v3
+      if: github.event_name == 'pull_request' && matrix.python-version == '3.11'
+      with:
+        GITHUB_TOKEN: ${{ github.token }}
+        MINIMUM_GREEN: 80
+        MINIMUM_ORANGE: 70
+
+    - name: Upload coverage reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report-${{ matrix.python-version }}
+        path: |
+          apps/backend-rag/coverage.xml
+          apps/backend-rag/htmlcov/
+
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/backend-rag
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install linting tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff black isort
+
+    - name: Run ruff
+      run: ruff check backend/ tests/ --output-format=github || true
+
+    - name: Check code formatting
+      run: black --check backend/ tests/ || true
+
+    - name: Check import sorting
+      run: isort --check-only backend/ tests/ || true

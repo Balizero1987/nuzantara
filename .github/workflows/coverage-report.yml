@@ -1,0 +1,83 @@
+name: Coverage Report
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    # Run every day at 2am UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/backend-rag
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-asyncio
+
+    - name: Generate comprehensive coverage report
+      env:
+        DATABASE_URL: postgresql://test:test@localhost/test
+        JWT_SECRET_KEY: test-secret-key-for-ci
+        OPENAI_API_KEY: sk-test
+        QDRANT_URL: http://localhost:6333
+      run: |
+        pytest tests/unit/ \
+          --cov=backend \
+          --cov-report=html \
+          --cov-report=xml \
+          --cov-report=term \
+          -v \
+          --tb=short || true
+
+    - name: Generate coverage badge
+      run: |
+        COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
+        COVERAGE_PERCENT=$(python -c "print(f'{float('$COVERAGE') * 100:.1f}%')")
+        echo "COVERAGE_PERCENT=$COVERAGE_PERCENT" >> $GITHUB_ENV
+        echo "Coverage: $COVERAGE_PERCENT"
+
+    - name: Upload coverage HTML report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-html-report
+        path: apps/backend-rag/htmlcov/
+        retention-days: 30
+
+    - name: Create coverage summary
+      run: |
+        echo "# Coverage Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Total Coverage:** ${{ env.COVERAGE_PERCENT }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Details" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        cat coverage.xml | grep -A 5 "coverage" >> $GITHUB_STEP_SUMMARY || true
+        echo '```' >> $GITHUB_STEP_SUMMARY
+
+    - name: Comment on commit
+      if: github.event_name == 'push'
+      uses: peter-evans/commit-comment@v3
+      with:
+        body: |
+          ## 📊 Coverage Report
+
+          **Total Coverage:** ${{ env.COVERAGE_PERCENT }}
+
+          Full report available in workflow artifacts.

@@ -7,7 +7,7 @@ import logging
 import json
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Request, HTTPException, Query, BackgroundTasks, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import httpx
 
 from app.core.config import settings
