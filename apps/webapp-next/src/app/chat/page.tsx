@@ -314,9 +314,9 @@ export default function ChatPage() {
         </>
       )}
 
-      <div className={`flex flex-col min-h-screen transition-all duration-300 ${isSidebarOpen ? "ml-80" : "ml-0"}`}>
+      <div className={`flex flex-col h-screen transition-all duration-300 ${isSidebarOpen ? "ml-80" : "ml-0"}`}>
         {/* Header */}
-        <header className="flex items-center justify-between px-6 py-4 border-b border-gray-700/50 backdrop-blur-sm sticky top-0 z-30 relative">
+        <header className="flex items-center justify-between px-6 py-4 border-b border-gray-700/50 backdrop-blur-sm shrink-0 z-30 relative">
           {/* Corner Decoration Top Right */}
           <div
             className="absolute top-0 right-0 w-12 h-12 opacity-30 pointer-events-none"
@@ -444,7 +444,7 @@ export default function ChatPage() {
           }}
         />
 
-        <main className="flex-1 overflow-y-auto px-4 py-6 max-h-[calc(100vh-180px)]">
+        <main className="flex-1 overflow-y-auto px-4 py-6">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center space-y-3 py-16 relative">
               {/* AI Brain Background */}
@@ -578,8 +578,8 @@ export default function ChatPage() {
           <div ref={messagesEndRef} />
         </main>
 
-        <div className="sticky bottom-0 border-t border-white/5 p-4 backdrop-blur-sm">
-          <div className="max-w-3xl mx-auto">
+        <div className="shrink-0 border-t border-white/5 p-4 backdrop-blur-sm">
+          <div className="max-w-4xl mx-auto">
             {uploadPreview && (
               <div className="px-6 pt-4 pb-2 animate-fade-in">
                 <div className="relative inline-block group">

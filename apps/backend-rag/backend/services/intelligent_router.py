@@ -2,27 +2,16 @@
 Intelligent Router - ZANTARA AI (REFACTORED)
 Uses pattern matching for intent classification, routes to ZANTARA AI
 
-Routing logic:
-- PRIMARY AI → ZANTARA AI (configurable via environment variables)
-
-PHASE 1 & 2 FIXES (2025-10-21):
-- Response sanitization (removes training data artifacts)
-- Length enforcement (SANTAI mode max 30 words)
-- Conditional contact info (not for greetings)
-- Query classification for RAG skip (NO RAG for greetings/casual)
-
-REFACTORED (2025-11-05):
-- Modular architecture with 6 specialized modules
-- Orchestrator pattern - delegates to specialized services
-- No code duplication between route_chat and stream_chat
-- Independent, testable modules
-
-REFACTORED (2025-12-01):
-- Using ZANTARA AI exclusively (configurable via ZANTARA_AI_MODEL env var)
-- AI engine abstraction allows switching models without code changes
+UPDATED 2025-11-30:
+- Full identity context integration
+- Zantara self-awareness for "who are you?" queries
+- Team query detection and routing
+- Enhanced context passing to AI
+- PersonalityService integration for all query types (not just fast track)
 """
 
 import asyncio
+import json
 import logging
 from typing import Any
 
@@ -33,8 +22,6 @@ from .classification import IntentClassifier
 from .context import ContextBuilder, RAGManager
 from .routing import ResponseHandler, SpecializedServiceRouter
 
-# ToolManager removed - using tool_executor directly
-
 logger = logging.getLogger(__name__)
 
 
@@ -44,11 +31,10 @@ class IntelligentRouter:
 
     Architecture:
     1. Pattern Matching: Fast intent classification (no AI cost)
-    2. ZANTARA AI: Primary AI engine (configurable via environment)
-    3. RAG Integration: Enhanced context for all business queries
-    4. Tool Use: Full access to all 164 tools via ZANTARA AI
-
-    AI Engine: Configurable via ZANTARA_AI_MODEL environment variable
+    2. Identity Detection: Recognize self/user identity queries
+    3. ZANTARA AI: Primary AI engine with full context
+    4. RAG Integration: Enhanced context for all business queries
+    5. Tool Use: Full access to all 164 tools via ZANTARA AI
     """
 
     def __init__(
@@ -61,6 +47,7 @@ class IntelligentRouter:
         cross_oracle_synthesis_service=None,
         client_journey_orchestrator=None,
         personality_service=None,
+        collaborator_service=None,
     ):
         """
         Initialize intelligent router with modular components
@@ -73,12 +60,14 @@ class IntelligentRouter:
             autonomous_research_service: AutonomousResearchService for complex queries (optional)
             cross_oracle_synthesis_service: CrossOracleSynthesisService for business planning (optional)
             client_journey_orchestrator: ClientJourneyOrchestrator for workflows (optional)
-            personality_service: PersonalityService for Fast Track (optional)
+            personality_service: PersonalityService for personality injection (optional)
+            collaborator_service: CollaboratorService for team member lookup (optional)
         """
         # Core services
         self.ai = ai_client
         self.cultural_rag = cultural_rag_service
         self.personality_service = personality_service
+        self.collaborator_service = collaborator_service
 
         # Initialize modular components
         self.classifier = IntentClassifier()
@@ -89,21 +78,19 @@ class IntelligentRouter:
         )
 
         self.response_handler = ResponseHandler()
-        # ToolManager removed - using tool_executor directly
         self.tool_executor = tool_executor
 
         # Initialize Jaksel Caller
         self.jaksel_caller = SimpleJakselCallerHF()
 
-        logger.info("🎯 [IntelligentRouter] Initialized (ZANTARA AI, MODULAR)")
-        logger.info(f"   Classification: {'✅' if True else '❌'} (Pattern Matching)")
+        logger.info("🎯 [IntelligentRouter] Initialized (ZANTARA AI, MODULAR, IDENTITY-AWARE)")
+        logger.info(f"   Classification: ✅ (Pattern Matching)")
         logger.info(f"   ZANTARA AI: {'✅' if ai_client else '❌'}")
         logger.info(f"   RAG: {'✅' if search_service else '❌'}")
         logger.info(f"   Tools: {'✅' if tool_executor else '❌'}")
         logger.info(f"   Cultural RAG: {'✅' if cultural_rag_service else '❌'}")
-        logger.info(f"   Autonomous Research: {'✅' if autonomous_research_service else '❌'}")
-        logger.info(f"   Cross-Oracle: {'✅' if cross_oracle_synthesis_service else '❌'}")
         logger.info(f"   Personality Service: {'✅' if personality_service else '❌'}")
+        logger.info(f"   Collaborator Service: {'✅' if collaborator_service else '❌'}")
 
     async def route_chat(
         self,
@@ -124,10 +111,10 @@ class IntelligentRouter:
             user_id: User identifier
             conversation_history: Optional chat history
             memory: Optional memory context for user
-            emotional_profile: Optional emotional profile from EmotionalAttunementService
-            last_ai_used: Optional last AI used (for follow-up detection)
-            collaborator: Optional collaborator profile for enhanced team personalization
-            frontend_tools: Optional tools from frontend (if provided, use instead of backend tools)
+            emotional_profile: Optional emotional profile
+            last_ai_used: Optional last AI used
+            collaborator: Optional collaborator profile for personalization
+            frontend_tools: Optional tools from frontend
 
         Returns:
             {
@@ -143,42 +130,62 @@ class IntelligentRouter:
         try:
             logger.info(f"🚦 [Router] Routing message for user {user_id}")
 
-            # STEP 0: Fast Intent Classification (Before RAG)
+            # STEP 0: Fast Intent Classification
             intent = await self.classifier.classify_intent(message)
             category = intent["category"]
             suggested_ai = intent["suggested_ai"]
-            logger.info(
-                f"📋 [Router] Initial Classification: {category} (Confidence: {intent.get('confidence', 0.0)})"
-            )
+            logger.info(f"📋 [Router] Classification: {category} (Confidence: {intent.get('confidence', 0.0)})")
 
-            # STEP 0.5: Fast Track (Skip RAG/Gemini for greetings/casual)
-            if category in ["greeting", "casual"] and self.personality_service:
-                logger.info("🚀 [Router] FAST TRACK ACTIVATED: Skipping RAG & Gemini")
-                fast_response = await self.personality_service.fast_chat(
-                    user_id, message
-                )  # user_id is email in this context usually
-                return fast_response
+            # STEP 0.5: Detect special query types
+            is_identity_query = self.context_builder.detect_identity_query(message)
+            is_zantara_query = self.context_builder.detect_zantara_query(message)
+            is_team_query = self.context_builder.detect_team_query(message)
 
-            # STEP 1: Determine tools to use (frontend or backend)
+            if is_identity_query:
+                category = "identity"
+                logger.info("🆔 [Router] IDENTITY QUERY detected")
+            elif is_zantara_query:
+                category = "zantara_identity"
+                logger.info("🤖 [Router] ZANTARA IDENTITY QUERY detected")
+            elif is_team_query:
+                category = "team_query"
+                logger.info("👥 [Router] TEAM QUERY detected")
+
+            # STEP 1: Fast Track for greetings (but NOT for identity queries)
+            if category in ["greeting", "casual"] and not is_identity_query and not is_zantara_query:
+                if self.personality_service:
+                    logger.info("🚀 [Router] FAST TRACK ACTIVATED")
+                    fast_response = await self.personality_service.fast_chat(user_id, message)
+                    return fast_response
+
+            # STEP 2: Determine tools to use
             tools_to_use = frontend_tools
             if not tools_to_use and self.tool_executor:
-                # Get tools directly from tool_executor if available
                 tools_to_use = getattr(self.tool_executor, "get_available_tools", lambda: [])()
                 if tools_to_use:
                     logger.info(f"🔧 [Router] Using {len(tools_to_use)} tools from BACKEND")
-            else:
-                logger.info(f"🔧 [Router] Using {len(tools_to_use or [])} tools from FRONTEND")
 
-            # STEP 2: Classify query type for RAG and sanitization
-            query_type = self.response_handler.classify_query(message)
-            logger.info(f"📋 [Router] Query type: {query_type}")
+            # STEP 3: Classify query type for RAG
+            query_type = category if category in ["identity", "team_query", "zantara_identity"] else self.response_handler.classify_query(message)
+            logger.info(f"📋 [Router] Query type for RAG: {query_type}")
 
-            # STEP 3: RAG retrieval (only for business/emergency)
+            # STEP 4: Build identity context (for ALL queries, not just identity)
+            identity_context = None
+            if collaborator and hasattr(collaborator, 'id') and collaborator.id != "anonymous":
+                identity_context = self.context_builder.build_identity_context(collaborator)
+                logger.info(f"🆔 [Router] Built identity context for {collaborator.name}")
+
+            # STEP 5: RAG retrieval
+            force_collection = "bali_zero_team" if category in ["identity", "team_query"] else None
             rag_result = await self.rag_manager.retrieve_context(
-                query=message, query_type=query_type, user_level=0, limit=5
+                query=message,
+                query_type=query_type,
+                user_level=0,
+                limit=5,
+                force_collection=force_collection
             )
 
-            # STEP 4: Check for emotional override
+            # STEP 6: Check for emotional override
             if emotional_profile and hasattr(emotional_profile, "detected_state"):
                 emotional_result = await self._handle_emotional_override(
                     message, user_id, conversation_history, memory, emotional_profile, tools_to_use
@@ -186,49 +193,45 @@ class IntelligentRouter:
                 if emotional_result:
                     return emotional_result
 
-            # STEP 5: Build memory context
+            # STEP 7: Build memory context
             memory_context = self.context_builder.build_memory_context(memory)
 
-            # STEP 6: Build team context
+            # STEP 8: Build team context (for response personalization)
             team_context = self.context_builder.build_team_context(collaborator)
 
-            # STEP 7: Get cultural context (if available)
+            # STEP 9: Get cultural context
             cultural_context = await self._get_cultural_context(message, conversation_history)
 
-            # STEP 8: Combine all contexts
+            # STEP 10: Combine all contexts
+            include_zantara_identity = is_zantara_query
             combined_context = self.context_builder.combine_contexts(
-                memory_context, team_context, rag_result["context"], cultural_context
+                memory_context=memory_context,
+                team_context=team_context,
+                rag_context=rag_result["context"],
+                cultural_context=cultural_context,
+                identity_context=identity_context,
+                zantara_identity=include_zantara_identity,
             )
-
-            # STEP 9: Re-classify intent (optional, but we already did it)
-            # intent = await self.classifier.classify_intent(message)
-            # category = intent["category"]
-            # suggested_ai = intent["suggested_ai"]
 
             logger.info(f"   Category: {category} → AI: {suggested_ai}")
 
-            # STEP 10: Check for specialized service routing
-            # Autonomous Research
+            # STEP 11: Check for specialized service routing
             if self.specialized_router.detect_autonomous_research(message, category):
-                result = await self.specialized_router.route_autonomous_research(
-                    message, user_level=3
-                )
+                result = await self.specialized_router.route_autonomous_research(message, user_level=3)
                 if result:
                     return result
 
-            # Cross-Oracle Synthesis
             if self.specialized_router.detect_cross_oracle(message, category):
                 result = await self.specialized_router.route_cross_oracle(message, user_level=3)
                 if result:
                     return result
 
-            # Client Journey Orchestrator
             if self.specialized_router.detect_client_journey(message, category):
                 result = await self.specialized_router.route_client_journey(message, user_id)
                 if result:
                     return result
 
-            # STEP 11: Route to ZANTARA AI
+            # STEP 12: Route to ZANTARA AI
             logger.info("🎯 [Router] Using ZANTARA AI")
 
             if self.tool_executor and tools_to_use:
@@ -238,6 +241,7 @@ class IntelligentRouter:
                     user_id=user_id,
                     conversation_history=conversation_history,
                     memory_context=combined_context,
+                    identity_context=identity_context,
                     tools=tools_to_use,
                     tool_executor=self.tool_executor,
                     max_tokens=8000,
@@ -247,18 +251,19 @@ class IntelligentRouter:
                 logger.info("   Tool use: DISABLED")
                 result = await self.ai.conversational(
                     message=message,
-                    user_id=user_id,
+                    _user_id=user_id,
                     conversation_history=conversation_history,
                     memory_context=combined_context,
+                    identity_context=identity_context,
                     max_tokens=8000,
                 )
 
-            # STEP 12: Sanitize response
+            # STEP 13: Sanitize response
             sanitized_response = self.response_handler.sanitize_response(
                 result["text"], query_type, apply_santai=True, add_contact=True
             )
 
-            # STEP 13: Jaksel Style Transfer (if applicable)
+            # STEP 14: Jaksel Style Transfer (if applicable)
             if user_id in self.jaksel_caller.jaksel_users:
                 logger.info(f"🦎 [Router] Applying Jaksel style for user {user_id}")
                 jaksel_result = await self.jaksel_caller.call_jaksel_direct(
@@ -270,12 +275,10 @@ class IntelligentRouter:
                 if jaksel_result.get("success"):
                     sanitized_response = jaksel_result.get("response", sanitized_response)
                     logger.info("✅ [Router] Jaksel style applied successfully")
-                else:
-                    logger.warning(f"⚠️ [Router] Jaksel style failed: {jaksel_result.get('error')}")
 
             return {
                 "response": sanitized_response,
-                "ai_used": result.get("ai_used", "zantara-ai"),  # Use actual AI used
+                "ai_used": result.get("ai_used", "zantara-ai"),
                 "category": category,
                 "model": result["model"],
                 "tokens": result["tokens"],
@@ -312,61 +315,52 @@ class IntelligentRouter:
         try:
             logger.info(f"🚦 [Router Stream] Starting stream for user {user_id}")
 
-            # STEP 1: Classify query type
-            query_type = self.response_handler.classify_query(message)
+            # STEP 1: Detect special query types
+            is_identity_query = self.context_builder.detect_identity_query(message)
+            is_zantara_query = self.context_builder.detect_zantara_query(message)
+            is_team_query = self.context_builder.detect_team_query(message)
+
+            # STEP 2: Classify query type
+            if is_identity_query:
+                query_type = "identity"
+                logger.info("🆔 [Router Stream] IDENTITY QUERY detected")
+            elif is_zantara_query:
+                query_type = "zantara_identity"
+                logger.info("🤖 [Router Stream] ZANTARA IDENTITY QUERY detected")
+            elif is_team_query:
+                query_type = "team_query"
+                logger.info("👥 [Router Stream] TEAM QUERY detected")
+            else:
+                query_type = self.response_handler.classify_query(message)
+
             logger.info(f"📋 [Router Stream] Query type: {query_type}")
 
-            # STEP 2: Detect comparison/cross-topic queries (adjust max_tokens)
-            comparison_keywords = [
-                "confronta",
-                "compare",
-                "vs",
-                "differenza tra",
-                "difference between",
-                "confronto",
-                "comparison",
-            ]
-            cross_topic_keywords = [
-                "timeline",
-                "percorso completo",
-                "tutti i costi",
-                "step-by-step",
-                "tutto",
-                "complessivamente",
-            ]
+            # STEP 3: Determine max tokens based on query complexity
+            comparison_keywords = ["confronta", "compare", "vs", "differenza tra", "difference between"]
+            cross_topic_keywords = ["timeline", "percorso completo", "tutti i costi", "step-by-step"]
 
             is_comparison = any(kw in message.lower() for kw in comparison_keywords)
-            is_cross_topic = (
-                any(kw in message.lower() for kw in cross_topic_keywords)
-                or len(message.split()) > 20
-            )
+            is_cross_topic = any(kw in message.lower() for kw in cross_topic_keywords) or len(message.split()) > 20
 
             if is_comparison:
                 max_tokens_to_use = 12000
-                logger.info(f"🔍 COMPARISON query detected → max_tokens={max_tokens_to_use}")
             elif is_cross_topic:
                 max_tokens_to_use = 10000
-                logger.info(f"🌐 CROSS-TOPIC query detected → max_tokens={max_tokens_to_use}")
             else:
                 max_tokens_to_use = 8000
 
-            # STEP 2.5: Check for specialized service routing
+            # STEP 4: Check for specialized service routing
             category = query_type
 
-            # Autonomous Research
             if self.specialized_router.detect_autonomous_research(message, category):
-                result = await self.specialized_router.route_autonomous_research(
-                    message, user_level=3
-                )
+                result = await self.specialized_router.route_autonomous_research(message, user_level=3)
                 if result:
-                    # Yield result text as chunks
                     text = result.get("response", result.get("text", ""))
                     for word in text.split():
                         yield word + " "
                         await asyncio.sleep(0.02)
                     return
 
-            # Cross-Oracle Synthesis
             if self.specialized_router.detect_cross_oracle(message, category):
                 result = await self.specialized_router.route_cross_oracle(message, user_level=3)
                 if result:
@@ -376,7 +370,6 @@ class IntelligentRouter:
                         await asyncio.sleep(0.02)
                     return
 
-            # Client Journey Orchestrator
             if self.specialized_router.detect_client_journey(message, category):
                 result = await self.specialized_router.route_client_journey(message, user_id)
                 if result:
@@ -386,79 +379,79 @@ class IntelligentRouter:
                         await asyncio.sleep(0.02)
                     return
 
-            # STEP 3: Build memory context
+            # STEP 5: Build identity context
+            identity_context = None
+            if collaborator and hasattr(collaborator, 'id') and collaborator.id != "anonymous":
+                identity_context = self.context_builder.build_identity_context(collaborator)
+                logger.info(f"🆔 [Router Stream] Built identity context for {collaborator.name}")
+
+            # STEP 6: Build memory context
             memory_context = self.context_builder.build_memory_context(memory)
 
-            # STEP 4: Build team context
+            # STEP 7: Build team context
             team_context = self.context_builder.build_team_context(collaborator)
 
-            # STEP 5: RAG retrieval (only for business/emergency)
+            # STEP 8: RAG retrieval
+            force_collection = "bali_zero_team" if query_type in ["identity", "team_query"] else None
             rag_result = await self.rag_manager.retrieve_context(
-                query=message, query_type=query_type, user_level=0, limit=5
+                query=message,
+                query_type=query_type,
+                user_level=0,
+                limit=5,
+                force_collection=force_collection
             )
 
-            # STEP 6: Combine contexts
+            # STEP 9: Combine contexts
+            include_zantara_identity = is_zantara_query
             combined_context = self.context_builder.combine_contexts(
-                memory_context, team_context, rag_result["context"], None
+                memory_context=memory_context,
+                team_context=team_context,
+                rag_context=rag_result["context"],
+                cultural_context=None,
+                identity_context=identity_context,
+                zantara_identity=include_zantara_identity,
             )
 
-            # STEP 7: Tools are used directly during AI call
+            # STEP 10: Yield metadata first
+            metadata = {
+                "memory_used": bool(memory and (memory.get("facts") if isinstance(memory, dict) else hasattr(memory, 'profile_facts'))),
+                "used_rag": rag_result.get("used_rag", False),
+                "rag_sources": [
+                    doc.get("metadata", {}).get("source") or doc.get("metadata", {}).get("source_collection", "Unknown")
+                    for doc in rag_result.get("docs", [])
+                ],
+                "team_member": collaborator.name if collaborator and hasattr(collaborator, 'name') else "Zantara",
+                "intent": category,
+                "identity_aware": bool(identity_context),
+            }
+            yield f"[METADATA]{json.dumps(metadata)}[METADATA]"
 
-            # STEP 9: Stream from ZANTARA AI
+            # STEP 11: Stream from ZANTARA AI
             logger.info("🎯 [Router Stream] Using ZANTARA AI with REAL token-by-token streaming")
 
-            # Initialize buffer for Jaksel users
             full_response_buffer = ""
-
-            # Yield metadata first (custom format for frontend)
-            # Format: [METADATA]json_string[METADATA]
-            metadata = {
-                "memory_used": bool(memory and (memory.get("facts") or memory.get("summary"))),
-                "used_rag": rag_result.get("used_rag", False) if rag_result else False,
-                "rag_sources": [
-                    doc.get("metadata", {}).get("source")
-                    or doc.get("metadata", {}).get("source_collection", "Unknown")
-                    for doc in rag_result.get("docs", [])
-                ]
-                if rag_result
-                else [],
-                "team_member": collaborator.get("name") if collaborator else "Zantara",
-                "intent": category,
-            }
-            import json
-
-            yield f"[METADATA]{json.dumps(metadata)}[METADATA]"
 
             async for chunk in self.ai.stream(
                 message=message,
                 user_id=user_id,
                 conversation_history=conversation_history,
                 memory_context=combined_context,
+                identity_context=identity_context,
                 max_tokens=max_tokens_to_use,
             ):
-                # DEBUG: Check Jaksel user
-                logger.info(
-                    f"DEBUG: Checking user {user_id} against {list(self.jaksel_caller.jaksel_users.keys())}"
-                )
-
-                # Check if user is Jaksel - if so, buffer response for style transfer
                 if user_id in self.jaksel_caller.jaksel_users:
                     full_response_buffer += chunk
                 else:
                     yield chunk
 
-            # If Jaksel user, process the buffered response and yield the styled result
+            # Jaksel style transfer if needed
             if user_id in self.jaksel_caller.jaksel_users and full_response_buffer:
-                logger.info(
-                    f"🦎 [Router Stream] Buffering complete for Jaksel user {user_id}. Applying style..."
-                )
+                logger.info(f"🦎 [Router Stream] Applying Jaksel style for {user_id}")
 
-                # Sanitize first (standard procedure)
                 sanitized_buffer = self.response_handler.sanitize_response(
                     full_response_buffer, query_type, apply_santai=True, add_contact=True
                 )
 
-                # Call Jaksel
                 jaksel_result = await self.jaksel_caller.call_jaksel_direct(
                     query=message,
                     user_email=user_id,
@@ -469,13 +462,11 @@ class IntelligentRouter:
                 final_response = sanitized_buffer
                 if jaksel_result.get("success"):
                     final_response = jaksel_result.get("response", sanitized_buffer)
-                    logger.info("✅ [Router Stream] Jaksel style applied successfully")
+                    logger.info("✅ [Router Stream] Jaksel style applied")
 
-                # Yield the styled response (simulating stream or chunks)
-                # We yield words to make it feel like a stream, though it's delayed
                 for word in final_response.split(" "):
                     yield word + " "
-                    await asyncio.sleep(0.05)  # Slight delay for natural feel
+                    await asyncio.sleep(0.05)
 
             logger.info(f"✅ [Router Stream] Stream completed for user {user_id}")
 
@@ -492,15 +483,9 @@ class IntelligentRouter:
         emotional_profile: Any,
         tools_to_use: list[dict] | None,
     ) -> dict | None:
-        """Handle emotional override routing (internal helper)"""
+        """Handle emotional override routing"""
         emotional_states_needing_empathy = [
-            "sad",
-            "anxious",
-            "stressed",
-            "embarrassed",
-            "lonely",
-            "scared",
-            "worried",
+            "sad", "anxious", "stressed", "embarrassed", "lonely", "scared", "worried"
         ]
 
         detected_state = (
@@ -512,9 +497,7 @@ class IntelligentRouter:
         if detected_state not in emotional_states_needing_empathy:
             return None
 
-        logger.info(
-            f"🎭 [Router] EMOTIONAL OVERRIDE: {detected_state} → Using ZANTARA AI for empathy"
-        )
+        logger.info(f"🎭 [Router] EMOTIONAL OVERRIDE: {detected_state}")
 
         memory_context = self.context_builder.build_memory_context(memory)
 
@@ -532,7 +515,7 @@ class IntelligentRouter:
         else:
             result = await self.ai.conversational(
                 message=message,
-                user_id=user_id,
+                _user_id=user_id,
                 conversation_history=conversation_history,
                 memory_context=memory_context,
                 max_tokens=8000,
@@ -552,7 +535,7 @@ class IntelligentRouter:
     async def _get_cultural_context(
         self, message: str, conversation_history: list[dict] | None
     ) -> str | None:
-        """Get cultural context from CulturalRAGService (internal helper)"""
+        """Get cultural context from CulturalRAGService"""
         if not self.cultural_rag:
             return None
 
@@ -570,9 +553,7 @@ class IntelligentRouter:
             cultural_chunks = await self.cultural_rag.get_cultural_context(context_params, limit=2)
 
             if cultural_chunks:
-                logger.info(
-                    f"🌴 [Cultural RAG] Injecting {len(cultural_chunks)} Indonesian cultural insights"
-                )
+                logger.info(f"🌴 [Cultural RAG] Injecting {len(cultural_chunks)} cultural insights")
                 return self.cultural_rag.build_cultural_prompt_injection(cultural_chunks)
 
         except Exception as e:
@@ -580,22 +561,21 @@ class IntelligentRouter:
 
         return None
 
-    # _prefetch_tool_data method removed - tools are used directly during AI call
-
     def get_stats(self) -> dict:
         """Get router statistics"""
         return {
             "router": "zantara_ai_router",
             "classification": "pattern_matching",
+            "identity_aware": True,
             "ai_models": {
                 "zantara_ai": {
                     "available": self.ai.is_available() if self.ai else False,
-                    "use_case": "ALL queries (greetings, casual, business, complex)",
+                    "use_case": "ALL queries (identity, team, business, complex)",
                     "cost": "$0.20/$0.20 per 1M tokens",
                     "traffic": "100%",
-                    "engine": "ZANTARA AI (configurable via environment)",
+                    "engine": "ZANTARA AI (configurable)",
                 }
             },
             "rag_available": self.rag_manager.search is not None,
-            "total_cost_monthly": "$8-15 (3,000 requests) - 3x cheaper than Sonnet",
+            "total_cost_monthly": "$8-15 (3,000 requests)",
         }

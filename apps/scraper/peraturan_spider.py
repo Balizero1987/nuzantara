@@ -33,6 +33,7 @@ logger.add("logs/peraturan_spider_{time}.log", rotation="1 day", retention="7 da
 # Configuration
 BASE_URL = "https://peraturan.bpk.go.id"
 HOME_URL = f"{BASE_URL}/"
+SEARCH_URL = f"{BASE_URL}/Search"
 DATA_DIR = Path(__file__).parent / "data"
 RAW_LAWS_DIR = DATA_DIR / "raw_laws"
 METADATA_FILE = DATA_DIR / "laws_metadata.jsonl"
@@ -330,17 +331,6 @@ class PeraturanSpider:
         current_url = page.url
         logger.info(f"Searching for next page link on: {current_url}")
         
-        # Debug: Save page HTML for inspection (only first time)
-        try:
-            debug_dir = Path(__file__).parent / "debug"
-            debug_dir.mkdir(exist_ok=True)
-            html_content = await page.content()
-            debug_file = debug_dir / f"pagination_page_{int(asyncio.get_event_loop().time())}.html"
-            debug_file.write_text(html_content, encoding="utf-8")
-            logger.debug(f"Saved page HTML to: {debug_file}")
-        except Exception as e:
-            logger.debug(f"Could not save debug HTML: {e}")
-        
         # Strategy 1: Text-based search (most reliable)
         # Look for links containing common "next" text patterns
         logger.info("Strategy 1: Searching for text-based next links...")
@@ -574,78 +564,112 @@ class PeraturanSpider:
         except Exception as e:
             logger.warning(f"Error in page number pattern search: {e}")
         
-        # Strategy 6: Look for any link that might be pagination (numbers, arrows, etc.)
-        logger.info("Strategy 6: Searching for any potential pagination links...")
+        # Strategy 6: Use Playwright's robust text locators
+        logger.info("Strategy 6: Using Playwright robust text locators...")
         try:
-            all_links = await page.query_selector_all("a")
-            potential_pagination_patterns = [
-                r'page[=_]?\d+',
-                r'p[=_]?\d+',
-                r'\d+',
-            ]
-            
-            # Get current page number if available
-            current_page_num = None
+            # Try get_by_role with text "Selanjutnya"
             try:
-                url_match = re.search(r'[?&](?:page|p)[=_](\d+)', current_url)
-                if url_match:
-                    current_page_num = int(url_match.group(1))
-                    logger.debug(f"Detected current page number: {current_page_num}")
-            except Exception:
-                pass
-            
-            for link in all_links:
-                try:
-                    href = await link.get_attribute("href")
-                    text = await link.inner_text()
-                    
-                    if not href:
-                        continue
-                    
-                    full_url = urljoin(BASE_URL, href)
-                    
-                    # Skip if same page
-                    if full_url == current_url or full_url == current_url + "#":
-                        continue
-                    
-                    # Check if URL contains page number
-                    for pattern in potential_pagination_patterns:
-                        match = re.search(pattern, full_url, re.IGNORECASE)
-                        if match:
-                            try:
-                                # Try to extract page number
-                                page_num_match = re.search(r'(\d+)', match.group(0))
-                                if page_num_match:
-                                    page_num = int(page_num_match.group(1))
-                                    # If we know current page, check if this is next page
-                                    if current_page_num and page_num == current_page_num + 1:
-                                        logger.info(f"✓ Found potential next page (page {page_num}) using URL pattern: {full_url}")
-                                        return full_url
-                                    # If no current page known, assume any number > 1 might be next
-                                    elif not current_page_num and page_num > 1:
-                                        logger.info(f"✓ Found potential next page (page {page_num}) using URL pattern: {full_url}")
-                                        return full_url
-                            except (ValueError, AttributeError):
-                                continue
-                    
-                    # Check if link text looks like pagination (numbers, arrows)
-                    text_clean = text.strip()
-                    if text_clean.isdigit() and int(text_clean) > 1:
-                        logger.debug(f"Found numeric link: '{text_clean}' -> {full_url}")
-                        if current_page_num and int(text_clean) == current_page_num + 1:
-                            logger.info(f"✓ Found next page using numeric text '{text_clean}' -> {full_url}")
+                selanjutnya_link = page.get_by_role("link", name="Selanjutnya", exact=False)
+                if await selanjutnya_link.count() > 0:
+                    href = await selanjutnya_link.first.get_attribute("href")
+                    if href:
+                        full_url = urljoin(BASE_URL, href)
+                        if full_url != current_url:
+                            logger.info(f"✓ Found next page using get_by_role('link', name='Selanjutnya') -> {full_url}")
                             return full_url
-                            
-                except Exception as e:
-                    logger.debug(f"Error in Strategy 6 link check: {e}")
-                    continue
+            except Exception as e:
+                logger.debug(f"get_by_role('Selanjutnya') failed: {e}")
             
-            logger.info("Strategy 6: No potential pagination links found")
+            # Try get_by_role with text "Next"
+            try:
+                next_link = page.get_by_role("link", name="Next", exact=False)
+                if await next_link.count() > 0:
+                    href = await next_link.first.get_attribute("href")
+                    if href:
+                        full_url = urljoin(BASE_URL, href)
+                        if full_url != current_url:
+                            logger.info(f"✓ Found next page using get_by_role('link', name='Next') -> {full_url}")
+                            return full_url
+            except Exception as e:
+                logger.debug(f"get_by_role('Next') failed: {e}")
+            
+            # Try locator with pagination list structure
+            try:
+                pagination_next = page.locator("ul.pagination li.next a")
+                if await pagination_next.count() > 0:
+                    href = await pagination_next.first.get_attribute("href")
+                    if href:
+                        full_url = urljoin(BASE_URL, href)
+                        if full_url != current_url:
+                            logger.info(f"✓ Found next page using locator('ul.pagination li.next a') -> {full_url}")
+                            return full_url
+            except Exception as e:
+                logger.debug(f"locator('ul.pagination li.next a') failed: {e}")
+            
+            # Try locator with arrow text
+            try:
+                arrow_link = page.locator("a:has-text('>')")
+                if await arrow_link.count() > 0:
+                    # Check all arrow links to find the next one
+                    count = await arrow_link.count()
+                    for i in range(count):
+                        try:
+                            link = arrow_link.nth(i)
+                            href = await link.get_attribute("href")
+                            if href:
+                                full_url = urljoin(BASE_URL, href)
+                                # Check if it's not disabled
+                                is_disabled = await link.get_attribute("disabled")
+                                class_attr = await link.get_attribute("class") or ""
+                                if not is_disabled and "disabled" not in class_attr.lower():
+                                    if full_url != current_url:
+                                        logger.info(f"✓ Found next page using locator(\"a:has-text('>')\") -> {full_url}")
+                                        return full_url
+                        except Exception:
+                            continue
+            except Exception as e:
+                logger.debug(f"locator(\"a:has-text('>')\") failed: {e}")
+            
+            logger.info("Strategy 6: No matching links found with robust locators")
         except Exception as e:
             logger.warning(f"Error in Strategy 6: {e}")
         
-        logger.warning("❌ No next page link found using any strategy")
-        logger.info("💡 Tip: Check debug/pagination_page_*.html file to inspect the page structure")
+        # ALL STRATEGIES FAILED - Dump HTML for inspection
+        logger.warning("❌ Pagination not found. All strategies (1-6) exhausted.")
+        logger.warning("Dumping page HTML for manual inspection...")
+        
+        try:
+            html_content = await page.content()
+            # Save to root directory as requested
+            root_dir = Path(__file__).parent.parent.parent  # Go up from apps/scraper/peraturan_spider.py
+            debug_file = root_dir / "debug_pagination.html"
+            debug_file.write_text(html_content, encoding="utf-8")
+            logger.warning(f"✓ Page HTML dumped to: {debug_file}")
+            logger.warning("💡 Please inspect 'debug_pagination.html' to see the actual pagination structure")
+            
+            # Also save a summary of all links found
+            try:
+                all_links = await page.query_selector_all("a")
+                links_summary = []
+                for link in all_links[:100]:  # Limit to first 100
+                    try:
+                        text = await link.inner_text()
+                        href = await link.get_attribute("href")
+                        class_attr = await link.get_attribute("class") or ""
+                        if text and href:
+                            links_summary.append(f"Text: '{text.strip()}' | Href: {href} | Class: {class_attr}")
+                    except Exception:
+                        continue
+                
+                summary_file = root_dir / "debug_pagination_links.txt"
+                summary_file.write_text("\n".join(links_summary), encoding="utf-8")
+                logger.warning(f"✓ Links summary saved to: {summary_file}")
+            except Exception as e:
+                logger.debug(f"Could not save links summary: {e}")
+                
+        except Exception as e:
+            logger.error(f"Failed to dump HTML: {e}")
+        
         return None
 
     async def _extract_metadata_from_detail_page(
@@ -917,9 +941,10 @@ class PeraturanSpider:
             page = await context.new_page()
 
             try:
-                # Start with homepage
-                current_url = HOME_URL
+                # Start with Search page (has pagination, unlike homepage)
+                current_url = SEARCH_URL
                 page_number = 1
+                logger.info(f"Starting scrape from Search page: {current_url}")
                 
                 # Pagination loop: continue until we have enough items or no more pages
                 while True:

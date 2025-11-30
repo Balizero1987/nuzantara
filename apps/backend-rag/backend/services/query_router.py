@@ -424,6 +424,46 @@ class QueryRouter:
         """
         query_lower = query.lower()
 
+        # PRIORITY OVERRIDE: Identity queries (highest priority)
+        identity_patterns = [
+            "chi sono",
+            "who am i",
+            "siapa saya",
+            "mi conosci",
+            "cosa sai di me",
+            "il mio nome",
+            "my name",
+            "my role",
+            "sai chi sono",
+            "do you know me",
+            "recognize me",
+            "mi riconosci",
+            "kenal saya",
+            "chi sono io",
+        ]
+        if any(pattern in query_lower for pattern in identity_patterns):
+            logger.info(f"🧭 Route: bali_zero_team (IDENTITY QUERY OVERRIDE)")
+            return "bali_zero_team"
+
+        # PRIORITY OVERRIDE: Team enumeration queries
+        team_patterns = [
+            "membri",
+            "team",
+            "colleghi",
+            "quanti siamo",
+            "chi lavora",
+            "team members",
+            "colleagues",
+            "who works",
+            "conosci i membri",
+            "know the members",
+            "dipartimento",
+            "department",
+        ]
+        if any(pattern in query_lower for pattern in team_patterns):
+            logger.info(f"🧭 Route: bali_zero_team (TEAM ENUMERATION OVERRIDE)")
+            return "bali_zero_team"
+
         # EXPLICIT OVERRIDE: Force team routing for founder queries
         if "fondatore" in query_lower or "founder" in query_lower:
             logger.info(f"🧭 Route: bali_zero_team (EXPLICIT OVERRIDE: founder query detected)")

@@ -212,6 +212,11 @@ async def test_route_chat_basic(intelligent_router):
     router.response_handler.classify_query = MagicMock(return_value="business")
     router.response_handler.sanitize_response = MagicMock(return_value="Sanitized response")
     
+    # Mock context builder identity detection (should return False for business queries)
+    router.context_builder.detect_identity_query = MagicMock(return_value=False)
+    router.context_builder.detect_zantara_query = MagicMock(return_value=False)
+    router.context_builder.detect_team_query = MagicMock(return_value=False)
+    
     # Mock specialized router
     router.specialized_router = MagicMock()
     router.specialized_router.detect_autonomous_research = MagicMock(return_value=False)
