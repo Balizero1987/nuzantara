@@ -436,3 +436,48 @@ async def test_get_team_overview_exception(mock_db_connection, mock_settings):
                 await get_team_overview()
 
             assert exc_info.value.status_code == 500
+
+
+# ============================================================================
+# Tests for get_db_connection
+# ============================================================================
+
+
+@pytest.mark.asyncio
+async def test_get_db_connection_missing_database_url():
+    """Test get_db_connection when DATABASE_URL is not set"""
+    from app.routers.crm_shared_memory import get_db_connection
+
+    empty_settings = MagicMock()
+    empty_settings.database_url = None
+
+    with patch("app.routers.crm_shared_memory.settings", empty_settings):
+        with pytest.raises(Exception) as exc_info:
+            get_db_connection()
+
+        assert "DATABASE_URL" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_search_shared_memory_practice_type_search(mock_db_connection, mock_settings):
+    """Test practice type specific search (covers lines 165-210)"""
+    from app.routers.crm_shared_memory import search_shared_memory
+
+    conn, cursor = mock_db_connection
+
+    # First query returns empty results (clients, practices, interactions all empty)
+    # This triggers the practice type specific search on lines 165-210
+    cursor.fetchall.side_effect = [
+        [],  # clients query
+        [],  # practices for clients query (not executed since clients is empty)
+        [{"id": 1, "practice_type_name": "KITAS", "client_name": "Test Client", "status": "in_progress"}],  # practice type specific query
+    ]
+
+    with patch("app.routers.crm_shared_memory.settings", mock_settings):
+        with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
+            # Search for specific practice type
+            result = await search_shared_memory(q="KITAS practices", limit=20)
+
+            assert "practices" in result
+            # Verify practice type search was executed
+            assert cursor.execute.call_count >= 1

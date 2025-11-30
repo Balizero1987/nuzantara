@@ -350,12 +350,17 @@ async def test_get_interactions_stats_success(mock_db_connection, mock_settings)
 
     conn, cursor = mock_db_connection
 
+    # Create mock row objects that support dict conversion
+    class MockRow(dict):
+        def __getitem__(self, key):
+            return super().__getitem__(key)
+
     # Mock stats data
-    by_type = [{"interaction_type": "chat", "count": 10}, {"interaction_type": "email", "count": 5}]
-    by_sentiment = [{"sentiment": "positive", "count": 8}, {"sentiment": "neutral", "count": 7}]
+    by_type = [MockRow({"interaction_type": "chat", "count": 10}), MockRow({"interaction_type": "email", "count": 5})]
+    by_sentiment = [MockRow({"sentiment": "positive", "count": 8}), MockRow({"sentiment": "neutral", "count": 7})]
     by_team_member = [
-        {"team_member": "anton@balizero.com", "count": 12},
-        {"team_member": "amanda@balizero.com", "count": 3},
+        MockRow({"team_member": "anton@balizero.com", "count": 12}),
+        MockRow({"team_member": "amanda@balizero.com", "count": 3}),
     ]
     recent_count = {"count": 8}
 
@@ -365,7 +370,7 @@ async def test_get_interactions_stats_success(mock_db_connection, mock_settings)
 
     with patch("app.routers.crm_interactions.settings", mock_settings):
         with patch("app.routers.crm_interactions.get_db_connection", return_value=conn):
-            result = await get_interactions_stats()
+            result = await get_interactions_stats(team_member=None)
 
             assert result["total_interactions"] == 15
             assert result["last_7_days"] == 8
@@ -545,13 +550,15 @@ async def test_sync_gmail_interactions_success(mock_db_connection, mock_settings
     }
 
     # Mock AutoCRM service
+    from unittest.mock import AsyncMock
+
     mock_auto_crm = MagicMock()
-    mock_auto_crm.process_email_interaction = MagicMock(
+    mock_auto_crm.process_email_interaction = AsyncMock(
         return_value={"success": True, "interaction_id": 1}
     )
 
-    with patch("app.routers.crm_interactions.get_gmail_service", return_value=mock_gmail):
-        with patch("app.routers.crm_interactions.get_auto_crm_service", return_value=mock_auto_crm):
+    with patch("services.gmail_service.get_gmail_service", return_value=mock_gmail):
+        with patch("services.auto_crm_service.get_auto_crm_service", return_value=mock_auto_crm):
             result = await sync_gmail_interactions(limit=5, team_member="system")
 
             assert result["success"] is True
@@ -568,8 +575,8 @@ async def test_sync_gmail_interactions_no_messages(mock_db_connection, mock_sett
 
     mock_auto_crm = MagicMock()
 
-    with patch("app.routers.crm_interactions.get_gmail_service", return_value=mock_gmail):
-        with patch("app.routers.crm_interactions.get_auto_crm_service", return_value=mock_auto_crm):
+    with patch("services.gmail_service.get_gmail_service", return_value=mock_gmail):
+        with patch("services.auto_crm_service.get_auto_crm_service", return_value=mock_auto_crm):
             result = await sync_gmail_interactions(limit=5)
 
             assert result["success"] is True
@@ -582,7 +589,7 @@ async def test_sync_gmail_interactions_error(mock_db_connection, mock_settings):
     from app.routers.crm_interactions import sync_gmail_interactions
 
     with patch(
-        "app.routers.crm_interactions.get_gmail_service", side_effect=Exception("Gmail API error")
+        "services.gmail_service.get_gmail_service", side_effect=Exception("Gmail API error")
     ):
         with pytest.raises(Exception) as exc_info:
             await sync_gmail_interactions()
