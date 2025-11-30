@@ -2,8 +2,16 @@
 Tests for agents/run_conversation_trainer.py
 
 Target: CLI runner script coverage
-File: backend/agents/run_conversation_trainer.py (33 lines)
+File: backend/agents/run_conversation_trainer.py
 """
+
+import sys
+from pathlib import Path
+
+# Ensure backend is in path
+backend_path = Path(__file__).parent.parent.parent / "backend"
+if str(backend_path) not in sys.path:
+    sys.path.insert(0, str(backend_path))
 
 import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
@@ -15,7 +23,7 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_success(self):
         """Test: Main executes successfully"""
-        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
+        with patch("agents.agents.conversation_trainer.ConversationTrainer") as mock_trainer_class, \
              patch("sys.argv", ["run_conversation_trainer.py"]):
 
             mock_trainer = MagicMock()
@@ -36,7 +44,7 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_no_analysis_results(self):
         """Test: Main handles no high-rated conversations found"""
-        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
+        with patch("agents.agents.conversation_trainer.ConversationTrainer") as mock_trainer_class, \
              patch("sys.argv", ["run_conversation_trainer.py"]):
 
             mock_trainer = MagicMock()
@@ -53,13 +61,18 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_with_custom_days(self):
         """Test: Main accepts --days argument"""
-        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
+        import importlib
+        import agents.run_conversation_trainer
+
+        with patch("agents.agents.conversation_trainer.ConversationTrainer") as mock_trainer_class, \
              patch("sys.argv", ["run_conversation_trainer.py", "--days", "14"]):
 
             mock_trainer = MagicMock()
             mock_trainer.analyze_winning_patterns = AsyncMock(return_value=None)
             mock_trainer_class.return_value = mock_trainer
 
+            # Reload module to ensure patch is applied
+            importlib.reload(agents.run_conversation_trainer)
             from agents.run_conversation_trainer import main
 
             result = await main()
@@ -67,19 +80,30 @@ class TestRunConversationTrainer:
             assert result == 0
             mock_trainer.analyze_winning_patterns.assert_called_once_with(days_back=14)
 
+        # Reload again to restore normal behavior
+        importlib.reload(agents.run_conversation_trainer)
+
     @pytest.mark.asyncio
     async def test_main_exception_handling(self):
         """Test: Main handles exceptions and returns error code"""
-        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
+        import importlib
+        import agents.run_conversation_trainer
+
+        with patch("agents.agents.conversation_trainer.ConversationTrainer") as mock_trainer_class, \
              patch("sys.argv", ["run_conversation_trainer.py"]):
 
             mock_trainer_class.side_effect = Exception("Trainer initialization failed")
 
+            # Reload module to ensure patch is applied
+            importlib.reload(agents.run_conversation_trainer)
             from agents.run_conversation_trainer import main
 
             result = await main()
 
             assert result == 1
+
+        # Reload again to restore normal behavior
+        importlib.reload(agents.run_conversation_trainer)
 
 
 """
