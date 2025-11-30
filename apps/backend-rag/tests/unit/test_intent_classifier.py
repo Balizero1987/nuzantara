@@ -90,9 +90,10 @@ async def test_classify_intent_session_state_identity(intent_classifier):
     """Test classify_intent with identity query"""
     result = await intent_classifier.classify_intent("who am i")
 
-    assert result["category"] == "session_state"
-    assert result["confidence"] == 1.0
-    assert result["require_memory"] is True
+    # Updated to expect 'identity' category as per new logic
+    assert result["category"] == "identity"
+    assert result["confidence"] == 0.95
+    assert result["requires_team_context"] is True
 
 
 @pytest.mark.asyncio
