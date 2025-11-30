@@ -27,8 +27,10 @@ from fastapi.responses import StreamingResponse
 # --- LLM Client ---
 from llm.zantara_ai_client import ZantaraAIClient
 
-# --- Hybrid Authentication Middleware ---
+# --- Middleware ---
 from middleware.hybrid_auth import HybridAuthMiddleware
+from middleware.error_monitoring import ErrorMonitoringMiddleware
+from middleware.rate_limiter import RateLimitMiddleware
 
 # --- OpenTelemetry ---
 from opentelemetry import trace
@@ -82,6 +84,7 @@ from services.personality_service import PersonalityService
 from services.query_router import QueryRouter
 
 # --- Core Services ---
+from services.alert_service import AlertService
 from services.search_service import SearchService
 from services.tool_executor import ToolExecutor
 from services.zantara_tools import ZantaraTools
@@ -140,6 +143,7 @@ def _allowed_origins() -> list[str]:
         "https://balizero1987.github.io",
         "https://balizero.github.io",
         "https://nuzantara-webapp.fly.dev",  # Frontend Fly.io deployment
+        "http://localhost:3000",             # Local development
     ]
 
     # Always include defaults
@@ -161,6 +165,17 @@ app.add_middleware(
 
 # Add Hybrid Authentication middleware (after CORS)
 app.add_middleware(HybridAuthMiddleware)
+
+# Initialize Alert Service for Error Monitoring
+alert_service = AlertService()
+
+# Add Error Monitoring middleware (monitors 4xx/5xx errors, sends alerts)
+app.add_middleware(ErrorMonitoringMiddleware, alert_service=alert_service)
+
+# Add Rate Limiting middleware (prevents API abuse, DoS protection)
+app.add_middleware(RateLimitMiddleware)
+
+logger.info("✅ Full Stack Observability: Prometheus + OpenTelemetry + ErrorMonitoring + RateLimiting")
 
 
 # --- Router Inclusion ---
@@ -648,17 +663,33 @@ async def bali_zero_chat_stream(
     conversation_history_list = _parse_history(conversation_history)
     user_id = user_email or user_role or user_profile.get("id") or "anonymous"
 
+    # Load user memory from persistent storage
+    memory_service = app.state.memory_service
+    user_memory = None
+    if memory_service:
+        try:
+            memory_obj = await memory_service.get_memory(user_id)
+            if memory_obj:
+                user_memory = {
+                    "facts": memory_obj.profile_facts,
+                    "summary": memory_obj.summary,
+                    "counters": memory_obj.counters
+                }
+                logger.info(f"✅ Loaded memory for {user_id}: {len(memory_obj.profile_facts)} facts")
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to load memory for {user_id}: {e}")
+
     async def event_stream() -> AsyncIterator[str]:
         # Send connection metadata
         yield f"data: {json.dumps({'type': 'metadata', 'data': {'status': 'connected', 'user': user_id}}, ensure_ascii=False)}\n\n"
 
         try:
-            # Stream response using IntelligentRouter (RAG-based)
+            # Stream response using IntelligentRouter (RAG-based with memory)
             async for chunk in intelligent_router.stream_chat(
                 message=query,
                 user_id=user_id,
                 conversation_history=conversation_history_list,
-                memory=None,
+                memory=user_memory,
                 collaborator=None,
             ):
                 # Intercept legacy [METADATA] tags and convert to SSE metadata events
