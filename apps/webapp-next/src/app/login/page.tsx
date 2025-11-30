@@ -40,19 +40,28 @@ export default function LoginPage() {
         apiClient.setToken(data.token)
         console.log("[Login] Token saved via apiClient.setToken()")
         
-        // Also save directly to localStorage as backup
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('token', data.token)
-          console.log("[Login] Token also saved directly to localStorage")
+        // Also save directly to localStorage as backup using globalThis
+        if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+          const storage = globalThis.localStorage;
+          storage.setItem('token', data.token);
+          storage.setItem('zantara_token', data.token);
+          // Force sync
+          storage.getItem('token');
+          console.log("[Login] Token also saved directly to localStorage (globalThis)")
         }
         
         // Verify token was saved
         const savedToken = apiClient.getToken()
-        const directToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+        const directToken = typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('token') : null
+        const allKeys = typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage) : []
+        const tokenKeys = allKeys.filter(k => k.toLowerCase().includes('token'))
+        
         console.log("[Login] Verification:", {
           apiClient: savedToken ? savedToken.substring(0, 20) + "..." : "NONE",
           direct: directToken ? directToken.substring(0, 20) + "..." : "NONE",
-          allKeys: typeof window !== 'undefined' ? Object.keys(localStorage) : []
+          allKeys: allKeys,
+          tokenKeys: tokenKeys,
+          tokenValues: tokenKeys.map(k => ({ key: k, value: typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem(k)?.substring(0, 20) + '...' : null }))
         })
 
         // Also save user data if provided

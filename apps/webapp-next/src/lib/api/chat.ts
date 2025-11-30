@@ -17,11 +17,27 @@ export const chatAPI = {
     // Fallback: try localStorage directly (only in browser)
     if (!token && typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
       const storage = globalThis.localStorage;
+      // Try all possible token keys
       token =
         storage.getItem('token') ||
         storage.getItem('zantara_token') ||
         storage.getItem('zantara_session_token') ||
         '';
+
+      // Also try to find token in any key that contains "token"
+      if (!token) {
+        const allKeys = Object.keys(storage);
+        const tokenKeys = allKeys.filter((k) => k.toLowerCase().includes('token'));
+        for (const key of tokenKeys) {
+          const value = storage.getItem(key);
+          if (value && value.length > 20) {
+            // JWT tokens are usually long
+            token = value;
+            console.log(`[ChatClient] Found token in key: ${key}`);
+            break;
+          }
+        }
+      }
     }
 
     console.log(
@@ -33,12 +49,23 @@ export const chatAPI = {
     // Log token sources only in browser
     if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
       const storage = globalThis.localStorage;
+      const allKeys = Object.keys(storage);
+      const tokenKeys = allKeys.filter((k) => k.toLowerCase().includes('token'));
+      const tokenValues = tokenKeys.map((k) => ({
+        key: k,
+        value: storage.getItem(k)?.substring(0, 20) + '...',
+      }));
+
       console.log('[ChatClient] Token sources:', {
         apiClient: apiClient.getToken() ? 'found' : 'not found',
+        apiClientValue: apiClient.getToken()
+          ? apiClient.getToken().substring(0, 20) + '...'
+          : 'none',
         localStorage_token: storage.getItem('token') ? 'found' : 'not found',
         zantara_token: storage.getItem('zantara_token') ? 'found' : 'not found',
         zantara_session_token: storage.getItem('zantara_session_token') ? 'found' : 'not found',
-        allKeys: Object.keys(storage).filter((k) => k.toLowerCase().includes('token')),
+        allTokenKeys: tokenKeys,
+        tokenValues: tokenValues,
       });
     }
     console.log('[ChatClient] Conversation history length:', conversationHistory?.length || 0);
