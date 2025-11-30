@@ -25,10 +25,7 @@ jobs:
         pip install -r requirements.txt
         pip install pytest pytest-cov pytest-asyncio
 
-    - name: Setup test data
-      run: |
-        cd apps/backend-rag
-        cp backend/data/team_members.example.json backend/data/team_members.json
+
 
     - name: Run Tests with Coverage
       env:
