@@ -70,6 +70,16 @@ export const apiClient = {
       storage.setItem('token', token);
       // Also save to zantara_token for compatibility
       storage.setItem('zantara_token', token);
+      // Force synchronous write by reading back immediately
+      storage.getItem('token');
+      storage.getItem('zantara_token');
+    }
+    // Also save to globalThis.localStorage if available (for browser environments)
+    if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+      const browserStorage = globalThis.localStorage;
+      browserStorage.setItem('token', token);
+      browserStorage.setItem('zantara_token', token);
+      browserStorage.getItem('token'); // Force sync
     }
   },
   clearToken: () => {
