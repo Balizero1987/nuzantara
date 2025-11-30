@@ -128,6 +128,7 @@ class SearchService:
 
         # Pricing query keywords
         self.pricing_keywords = [
+            # English
             "price",
             "cost",
             "charge",
@@ -139,10 +140,18 @@ class SearchService:
             "cheap",
             "payment",
             "pay",
+            # Indonesian
             "harga",
             "biaya",
             "tarif",
             "berapa",
+            # Italian
+            "costa",
+            "quanto",
+            "prezzo",
+            "costo",
+            "tariffa",
+            "pagamento",
         ]
 
         # Phase 3: Conflict resolution tracking
