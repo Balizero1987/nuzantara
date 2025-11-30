@@ -12,7 +12,7 @@ import bcrypt
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
-from jose import jwt
+from jose import JWTError, jwt
 
 # Ensure backend is in path
 backend_path = Path(__file__).parent.parent.parent / "backend"
@@ -63,12 +63,16 @@ def test_user_data():
     return {
         "id": "550e8400-e29b-41d4-a716-446655440000",
         "email": "test@example.com",
+        "name": "Test User",
         "full_name": "Test User",
+        "password_hash": hashed_password,  # SQL returns pin_hash as password_hash
         "pin_hash": hashed_password,
         "role": "admin",
         "status": "active",
         "permissions": {"read": True, "write": True},
+        "metadata": {"read": True, "write": True},
         "language": "en",
+        "language_preference": "en",
         "active": True,
     }
 
@@ -250,13 +254,7 @@ async def test_get_current_user_invalid_token(mock_settings):
     """Test getting current user with invalid token"""
     with patch("app.routers.auth.JWT_SECRET_KEY", "test-secret-key-12345"):
         with patch("app.routers.auth.JWT_ALGORITHM", "HS256"):
-            class MockJWTError(Exception):
-                pass
-
-            with patch("app.routers.auth.jwt") as mock_jwt_module:
-                mock_jwt_module.PyJWTError = MockJWTError
-                mock_jwt_module.decode = MagicMock(side_effect=MockJWTError("Invalid token"))
-
+            with patch("app.routers.auth.jwt.decode", side_effect=JWTError("Invalid token")):
                 mock_credentials = MagicMock()
                 mock_credentials.credentials = "invalid-token"
 
@@ -722,7 +720,7 @@ def test_get_csrf_token_no_auth_required(client):
 @pytest.mark.asyncio
 async def test_get_db_connection_success(mock_settings):
     """Test successful database connection"""
-    with patch("app.routers.auth.asyncpg.connect") as mock_connect:
+    with patch("asyncpg.connect") as mock_connect:
         mock_conn = AsyncMock()
         mock_connect.return_value = mock_conn
 
@@ -754,7 +752,7 @@ async def test_get_db_connection_failure():
     with patch("app.routers.auth.settings") as mock_settings:
         mock_settings.database_url = "postgresql://invalid"
 
-        with patch("app.routers.auth.asyncpg.connect", side_effect=Exception("Connection failed")):
+        with patch("asyncpg.connect", side_effect=Exception("Connection failed")):
             from app.routers.auth import get_db_connection
 
             with pytest.raises(HTTPException) as exc_info:
