@@ -10,13 +10,14 @@ export class MediaService {
     /**
      * Generate Image
      * Generate an image from a text prompt.
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public generateImageMediaGenerateImagePost(
+    public generateImageMediaGenerateImagePost({
+        requestBody,
+    }: {
         requestBody: ImagePrompt,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/media/generate-image',

@@ -21,15 +21,19 @@ export class CrmClientsService {
      * - **passport_number**: Passport number
      * - **assigned_to**: Team member email to assign client to
      * - **tags**: Array of tags (e.g., ['vip', 'urgent'])
-     * @param createdBy Team member email creating this client
-     * @param requestBody
      * @returns ClientResponse Successful Response
      * @throws ApiError
      */
-    public createClientApiCrmClientsPost(
+    public createClientApiCrmClientsPost({
+        createdBy,
+        requestBody,
+    }: {
+        /**
+         * Team member email creating this client
+         */
         createdBy: string,
         requestBody: ClientCreate,
-    ): CancelablePromise<ClientResponse> {
+    }): CancelablePromise<ClientResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/crm/clients/',
@@ -52,21 +56,37 @@ export class CrmClientsService {
      * - **search**: Search in name, email, phone fields
      * - **limit**: Max results (default: 50, max: 200)
      * - **offset**: For pagination
-     * @param status Filter by status: active, inactive, prospect
-     * @param assignedTo Filter by assigned team member email
-     * @param search Search by name, email, or phone
-     * @param limit Max results to return
-     * @param offset Offset for pagination
      * @returns ClientResponse Successful Response
      * @throws ApiError
      */
-    public listClientsApiCrmClientsGet(
+    public listClientsApiCrmClientsGet({
+        status,
+        assignedTo,
+        search,
+        limit = 50,
+        offset,
+    }: {
+        /**
+         * Filter by status: active, inactive, prospect
+         */
         status?: (string | null),
+        /**
+         * Filter by assigned team member email
+         */
         assignedTo?: (string | null),
+        /**
+         * Search by name, email, or phone
+         */
         search?: (string | null),
-        limit: number = 50,
+        /**
+         * Max results to return
+         */
+        limit?: number,
+        /**
+         * Offset for pagination
+         */
         offset?: number,
-    ): CancelablePromise<Array<ClientResponse>> {
+    }): CancelablePromise<Array<ClientResponse>> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/clients/',
@@ -85,13 +105,14 @@ export class CrmClientsService {
     /**
      * Get Client
      * Get client by ID
-     * @param clientId
      * @returns ClientResponse Successful Response
      * @throws ApiError
      */
-    public getClientApiCrmClientsClientIdGet(
+    public getClientApiCrmClientsClientIdGet({
+        clientId,
+    }: {
         clientId: number,
-    ): CancelablePromise<ClientResponse> {
+    }): CancelablePromise<ClientResponse> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/clients/{client_id}',
@@ -108,17 +129,21 @@ export class CrmClientsService {
      * Update client information
      *
      * Only provided fields will be updated. Other fields remain unchanged.
-     * @param clientId
-     * @param updatedBy Team member making the update
-     * @param requestBody
      * @returns ClientResponse Successful Response
      * @throws ApiError
      */
-    public updateClientApiCrmClientsClientIdPatch(
+    public updateClientApiCrmClientsClientIdPatch({
+        clientId,
+        updatedBy,
+        requestBody,
+    }: {
         clientId: number,
+        /**
+         * Team member making the update
+         */
         updatedBy: string,
         requestBody: ClientUpdate,
-    ): CancelablePromise<ClientResponse> {
+    }): CancelablePromise<ClientResponse> {
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/api/crm/clients/{client_id}',
@@ -141,15 +166,19 @@ export class CrmClientsService {
      *
      * This doesn't permanently delete the client, just marks them as inactive.
      * Use with caution as this will also affect related practices and interactions.
-     * @param clientId
-     * @param deletedBy Team member deleting the client
      * @returns any Successful Response
      * @throws ApiError
      */
-    public deleteClientApiCrmClientsClientIdDelete(
+    public deleteClientApiCrmClientsClientIdDelete({
+        clientId,
+        deletedBy,
+    }: {
         clientId: number,
+        /**
+         * Team member deleting the client
+         */
         deletedBy: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'DELETE',
             url: '/api/crm/clients/{client_id}',
@@ -167,13 +196,14 @@ export class CrmClientsService {
     /**
      * Get Client By Email
      * Get client by email address
-     * @param email
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getClientByEmailApiCrmClientsByEmailEmailGet(
+    public getClientByEmailApiCrmClientsByEmailEmailGet({
+        email,
+    }: {
         email: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/clients/by-email/{email}',
@@ -193,13 +223,14 @@ export class CrmClientsService {
      * - Recent interactions
      * - Documents
      * - Upcoming renewals
-     * @param clientId
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getClientSummaryApiCrmClientsClientIdSummaryGet(
+    public getClientSummaryApiCrmClientsClientIdSummaryGet({
+        clientId,
+    }: {
         clientId: number,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/crm/clients/{client_id}/summary',

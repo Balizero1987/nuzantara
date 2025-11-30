@@ -20,13 +20,14 @@ export class TeamActivityService {
      *
      * Team members use this to start their work day.
      * One clock-in per day allowed.
-     * @param requestBody
      * @returns ClockResponse Successful Response
      * @throws ApiError
      */
-    public clockInApiTeamClockInPost(
+    public clockInApiTeamClockInPost({
+        requestBody,
+    }: {
         requestBody: ClockInRequest,
-    ): CancelablePromise<ClockResponse> {
+    }): CancelablePromise<ClockResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/team/clock-in',
@@ -43,13 +44,14 @@ export class TeamActivityService {
      *
      * Team members use this to end their work day.
      * Must be clocked in first.
-     * @param requestBody
      * @returns ClockResponse Successful Response
      * @throws ApiError
      */
-    public clockOutApiTeamClockOutPost(
+    public clockOutApiTeamClockOutPost({
+        requestBody,
+    }: {
         requestBody: ClockOutRequest,
-    ): CancelablePromise<ClockResponse> {
+    }): CancelablePromise<ClockResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/team/clock-out',
@@ -68,13 +70,17 @@ export class TeamActivityService {
      * - Current online/offline status
      * - Today's hours worked
      * - This week's summary
-     * @param userId User ID
      * @returns UserStatusResponse Successful Response
      * @throws ApiError
      */
-    public getMyStatusApiTeamMyStatusGet(
+    public getMyStatusApiTeamMyStatusGet({
+        userId,
+    }: {
+        /**
+         * User ID
+         */
         userId: string,
-    ): CancelablePromise<UserStatusResponse> {
+    }): CancelablePromise<UserStatusResponse> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/team/my-status',
@@ -91,15 +97,16 @@ export class TeamActivityService {
      * Get current online status of all team members (ADMIN ONLY)
      *
      * Shows who is currently clocked in and who is offline.
-     * @param authorization
-     * @param xUserEmail
      * @returns TeamMemberStatus Successful Response
      * @throws ApiError
      */
-    public getTeamStatusApiTeamStatusGet(
+    public getTeamStatusApiTeamStatusGet({
+        authorization,
+        xUserEmail,
+    }: {
         authorization?: (string | null),
         xUserEmail?: (string | null),
-    ): CancelablePromise<Array<TeamMemberStatus>> {
+    }): CancelablePromise<Array<TeamMemberStatus>> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/team/status',
@@ -117,17 +124,21 @@ export class TeamActivityService {
      * Get work hours for a specific date (ADMIN ONLY)
      *
      * Returns all team members' work hours for the specified date.
-     * @param date Date (YYYY-MM-DD, defaults to today)
-     * @param authorization
-     * @param xUserEmail
      * @returns DailyHours Successful Response
      * @throws ApiError
      */
-    public getDailyHoursApiTeamHoursGet(
+    public getDailyHoursApiTeamHoursGet({
+        date,
+        authorization,
+        xUserEmail,
+    }: {
+        /**
+         * Date (YYYY-MM-DD, defaults to today)
+         */
         date?: (string | null),
         authorization?: (string | null),
         xUserEmail?: (string | null),
-    ): CancelablePromise<Array<DailyHours>> {
+    }): CancelablePromise<Array<DailyHours>> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/team/hours',
@@ -148,17 +159,21 @@ export class TeamActivityService {
      * Get weekly work summary (ADMIN ONLY)
      *
      * Returns total hours, days worked, and averages for each team member.
-     * @param weekStart Week start date (YYYY-MM-DD)
-     * @param authorization
-     * @param xUserEmail
      * @returns WeeklySummary Successful Response
      * @throws ApiError
      */
-    public getWeeklySummaryApiTeamActivityWeeklyGet(
+    public getWeeklySummaryApiTeamActivityWeeklyGet({
+        weekStart,
+        authorization,
+        xUserEmail,
+    }: {
+        /**
+         * Week start date (YYYY-MM-DD)
+         */
         weekStart?: (string | null),
         authorization?: (string | null),
         xUserEmail?: (string | null),
-    ): CancelablePromise<Array<WeeklySummary>> {
+    }): CancelablePromise<Array<WeeklySummary>> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/team/activity/weekly',
@@ -179,17 +194,21 @@ export class TeamActivityService {
      * Get monthly work summary (ADMIN ONLY)
      *
      * Returns total hours, days worked, and averages for each team member.
-     * @param monthStart Month start date (YYYY-MM-DD)
-     * @param authorization
-     * @param xUserEmail
      * @returns MonthlySummary Successful Response
      * @throws ApiError
      */
-    public getMonthlySummaryApiTeamActivityMonthlyGet(
+    public getMonthlySummaryApiTeamActivityMonthlyGet({
+        monthStart,
+        authorization,
+        xUserEmail,
+    }: {
+        /**
+         * Month start date (YYYY-MM-DD)
+         */
         monthStart?: (string | null),
         authorization?: (string | null),
         xUserEmail?: (string | null),
-    ): CancelablePromise<Array<MonthlySummary>> {
+    }): CancelablePromise<Array<MonthlySummary>> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/team/activity/monthly',
@@ -210,21 +229,31 @@ export class TeamActivityService {
      * Export timesheet data (ADMIN ONLY)
      *
      * Returns CSV file with all work hours in the specified date range.
-     * @param startDate Start date (YYYY-MM-DD)
-     * @param endDate End date (YYYY-MM-DD)
-     * @param format Export format (csv only for now)
-     * @param authorization
-     * @param xUserEmail
      * @returns any Successful Response
      * @throws ApiError
      */
-    public exportTimesheetApiTeamExportGet(
+    public exportTimesheetApiTeamExportGet({
+        startDate,
+        endDate,
+        format = 'csv',
+        authorization,
+        xUserEmail,
+    }: {
+        /**
+         * Start date (YYYY-MM-DD)
+         */
         startDate: string,
+        /**
+         * End date (YYYY-MM-DD)
+         */
         endDate: string,
-        format: string = 'csv',
+        /**
+         * Export format (csv only for now)
+         */
+        format?: string,
         authorization?: (string | null),
         xUserEmail?: (string | null),
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/team/export',

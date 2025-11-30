@@ -15,13 +15,14 @@ export class OracleV53UltraHybridService {
      *
      * Integrates Qdrant search, Google Drive, and Gemini reasoning
      * with full user localization and context awareness
-     * @param requestBody
      * @returns OracleQueryResponse Successful Response
      * @throws ApiError
      */
-    public hybridOracleQueryApiOracleQueryPost(
+    public hybridOracleQueryApiOracleQueryPost({
+        requestBody,
+    }: {
         requestBody: OracleQueryRequest,
-    ): CancelablePromise<OracleQueryResponse> {
+    }): CancelablePromise<OracleQueryResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/oracle/query',
@@ -36,13 +37,14 @@ export class OracleV53UltraHybridService {
      * Submit User Feedback
      * Submit user feedback for continuous learning and system improvement
      * Stores feedback for training data and model refinement
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public submitUserFeedbackApiOracleFeedbackPost(
+    public submitUserFeedbackApiOracleFeedbackPost({
+        requestBody,
+    }: {
         requestBody: FeedbackRequest,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/oracle/feedback',
@@ -70,13 +72,14 @@ export class OracleV53UltraHybridService {
      * Get User Profile Endpoint
      * Get user profile with localization preferences
      * Integrates with PostgreSQL user management system
-     * @param userEmail
      * @returns any Successful Response
      * @throws ApiError
      */
-    public getUserProfileEndpointApiOracleUserProfileUserEmailGet(
+    public getUserProfileEndpointApiOracleUserProfileUserEmailGet({
+        userEmail,
+    }: {
         userEmail: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/oracle/user/profile/{user_email}',
@@ -115,15 +118,16 @@ export class OracleV53UltraHybridService {
     /**
      * Test Personality
      * Test a specific personality
-     * @param personalityType
-     * @param message
      * @returns any Successful Response
      * @throws ApiError
      */
-    public testPersonalityApiOraclePersonalityTestPost(
+    public testPersonalityApiOraclePersonalityTestPost({
+        personalityType,
+        message,
+    }: {
         personalityType: string,
         message: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/oracle/personality/test',

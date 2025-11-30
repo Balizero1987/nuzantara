@@ -17,13 +17,14 @@ export class MemoryService {
     /**
      * Init Memory Collection
      * Reinitialize the semantic memory collection after deployments or resets.
-     * @param requestBody
      * @returns InitResponse Successful Response
      * @throws ApiError
      */
-    public initMemoryCollectionApiMemoryInitPost(
+    public initMemoryCollectionApiMemoryInitPost({
+        requestBody,
+    }: {
         requestBody: InitRequest,
-    ): CancelablePromise<InitResponse> {
+    }): CancelablePromise<InitResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/memory/init',
@@ -38,13 +39,14 @@ export class MemoryService {
      * Generate Embedding
      * Generate embedding for text.
      * Uses sentence-transformers (FREE, local) by default.
-     * @param requestBody
      * @returns EmbedResponse Successful Response
      * @throws ApiError
      */
-    public generateEmbeddingApiMemoryEmbedPost(
+    public generateEmbeddingApiMemoryEmbedPost({
+        requestBody,
+    }: {
         requestBody: EmbedRequest,
-    ): CancelablePromise<EmbedResponse> {
+    }): CancelablePromise<EmbedResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/memory/embed',
@@ -64,13 +66,14 @@ export class MemoryService {
      * - type: Memory type (profile, expertise, event, etc)
      * - timestamp: ISO timestamp
      * - entities: Comma-separated entities
-     * @param requestBody
      * @returns any Successful Response
      * @throws ApiError
      */
-    public storeMemoryVectorApiMemoryStorePost(
+    public storeMemoryVectorApiMemoryStorePost({
+        requestBody,
+    }: {
         requestBody: StoreMemoryRequest,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/memory/store',
@@ -88,13 +91,14 @@ export class MemoryService {
      * Supports metadata filtering:
      * - userId: Filter by specific user
      * - entities: Filter by entity (use {"entities": {"$contains": "zero"}})
-     * @param requestBody
      * @returns MemorySearchResponse Successful Response
      * @throws ApiError
      */
-    public searchMemoriesSemanticApiMemorySearchPost(
+    public searchMemoriesSemanticApiMemorySearchPost({
+        requestBody,
+    }: {
         requestBody: SearchMemoryRequest,
-    ): CancelablePromise<MemorySearchResponse> {
+    }): CancelablePromise<MemorySearchResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/memory/search',
@@ -109,13 +113,14 @@ export class MemoryService {
      * Find Similar Memories
      * Find memories similar to a given memory.
      * Uses the stored memory's embedding to find neighbors.
-     * @param requestBody
      * @returns MemorySearchResponse Successful Response
      * @throws ApiError
      */
-    public findSimilarMemoriesApiMemorySimilarPost(
+    public findSimilarMemoriesApiMemorySimilarPost({
+        requestBody,
+    }: {
         requestBody: SimilarMemoryRequest,
-    ): CancelablePromise<MemorySearchResponse> {
+    }): CancelablePromise<MemorySearchResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/memory/similar',
@@ -129,13 +134,14 @@ export class MemoryService {
     /**
      * Delete Memory Vector
      * Delete memory from vector store
-     * @param memoryId
      * @returns any Successful Response
      * @throws ApiError
      */
-    public deleteMemoryVectorApiMemoryMemoryIdDelete(
+    public deleteMemoryVectorApiMemoryMemoryIdDelete({
+        memoryId,
+    }: {
         memoryId: string,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'DELETE',
             url: '/api/memory/{memory_id}',

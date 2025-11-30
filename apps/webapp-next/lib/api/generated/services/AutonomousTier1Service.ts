@@ -18,13 +18,14 @@ export class AutonomousTier1Service {
      *
      * Returns:
      * Execution status (agent runs in background)
-     * @param daysBack
      * @returns AgentExecutionResponse Successful Response
      * @throws ApiError
      */
-    public runConversationTrainerApiAutonomousAgentsConversationTrainerRunPost(
-        daysBack: number = 7,
-    ): CancelablePromise<AgentExecutionResponse> {
+    public runConversationTrainerApiAutonomousAgentsConversationTrainerRunPost({
+        daysBack = 7,
+    }: {
+        daysBack?: number,
+    }): CancelablePromise<AgentExecutionResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/autonomous-agents/conversation-trainer/run',
@@ -67,15 +68,16 @@ export class AutonomousTier1Service {
      *
      * Returns:
      * Execution status (agent runs in background)
-     * @param daysBack
-     * @param initSchema
      * @returns AgentExecutionResponse Successful Response
      * @throws ApiError
      */
-    public runKnowledgeGraphBuilderApiAutonomousAgentsKnowledgeGraphBuilderRunPost(
-        daysBack: number = 30,
-        initSchema: boolean = false,
-    ): CancelablePromise<AgentExecutionResponse> {
+    public runKnowledgeGraphBuilderApiAutonomousAgentsKnowledgeGraphBuilderRunPost({
+        daysBack = 30,
+        initSchema = false,
+    }: {
+        daysBack?: number,
+        initSchema?: boolean,
+    }): CancelablePromise<AgentExecutionResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/autonomous-agents/knowledge-graph-builder/run',
@@ -112,13 +114,14 @@ export class AutonomousTier1Service {
      *
      * Returns:
      * Execution details and result
-     * @param executionId
      * @returns AgentExecutionResponse Successful Response
      * @throws ApiError
      */
-    public getExecutionStatusApiAutonomousAgentsExecutionsExecutionIdGet(
+    public getExecutionStatusApiAutonomousAgentsExecutionsExecutionIdGet({
+        executionId,
+    }: {
         executionId: string,
-    ): CancelablePromise<AgentExecutionResponse> {
+    }): CancelablePromise<AgentExecutionResponse> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/autonomous-agents/executions/{execution_id}',
@@ -139,13 +142,14 @@ export class AutonomousTier1Service {
      *
      * Returns:
      * List of recent executions
-     * @param limit
      * @returns any Successful Response
      * @throws ApiError
      */
-    public listExecutionsApiAutonomousAgentsExecutionsGet(
-        limit: number = 20,
-    ): CancelablePromise<any> {
+    public listExecutionsApiAutonomousAgentsExecutionsGet({
+        limit = 20,
+    }: {
+        limit?: number,
+    }): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/autonomous-agents/executions',
