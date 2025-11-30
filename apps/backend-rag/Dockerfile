@@ -49,6 +49,8 @@ COPY *.py ./
 # This aligns with local development structure
 ENV PYTHONPATH=/app:/app/backend
 ENV PATH=/home/nuzantara/.local/bin:$PATH
+# Prevent Python from writing .pyc files (forces fresh module loading)
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # Change ownership of all files to non-root user
 RUN chown -R nuzantara:nuzantara /app

@@ -248,6 +248,19 @@ async def login(request: LoginRequest, req: Request = None):
                 "user": user_profile,
             },
         )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Login error: {e}")
+        await audit_service.log_auth_event(
+            email=request.email,
+            action="failed_login",
+            success=False,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            failure_reason=f"System error: {str(e)}"
+        )
+        raise HTTPException(status_code=500, detail="Authentication service unavailable")
     finally:
         await conn.close()
 

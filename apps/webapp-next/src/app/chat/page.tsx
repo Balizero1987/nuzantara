@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { chatAPI } from "@/lib/api/chat"
+import { chatAPI } from "@/src/lib/api/chat"
 import { authAPI } from "@/lib/api/auth"
 import { apiClient } from "@/lib/api/client"
 import { RAGDrawer } from "@/components/chat/RAGDrawer"
@@ -105,11 +105,11 @@ export default function ChatPage() {
     try {
       await chatAPI.streamChat(
         userMessage,
-        (chunk) => {
+        (chunk: string) => {
           accumulatedContent += chunk
           setStreamingContent(accumulatedContent)
         },
-        (meta) => {
+        (meta: ChatMetadata) => {
           console.log("[v0] Metadata received:", meta)
           metadata = meta
         },
@@ -123,7 +123,7 @@ export default function ChatPage() {
           setStreamingContent("")
           setIsLoading(false)
         },
-        (error) => {
+        (error: Error) => {
           console.error("[v0] Chat stream error:", error)
           setStreamingContent("")
           setIsLoading(false)
