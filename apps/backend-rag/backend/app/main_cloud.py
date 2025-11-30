@@ -95,10 +95,10 @@ from services.search_service import SearchService
 from services.tool_executor import ToolExecutor
 from services.zantara_tools import ZantaraTools
 
-# --- Plugin System ---
-from plugins.analytics_plugin import AnalyticsPlugin
-from plugins.monitoring_plugin import MonitoringPlugin
-from plugins.registry import plugin_registry
+# --- Plugin System (Legacy - disabled) ---
+# Note: Analytics and Monitoring plugins were empty placeholders.
+# Real monitoring is handled by HealthMonitor service.
+# The core/plugins/ system is available for future use.
 
 # Setup Logging
 logger = logging.getLogger("zantara.backend")
@@ -590,24 +590,10 @@ async def initialize_services() -> None:
         app.state.query_router = query_router
         app.state.ts_backend_url = ts_backend_url
 
-        # 8. Plugin System Initialization
-        try:
-            logger.info("🔌 Initializing Plugin System...")
-
-            # Register plugins
-            analytics_plugin = AnalyticsPlugin()
-            monitoring_plugin = MonitoringPlugin()
-
-            plugin_registry.register(analytics_plugin)
-            plugin_registry.register(monitoring_plugin)
-
-            # Initialize all registered plugins
-            initialized_count = await plugin_registry.initialize_all()
-            logger.info(f"✅ Plugin System: {initialized_count}/{plugin_registry.get_plugin_count()} plugins initialized")
-
-            app.state.plugin_registry = plugin_registry
-        except Exception as e:
-            logger.error(f"❌ Failed to initialize Plugin System: {e}")
+        # 8. Plugin System (Legacy disabled - see core/plugins/ for modern system)
+        # Note: AnalyticsPlugin and MonitoringPlugin were empty placeholders.
+        # Real monitoring is handled by HealthMonitor service.
+        logger.info("🔌 Plugin System: Legacy plugins disabled (using HealthMonitor instead)")
 
         # 9. Health Monitor (Self-Healing Monitoring)
         try:
@@ -642,11 +628,7 @@ async def on_shutdown() -> None:
         await health_monitor.stop()
         logger.info("✅ Health Monitor stopped")
 
-    # Shutdown Plugin System
-    registry = getattr(app.state, "plugin_registry", None)
-    if registry:
-        await registry.shutdown_all()
-        logger.info("✅ Plugin System shutdown complete")
+    # Plugin System shutdown not needed (legacy plugins disabled)
 
     # Close HTTP clients
     handler_proxy: HandlerProxyService | None = getattr(app.state, "handler_proxy", None)
