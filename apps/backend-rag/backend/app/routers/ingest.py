@@ -40,11 +40,11 @@ async def upload_and_ingest(
     - **author**: Optional author name
     - **tier_override**: Optional manual tier (S/A/B/C/D)
     """
-    try:
-        # Validate file type
-        if not file.filename.endswith((".pdf", ".epub")):
-            raise HTTPException(status_code=400, detail="Only PDF and EPUB files are supported")
+    # Validate file type
+    if not file.filename.endswith((".pdf", ".epub")):
+        raise HTTPException(status_code=400, detail="Only PDF and EPUB files are supported")
 
+    try:
         # Save uploaded file temporarily
         temp_dir = Path("data/temp")
         temp_dir.mkdir(parents=True, exist_ok=True)
@@ -83,11 +83,11 @@ async def ingest_local_file(request: BookIngestionRequest):
     - **author**: Optional author name
     - **tier_override**: Optional manual tier classification
     """
-    try:
-        # Validate file exists
-        if not os.path.exists(request.file_path):
-            raise HTTPException(status_code=404, detail=f"File not found: {request.file_path}")
+    # Validate file exists
+    if not os.path.exists(request.file_path):
+        raise HTTPException(status_code=404, detail=f"File not found: {request.file_path}")
 
+    try:
         # Ingest
         service = IngestionService()
         result = await service.ingest_book(

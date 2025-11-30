@@ -38,9 +38,12 @@ def mock_ingestion_service():
     service = AsyncMock()
     service.ingest_book = AsyncMock(return_value={
         "success": True,
-        "book_id": "book123",
+        "book_title": "Test Book",
+        "book_author": "Test Author",
+        "tier": "S",
         "chunks_created": 100,
-        "collection": "zantara_books"
+        "message": "Successfully ingested Test Book",
+        "error": None
     })
     return service
 
@@ -122,8 +125,8 @@ async def test_upload_and_ingest_exception(client, mock_ingestion_service):
 async def test_ingest_local_file_success(client, mock_ingestion_service):
     """Test ingest_local_file successful"""
     with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), \
-         patch("pathlib.Path.exists", return_value=True):
-        
+         patch("os.path.exists", return_value=True):
+
         response = client.post(
             "/api/ingest/file",
             json={
@@ -142,8 +145,8 @@ async def test_ingest_local_file_success(client, mock_ingestion_service):
 async def test_ingest_local_file_not_found(client, mock_ingestion_service):
     """Test ingest_local_file with file not found"""
     with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), \
-         patch("pathlib.Path.exists", return_value=False):
-        
+         patch("os.path.exists", return_value=False):
+
         response = client.post(
             "/api/ingest/file",
             json={
@@ -165,25 +168,31 @@ async def test_batch_ingest_success(client, mock_ingestion_service):
     """Test batch_ingest successful"""
     mock_ingestion_service.ingest_book = AsyncMock(return_value={
         "success": True,
-        "book_id": "book123"
+        "book_title": "Test Book",
+        "book_author": "Test Author",
+        "tier": "S",
+        "chunks_created": 100,
+        "message": "Successfully ingested Test Book",
+        "error": None
     })
-    
+
     with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), \
-         patch("pathlib.Path.exists", return_value=True):
-        
+         patch("pathlib.Path.exists", return_value=True), \
+         patch("pathlib.Path.glob", return_value=[Path("book1.pdf"), Path("book2.pdf")]):
+
         response = client.post(
             "/api/ingest/batch",
             json={
-                "files": [
-                    {"file_path": "book1.pdf", "title": "Book 1"},
-                    {"file_path": "book2.pdf", "title": "Book 2"}
-                ]
+                "directory_path": "/test/books",
+                "file_patterns": ["*.pdf"],
+                "skip_existing": True
             }
         )
 
         assert response.status_code == 200
         data = response.json()
-        assert "results" in data or "success" in data
+        assert "successful" in data
+        assert data["total_books"] == 2
 
 
 # ============================================================================
