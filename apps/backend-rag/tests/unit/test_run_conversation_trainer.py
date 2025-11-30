@@ -23,7 +23,7 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_success(self):
         """Test: Main executes successfully"""
-        with patch("agents.agents.conversation_trainer.ConversationTrainer") as mock_trainer_class, \
+        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
              patch("sys.argv", ["run_conversation_trainer.py"]):
 
             mock_trainer = MagicMock()
@@ -44,7 +44,7 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_no_analysis_results(self):
         """Test: Main handles no high-rated conversations found"""
-        with patch("agents.agents.conversation_trainer.ConversationTrainer") as mock_trainer_class, \
+        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
              patch("sys.argv", ["run_conversation_trainer.py"]):
 
             mock_trainer = MagicMock()
@@ -61,7 +61,7 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_with_custom_days(self):
         """Test: Main accepts --days argument"""
-        with patch("agents.agents.conversation_trainer.ConversationTrainer") as mock_trainer_class, \
+        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
              patch("sys.argv", ["run_conversation_trainer.py", "--days", "14"]):
 
             mock_trainer = MagicMock()
@@ -77,7 +77,7 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_exception_handling(self):
         """Test: Main handles exceptions and returns error code"""
-        with patch("agents.agents.conversation_trainer.ConversationTrainer") as mock_trainer_class, \
+        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
              patch("sys.argv", ["run_conversation_trainer.py"]):
 
             mock_trainer_class.side_effect = Exception("Trainer initialization failed")
