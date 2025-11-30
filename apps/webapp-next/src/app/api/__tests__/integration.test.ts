@@ -123,10 +123,7 @@ describe('Frontend-Backend Integration', () => {
 
     it('should handle missing token gracefully', () => {
       const authHeader: string | null = null;
-      let token = '';
-      if (authHeader !== null && typeof authHeader === 'string') {
-        token = authHeader.replace('Bearer ', '');
-      }
+      const token: string = authHeader !== null ? (authHeader as string).replace('Bearer ', '') : '';
 
       expect(token).toBe('');
     });
