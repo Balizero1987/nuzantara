@@ -18,13 +18,14 @@ export class KnowledgeService {
      * - **tier_filter**: Optional specific tier filter
      *
      * Returns relevant book chunks filtered by user's access level.
-     * @param requestBody
      * @returns SearchResponse Successful Response
      * @throws ApiError
      */
-    public semanticSearchApiSearchPost(
+    public semanticSearchApiSearchPost({
+        requestBody,
+    }: {
         requestBody: SearchQuery,
-    ): CancelablePromise<SearchResponse> {
+    }): CancelablePromise<SearchResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/search/',

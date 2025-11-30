@@ -73,13 +73,14 @@ export class IdentityService {
      *
      * Returns:
      * LoginResponse with JWT token and user data
-     * @param requestBody
      * @returns app__modules__identity__router__LoginResponse Successful Response
      * @throws ApiError
      */
-    public teamLoginApiAuthTeamLoginPost(
+    public teamLoginApiAuthTeamLoginPost({
+        requestBody,
+    }: {
         requestBody: app__modules__identity__router__LoginRequest,
-    ): CancelablePromise<app__modules__identity__router__LoginResponse> {
+    }): CancelablePromise<app__modules__identity__router__LoginResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/api/auth/team/login',

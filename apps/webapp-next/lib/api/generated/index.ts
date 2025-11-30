@@ -69,7 +69,7 @@ export type { SimilarMemoryRequest } from './models/SimilarMemoryRequest';
 export type { StoreMemoryRequest } from './models/StoreMemoryRequest';
 export type { TeamMemberStatus } from './models/TeamMemberStatus';
 export type { TemplateNotificationRequest } from './models/TemplateNotificationRequest';
-export { TierLevel } from './models/TierLevel';
+export type { TierLevel } from './models/TierLevel';
 export type { UserStatusResponse } from './models/UserStatusResponse';
 export type { ValidationError } from './models/ValidationError';
 export type { WeeklySummary } from './models/WeeklySummary';
