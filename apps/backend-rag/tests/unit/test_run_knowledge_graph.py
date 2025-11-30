@@ -24,7 +24,7 @@ class TestRunKnowledgeGraph:
     @pytest.mark.asyncio
     async def test_main_success_default_args(self):
         """Test: Main executes successfully with default args"""
-        with patch("agents.agents.knowledge_graph_builder.KnowledgeGraphBuilder") as mock_builder_class, \
+        with patch("agents.run_knowledge_graph.KnowledgeGraphBuilder") as mock_builder_class, \
              patch("sys.argv", ["run_knowledge_graph.py"]):
 
             mock_builder = MagicMock()
@@ -46,7 +46,7 @@ class TestRunKnowledgeGraph:
     @pytest.mark.asyncio
     async def test_main_with_custom_days(self):
         """Test: Main accepts --days argument"""
-        with patch("agents.agents.knowledge_graph_builder.KnowledgeGraphBuilder") as mock_builder_class, \
+        with patch("agents.run_knowledge_graph.KnowledgeGraphBuilder") as mock_builder_class, \
              patch("sys.argv", ["run_knowledge_graph.py", "--days", "7"]):
 
             mock_builder = MagicMock()
@@ -67,7 +67,7 @@ class TestRunKnowledgeGraph:
     @pytest.mark.asyncio
     async def test_main_with_init_schema(self):
         """Test: Main initializes schema when --init-schema flag provided"""
-        with patch("agents.agents.knowledge_graph_builder.KnowledgeGraphBuilder") as mock_builder_class, \
+        with patch("agents.run_knowledge_graph.KnowledgeGraphBuilder") as mock_builder_class, \
              patch("sys.argv", ["run_knowledge_graph.py", "--init-schema"]):
 
             mock_builder = MagicMock()
@@ -89,7 +89,7 @@ class TestRunKnowledgeGraph:
     @pytest.mark.asyncio
     async def test_main_error_handling(self):
         """Test: Main handles exceptions and returns error code"""
-        with patch("agents.agents.knowledge_graph_builder.KnowledgeGraphBuilder") as mock_builder_class, \
+        with patch("agents.run_knowledge_graph.KnowledgeGraphBuilder") as mock_builder_class, \
              patch("sys.argv", ["run_knowledge_graph.py"]):
 
             mock_builder_class.side_effect = Exception("Builder initialization failed")
@@ -102,7 +102,7 @@ class TestRunKnowledgeGraph:
     @pytest.mark.asyncio
     async def test_main_with_insights_data(self):
         """Test: Main displays insights when available"""
-        with patch("agents.agents.knowledge_graph_builder.KnowledgeGraphBuilder") as mock_builder_class, \
+        with patch("agents.run_knowledge_graph.KnowledgeGraphBuilder") as mock_builder_class, \
              patch("sys.argv", ["run_knowledge_graph.py"]):
 
             mock_builder = MagicMock()

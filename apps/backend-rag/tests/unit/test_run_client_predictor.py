@@ -30,7 +30,7 @@ class TestRunClientPredictor:
             "errors": []
         })
 
-        with patch("agents.agents.client_value_predictor.ClientValuePredictor", return_value=mock_predictor):
+        with patch("agents.run_client_predictor.ClientValuePredictor", return_value=mock_predictor):
             # Import inside patch to ensure mock is applied
             from agents.run_client_predictor import main
 
@@ -50,7 +50,7 @@ class TestRunClientPredictor:
             "errors": ["Error 1", "Error 2", "Error 3", "Error 4", "Error 5", "Error 6"]
         })
 
-        with patch("agents.agents.client_value_predictor.ClientValuePredictor", return_value=mock_predictor):
+        with patch("agents.run_client_predictor.ClientValuePredictor", return_value=mock_predictor):
             from agents.run_client_predictor import main
 
             result = await main()
@@ -60,7 +60,7 @@ class TestRunClientPredictor:
     @pytest.mark.asyncio
     async def test_main_exception_handling(self):
         """Test: Main handles exceptions and returns error code"""
-        with patch("agents.agents.client_value_predictor.ClientValuePredictor") as mock_predictor_class:
+        with patch("agents.run_client_predictor.ClientValuePredictor") as mock_predictor_class:
             mock_predictor_class.side_effect = Exception("Predictor initialization failed")
 
             from agents.run_client_predictor import main
@@ -75,7 +75,7 @@ class TestRunClientPredictor:
         mock_predictor = MagicMock()
         mock_predictor.run_daily_nurturing = AsyncMock(side_effect=Exception("Nurturing failed"))
 
-        with patch("agents.agents.client_value_predictor.ClientValuePredictor", return_value=mock_predictor):
+        with patch("agents.run_client_predictor.ClientValuePredictor", return_value=mock_predictor):
             from agents.run_client_predictor import main
 
             result = await main()
