@@ -20,6 +20,59 @@ SIMPLE_GREETINGS = [
     "hallo",
 ]
 
+# Identity keywords (highest priority - self-recognition queries)
+IDENTITY_KEYWORDS = [
+    # Italian
+    "chi sono",
+    "chi sono io",
+    "chi sei",
+    "mi conosci",
+    "sai chi sono",
+    "cosa sai di me",
+    "il mio nome",
+    "il mio ruolo",
+    "mi riconosci",
+    # English
+    "who am i",
+    "who am i?",
+    "do you know me",
+    "my name",
+    "my role",
+    "recognize me",
+    "who is this",
+    # Indonesian
+    "siapa saya",
+    "siapa aku",
+    "apakah kamu kenal saya",
+    "nama saya",
+    "kenal saya",
+]
+
+# Team query keywords (team enumeration queries)
+TEAM_QUERY_KEYWORDS = [
+    # Italian
+    "team",
+    "membri",
+    "colleghi",
+    "chi lavora",
+    "quanti siamo",
+    "dipartimento",
+    "bali zero team",
+    "conosci i membri",
+    "parlami del team",
+    # English
+    "team members",
+    "colleagues",
+    "who works",
+    "department",
+    "know the members",
+    "tell me about the team",
+    # Indonesian
+    "tim",
+    "anggota tim",
+    "rekan kerja",
+]
+
 SESSION_PATTERNS = [
     # Login intents
     "login",
@@ -35,18 +88,6 @@ SESSION_PATTERNS = [
     "signout",
     "keluar",
     "esci",
-    # Identity queries
-    "who am i",
-    "siapa aku",
-    "siapa saya",
-    "chi sono",
-    "who is this",
-    "do you know me",
-    "recognize me",
-    "mi riconosci",
-    "kenal saya",
-    "chi sono io",
-    "sai chi sono",
 ]
 
 CASUAL_PATTERNS = [
@@ -253,6 +294,26 @@ class IntentClassifier:
                     "confidence": 1.0,
                     "suggested_ai": "haiku",
                     "require_memory": True,  # Always use memory for personalized greetings
+                }
+
+            # PRIORITY 1: Identity queries (highest priority - before session_state)
+            if any(pattern in message_lower for pattern in IDENTITY_KEYWORDS):
+                logger.info("🏷️ [IntentClassifier] Classified: identity")
+                return {
+                    "category": "identity",
+                    "confidence": 0.95,
+                    "suggested_ai": "zantara-ai",
+                    "requires_team_context": True,  # Critical: need collaborator profile
+                }
+
+            # PRIORITY 2: Team queries
+            if any(pattern in message_lower for pattern in TEAM_QUERY_KEYWORDS):
+                logger.info("🏷️ [IntentClassifier] Classified: team_query")
+                return {
+                    "category": "team_query",
+                    "confidence": 0.9,
+                    "suggested_ai": "zantara-ai",
+                    "requires_rag_collection": "bali_zero_team",  # Force team collection
                 }
 
             # Check session state patterns

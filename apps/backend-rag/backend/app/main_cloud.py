@@ -87,7 +87,7 @@ from services.intelligent_router import IntelligentRouter
 from services.memory_service_postgres import MemoryServicePostgres
 from services.personality_service import PersonalityService
 from services.query_router import QueryRouter
-
+from services.collaborator_service import CollaboratorService
 # --- Core Services ---
 from services.alert_service import AlertService
 from services.health_monitor import HealthMonitor
@@ -544,6 +544,16 @@ async def initialize_services() -> None:
             app.state.ts_service = None
             app.state.db_pool = None
 
+        # Initialize CollaboratorService for user identity lookup
+        try:
+            collaborator_service = CollaboratorService()
+            app.state.collaborator_service = collaborator_service
+            logger.info("✅ CollaboratorService initialized")
+        except Exception as e:
+            logger.warning(f"⚠️ CollaboratorService initialization failed: {e}")
+            collaborator_service = None
+            app.state.collaborator_service = None
+
         # Initialize IntelligentRouter with fallback to mock mode
         try:
             if ai_client and search_service:
@@ -557,6 +567,7 @@ async def initialize_services() -> None:
                     cross_oracle_synthesis_service=cross_oracle_synthesis_service,
                     client_journey_orchestrator=client_journey_orchestrator,
                     personality_service=PersonalityService(),
+                    collaborator_service=collaborator_service,
                 )
                 logger.info("✅ IntelligentRouter initialized with full services")
             else:
@@ -573,6 +584,7 @@ async def initialize_services() -> None:
                     cross_oracle_synthesis_service=None,
                     client_journey_orchestrator=None,
                     personality_service=None,
+                    collaborator_service=None,
                 )
                 logger.info("✅ IntelligentRouter initialized in minimal mode")
 
@@ -676,6 +688,7 @@ async def bali_zero_chat_stream(
 ):
     """
     Streaming chat endpoint using IntelligentRouter for RAG-based responses.
+    NOW WITH IDENTITY-AWARE CONTEXT!
     """
 
     if not query.strip():
@@ -706,6 +719,20 @@ async def bali_zero_chat_stream(
     conversation_history_list = _parse_history(conversation_history)
     user_id = user_email or user_role or user_profile.get("id") or "anonymous"
 
+    # ========== NEW: COLLABORATOR LOOKUP ==========
+    collaborator = None
+    collaborator_service = getattr(app.state, "collaborator_service", None)
+    if collaborator_service and user_email:
+        try:
+            collaborator = await collaborator_service.identify(user_email)
+            if collaborator and collaborator.id != "anonymous":
+                logger.info(f"✅ Identified user: {collaborator.name} ({collaborator.role})")
+            else:
+                logger.info(f"👤 User not in team database: {user_email}")
+        except Exception as e:
+            logger.warning(f"⚠️ Collaborator lookup failed: {e}")
+    # ========== END NEW ==========
+
     # Load user memory from persistent storage
     memory_service = app.state.memory_service
     user_memory = None
@@ -724,16 +751,16 @@ async def bali_zero_chat_stream(
 
     async def event_stream() -> AsyncIterator[str]:
         # Send connection metadata
-        yield f"data: {json.dumps({'type': 'metadata', 'data': {'status': 'connected', 'user': user_id}}, ensure_ascii=False)}\n\n"
+        yield f"data: {json.dumps({'type': 'metadata', 'data': {'status': 'connected', 'user': user_id, 'identified': collaborator.name if collaborator and collaborator.id != 'anonymous' else None}}, ensure_ascii=False)}\n\n"
 
         try:
-            # Stream response using IntelligentRouter (RAG-based with memory)
+            # Stream response using IntelligentRouter (RAG-based with memory AND IDENTITY)
             async for chunk in intelligent_router.stream_chat(
                 message=query,
                 user_id=user_id,
                 conversation_history=conversation_history_list,
                 memory=user_memory,
-                collaborator=None,
+                collaborator=collaborator,  # ← NOW PASSED INSTEAD OF None!
             ):
                 # Intercept legacy [METADATA] tags and convert to SSE metadata events
                 if chunk.startswith("[METADATA]"):
@@ -802,7 +829,15 @@ async def bali_zero_chat_stream(
             logger.exception("Streaming error: %s", exc)
             yield f"data: {json.dumps({'type': 'error', 'data': str(exc)}, ensure_ascii=False)}\n\n"
 
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 # Run via: uvicorn app.main_cloud:app --host 0.0.0.0 --port 8000
