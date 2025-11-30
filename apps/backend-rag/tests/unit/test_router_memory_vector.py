@@ -72,14 +72,25 @@ def mock_embedder():
 @pytest.fixture
 def client(mock_qdrant_client, mock_embedder):
     """Create test client with mocked dependencies"""
-    with patch("app.routers.memory_vector.get_memory_vector_db", return_value=mock_qdrant_client):
-        with patch("app.routers.memory_vector.embedder", mock_embedder):
-            from app.routers.memory_vector import router
-            from fastapi import FastAPI
+    import app.routers.memory_vector as memory_vector_module
 
-            app = FastAPI()
-            app.include_router(router)
-            return TestClient(app)
+    # Directly set the global variable
+    original_db = memory_vector_module.memory_vector_db
+    memory_vector_module.memory_vector_db = mock_qdrant_client
+
+    # Also patch embedder
+    original_embedder = memory_vector_module.embedder
+    memory_vector_module.embedder = mock_embedder
+
+    try:
+        from fastapi import FastAPI
+        app = FastAPI()
+        app.include_router(memory_vector_module.router)
+        yield TestClient(app)
+    finally:
+        # Restore original values
+        memory_vector_module.memory_vector_db = original_db
+        memory_vector_module.embedder = original_embedder
 
 
 # ============================================================================
