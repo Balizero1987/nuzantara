@@ -1,13 +1,16 @@
 """
 ZANTARA AI Client - Primary engine for all conversational AI
 
-AI engine is fully configurable via environment variables:
-- ZANTARA_AI_MODEL: Model identifier (default: meta-llama/llama-4-scout)
-- OPENROUTER_API_KEY_LLAMA: API key for OpenRouter provider
-- ZANTARA_AI_COST_INPUT: Cost per 1M input tokens (default: 0.20)
-- ZANTARA_AI_COST_OUTPUT: Cost per 1M output tokens (default: 0.20)
+AI Models Architecture:
+- PRIMARY: Google Gemini 2.5 Flash (unlimited on ULTRA plan)
+- JAKSEL: zeroai87/jaksel-ai (Gemma 9B) via Oracle Cloud Ollama
+  - Endpoint: https://jaksel.balizero.com
+  - Purpose: Indonesian Jaksel slang personality for specific users
+  - Connected via: SimpleJakselCaller in oracle_universal.py
 
-Change AI model by updating ZANTARA_AI_MODEL env var - no code changes required.
+Configuration:
+- GOOGLE_API_KEY: API key for Gemini (primary)
+- JAKSEL_ORACLE_URL: Oracle Cloud tunnel for Jaksel (default: https://jaksel.balizero.com)
 """
 
 import asyncio
@@ -23,12 +26,13 @@ class ZantaraAIClient:
     """
     ZANTARA AI Client – primary engine for all conversational AI.
 
-    Fully configurable via environment variables:
-    - ZANTARA_AI_MODEL: Model identifier (e.g., meta-llama/llama-4-scout)
-    - Provider: OpenRouter (configurable via base_url)
-    - Costs: Configurable via ZANTARA_AI_COST_INPUT/OUTPUT env vars
+    AI Models:
+    - PRIMARY: Google Gemini 2.5 Flash (production)
+    - JAKSEL: Gemma 9B via Oracle Cloud (https://jaksel.balizero.com)
+      - Activated for specific users via SimpleJakselCaller
+      - Provides Indonesian Jaksel slang personality
 
-    Change AI model by updating environment variables - no code changes required.
+    Provider: Google AI (Gemini) - native implementation
     """
 
     def __init__(
