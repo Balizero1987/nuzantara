@@ -159,7 +159,7 @@ class CulturalRAGService:
 
 
 # Test function
-async def test_cultural_rag():
+async def test_cultural_rag():  # pragma: no cover
     """Test CulturalRAGService"""
     from services.search_service import SearchService
 
@@ -219,7 +219,7 @@ async def test_cultural_rag():
         logger.info(f"   {topic}: {count} insight(s)")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     import asyncio
 
     asyncio.run(test_cultural_rag())
