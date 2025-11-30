@@ -31,6 +31,10 @@ jobs:
         pip install -r requirements.txt
         pip install pytest pytest-cov pytest-asyncio
 
+    - name: Setup test data
+      run: |
+        cp backend/data/team_members.example.json backend/data/team_members.json
+
     - name: Generate comprehensive coverage report
       env:
         DATABASE_URL: postgresql://test:test@localhost/test
