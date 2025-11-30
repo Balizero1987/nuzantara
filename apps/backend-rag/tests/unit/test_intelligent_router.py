@@ -740,3 +740,353 @@ def test_get_stats(intelligent_router):
     assert "ai_models" in stats
     assert "rag_available" in stats
 
+
+# ============================================================================
+# Additional Tests for Missing Coverage (78% -> 90%+)
+# ============================================================================
+
+
+@pytest.mark.asyncio
+async def test_route_chat_backend_tools_path(intelligent_router):
+    """Test route_chat uses backend tools when frontend_tools is None"""
+    router, mocks = intelligent_router
+
+    router.classifier = AsyncMock()
+    router.classifier.classify_intent = AsyncMock(return_value={
+        "category": "business_simple",
+        "suggested_ai": "zantara-ai",
+        "confidence": 0.8,
+    })
+
+    router.context_builder = MagicMock()
+    router.context_builder.build_memory_context = MagicMock(return_value="")
+    router.context_builder.build_team_context = MagicMock(return_value="")
+    router.context_builder.combine_contexts = MagicMock(return_value="")
+
+    router.rag_manager = AsyncMock()
+    router.rag_manager.retrieve_context = AsyncMock(return_value={
+        "context": "",
+        "used_rag": False,
+        "docs": [],
+    })
+
+    router.response_handler = MagicMock()
+    router.response_handler.classify_query = MagicMock(return_value="business")
+    router.response_handler.sanitize_response = MagicMock(return_value="Response")
+
+    router.specialized_router = MagicMock()
+    router.specialized_router.detect_autonomous_research = MagicMock(return_value=False)
+    router.specialized_router.detect_cross_oracle = MagicMock(return_value=False)
+    router.specialized_router.detect_client_journey = MagicMock(return_value=False)
+
+    router.jaksel_caller = MagicMock()
+    router.jaksel_caller.jaksel_users = {}
+
+    # Ensure tool_executor has get_available_tools
+    router.tool_executor.get_available_tools = MagicMock(return_value=[{"name": "backend_tool"}])
+
+    result = await router.route_chat("Test query", "user123", frontend_tools=None)
+
+    # Should call conversational_with_tools with backend tools
+    mocks["ai"].conversational_with_tools.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_route_chat_no_tools_path(intelligent_router):
+    """Test route_chat without tools uses conversational"""
+    router, mocks = intelligent_router
+
+    router.classifier = AsyncMock()
+    router.classifier.classify_intent = AsyncMock(return_value={
+        "category": "business_simple",
+        "suggested_ai": "zantara-ai",
+        "confidence": 0.8,
+    })
+
+    router.context_builder = MagicMock()
+    router.context_builder.build_memory_context = MagicMock(return_value="")
+    router.context_builder.build_team_context = MagicMock(return_value="")
+    router.context_builder.combine_contexts = MagicMock(return_value="")
+
+    router.rag_manager = AsyncMock()
+    router.rag_manager.retrieve_context = AsyncMock(return_value={
+        "context": "",
+        "used_rag": False,
+        "docs": [],
+    })
+
+    router.response_handler = MagicMock()
+    router.response_handler.classify_query = MagicMock(return_value="business")
+    router.response_handler.sanitize_response = MagicMock(return_value="Response")
+
+    router.specialized_router = MagicMock()
+    router.specialized_router.detect_autonomous_research = MagicMock(return_value=False)
+    router.specialized_router.detect_cross_oracle = MagicMock(return_value=False)
+    router.specialized_router.detect_client_journey = MagicMock(return_value=False)
+
+    router.jaksel_caller = MagicMock()
+    router.jaksel_caller.jaksel_users = {}
+
+    # No tool executor
+    router.tool_executor = None
+
+    result = await router.route_chat("Test query", "user123")
+
+    # Should call conversational without tools
+    mocks["ai"].conversational.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_route_chat_emotional_override_returns_result(intelligent_router):
+    """Test route_chat emotional override returns result directly"""
+    router, mocks = intelligent_router
+
+    router.classifier = AsyncMock()
+    router.classifier.classify_intent = AsyncMock(return_value={
+        "category": "business_simple",
+        "suggested_ai": "zantara-ai",
+        "confidence": 0.8,
+    })
+
+    router.context_builder = MagicMock()
+    router.context_builder.build_memory_context = MagicMock(return_value="")
+
+    router.rag_manager = AsyncMock()
+    router.rag_manager.retrieve_context = AsyncMock(return_value={
+        "context": "",
+        "used_rag": False,
+        "docs": [],
+    })
+
+    router.response_handler = MagicMock()
+    router.response_handler.classify_query = MagicMock(return_value="business")
+
+    # Mock emotional profile with anxious state
+    emotional_profile = MagicMock()
+    emotional_profile.detected_state = "anxious"
+
+    # Mock _handle_emotional_override to return a result
+    router._handle_emotional_override = AsyncMock(return_value={
+        "response": "Empathetic response",
+        "ai_used": "zantara-ai",
+        "category": "emotional_support",
+    })
+
+    result = await router.route_chat("I'm anxious", "user123", emotional_profile=emotional_profile)
+
+    # Should return emotional override result
+    assert result["category"] == "emotional_support"
+    router._handle_emotional_override.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_route_chat_jaksel_failure(intelligent_router):
+    """Test route_chat handles Jaksel style failure"""
+    router, mocks = intelligent_router
+
+    router.classifier = AsyncMock()
+    router.classifier.classify_intent = AsyncMock(return_value={
+        "category": "business_simple",
+        "suggested_ai": "zantara-ai",
+        "confidence": 0.8,
+    })
+
+    router.context_builder = MagicMock()
+    router.context_builder.build_memory_context = MagicMock(return_value="")
+    router.context_builder.build_team_context = MagicMock(return_value="")
+    router.context_builder.combine_contexts = MagicMock(return_value="")
+
+    router.rag_manager = AsyncMock()
+    router.rag_manager.retrieve_context = AsyncMock(return_value={
+        "context": "",
+        "used_rag": False,
+        "docs": [],
+    })
+
+    router.response_handler = MagicMock()
+    router.response_handler.classify_query = MagicMock(return_value="business")
+    router.response_handler.sanitize_response = MagicMock(return_value="Sanitized response")
+
+    router.specialized_router = MagicMock()
+    router.specialized_router.detect_autonomous_research = MagicMock(return_value=False)
+    router.specialized_router.detect_cross_oracle = MagicMock(return_value=False)
+    router.specialized_router.detect_client_journey = MagicMock(return_value=False)
+
+    router.jaksel_caller = MagicMock()
+    router.jaksel_caller.jaksel_users = {"user123": True}
+    router.jaksel_caller.call_jaksel_direct = AsyncMock(return_value={
+        "success": False,
+        "error": "Jaksel API unavailable",
+    })
+
+    router.tool_executor = None
+
+    result = await router.route_chat("Hello", "user123")
+
+    # Should return sanitized response even if Jaksel fails
+    assert result["response"] == "Sanitized response"
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_cross_topic_query(intelligent_router):
+    """Test stream_chat detects cross-topic query and adjusts max_tokens"""
+    router, mocks = intelligent_router
+
+    router.response_handler = MagicMock()
+    router.response_handler.classify_query = MagicMock(return_value="business")
+
+    router.context_builder = MagicMock()
+    router.context_builder.build_memory_context = MagicMock(return_value="")
+    router.context_builder.build_team_context = MagicMock(return_value="")
+    router.context_builder.combine_contexts = MagicMock(return_value="")
+
+    router.rag_manager = AsyncMock()
+    router.rag_manager.retrieve_context = AsyncMock(return_value={
+        "context": "",
+        "used_rag": False,
+        "docs": [],
+    })
+
+    router.specialized_router = MagicMock()
+    router.specialized_router.detect_autonomous_research = MagicMock(return_value=False)
+    router.specialized_router.detect_cross_oracle = MagicMock(return_value=False)
+    router.specialized_router.detect_client_journey = MagicMock(return_value=False)
+
+    router.jaksel_caller = MagicMock()
+    router.jaksel_caller.jaksel_users = {}
+
+    async def mock_stream(*args, **kwargs):
+        # Verify max_tokens is 10000 for cross-topic
+        assert kwargs.get("max_tokens") == 10000
+        yield "chunk"
+
+    mocks["ai"].stream = mock_stream
+
+    chunks = []
+    async for chunk in router.stream_chat("Dammi timeline completa e tutti i costi", "user123"):
+        chunks.append(chunk)
+
+    assert len(chunks) > 0
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_autonomous_research_routing(intelligent_router):
+    """Test stream_chat routes to autonomous research and yields result"""
+    router, mocks = intelligent_router
+
+    router.response_handler = MagicMock()
+    router.response_handler.classify_query = MagicMock(return_value="business_complex")
+
+    router.specialized_router = AsyncMock()
+    router.specialized_router.detect_autonomous_research = MagicMock(return_value=True)
+    router.specialized_router.route_autonomous_research = AsyncMock(return_value={
+        "response": "Research answer text here",
+        "ai_used": "autonomous-research",
+    })
+
+    chunks = []
+    async for chunk in router.stream_chat("Complex research query", "user123"):
+        chunks.append(chunk)
+
+    # Should yield words from research answer
+    assert len(chunks) > 0
+    router.specialized_router.route_autonomous_research.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_cross_oracle_routing(intelligent_router):
+    """Test stream_chat routes to cross-oracle and yields result"""
+    router, mocks = intelligent_router
+
+    router.response_handler = MagicMock()
+    router.response_handler.classify_query = MagicMock(return_value="business_complex")
+
+    router.specialized_router = AsyncMock()
+    router.specialized_router.detect_autonomous_research = MagicMock(return_value=False)
+    router.specialized_router.detect_cross_oracle = MagicMock(return_value=True)
+    router.specialized_router.route_cross_oracle = AsyncMock(return_value={
+        "response": "Cross oracle synthesis result",
+        "ai_used": "cross-oracle",
+    })
+
+    chunks = []
+    async for chunk in router.stream_chat("Open restaurant in Bali", "user123"):
+        chunks.append(chunk)
+
+    # Should yield words from synthesis result
+    assert len(chunks) > 0
+    router.specialized_router.route_cross_oracle.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_client_journey_routing(intelligent_router):
+    """Test stream_chat routes to client journey and yields result"""
+    router, mocks = intelligent_router
+
+    router.response_handler = MagicMock()
+    router.response_handler.classify_query = MagicMock(return_value="workflow")
+
+    router.specialized_router = AsyncMock()
+    router.specialized_router.detect_autonomous_research = MagicMock(return_value=False)
+    router.specialized_router.detect_cross_oracle = MagicMock(return_value=False)
+    router.specialized_router.detect_client_journey = MagicMock(return_value=True)
+    router.specialized_router.route_client_journey = AsyncMock(return_value={
+        "response": "Client journey orchestration result",
+        "ai_used": "client-journey",
+    })
+
+    chunks = []
+    async for chunk in router.stream_chat("Start visa application", "user123"):
+        chunks.append(chunk)
+
+    # Should yield words from journey result
+    assert len(chunks) > 0
+    router.specialized_router.route_client_journey.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_handle_emotional_override_with_tools(intelligent_router):
+    """Test _handle_emotional_override with tools"""
+    router, mocks = intelligent_router
+
+    router.context_builder = MagicMock()
+    router.context_builder.build_memory_context = MagicMock(return_value="Memory context")
+
+    emotional_profile = MagicMock()
+    emotional_profile.detected_state = MagicMock()
+    emotional_profile.detected_state.value = "anxious"
+
+    tools = [{"name": "tool1"}]
+
+    result = await router._handle_emotional_override(
+        "I'm anxious", "user123", [], None, emotional_profile, tools
+    )
+
+    assert isinstance(result, dict)
+    assert result["category"] == "emotional_support"
+    mocks["ai"].conversational_with_tools.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_get_cultural_context_with_history(intelligent_router):
+    """Test _get_cultural_context with conversation history"""
+    router, mocks = intelligent_router
+
+    mocks["cultural_rag"].get_cultural_context = AsyncMock(return_value=[
+        {"content": "Cultural insight", "metadata": {"topic": "test"}, "score": 0.8}
+    ])
+
+    # Provide extensive conversation history (>= 3 messages)
+    history = [
+        {"role": "user", "content": "Hi"},
+        {"role": "assistant", "content": "Hello"},
+        {"role": "user", "content": "Tell me about Bali"},
+    ]
+
+    result = await router._get_cultural_context("Test query", history)
+
+    assert result is not None
+    # Should detect ongoing conversation stage
+    call_args = mocks["cultural_rag"].get_cultural_context.call_args
+    assert call_args[0][0]["conversation_stage"] == "ongoing"
+
