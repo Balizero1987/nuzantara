@@ -271,7 +271,13 @@ test.*
 # Orchestra framework (troppo grande)
 orchestra/
 orchestra_*/
-agents/
+# Allow Python source files in agents/, but ignore model files
+agents/**/*.bin
+agents/**/*.pt
+agents/**/*.pth
+agents/**/*.onnx
+agents/**/*.h5
+agents/**/*.safetensors
 coverage/
 node_modules
 
