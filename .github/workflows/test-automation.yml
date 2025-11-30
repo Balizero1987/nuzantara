@@ -121,7 +121,7 @@ jobs:
     - name: Run Tests
       run: |
         cd apps/backend-rag
-        pytest tests/unit -v --cov=backend --cov-report=term-missing --cov-report=xml
+        pytest tests/unit -v --cov=backend --cov-config=.coveragerc --cov-report=term-missing --cov-report=xml
 
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v3

@@ -33,10 +33,23 @@ jobs:
       run: npm ci
 
     - name: Run TypeScript type check
-      run: npx tsc --noEmit || echo 'TypeScript check completed with warnings'
+      run: npx tsc --noEmit
 
     - name: Run linter
-      run: npm run lint || true
+      run: npm run lint
+
+    - name: Run tests with coverage
+      run: npm run test:ci
+      env:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+
+    - name: Upload coverage reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-coverage-report
+        path: apps/webapp-next/coverage/
+        retention-days: 30
 
     - name: Build application
       run: npm run build

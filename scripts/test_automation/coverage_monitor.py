@@ -28,6 +28,7 @@ class CoverageMonitor:
                 "pytest",
                 "apps/backend-rag/tests/unit",
                 "--cov=apps/backend-rag/backend",
+                "--cov-config=apps/backend-rag/.coveragerc",
                 "--cov-report=json:apps/backend-rag/coverage.json",
                 "--cov-report=term",
                 "-v"
