@@ -30,6 +30,21 @@ def get_db_connection():
     return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
 
 
+def _get_practice_codes(cursor):
+    """
+    Get practice type codes from database
+
+    Returns:
+        List of practice type codes (e.g., ['KITAS', 'KITAP', 'PT_PMA'])
+    """
+    try:
+        cursor.execute("SELECT code FROM practice_types WHERE active = true")
+        return [row["code"] for row in cursor.fetchall()]
+    except Exception:
+        # If table doesn't exist or query fails, return empty list
+        return []
+
+
 # ================================================
 # ENDPOINTS
 # ================================================
@@ -153,7 +168,7 @@ async def search_shared_memory(
 
         # 3. Practice type search - retrieved from database
         # TABULA RASA: No hardcoded practice codes - all practice types come from database
-        practice_codes = []  # Retrieved from database at runtime
+        practice_codes = _get_practice_codes(cursor)  # Retrieved from database at runtime
         detected_practice_type = None
 
         for code in practice_codes:

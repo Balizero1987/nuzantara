@@ -25,7 +25,8 @@ from services.context.rag_manager import RAGManager
 def mock_search_service():
     """Mock SearchService"""
     search = AsyncMock()
-    search.search = AsyncMock(
+    # Fix: RAGManager calls search_with_conflict_resolution, not search
+    search.search_with_conflict_resolution = AsyncMock(
         return_value={
             "query": "Test query",
             "results": [
@@ -166,7 +167,7 @@ async def test_retrieve_context_empty_results(rag_manager):
     limit = 5
 
     # Mock empty results
-    rag_manager.search.search = AsyncMock(return_value={"query": query, "results": []})
+    rag_manager.search.search_with_conflict_resolution = AsyncMock(return_value={"query": query, "results": []})
 
     result = await rag_manager.retrieve_context(query, query_type, user_level, limit)
 
@@ -184,7 +185,7 @@ async def test_retrieve_context_respects_limit(rag_manager):
     limit = 1
 
     # Mock multiple results
-    rag_manager.search.search = AsyncMock(
+    rag_manager.search.search_with_conflict_resolution = AsyncMock(
         return_value={
             "query": query,
             "results": [
@@ -210,7 +211,7 @@ async def test_retrieve_context_truncates_document_text(rag_manager):
     user_level = 2
     limit = 5
 
-    rag_manager.search.search = AsyncMock(
+    rag_manager.search.search_with_conflict_resolution = AsyncMock(
         return_value={
             "query": query,
             "results": [{"text": long_text, "metadata": {"title": "Long Doc"}}],
@@ -247,7 +248,7 @@ async def test_retrieve_context_handles_missing_title(rag_manager):
     user_level = 2
     limit = 5
 
-    rag_manager.search.search = AsyncMock(
+    rag_manager.search.search_with_conflict_resolution = AsyncMock(
         return_value={
             "query": query,
             "results": [{"text": "Doc content", "metadata": {}}],
@@ -268,7 +269,7 @@ async def test_retrieve_context_exception_handling(rag_manager):
     user_level = 2
     limit = 5
 
-    rag_manager.search.search = AsyncMock(side_effect=Exception("Search error"))
+    rag_manager.search.search_with_conflict_resolution = AsyncMock(side_effect=Exception("Search error"))
 
     result = await rag_manager.retrieve_context(query, query_type, user_level, limit)
 
@@ -287,11 +288,12 @@ async def test_retrieve_context_calls_search_with_params(rag_manager):
 
     await rag_manager.retrieve_context(query, query_type, user_level, limit)
 
-    rag_manager.search.search.assert_called_once()
-    call_args = rag_manager.search.search.call_args
+    rag_manager.search.search_with_conflict_resolution.assert_called_once()
+    call_args = rag_manager.search.search_with_conflict_resolution.call_args
     assert call_args[1]["query"] == query
     assert call_args[1]["user_level"] == user_level
     assert call_args[1]["limit"] == limit
+    assert call_args[1]["enable_fallbacks"] is True
 
 
 @pytest.mark.asyncio
