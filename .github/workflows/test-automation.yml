@@ -119,6 +119,11 @@ jobs:
         pip install pytest pytest-cov pytest-asyncio
 
     - name: Run Tests
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        DATABASE_URL: postgresql://test:test@localhost/test
+        JWT_SECRET_KEY: test-secret-key-for-ci
+        QDRANT_URL: http://localhost:6333
       run: |
         cd apps/backend-rag
         pytest tests/unit -v --cov=backend --cov-config=.coveragerc --cov-report=term-missing --cov-report=xml
