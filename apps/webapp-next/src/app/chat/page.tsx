@@ -718,12 +718,12 @@ export default function ChatPage() {
                     <button
                       type="submit"
                       disabled={isLoading || !input.trim()}
-                      className="relative flex-shrink-0 w-14 h-14 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 hover:scale-110 active:scale-95 rounded-full overflow-hidden"
+                      className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 hover:scale-110 active:scale-95"
                     >
                       <img
                         src="/infinity_button.png"
                         alt="Send"
-                        className="w-full h-full object-contain"
+                        className="w-14 h-14 object-contain"
                       />
                     </button>
                   </div>
