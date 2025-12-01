@@ -689,13 +689,13 @@ export default function ChatPage() {
                         <img
                           src="/images/sfera_image.png"
                           alt="Generating..."
-                          className="w-10 h-10 object-contain animate-spin opacity-60"
+                          className="w-20 h-20 object-contain animate-spin opacity-60"
                         />
                       ) : (
                         <img
                           src="/images/sfera_image.png"
                           alt="Generate Image"
-                          className="w-10 h-10 object-contain"
+                          className="w-20 h-20 object-contain"
                         />
                       )}
                     </button>
@@ -723,7 +723,7 @@ export default function ChatPage() {
                       <img
                         src="/images/infinity_button.png"
                         alt="Send"
-                        className="w-14 h-14 object-contain"
+                        className="w-20 h-20 object-contain"
                       />
                     </button>
                   </div>
