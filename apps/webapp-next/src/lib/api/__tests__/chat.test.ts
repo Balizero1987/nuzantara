@@ -1,14 +1,5 @@
-// Mock apiClient BEFORE imports
-jest.mock('../client', () => ({
-  apiClient: {
-    getToken: jest.fn(() => 'test-token-123'),
-    setToken: jest.fn(),
-    clearToken: jest.fn(),
-  },
-}));
-
 import { chatAPI } from '../chat';
-import * as clientModule from '../client';
+import { apiClient } from '../client';
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -52,9 +43,25 @@ function createMockReadableStream(chunks: string[]): ReadableStream<Uint8Array> 
 }
 
 describe('chatAPI', () => {
+  beforeAll(() => {
+    // Spy on apiClient methods
+    jest.spyOn(apiClient, 'getToken').mockImplementation(() => 'test-token-123');
+    jest.spyOn(apiClient, 'setToken').mockImplementation(() => { });
+    jest.spyOn(apiClient, 'clearToken').mockImplementation(() => { });
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
-    (clientModule.apiClient.getToken as jest.Mock) = jest.fn(() => 'test-token-123');
+    (fetch as jest.Mock).mockClear();
+
+    // Reset spies implementations if needed, or just clear usage
+    (apiClient.getToken as jest.Mock).mockClear();
+    // Default implementation returns token
+    (apiClient.getToken as jest.Mock).mockImplementation(() => 'test-token-123');
   });
 
   describe('streamChat', () => {
@@ -182,7 +189,8 @@ describe('chatAPI', () => {
     });
 
     it('should call onError when no token is available', async () => {
-      (clientModule.apiClient.getToken as jest.Mock) = jest.fn(() => null);
+      // Mock getToken to return null for this test
+      (apiClient.getToken as jest.Mock).mockImplementation(() => null);
 
       const onChunk = jest.fn();
       const onMetadata = jest.fn();
