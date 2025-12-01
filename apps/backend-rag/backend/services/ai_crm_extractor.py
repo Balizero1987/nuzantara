@@ -139,7 +139,7 @@ RULES:
         try:
             # Use ZANTARA AI for extraction
             response = await self.client.conversational(
-                message=extraction_prompt, user_id="system_crm_extractor", max_tokens=1000
+                extraction_prompt, "system_crm_extractor", max_tokens=1000
             )
             content = response["text"]
             content = content.strip()

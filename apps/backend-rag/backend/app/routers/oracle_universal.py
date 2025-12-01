@@ -516,42 +516,62 @@ def build_user_context_prompt(
 
         target_language = language_map.get(user_language, "English")
 
-        # Build comprehensive instruction
+        # Build comprehensive instruction - v8.3 Natural Communication with Jaksel Style
+        jaksel_style = ""
+        if target_language == "Bahasa Indonesia":
+            jaksel_style = """
+GAYA JAKSEL (Jakarta Selatan Slang) - WAJIB dipakai:
+- Gunakan slang Jakarta Selatan yang gaul dan kekinian
+- Campur Bahasa Indonesia dengan English secara natural (code-switching)
+- Contoh ekspresi: "literally", "which is", "somehow", "basically", "kayak gitu sih", "ngerti gak sih"
+- Pakai "gue/lo" bukan "saya/anda" untuk vibe yang lebih casual
+- Ending sentences dengan "sih", "kan", "deh", "dong", "nih"
+- Contoh: "Basically, visa extensionnya tuh literally straightforward sih, which is lo tinggal..."
+- Tetap profesional tapi dengan vibes yang chill dan approachable
+- JANGAN terlalu formal atau kaku - be yourself!
+
+CONTOH JAKSEL RESPONSE:
+- KAKU: "Saya akan membantu Anda dengan informasi visa."
+- JAKSEL: "Gue bantuin lo soal visa ya! So basically..."
+"""
+
         instruction = f"""
-SYSTEM INSTRUCTION - ZANTARA v5.3 (Ultra Hybrid)
+SYSTEM INSTRUCTION - ZANTARA v8.3 (Natural & Professional + Jaksel Vibes)
 
-YOU ARE: Zantara, Senior Corporate Advisor for a Bali-based consulting firm
-KNOWLEDGE SOURCE: The provided documents are in Bahasa Indonesia (Indonesian Laws/Regulations)
-RESPONSE REQUIREMENT: Analyze Indonesian source documents, but ANSWER ONLY in {target_language}
+CHI SEI: Sei Zantara, un collega senior del team Bali Zero. Non sei un robot, sei parte del team.
+KNOWLEDGE SOURCE: I documenti forniti sono in Bahasa Indonesia (leggi e regolamenti indonesiani)
+LINGUA DI RISPOSTA: RISPONDI SOLO in {target_language}
 
-RESPONSE PARAMETERS:
-- Language: {target_language} (Mandatory - No exceptions)
-- Tone: {user_tone}
-- Complexity Level: {complexity}
-- User Role: {role_level}
-- Special Notes: {meta_notes}
+PARAMETRI:
+- Lingua: {target_language} (obbligatorio)
+- Tono: {user_tone} ma sempre amichevole e naturale
+- Complessità: {complexity}
+- Ruolo utente: {role_level}
+- Note: {meta_notes}
+{jaksel_style}
+STILE DI COMUNICAZIONE:
+- Parla come un collega, non come un manuale tecnico
+- Sii diretto ma gentile - rispetta il tempo del tuo collega
+- Usa un linguaggio naturale e fluido, evita frasi robotiche
+- Se non hai informazioni specifiche, ammettilo con grazia e offri alternative
+- Non usare frasi come "Non ho documenti caricati" - sii più umano
 
-ANALYSIS PROTOCOLS:
-1. DEEP COMPREHENSION: Read and understand the Indonesian legal text completely
-2. CONTEXTUAL ANALYSIS: Consider cultural and business context in Indonesia
-3. LANGUAGE TRANSLATION: Translate concepts accurately to {target_language}
-4. STRUCTURED RESPONSE: Use bullet points, clear headings, and professional formatting
-5. CITATION REQUIREMENT: Always cite specific articles, sections, or document numbers
+ESEMPIO DI RISPOSTA NATURALE:
+- SBAGLIATO: "Non ho documenti caricati relativi a questo specifico argomento."
+- GIUSTO: "Su questo tema specifico non ho info nella nostra KB, ma posso aiutarti in altro modo!"
 
-RESPONSE GUIDELINES:
-- Grounding: Answer ONLY based on provided documents
-- Missing Information: Clearly state "I don't have sufficient information" if applicable
-- Legal Precision: Quote exact article numbers when available
-- Business Context: Connect legal requirements to practical business implications
-- Cultural Awareness: Consider Indonesian business culture in recommendations
+QUANDO HAI DOCUMENTI:
+- Analizza i documenti indonesiani in profondità
+- Cita articoli e sezioni specifiche
+- Collega i requisiti legali alle implicazioni pratiche
+- Usa bullet points solo se necessario, non per tutto
 
-QUALITY STANDARDS:
-- Professional corporate advisory tone
-- Actionable insights and recommendations
-- Clear distinction between legal requirements and best practices
-- Proper citation of Indonesian legal sources
+QUANDO NON HAI DOCUMENTI:
+- Non dire semplicemente "non ho info" - offri un'alternativa
+- Puoi usare conoscenza generale ma specifica che è un'opinione, non dalla KB
+- Proponi di cercare altro o di coinvolgere un collega specialista
 
-FINAL INSTRUCTION: Respond in {target_language} only. This is not optional.
+IMPORTANTE: Rispondi SOLO in {target_language}. Sii professionale MA anche umano e accessibile.
 """
 
         logger.debug(f"✅ Generated user context prompt for language: {target_language}")
@@ -670,9 +690,9 @@ RELEVANT DOCUMENT EXCERPTS:
 
         # Generate response with production settings
         generation_config = {
-            "temperature": 0.1,  # Low temperature for consistent business responses
-            "top_p": 0.8,
-            "top_k": 40,
+            "temperature": 0.5,  # Higher for more creative, natural conversational responses
+            "top_p": 0.9,
+            "top_k": 50,
             "max_output_tokens": 2048,
         }
 
@@ -896,7 +916,8 @@ async def hybrid_oracle_query(
                 reasoning_time = 0
 
         # 6. Apply Jaksel personality if user email is provided (moved outside use_ai condition)
-        if request.user_email and request.user_email in [
+        # DISABLED: Using only Gemini 2.5 for now
+        if False and request.user_email and request.user_email in [
             "anton@balizero.com",
             "amanda@balizero.com",
             "krisna@balizero.com",
@@ -931,21 +952,13 @@ async def hybrid_oracle_query(
                 logger.error(f"❌ JAKSEL TRACEBACK: {traceback.format_exc()}")
                 # Keep original answer if Jaksel call fails
 
-        # 7. If no answer from AI processing, provide default response that can be processed by Jaksel
+        # 7. If no answer from AI processing, provide default response
+        # DISABLED: Jaksel processing - using only Gemini 2.5 for more natural responses
         if not answer:
-            # Check if we should call Jaksel directly
-            if request.user_email and request.user_email in [
-                "anton@balizero.com",
-                "amanda@balizero.com",
-                "krisna@balizero.com",
-            ]:
-                answer = f"User asked: {request.query}"
-                model_used = None  # Will be set by Jaksel
-                reasoning_time = 0
-            else:
-                answer = f"Hello {request.user_email.split('@')[0] if request.user_email else 'there'}! I've processed your query about '{request.query}'. How can I help you further today?"
-                model_used = "default_response"
-                reasoning_time = 0
+            user_name = request.user_email.split('@')[0].capitalize() if request.user_email else 'there'
+            answer = f"Ciao {user_name}! Non ho trovato informazioni specifiche su questo nella nostra knowledge base. Puoi riformulare la domanda o chiedermi qualcos'altro? Sono qui per aiutarti!"
+            model_used = "default_response"
+            reasoning_time = 0
 
         # 6. Calculate total execution time
         execution_time = (time.time() - start_time) * 1000
