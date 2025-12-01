@@ -660,6 +660,21 @@ export default function ChatPage() {
                       />
                     </div>
 
+                    {/* Image Button - 60px */}
+                    <button
+                      type="button"
+                      onClick={() => setShowImageModal(true)}
+                      disabled={isLoading}
+                      className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+                      aria-label="Generate image"
+                    >
+                      <img
+                        src="/images/imageb1.svg"
+                        alt=""
+                        className="w-[60px] h-[60px] object-contain brightness-[1.6]"
+                      />
+                    </button>
+
                     {/* Send Button - 60px */}
                     <button
                       type="submit"
