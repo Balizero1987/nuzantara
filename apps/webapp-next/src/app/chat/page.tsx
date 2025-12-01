@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { chatAPI } from "@/src/lib/api/chat"
+import { chatAPI } from "@/lib/api/chat"
 import { authAPI } from "@/lib/api/auth"
 import { apiClient } from "@/lib/api/client"
 import { RAGDrawer } from "@/components/chat/RAGDrawer"
@@ -40,15 +40,15 @@ export default function ChatPage() {
   useEffect(() => {
     // Check for token - try multiple possible storage keys with retry mechanism
     const checkToken = () => {
-      const token = apiClient.getToken() || 
-                    (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('token') : null) || 
-                    (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('zantara_token') : null) ||
-                    (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('zantara_session_token') : null)
+      const token = apiClient.getToken() ||
+        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('token') : null) ||
+        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('zantara_token') : null) ||
+        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('zantara_session_token') : null)
       return token
     }
-    
+
     let token = checkToken()
-    
+
     // If token not found immediately, wait a bit and retry (for navigation from login)
     if (!token) {
       setTimeout(() => {
@@ -60,7 +60,7 @@ export default function ChatPage() {
           zantara_session_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_session_token') ? 'found' : 'not found',
           allKeys: typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage).filter(k => k.toLowerCase().includes('token')) : []
         })
-        
+
         if (!token) {
           console.log('[ChatPage] No token found after retry, redirecting to login')
           router.push("/login")
@@ -68,7 +68,7 @@ export default function ChatPage() {
         }
       }, 100)
     }
-    
+
     console.log('[ChatPage] Token check:', {
       apiClient: apiClient.getToken() ? 'found' : 'not found',
       localStorage_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('token') ? 'found' : 'not found',
@@ -76,7 +76,7 @@ export default function ChatPage() {
       zantara_session_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_session_token') ? 'found' : 'not found',
       allKeys: typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage).filter(k => k.toLowerCase().includes('token')) : []
     })
-    
+
     if (!token) {
       // Don't redirect immediately, wait for retry
       return

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { createServerClient } from "@/src/lib/api/client"
-import { CalendarEvent } from "@/src/lib/api/generated"
+import { createServerClient } from "@/lib/api/client"
+import { CalendarEvent } from "@/lib/api/generated"
 
 export async function POST(request: Request) {
   try {
@@ -30,10 +30,10 @@ export async function POST(request: Request) {
       status: "success",
       data: response
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[v0] Calendar schedule error:", error)
-    const status = error.status || 500
-    const message = error.body?.detail || "Failed to create calendar event"
+    const status = (error as { status?: number })?.status || 500
+    const message = (error as { body?: { detail?: string } })?.body?.detail || "Failed to create calendar event"
     return NextResponse.json({ error: message }, { status })
   }
 }

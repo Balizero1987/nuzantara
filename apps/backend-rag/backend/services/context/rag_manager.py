@@ -99,7 +99,7 @@ class RAGManager:
             collections_used = set()
             for result in search_results["results"][:limit]:
                 doc_text = result["text"][:2500]  # Increased from 500 to leverage Gemini 2.5 Flash's large context window
-                doc_title = result.get("metadata", {}).get("title", "Unknown")
+                doc_title = result.get("metadata", {}).get("title") or result.get("metadata", {}).get("book_title", "Unknown")
                 doc_source = result.get("metadata", {}).get("source_collection", "Unknown")
                 collections_used.add(doc_source)
                 rag_docs.append(f"📄 [{doc_source}] {doc_title}: {doc_text}")
@@ -162,7 +162,7 @@ class RAGManager:
             team_docs = []
             for result in search_results["results"][:limit]:
                 doc_text = result["text"][:2500]  # Increased from 600 to leverage Gemini 2.5 Flash's large context window
-                doc_title = result.get("metadata", {}).get("title", "Team Member")
+                doc_title = result.get("metadata", {}).get("title") or result.get("metadata", {}).get("book_title", "Team Member")
                 team_docs.append(f"👤 {doc_title}: {doc_text}")
 
             team_context = "\n\n".join(team_docs)
@@ -211,7 +211,7 @@ class RAGManager:
             docs = []
             for result in search_results["results"][:limit]:
                 doc_text = result["text"][:1500]  # Increased from 300 for light search (still lighter than full search)
-                doc_title = result.get("metadata", {}).get("title", "Document")
+                doc_title = result.get("metadata", {}).get("title") or result.get("metadata", {}).get("book_title", "Document")
                 docs.append(f"📄 {doc_title}: {doc_text}")
 
             context = "\n\n".join(docs) if docs else None

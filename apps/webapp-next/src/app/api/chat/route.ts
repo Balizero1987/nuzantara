@@ -1,4 +1,4 @@
-import { createServerClient } from "@/src/lib/api/client"
+import { createServerClient } from "@/lib/api/client"
 
 export async function POST(req: Request) {
   try {

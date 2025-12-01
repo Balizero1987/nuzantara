@@ -440,6 +440,11 @@ class IntelligentRouter:
 
             full_response_buffer = ""
 
+            # Heartbeat mechanism to prevent Fly.io timeout (60s)
+            # We yield a comment or empty space to keep connection alive while waiting for LLM
+            yield {"type": "ping", "data": "ping"}
+
+
             async for chunk in self.ai.stream(
                 message=message,
                 user_id=user_id,
