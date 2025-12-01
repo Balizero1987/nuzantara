@@ -26,35 +26,53 @@ const customJestConfig = {
     '**/?(*.)+(spec|test).[jt]s?(x)',
   ],
   collectCoverageFrom: [
-    // Only include business logic files
-    'src/lib/store/**/*.{js,jsx,ts,tsx}',
-    'src/lib/api/auth.{js,jsx,ts,tsx}',
-    'src/lib/api/chat.{js,jsx,ts,tsx}',
-    'src/lib/api/client.{js,jsx,ts,tsx}',
-    'src/lib/utils.{js,jsx,ts,tsx}',
-    'src/hooks/use-mobile.{js,jsx,ts,tsx}', // Only test critical hooks
-    // Exclude everything else
+    // ========================================
+    // FULL COVERAGE (95% target)
+    // ========================================
+
+    // Core library files
+    'src/lib/**/*.{js,jsx,ts,tsx}',
+
+    // Custom components (business logic)
+    'src/components/calendar/**/*.{js,jsx,ts,tsx}',
+    'src/components/chat/**/*.{js,jsx,ts,tsx}',
+    'src/components/crm/**/*.{js,jsx,ts,tsx}',
+    'src/components/modern-sidebar/**/*.{js,jsx,ts,tsx}',
+    'src/components/productivity/**/*.{js,jsx,ts,tsx}',
+    'src/components/providers/**/*.{js,jsx,ts,tsx}',
+    'src/components/theme-provider.{js,jsx,ts,tsx}',
+
+    // Hooks
+    'src/hooks/**/*.{js,jsx,ts,tsx}',
+
+    // App pages
+    'src/app/**/page.{js,jsx,ts,tsx}',
+    'src/app/layout.{js,jsx,ts,tsx}',
+
+    // API route handlers
+    'src/app/api/**/route.{js,jsx,ts,tsx}',
+
+    // ========================================
+    // EXCLUSIONS
+    // ========================================
     '!src/**/*.d.ts',
     '!src/**/*.stories.{js,jsx,ts,tsx}',
     '!src/**/__tests__/**',
     '!src/**/__mocks__/**',
-    '!src/**/generated/**',
+    '!src/lib/api/generated/**', // Auto-generated OpenAPI client
     '!src/**/*.config.{js,ts}',
-    '!src/app/**',
-    '!src/components/**', // Exclude UI components (shadcn/ui - already tested)
-    '!src/lib/api/generated/**', // Exclude generated API client
-    '!src/lib/api/calendar.{js,jsx,ts,tsx}', // Not critical for coverage
-    '!src/lib/api/crm.{js,jsx,ts,tsx}', // Not critical for coverage
-    '!src/lib/api/socket.{js,jsx,ts,tsx}', // Not critical for coverage
+
+    // Exclude shadcn/ui components (already well-tested by library)
+    '!src/components/ui/**',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html', 'json'],
   coverageThreshold: {
     global: {
-      branches: 80, // Realistic target - branches are harder to cover
+      branches: 85, // Realistic target given complex component logic
       functions: 90,
-      lines: 90,
-      statements: 90,
+      lines: 95,
+      statements: 95,
     },
   },
   testPathIgnorePatterns: [
@@ -70,7 +88,7 @@ const customJestConfig = {
   ],
   // Transform ignore patterns for node_modules except specific packages
   transformIgnorePatterns: [
-    '/node_modules/(?!(zustand|@testing-library)/)',
+    '/node_modules/(?!(zustand|@testing-library|react-markdown|remark-.*|unified|bail|trough|vfile|unist-.*|hast-.*|mdast-.*|micromark.*|decode-named-character-reference|character-entities|property-information|space-separated-tokens|comma-separated-tokens|ccount|escape-string-regexp|markdown-table|trim-lines|devlop)/)',
   ],
 }
 
