@@ -359,16 +359,6 @@ export default function ChatPage() {
       <div className={`flex flex-col h-screen transition-all duration-300 ${isSidebarOpen ? "ml-80" : "ml-0"}`}>
         {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 border-b border-gray-700/50 backdrop-blur-sm shrink-0 z-30 relative">
-          {/* Corner Decoration Top Right */}
-          <div
-            className="absolute top-0 right-0 w-12 h-12 opacity-30 pointer-events-none"
-            style={{
-              backgroundImage: 'url(/images/image_art/zantara_ornate_corner_transparent.png)',
-              backgroundSize: 'contain',
-              backgroundPosition: 'top right',
-              backgroundRepeat: 'no-repeat'
-            }}
-          />
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
