@@ -435,17 +435,19 @@ export default function ChatPage() {
               />
               <button
                 onClick={() => avatarInputRef.current?.click()}
-                className="w-14 h-14 rounded-full overflow-hidden transition-all duration-300 hover:scale-110 flex items-center justify-center"
+                className="w-14 h-14 rounded-full overflow-hidden transition-all duration-300 hover:scale-110 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-600"
                 title="Click to upload avatar"
               >
                 {avatarImage ? (
                   <img src={avatarImage} alt="User" className="w-full h-full object-cover" />
                 ) : (
-                  <img
-                    src="/images/zantara_avatar.png"
-                    alt="Zantara AI"
-                    className="w-full h-full object-cover"
-                  />
+                  <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 )}
               </button>
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#2a2a2a] animate-pulse" />
@@ -641,6 +643,15 @@ export default function ChatPage() {
               <div className="relative group">
                 <div className="relative rounded-3xl p-[1px]">
                   <div className="relative flex items-end gap-2 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-3 border border-gray-500/20">
+                    {/* Zantara Avatar */}
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden">
+                      <img
+                        src="/images/zantara_avatar.png"
+                        alt="Zantara AI"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
                     <div className="relative flex-1">
                       <textarea
                         ref={textareaRef}
