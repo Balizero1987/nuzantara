@@ -688,13 +688,13 @@ export default function ChatPage() {
                     >
                       {isGeneratingImage ? (
                         <img
-                          src="/images/sfera_image.png"
+                          src="/images/imageb.svg"
                           alt=""
                           className="w-20 h-20 object-contain animate-spin opacity-60"
                         />
                       ) : (
                         <img
-                          src="/images/sfera_image.png"
+                          src="/images/imageb.svg"
                           alt=""
                           className="w-20 h-20 object-contain"
                         />
@@ -724,7 +724,7 @@ export default function ChatPage() {
                       aria-label="Send message"
                     >
                       <img
-                        src="/images/string_good.png"
+                        src="/images/sendb_string.svg"
                         alt=""
                         className="w-20 h-20 object-contain"
                       />
