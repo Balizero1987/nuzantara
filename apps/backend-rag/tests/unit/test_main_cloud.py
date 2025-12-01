@@ -32,12 +32,20 @@ import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 from fastapi.testclient import TestClient
 
+# Check if langchain is available (required for main_cloud import)
+try:
+    import langchain
+    LANGCHAIN_AVAILABLE = True
+except ImportError:
+    LANGCHAIN_AVAILABLE = False
+
 
 # ============================================================================
 # INTEGRATION TESTS - Testing the actual app
 # ============================================================================
 
 @pytest.fixture(scope="module")
+@pytest.mark.skipif(not LANGCHAIN_AVAILABLE, reason="langchain not installed")
 def app():
     """
     Get the FastAPI app with mocked services.
@@ -78,6 +86,7 @@ def client(app):
     return TestClient(app)
 
 
+@pytest.mark.skipif(not LANGCHAIN_AVAILABLE, reason="langchain not installed - required for main_cloud import")
 class TestMainCloudIntegration:
     """Integration tests for main_cloud.py endpoints"""
 

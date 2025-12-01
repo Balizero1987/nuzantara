@@ -1,17 +1,8 @@
 import { authAPI } from '../auth'
-import * as clientModule from '../client'
+import { apiClient } from '../client'
 
 // Mock fetch globally
 global.fetch = jest.fn()
-
-// Mock apiClient
-jest.mock('../client', () => ({
-  apiClient: {
-    getToken: jest.fn(),
-    setToken: jest.fn(),
-    clearToken: jest.fn(),
-  },
-}))
 
 // Mock localStorage
 const localStorageMock = {
@@ -29,22 +20,64 @@ Object.defineProperty(globalThis, 'localStorage', {
 // Mock window.location
 const mockLocation = {
   href: '',
+  assign: jest.fn(),
+  replace: jest.fn(),
+  reload: jest.fn(),
 }
-Object.defineProperty(globalThis, 'location', {
-  value: mockLocation,
-  writable: true,
-  configurable: true,
-})
+
+// Save original location
+const originalLocation = (globalThis as any).location
 
 describe('authAPI', () => {
+  beforeAll(() => {
+    // Delete the existing location object
+    // @ts-ignore
+    delete window.location
+
+    // Define our mock location
+    Object.defineProperty(globalThis, 'location', {
+      value: mockLocation,
+      writable: true,
+      configurable: true,
+    })
+
+    // Spy on apiClient methods
+    jest.spyOn(apiClient, 'getToken').mockImplementation(() => 'mock-token')
+    jest.spyOn(apiClient, 'setToken').mockImplementation(() => { })
+    jest.spyOn(apiClient, 'clearToken').mockImplementation(() => { })
+  })
+
+  afterAll(() => {
+    // Restore original location
+    Object.defineProperty(globalThis, 'location', {
+      value: originalLocation,
+      writable: true,
+      configurable: true,
+    })
+
+    // Restore spies
+    jest.restoreAllMocks()
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
+    // Re-mock apiClient methods after clearAllMocks because it clears usage data AND implementations if not careful
+    // But jest.clearAllMocks() only clears usage data for spies, not implementations.
+    // However, let's be safe and ensure they are mocks.
+
     localStorageMock.getItem.mockClear()
     localStorageMock.setItem.mockClear()
     localStorageMock.removeItem.mockClear()
     localStorageMock.clear.mockClear()
     mockLocation.href = ''
-    ;(fetch as jest.Mock).mockClear()
+    mockLocation.assign.mockClear()
+    mockLocation.replace.mockClear()
+      ; (fetch as jest.Mock).mockClear()
+
+      // Clear spy usage
+      ; (apiClient.getToken as jest.Mock).mockClear()
+      ; (apiClient.setToken as jest.Mock).mockClear()
+      ; (apiClient.clearToken as jest.Mock).mockClear()
   })
 
   describe('login', () => {
@@ -61,10 +94,10 @@ describe('authAPI', () => {
         message: 'Login successful',
       }
 
-      ;(fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      })
+        ; (fetch as jest.Mock).mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockResponse,
+        })
 
       const credentials = {
         email: 'test@example.com',
@@ -89,7 +122,7 @@ describe('authAPI', () => {
       expect(result.user.name).toBe(mockUser.name)
       expect(result.user.id).toBe(mockUser.id)
       expect(result.user.role).toBe(mockUser.role)
-      expect(clientModule.apiClient.setToken).toHaveBeenCalledWith(mockResponse.token)
+      expect(apiClient.setToken).toHaveBeenCalledWith(mockResponse.token)
     })
 
     it('should throw error when login fails', async () => {
@@ -97,10 +130,10 @@ describe('authAPI', () => {
         error: 'Invalid credentials',
       }
 
-      ;(fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        json: async () => mockError,
-      })
+        ; (fetch as jest.Mock).mockResolvedValueOnce({
+          ok: false,
+          json: async () => mockError,
+        })
 
       const credentials = {
         email: 'test@example.com',
@@ -111,7 +144,7 @@ describe('authAPI', () => {
     })
 
     it('should handle network errors', async () => {
-      ;(fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
+      ; (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
 
       const credentials = {
         email: 'test@example.com',
@@ -133,10 +166,10 @@ describe('authAPI', () => {
         user: mockUser,
       }
 
-      ;(fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      })
+        ; (fetch as jest.Mock).mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockResponse,
+        })
 
       const credentials = {
         email: 'test@example.com',
@@ -147,7 +180,7 @@ describe('authAPI', () => {
 
       // authAPI.saveUser is called internally, which uses localStorage
       expect(localStorageMock.setItem).toHaveBeenCalled()
-      // Verify it was called with user data (the exact format may vary)
+      // Verify it was called with user data
       const setItemCalls = localStorageMock.setItem.mock.calls
       const userCall = setItemCalls.find(call => call[0] === 'zantara_user')
       expect(userCall).toBeDefined()
@@ -220,7 +253,7 @@ describe('authAPI', () => {
     it('should clear user and redirect to home', () => {
       authAPI.logout()
 
-      expect(clientModule.apiClient.clearToken).toHaveBeenCalled()
+      expect(apiClient.clearToken).toHaveBeenCalled()
       expect(mockLocation.href).toBe('/')
     })
   })

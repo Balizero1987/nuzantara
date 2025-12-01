@@ -724,7 +724,7 @@ export default function ChatPage() {
                       aria-label="Send message"
                     >
                       <img
-                        src="/images/infinity_button.png"
+                        src="/images/string_good.png"
                         alt=""
                         className="w-12 h-12 object-contain"
                       />
