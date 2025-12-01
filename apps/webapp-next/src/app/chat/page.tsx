@@ -7,6 +7,8 @@ import { chatAPI } from "@/lib/api/chat"
 import { authAPI } from "@/lib/api/auth"
 import { apiClient } from "@/lib/api/client"
 import { RAGDrawer } from "@/components/chat/RAGDrawer"
+import { MarkdownRenderer } from "@/components/chat/MarkdownRenderer"
+import { ThinkingIndicator } from "@/components/chat/ThinkingIndicator"
 import type { ChatMessage, ChatMetadata } from "@/lib/api/types"
 
 export default function ChatPage() {
@@ -557,15 +559,15 @@ export default function ChatPage() {
                   <div className="flex flex-col gap-1 max-w-[75%]">
                     {msg.role === "user" ? (
                       <div className="bg-gray-500/20 backdrop-blur-sm px-3 py-1.5 rounded-2xl rounded-br-md shadow-lg border border-gray-400/30">
-                        <p className="text-white text-base leading-relaxed whitespace-pre-wrap font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif]">
-                          {msg.content}
-                        </p>
+                        <div className="text-white text-base leading-relaxed">
+                          <MarkdownRenderer content={msg.content} />
+                        </div>
                       </div>
                     ) : (
                       <div className="bg-gray-500/20 backdrop-blur-sm px-3 py-1.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
-                        <p className="text-white text-base leading-relaxed whitespace-pre-wrap font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif]">
-                          {msg.content}
-                        </p>
+                        <div className="text-white text-base leading-relaxed">
+                          <MarkdownRenderer content={msg.content} />
+                        </div>
                       </div>
                     )}
 
@@ -590,10 +592,9 @@ export default function ChatPage() {
 
               <div className="flex-1 max-w-[75%]">
                 <div className="bg-gray-500/20 backdrop-blur-sm px-3 py-1.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
-                  <p className="text-white text-base leading-relaxed whitespace-pre-wrap font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif]">
-                    {streamingContent}
-                    <span className="inline-block w-2 h-4 bg-[#d4af37] ml-1 animate-pulse" />
-                  </p>
+                  <div className="text-white text-base leading-relaxed">
+                    <MarkdownRenderer content={streamingContent + " ▍"} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -612,23 +613,7 @@ export default function ChatPage() {
 
               <div className="flex-1 max-w-[75%]">
                 <div className="bg-gray-500/20 backdrop-blur-sm px-3 py-1.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
-                  <div className="flex items-center gap-2">
-                    <div className="flex gap-1">
-                      <div
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: "0ms" }}
-                      />
-                      <div
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: "150ms" }}
-                      />
-                      <div
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: "300ms" }}
-                      />
-                    </div>
-                    <span className="text-sm text-gray-400 animate-pulse">Zantara sta pensando...</span>
-                  </div>
+                  <ThinkingIndicator />
                 </div>
               </div>
             </div>
@@ -677,42 +662,6 @@ export default function ChatPage() {
                         <span>Enter • Shift+Enter</span>
                       </div>
                     </div>
-
-                    {/* Generate Image Button - 120px */}
-                    <button
-                      type="button"
-                      onClick={() => setShowImageModal(true)}
-                      disabled={isGeneratingImage}
-                      className="flex-shrink-0 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40"
-                      aria-label="Generate image"
-                    >
-                      {isGeneratingImage ? (
-                        <img
-                          src="/images/imageb.svg"
-                          alt=""
-                          className="w-30 h-30 object-contain animate-spin opacity-60"
-                        />
-                      ) : (
-                        <img
-                          src="/images/imageb.svg"
-                          alt=""
-                          className="w-30 h-30 object-contain"
-                        />
-                      )}
-                    </button>
-
-                    {/* Attach File Button - 120px */}
-                    <button
-                      type="button"
-                      className="flex-shrink-0 transition-all duration-200 hover:scale-105 active:scale-95"
-                      aria-label="Attach file"
-                    >
-                      <img
-                        src="/images/file_botton.svg"
-                        alt=""
-                        className="w-30 h-30 object-contain"
-                      />
-                    </button>
 
                     {/* Send Button - 120px */}
                     <button
