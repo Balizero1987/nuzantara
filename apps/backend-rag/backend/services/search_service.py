@@ -170,6 +170,48 @@ class SearchService:
         logger.info("✅ Query routing enabled (Phase 3: Smart Fallback + Conflict Resolution)")
         logger.info("✅ Conflict Resolution Agent: ENABLED")
 
+    def _build_search_filter(
+        self, tier_filter: dict[str, Any] | None = None, exclude_repealed: bool = True
+    ) -> dict[str, Any] | None:
+        """
+        Build search filter with default exclusion of repealed laws.
+        
+        Args:
+            tier_filter: Optional tier filter dictionary (e.g., {"tier": {"$in": ["S", "A"]}})
+            exclude_repealed: Whether to exclude repealed laws (default: True)
+            
+        Returns:
+            Combined filter dictionary or None
+        """
+        filters = {}
+        
+        # Add tier filter if provided
+        if tier_filter:
+            filters.update(tier_filter)
+        
+        # Default: Exclude repealed laws (status_vigensi: "dicabut")
+        if exclude_repealed:
+            if "status_vigensi" in filters:
+                # If status_vigensi filter exists, ensure it doesn't include "dicabut"
+                existing_filter = filters["status_vigensi"]
+                if isinstance(existing_filter, dict) and "$in" in existing_filter:
+                    # Remove "dicabut" from allowed values
+                    allowed_values = [v for v in existing_filter["$in"] if v != "dicabut"]
+                    if allowed_values:
+                        filters["status_vigensi"] = {"$in": allowed_values}
+                    else:
+                        # All values were "dicabut", so exclude everything
+                        filters["status_vigensi"] = {"$ne": "dicabut"}
+                elif isinstance(existing_filter, str) and existing_filter == "dicabut":
+                    # If explicitly filtering for "dicabut", remove the filter (exclude it)
+                    filters.pop("status_vigensi")
+                # If it's a direct match for "berlaku" or other valid status, keep it
+            else:
+                # No existing status_vigensi filter, add exclusion
+                filters["status_vigensi"] = {"$ne": "dicabut"}
+        
+        return filters if filters else None
+
     @cached(ttl=300, prefix="rag_search")
     async def search(
         self,
@@ -233,15 +275,22 @@ class SearchService:
                 allowed_tiers = [t for t in allowed_tiers if t in tier_filter]
 
             # Build filter (only for zantara_books - bali_zero_agents has no tiers)
+            tier_filter_dict = None
             if collection_name == "zantara_books" and allowed_tiers:
                 tier_values = [t.value for t in allowed_tiers]
-                chroma_filter = {"tier": {"$in": tier_values}}
+                tier_filter_dict = {"tier": {"$in": tier_values}}
             else:
-                chroma_filter = None
                 tier_values = []
+
+            # Build combined filter with default exclusion of repealed laws
+            chroma_filter = self._build_search_filter(
+                tier_filter=tier_filter_dict, exclude_repealed=True
+            )
 
             # 🔍 DEBUG: Log final collection details
             logger.info(f"🔍 DEBUG - Final collection: {collection_name}")
+            if chroma_filter:
+                logger.debug(f"🔍 DEBUG - Filter applied: {chroma_filter}")
 
             # Search
             raw_results = vector_db.search(
@@ -537,11 +586,15 @@ class SearchService:
                     allowed_tiers = [t for t in allowed_tiers if t in tier_filter]
 
                 # Build filter (only for zantara_books)
+                tier_filter_dict = None
                 if collection_name == "zantara_books" and allowed_tiers:
                     tier_values = [t.value for t in allowed_tiers]
-                    chroma_filter = {"tier": {"$in": tier_values}}
-                else:
-                    chroma_filter = None
+                    tier_filter_dict = {"tier": {"$in": tier_values}}
+
+                # Build combined filter with default exclusion of repealed laws
+                chroma_filter = self._build_search_filter(
+                    tier_filter=tier_filter_dict, exclude_repealed=True
+                )
 
                 # Search this collection
                 raw_results = vector_db.search(

@@ -309,6 +309,18 @@ CONTEXT USAGE INSTRUCTIONS:
                 identity_context=identity_context,
             )
 
+        # DRY RUN LOGGING: Log full prompt assembly for debugging
+        logger.debug("=" * 80)
+        logger.debug("🔍 [DRY RUN] Full Prompt Assembly for chat_async")
+        logger.debug("=" * 80)
+        logger.debug(f"System Prompt ({len(system)} chars):\n{system}")
+        logger.debug(f"Messages ({len(messages)} messages):")
+        for i, msg in enumerate(messages):
+            role = msg.get("role", "unknown")
+            content_preview = msg.get("content", "")[:200] + ("..." if len(msg.get("content", "")) > 200 else "")
+            logger.debug(f"  [{i}] {role}: {content_preview}")
+        logger.debug("=" * 80)
+
         # Handle Mock Mode
         if self.mock_mode:
             answer = "This is a MOCK response from ZantaraAIClient (Mock Mode)."
@@ -436,6 +448,22 @@ CONTEXT USAGE INSTRUCTIONS:
             memory_context=memory_context,
             identity_context=identity_context,
         )
+
+        # DRY RUN LOGGING: Log full prompt assembly for debugging
+        logger.debug("=" * 80)
+        logger.debug("🔍 [DRY RUN] Full Prompt Assembly for stream")
+        logger.debug("=" * 80)
+        logger.debug(f"System Prompt ({len(system)} chars):\n{system}")
+        logger.debug(f"User Message: {message}")
+        if conversation_history:
+            logger.debug(f"Conversation History ({len(conversation_history)} messages):")
+            for i, msg in enumerate(conversation_history):
+                role = msg.get("role", "unknown")
+                content_preview = msg.get("content", "")[:200] + ("..." if len(msg.get("content", "")) > 200 else "")
+                logger.debug(f"  [{i}] {role}: {content_preview}")
+        else:
+            logger.debug("Conversation History: None")
+        logger.debug("=" * 80)
 
         # Enhanced streaming with retry mechanism
         if self.mock_mode:

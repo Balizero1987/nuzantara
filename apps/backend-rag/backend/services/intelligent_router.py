@@ -175,17 +175,21 @@ class IntelligentRouter:
                 identity_context = self.context_builder.build_identity_context(collaborator)
                 logger.info(f"🆔 [Router] Built identity context for {collaborator.name}")
 
-            # STEP 5: RAG retrieval
+            # STEP 5: Query Rewriting (transform raw query into standalone search query)
+            search_query = await self._rewrite_query_for_search(message, conversation_history)
+            logger.info(f"🔍 [Router] Query rewritten: '{message}' → '{search_query}'")
+
+            # STEP 6: RAG retrieval
             force_collection = "bali_zero_team" if category in ["identity", "team_query"] else None
             rag_result = await self.rag_manager.retrieve_context(
-                query=message,
+                query=search_query,  # Use rewritten query for better retrieval
                 query_type=query_type,
                 user_level=0,
                 limit=5,
                 force_collection=force_collection
             )
 
-            # STEP 6: Check for emotional override
+            # STEP 7: Check for emotional override
             if emotional_profile and hasattr(emotional_profile, "detected_state"):
                 emotional_result = await self._handle_emotional_override(
                     message, user_id, conversation_history, memory, emotional_profile, tools_to_use
@@ -193,16 +197,16 @@ class IntelligentRouter:
                 if emotional_result:
                     return emotional_result
 
-            # STEP 7: Build memory context
+            # STEP 8: Build memory context
             memory_context = self.context_builder.build_memory_context(memory)
 
-            # STEP 8: Build team context (for response personalization)
+            # STEP 9: Build team context (for response personalization)
             team_context = self.context_builder.build_team_context(collaborator)
 
-            # STEP 9: Get cultural context
+            # STEP 10: Get cultural context
             cultural_context = await self._get_cultural_context(message, conversation_history)
 
-            # STEP 10: Combine all contexts
+            # STEP 11: Combine all contexts
             include_zantara_identity = is_zantara_query
             combined_context = self.context_builder.combine_contexts(
                 memory_context=memory_context,
@@ -215,7 +219,7 @@ class IntelligentRouter:
 
             logger.info(f"   Category: {category} → AI: {suggested_ai}")
 
-            # STEP 11: Check for specialized service routing
+            # STEP 12: Check for specialized service routing
             if self.specialized_router.detect_autonomous_research(message, category):
                 result = await self.specialized_router.route_autonomous_research(message, user_level=3)
                 if result:
@@ -231,7 +235,7 @@ class IntelligentRouter:
                 if result:
                     return result
 
-            # STEP 12: Route to ZANTARA AI
+            # STEP 13: Route to ZANTARA AI
             logger.info("🎯 [Router] Using ZANTARA AI")
 
             if self.tool_executor and tools_to_use:
@@ -258,12 +262,12 @@ class IntelligentRouter:
                     max_tokens=8000,
                 )
 
-            # STEP 13: Sanitize response
+            # STEP 14: Sanitize response
             sanitized_response = self.response_handler.sanitize_response(
                 result["text"], query_type, apply_santai=True, add_contact=True
             )
 
-            # STEP 14: Jaksel Style Transfer (if applicable)
+            # STEP 15: Jaksel Style Transfer (if applicable)
             if user_id in self.jaksel_caller.jaksel_users:
                 logger.info(f"🦎 [Router] Applying Jaksel style for user {user_id}")
                 jaksel_result = await self.jaksel_caller.call_jaksel_direct(
@@ -391,17 +395,21 @@ class IntelligentRouter:
             # STEP 7: Build team context
             team_context = self.context_builder.build_team_context(collaborator)
 
-            # STEP 8: RAG retrieval
+            # STEP 8: Query Rewriting (transform raw query into standalone search query)
+            search_query = await self._rewrite_query_for_search(message, conversation_history)
+            logger.info(f"🔍 [Router Stream] Query rewritten: '{message}' → '{search_query}'")
+
+            # STEP 9: RAG retrieval
             force_collection = "bali_zero_team" if query_type in ["identity", "team_query"] else None
             rag_result = await self.rag_manager.retrieve_context(
-                query=message,
+                query=search_query,  # Use rewritten query for better retrieval
                 query_type=query_type,
                 user_level=0,
                 limit=5,
                 force_collection=force_collection
             )
 
-            # STEP 9: Combine contexts
+            # STEP 10: Combine contexts
             include_zantara_identity = is_zantara_query
             combined_context = self.context_builder.combine_contexts(
                 memory_context=memory_context,
@@ -412,7 +420,7 @@ class IntelligentRouter:
                 zantara_identity=include_zantara_identity,
             )
 
-            # STEP 10: Yield metadata first
+            # STEP 11: Yield metadata first (structured format)
             metadata = {
                 "memory_used": bool(memory and (memory.get("facts") if isinstance(memory, dict) else hasattr(memory, 'profile_facts'))),
                 "used_rag": rag_result.get("used_rag", False),
@@ -424,9 +432,10 @@ class IntelligentRouter:
                 "intent": category,
                 "identity_aware": bool(identity_context),
             }
-            yield f"[METADATA]{json.dumps(metadata)}[METADATA]"
+            # Yield structured metadata dictionary instead of string tag
+            yield {"type": "metadata", "data": metadata}
 
-            # STEP 11: Stream from ZANTARA AI
+            # STEP 12: Stream from ZANTARA AI
             logger.info("🎯 [Router Stream] Using ZANTARA AI with REAL token-by-token streaming")
 
             full_response_buffer = ""
@@ -442,7 +451,8 @@ class IntelligentRouter:
                 if user_id in self.jaksel_caller.jaksel_users:
                     full_response_buffer += chunk
                 else:
-                    yield chunk
+                    # Yield structured token dictionary
+                    yield {"type": "token", "data": chunk}
 
             # Jaksel style transfer if needed
             if user_id in self.jaksel_caller.jaksel_users and full_response_buffer:
@@ -465,8 +475,12 @@ class IntelligentRouter:
                     logger.info("✅ [Router Stream] Jaksel style applied")
 
                 for word in final_response.split(" "):
-                    yield word + " "
+                    # Yield structured token dictionary
+                    yield {"type": "token", "data": word + " "}
                     await asyncio.sleep(0.05)
+            
+            # Yield done signal
+            yield {"type": "done", "data": None}
 
             logger.info(f"✅ [Router Stream] Stream completed for user {user_id}")
 
@@ -531,6 +545,87 @@ class IntelligentRouter:
             "used_tools": result.get("used_tools", False),
             "tools_called": result.get("tools_called", []),
         }
+
+    async def _rewrite_query_for_search(
+        self, query: str, conversation_history: list[dict] | None
+    ) -> str:
+        """
+        Rewrite user query into a standalone search query using conversation history.
+        
+        This transforms ambiguous queries (e.g., "e per le tasse?") into 
+        explicit search queries (e.g., "Quali sono le aliquote fiscali per le aziende in Indonesia?")
+        that work better with vector search.
+        
+        Args:
+            query: Raw user query
+            conversation_history: Optional conversation history for context
+            
+        Returns:
+            Rewritten query optimized for semantic search
+        """
+        # Skip rewriting for simple queries or if no history
+        if not conversation_history or len(conversation_history) < 2:
+            return query
+        
+        # Skip rewriting for identity/team queries (they're already explicit)
+        if any(keyword in query.lower() for keyword in ["chi sono", "who am i", "who are you", "team"]):
+            return query
+        
+        # Use AI to rewrite query if available
+        if not self.ai or not self.ai.is_available():
+            return query
+        
+        try:
+            # Build context from recent conversation history
+            recent_context = ""
+            if conversation_history:
+                # Get last 3 exchanges for context
+                recent_messages = conversation_history[-6:] if len(conversation_history) > 6 else conversation_history
+                for msg in recent_messages:
+                    role = msg.get("role", "")
+                    content = msg.get("content", "")
+                    if role == "user":
+                        recent_context += f"User: {content}\n"
+                    elif role == "assistant":
+                        recent_context += f"Assistant: {content[:200]}...\n"
+            
+            # Create rewriting prompt
+            rewrite_prompt = f"""Rewrite the following user query into a standalone, explicit search query that would work well for semantic search in a legal/business knowledge base.
+
+Conversation context:
+{recent_context}
+
+Current user query: "{query}"
+
+Instructions:
+1. If the query is a follow-up (e.g., "e per le tasse?", "what about taxes?"), expand it using the conversation context
+2. Make it explicit and complete (include subject, object, and key terms)
+3. Keep it concise (1-2 sentences max)
+4. If the query is already explicit, return it as-is
+5. Return ONLY the rewritten query, no explanations
+
+Rewritten query:"""
+
+            # Use AI to rewrite (lightweight call, no full context needed)
+            rewrite_messages = [{"role": "user", "content": rewrite_prompt}]
+            rewrite_result = await self.ai.chat_async(
+                messages=rewrite_messages,
+                max_tokens=100,
+                temperature=0.3,  # Lower temperature for more consistent rewriting
+            )
+            
+            rewritten = rewrite_result.get("text", query).strip()
+            
+            # Validate rewritten query (should be reasonable length)
+            if len(rewritten) > 500:
+                logger.warning(f"Rewritten query too long ({len(rewritten)} chars), using original")
+                return query
+            
+            return rewritten
+            
+        except Exception as e:
+            logger.warning(f"Query rewriting failed: {e}, using original query")
+            return query
 
     async def _get_cultural_context(
         self, message: str, conversation_history: list[dict] | None
