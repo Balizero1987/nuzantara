@@ -81,7 +81,7 @@ describe('chatAPI', () => {
         { role: 'user', content: 'Previous message' },
       ]);
 
-      expect(fetch).toHaveBeenCalledWith('/api/chat/stream', {
+      expect(fetch).toHaveBeenCalledWith('/api/chat/stream', expect.objectContaining({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +92,8 @@ describe('chatAPI', () => {
           user_id: 'web_user',
           conversation_history: [{ role: 'user', content: 'Previous message' }],
         }),
-      });
+        signal: expect.any(AbortSignal),
+      }));
     });
 
     it('should handle streaming chunks correctly', async () => {
@@ -302,6 +303,7 @@ describe('chatAPI', () => {
             user_id: 'web_user',
             conversation_history: [],
           }),
+          signal: expect.any(AbortSignal),
         })
       );
     });

@@ -1,11 +1,40 @@
 import type { LoginRequest, LoginResponse, User } from './types';
 import { apiClient } from '@/lib/api/client';
 
+const AUTH_TIMEOUT = 30000; // 30 seconds for auth requests
+
+/**
+ * Fetch with timeout for auth operations
+ */
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit,
+  timeout: number = AUTH_TIMEOUT
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return response;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Authentication request timeout after ${timeout}ms`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export const authAPI = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     try {
-      // Call Next.js Proxy Route
-      const response = await fetch('/api/auth/login', {
+      // Call Next.js Proxy Route with timeout
+      const response = await fetchWithTimeout('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

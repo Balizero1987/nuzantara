@@ -2,6 +2,76 @@ import type { ChatMetadata } from './types';
 import { apiClient } from '@/lib/api/client';
 import { AUTH_TOKEN_KEY } from '@/lib/constants';
 
+// Timeout and retry configuration
+const DEFAULT_TIMEOUT = 30000; // 30 seconds
+const MAX_RETRIES = 3;
+const RETRY_DELAYS = [1000, 2000, 4000]; // exponential backoff
+
+/**
+ * Fetch with timeout using AbortController
+ */
+export async function fetchWithTimeout(
+  url: string,
+  options: RequestInit,
+  timeout: number = DEFAULT_TIMEOUT
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Fetch with retry logic and exponential backoff
+ */
+export async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  timeout: number = DEFAULT_TIMEOUT,
+  maxRetries: number = MAX_RETRIES
+): Promise<Response> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetchWithTimeout(url, options, timeout);
+
+      // Retry on 502, 503, 504
+      if ([502, 503, 504].includes(response.status) && attempt < maxRetries) {
+        console.warn(`[ChatAPI] Received ${response.status}, retry attempt ${attempt + 1}/${maxRetries}`);
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS[attempt] || 4000));
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      lastError = error as Error;
+
+      // Don't retry on abort (timeout)
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error(`Request timeout after ${timeout}ms`);
+      }
+
+      // Retry on network errors
+      if (attempt < maxRetries) {
+        console.warn(`[ChatAPI] Retry attempt ${attempt + 1}/${maxRetries} after error:`, error);
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS[attempt] || 4000));
+        continue;
+      }
+    }
+  }
+
+  throw lastError || new Error('Request failed after all retries');
+}
+
 export const chatAPI = {
   // Client-side chat API wrapper
   async streamChat(
@@ -57,18 +127,22 @@ export const chatAPI = {
     }
 
     try {
-      const response = await fetch('/api/chat/stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+      const response = await fetchWithRetry(
+        '/api/chat/stream',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            message: message,
+            user_id: 'web_user',
+            conversation_history: conversationHistory || [],
+          }),
         },
-        body: JSON.stringify({
-          message: message,
-          user_id: 'web_user',
-          conversation_history: conversationHistory || [],
-        }),
-      });
+        60000 // 60s timeout for streaming
+      );
 
       if (!response.ok) {
         if (response.status === 401) {
