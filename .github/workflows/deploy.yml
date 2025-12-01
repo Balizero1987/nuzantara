@@ -31,7 +31,7 @@ jobs:
       env:
         DATABASE_URL: postgresql://test:test@localhost/test
         JWT_SECRET_KEY: test-secret-key-for-ci
-        OPENAI_API_KEY: sk-test
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         QDRANT_URL: http://localhost:6333
       run: |
         cd apps/backend-rag
