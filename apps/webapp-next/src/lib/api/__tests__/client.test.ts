@@ -61,7 +61,7 @@ describe('API Client', () => {
       if (typeof tokenFn === 'function') {
         const token = await tokenFn()
         expect(token).toBe('stored-token-123')
-        expect(localStorageMock.getItem).toHaveBeenCalledWith('token')
+        expect(localStorageMock.getItem).toHaveBeenCalledWith('zantara_token')
       }
     })
 
@@ -143,7 +143,7 @@ describe('API Client', () => {
         const token = apiClient.getToken()
 
         expect(token).toBe('test-token')
-        expect(localStorageMock.getItem).toHaveBeenCalledWith('token')
+        expect(localStorageMock.getItem).toHaveBeenCalledWith('zantara_token')
       })
 
       it('should return empty string when no token', () => {
@@ -176,7 +176,7 @@ describe('API Client', () => {
       it('should save token to localStorage', () => {
         apiClient.setToken('new-token-123')
 
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('token', 'new-token-123')
+        expect(localStorageMock.setItem).toHaveBeenCalledWith('zantara_token', 'new-token-123')
       })
 
       it('should not save token when localStorage is not available (server-side)', () => {
@@ -212,7 +212,7 @@ describe('API Client', () => {
       it('should remove token from localStorage', () => {
         apiClient.clearToken()
 
-        expect(localStorageMock.removeItem).toHaveBeenCalledWith('token')
+        expect(localStorageMock.removeItem).toHaveBeenCalledWith('zantara_token')
       })
 
       it('should not remove token when localStorage is not available (server-side)', () => {
