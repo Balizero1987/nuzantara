@@ -53,6 +53,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 # --- App Dependencies & Config ---
 from app import dependencies
 from app.core.config import settings
+from app.core.service_health import ServiceRegistry, ServiceStatus, service_registry
 from app.modules.identity.router import router as identity_router
 from app.modules.knowledge.router import router as knowledge_router
 
@@ -433,202 +434,211 @@ async def _validate_auth_mixed(
 
 async def initialize_services() -> None:
     """
-    Initialize all ZANTARA RAG services.
+    Initialize all ZANTARA RAG services with fail-fast for critical services.
+
+    Critical services (SearchService, ZantaraAIClient) must initialize successfully.
+    If any critical service fails, the application will raise RuntimeError to
+    prevent starting in a broken state.
+
+    Non-critical services will log errors and continue with degraded functionality.
     """
     if getattr(app.state, "services_initialized", False):
         return
 
     logger.info("🚀 Initializing ZANTARA RAG services...")
 
+    # Store service registry in app state for health endpoints
+    app.state.service_registry = service_registry
+
+    # 1. Search / Qdrant (CRITICAL)
+    search_service = None
     try:
-        # 1. Search / Qdrant
-        try:
-            search_service = SearchService()
-            dependencies.search_service = search_service
-            app.state.search_service = search_service
-        except Exception as e:
-            logger.error(f"❌ Failed to initialize SearchService: {e}")
-            search_service = None
+        search_service = SearchService()
+        dependencies.search_service = search_service
+        app.state.search_service = search_service
+        service_registry.register("search", ServiceStatus.HEALTHY)
+        logger.info("✅ SearchService initialized")
+    except Exception as e:
+        error_msg = str(e)
+        service_registry.register("search", ServiceStatus.UNAVAILABLE, error=error_msg)
+        logger.error(f"❌ CRITICAL: Failed to initialize SearchService: {e}")
 
-        # 2. AI Client (Gemini Wrapper)
-        try:
-            ai_client = ZantaraAIClient()
-            app.state.ai_client = ai_client
-        except Exception as exc:
-            logger.error(f"❌ Failed to initialize ZantaraAIClient: {exc}")
-            ai_client = None
+    # 2. AI Client (CRITICAL)
+    ai_client = None
+    try:
+        ai_client = ZantaraAIClient()
+        app.state.ai_client = ai_client
+        service_registry.register("ai", ServiceStatus.HEALTHY)
+        logger.info("✅ ZantaraAIClient initialized")
+    except Exception as exc:
+        error_msg = str(exc)
+        service_registry.register("ai", ServiceStatus.UNAVAILABLE, error=error_msg)
+        logger.error(f"❌ CRITICAL: Failed to initialize ZantaraAIClient: {exc}")
 
-        # 3. Tool stack
-        ts_backend_url = settings.ts_backend_url
-        handler_proxy = HandlerProxyService(backend_url=ts_backend_url)
-        zantara_tools = ZantaraTools()
-        internal_api_key = settings.ts_internal_api_key
-        tool_executor = ToolExecutor(
-            handler_proxy=handler_proxy,
-            internal_key=internal_api_key,
-            zantara_tools=zantara_tools,
+    # Fail-fast if critical services are unavailable
+    if service_registry.has_critical_failures():
+        error_msg = service_registry.format_failures_message()
+        logger.critical(f"🔥 {error_msg}")
+        raise RuntimeError(error_msg)
+
+    # --- Non-critical services (fail gracefully) ---
+
+    # 3. Tool stack
+    ts_backend_url = settings.ts_backend_url
+    handler_proxy = HandlerProxyService(backend_url=ts_backend_url)
+    zantara_tools = ZantaraTools()
+    internal_api_key = settings.ts_internal_api_key
+    tool_executor = ToolExecutor(
+        handler_proxy=handler_proxy,
+        internal_key=internal_api_key,
+        zantara_tools=zantara_tools,
+    )
+    service_registry.register("tools", ServiceStatus.HEALTHY, critical=False)
+
+    # 4. RAG Components
+    cultural_rag_service = CulturalRAGService(search_service=search_service)
+    query_router = QueryRouter()
+    service_registry.register("rag", ServiceStatus.HEALTHY, critical=False)
+
+    # 5. Specialized Agents
+    autonomous_research_service = None
+    cross_oracle_synthesis_service = None
+    client_journey_orchestrator = None
+
+    # Since we fail-fast on critical services, ai_client and search_service are guaranteed
+    try:
+        autonomous_research_service = AutonomousResearchService(
+            search_service=search_service,
+            query_router=query_router,
+            zantara_ai_service=ai_client,
         )
+        logger.info("✅ AutonomousResearchService initialized")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize AutonomousResearchService: {e}")
 
-        # 5. RAG Components
-        cultural_rag_service = (
-            CulturalRAGService(search_service=search_service) if search_service else None
+    try:
+        cross_oracle_synthesis_service = CrossOracleSynthesisService(
+            search_service=search_service, zantara_ai_client=ai_client
         )
-        query_router = QueryRouter()
+        logger.info("✅ CrossOracleSynthesisService initialized")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize CrossOracleSynthesisService: {e}")
 
-        # 6. Specialized Agents
-        autonomous_research_service = None
-        cross_oracle_synthesis_service = None
-        client_journey_orchestrator = None
+    try:
+        client_journey_orchestrator = ClientJourneyOrchestrator()
+        logger.info("✅ ClientJourneyOrchestrator initialized")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize ClientJourneyOrchestrator: {e}")
 
-        if ai_client and search_service:
-            try:
-                autonomous_research_service = AutonomousResearchService(
-                    search_service=search_service,
-                    query_router=query_router,
-                    zantara_ai_service=ai_client,
-                )
-                logger.info("✅ AutonomousResearchService initialized")
-            except Exception as e:
-                logger.error(f"❌ Failed to initialize AutonomousResearchService: {e}")
+    # 6. Auto-CRM & Memory
+    try:
+        get_auto_crm_service(ai_client=ai_client)  # Initialize singleton
 
-            try:
-                cross_oracle_synthesis_service = CrossOracleSynthesisService(
-                    search_service=search_service, zantara_ai_client=ai_client
-                )
-                logger.info("✅ CrossOracleSynthesisService initialized")
-            except Exception as e:
-                logger.error(f"❌ Failed to initialize CrossOracleSynthesisService: {e}")
+        # Initialize Memory Service
+        memory_service = MemoryServicePostgres()
+        await memory_service.connect()  # Ensure connection
+        app.state.memory_service = memory_service
 
-            try:
-                client_journey_orchestrator = ClientJourneyOrchestrator()
-                logger.info("✅ ClientJourneyOrchestrator initialized")
-            except Exception as e:
-                logger.error(f"❌ Failed to initialize ClientJourneyOrchestrator: {e}")
+        # Initialize Collective Memory Workflow
+        collective_memory_workflow = create_collective_memory_workflow(
+            memory_service=memory_service
+        )
+        app.state.collective_memory_workflow = collective_memory_workflow
+        service_registry.register("memory", ServiceStatus.HEALTHY, critical=False)
+        logger.info("✅ CollectiveMemoryWorkflow initialized")
+    except Exception as e:
+        service_registry.register("memory", ServiceStatus.DEGRADED, error=str(e), critical=False)
+        logger.error(f"❌ Failed to initialize CRM/Memory services: {e}")
 
-        # 7. Auto-CRM & Memory
+    # 7. Team Timesheet Service & Database
+    if settings.database_url:
         try:
-            get_auto_crm_service(ai_client=ai_client)  # Initialize singleton
-
-            # Initialize Memory Service
-            memory_service = MemoryServicePostgres()
-            await memory_service.connect()  # Ensure connection
-            app.state.memory_service = memory_service
-
-            # Initialize Collective Memory Workflow
-            collective_memory_workflow = create_collective_memory_workflow(
-                memory_service=memory_service
+            # Create asyncpg pool for team timesheet service
+            db_pool = await asyncpg.create_pool(
+                dsn=settings.database_url, min_size=5, max_size=20, command_timeout=60
             )
-            app.state.collective_memory_workflow = collective_memory_workflow
-            logger.info("✅ CollectiveMemoryWorkflow initialized")
 
+            from services.team_timesheet_service import init_timesheet_service
+
+            ts_service = init_timesheet_service(db_pool)
+            app.state.ts_service = ts_service
+            app.state.db_pool = db_pool  # Store pool for other services
+
+            # Start background tasks
+            await ts_service.start_auto_logout_monitor()
+            service_registry.register("database", ServiceStatus.HEALTHY, critical=False)
+            logger.info("✅ Team Timesheet Service initialized with auto-logout monitor")
         except Exception as e:
-            logger.error(f"❌ Failed to initialize CRM/Memory services: {e}")
-
-        # 7. Team Timesheet Service
-        if settings.database_url:
-            try:
-                # Create asyncpg pool for team timesheet service
-                db_pool = await asyncpg.create_pool(
-                    dsn=settings.database_url, min_size=5, max_size=20, command_timeout=60
-                )
-
-                from services.team_timesheet_service import init_timesheet_service
-
-                ts_service = init_timesheet_service(db_pool)
-                app.state.ts_service = ts_service
-                app.state.db_pool = db_pool  # Store pool for other services
-
-                # Start background tasks
-                await ts_service.start_auto_logout_monitor()
-                logger.info("✅ Team Timesheet Service initialized with auto-logout monitor")
-            except Exception as e:
-                logger.error(f"❌ Failed to initialize Team Timesheet Service: {e}")
-                app.state.ts_service = None
-                app.state.db_pool = None
-        else:
-            logger.warning("⚠️ DATABASE_URL not configured - Team Timesheet Service unavailable")
+            service_registry.register("database", ServiceStatus.UNAVAILABLE, error=str(e), critical=False)
+            logger.error(f"❌ Failed to initialize Team Timesheet Service: {e}")
             app.state.ts_service = None
             app.state.db_pool = None
+    else:
+        service_registry.register("database", ServiceStatus.UNAVAILABLE, error="DATABASE_URL not configured", critical=False)
+        logger.warning("⚠️ DATABASE_URL not configured - Team Timesheet Service unavailable")
+        app.state.ts_service = None
+        app.state.db_pool = None
 
-        # Initialize CollaboratorService for user identity lookup
-        try:
-            collaborator_service = CollaboratorService()
-            app.state.collaborator_service = collaborator_service
-            logger.info("✅ CollaboratorService initialized")
-        except Exception as e:
-            logger.warning(f"⚠️ CollaboratorService initialization failed: {e}")
-            collaborator_service = None
-            app.state.collaborator_service = None
-
-        # Initialize IntelligentRouter with fallback to mock mode
-        try:
-            if ai_client and search_service:
-                # Full initialization with all services
-                intelligent_router = IntelligentRouter(
-                    ai_client=ai_client,
-                    search_service=search_service,
-                    tool_executor=tool_executor,
-                    cultural_rag_service=cultural_rag_service,
-                    autonomous_research_service=autonomous_research_service,
-                    cross_oracle_synthesis_service=cross_oracle_synthesis_service,
-                    client_journey_orchestrator=client_journey_orchestrator,
-                    personality_service=PersonalityService(),
-                    collaborator_service=collaborator_service,
-                )
-                logger.info("✅ IntelligentRouter initialized with full services")
-            else:
-                # Fallback to minimal mock mode
-                logger.warning(
-                    "⚠️ Some dependencies missing, initializing IntelligentRouter in minimal mode"
-                )
-                intelligent_router = IntelligentRouter(
-                    ai_client=ai_client or ZantaraAIClient(),  # Create mock client if None
-                    search_service=None,
-                    tool_executor=None,
-                    cultural_rag_service=None,
-                    autonomous_research_service=None,
-                    cross_oracle_synthesis_service=None,
-                    client_journey_orchestrator=None,
-                    personality_service=None,
-                    collaborator_service=None,
-                )
-                logger.info("✅ IntelligentRouter initialized in minimal mode")
-
-            dependencies.bali_zero_router = intelligent_router
-            app.state.intelligent_router = intelligent_router
-
-        except Exception as e:
-            logger.error(f"❌ Failed to initialize IntelligentRouter: {e}")
-            app.state.intelligent_router = None
-
-        # State persistence
-        app.state.handler_proxy = handler_proxy
-        app.state.tool_executor = tool_executor
-        app.state.zantara_tools = zantara_tools
-        app.state.query_router = query_router
-        app.state.ts_backend_url = ts_backend_url
-
-        # 8. Plugin System (Legacy disabled - see core/plugins/ for modern system)
-        # Note: AnalyticsPlugin and MonitoringPlugin were empty placeholders.
-        # Real monitoring is handled by HealthMonitor service.
-        logger.info("🔌 Plugin System: Legacy plugins disabled (using HealthMonitor instead)")
-
-        # 9. Health Monitor (Self-Healing Monitoring)
-        try:
-            logger.info("🏥 Initializing Health Monitor (Self-Healing System)...")
-            health_monitor = HealthMonitor(alert_service=alert_service, check_interval=60)
-            await health_monitor.start()
-
-            app.state.health_monitor = health_monitor
-            logger.info("✅ Health Monitor: Active (check_interval=60s)")
-        except Exception as e:
-            logger.error(f"❌ Failed to initialize Health Monitor: {e}")
-
-        app.state.services_initialized = True
-        logger.info("✅ ZANTARA Services Initialization Complete.")
-
+    # Initialize CollaboratorService for user identity lookup
+    collaborator_service = None
+    try:
+        collaborator_service = CollaboratorService()
+        app.state.collaborator_service = collaborator_service
+        logger.info("✅ CollaboratorService initialized")
     except Exception as e:
-        logger.exception("🔥 CRITICAL: Unexpected error during service initialization: %s", e)
+        logger.warning(f"⚠️ CollaboratorService initialization failed: {e}")
+        app.state.collaborator_service = None
+
+    # Initialize IntelligentRouter (critical services are guaranteed available)
+    try:
+        intelligent_router = IntelligentRouter(
+            ai_client=ai_client,
+            search_service=search_service,
+            tool_executor=tool_executor,
+            cultural_rag_service=cultural_rag_service,
+            autonomous_research_service=autonomous_research_service,
+            cross_oracle_synthesis_service=cross_oracle_synthesis_service,
+            client_journey_orchestrator=client_journey_orchestrator,
+            personality_service=PersonalityService(),
+            collaborator_service=collaborator_service,
+        )
+        dependencies.bali_zero_router = intelligent_router
+        app.state.intelligent_router = intelligent_router
+        service_registry.register("router", ServiceStatus.HEALTHY, critical=False)
+        logger.info("✅ IntelligentRouter initialized with full services")
+    except Exception as e:
+        service_registry.register("router", ServiceStatus.UNAVAILABLE, error=str(e), critical=False)
+        logger.error(f"❌ Failed to initialize IntelligentRouter: {e}")
+        app.state.intelligent_router = None
+
+    # State persistence
+    app.state.handler_proxy = handler_proxy
+    app.state.tool_executor = tool_executor
+    app.state.zantara_tools = zantara_tools
+    app.state.query_router = query_router
+    app.state.ts_backend_url = ts_backend_url
+
+    # 8. Plugin System (Legacy disabled - see core/plugins/ for modern system)
+    # Note: AnalyticsPlugin and MonitoringPlugin were empty placeholders.
+    # Real monitoring is handled by HealthMonitor service.
+    logger.info("🔌 Plugin System: Legacy plugins disabled (using HealthMonitor instead)")
+
+    # 9. Health Monitor (Self-Healing Monitoring)
+    try:
+        logger.info("🏥 Initializing Health Monitor (Self-Healing System)...")
+        health_monitor = HealthMonitor(alert_service=alert_service, check_interval=60)
+        await health_monitor.start()
+
+        app.state.health_monitor = health_monitor
+        service_registry.register("health_monitor", ServiceStatus.HEALTHY, critical=False)
+        logger.info("✅ Health Monitor: Active (check_interval=60s)")
+    except Exception as e:
+        service_registry.register("health_monitor", ServiceStatus.DEGRADED, error=str(e), critical=False)
+        logger.error(f"❌ Failed to initialize Health Monitor: {e}")
+
+    app.state.services_initialized = True
+    logger.info("✅ ZANTARA Services Initialization Complete.")
+    logger.info(f"📊 Service Status: {service_registry.get_status()['overall']}")
 
 
 @app.on_event("startup")
