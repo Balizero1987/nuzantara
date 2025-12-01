@@ -545,7 +545,13 @@ export default function ChatPage() {
                   )}
 
                   {msg.role === "assistant" && (
-                    <div className="w-14 h-14 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-400 via-violet-500 to-purple-600 shadow-[0_0_20px_rgba(139,92,246,0.6),inset_0_2px_10px_rgba(255,255,255,0.3)] animate-pulse-subtle" />
+                    <div className="w-14 h-14 rounded-full flex-shrink-0 overflow-hidden">
+                      <img
+                        src="/images/zantara_avatar.png"
+                        alt="Zantara AI"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   )}
 
                   <div className="flex flex-col gap-1 max-w-[75%]">
@@ -574,7 +580,13 @@ export default function ChatPage() {
 
           {streamingContent && (
             <div className="flex items-start gap-3 justify-start animate-message-fade-in">
-              <div className="w-14 h-14 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-400 via-violet-500 to-purple-600 shadow-[0_0_20px_rgba(139,92,246,0.6),inset_0_2px_10px_rgba(255,255,255,0.3)] animate-pulse" />
+              <div className="w-14 h-14 rounded-full flex-shrink-0 overflow-hidden">
+                <img
+                  src="/images/zantara_avatar.png"
+                  alt="Zantara AI"
+                  className="w-full h-full object-cover"
+                />
+              </div>
 
               <div className="flex-1 max-w-[75%]">
                 <div className="bg-gray-500/20 backdrop-blur-sm px-3 py-1.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
@@ -589,8 +601,14 @@ export default function ChatPage() {
 
           {isLoading && !streamingContent && (
             <div className="flex items-start gap-3 justify-start">
-              {/* Loading indicator avatar also uses gemstone gradient */}
-              <div className="w-14 h-14 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-400 via-violet-500 to-purple-600 shadow-[0_0_20px_rgba(139,92,246,0.6),inset_0_2px_10px_rgba(255,255,255,0.3)] animate-pulse" />
+              {/* Zantara avatar durante il loading */}
+              <div className="w-14 h-14 rounded-full flex-shrink-0 overflow-hidden">
+                <img
+                  src="/images/zantara_avatar.png"
+                  alt="Zantara AI"
+                  className="w-full h-full object-cover"
+                />
+              </div>
 
               <div className="flex-1 max-w-[75%]">
                 <div className="bg-gray-500/20 backdrop-blur-sm px-3 py-1.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
@@ -643,15 +661,6 @@ export default function ChatPage() {
               <div className="relative group">
                 <div className="relative rounded-3xl p-[1px]">
                   <div className="relative flex items-end gap-2 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-3 border border-gray-500/20">
-                    {/* Zantara Avatar */}
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden">
-                      <img
-                        src="/images/zantara_avatar.png"
-                        alt="Zantara AI"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
                     <div className="relative flex-1">
                       <textarea
                         ref={textareaRef}
