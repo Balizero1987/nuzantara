@@ -138,7 +138,7 @@ async def test_search_success(qdrant_client, mock_requests):
 
 @pytest.mark.asyncio
 async def test_search_with_filter(qdrant_client, mock_requests):
-    """Test search with filter (filter not implemented but should log warning)"""
+    """Test search with filter (filter is now implemented)"""
     query_embedding = [0.1, 0.2, 0.3]
     filter_dict = {"tier": {"$in": ["S", "A"]}}
     mock_response = MagicMock()
@@ -146,10 +146,16 @@ async def test_search_with_filter(qdrant_client, mock_requests):
     mock_response.json.return_value = {"result": []}
     mock_requests.post.return_value = mock_response
 
-    with patch("core.qdrant_db.logger") as mock_logger:
-        qdrant_client.search(query_embedding, filter=filter_dict, limit=5)
-        mock_logger.warning.assert_called_once()
-        assert "Filters not yet implemented" in str(mock_logger.warning.call_args)
+    result = qdrant_client.search(query_embedding, filter=filter_dict, limit=5)
+    
+    # Verify filter was converted and included in payload
+    call_args = mock_requests.post.call_args
+    assert call_args is not None
+    payload = call_args.kwargs.get("json", {})
+    assert "filter" in payload
+    assert payload["filter"] is not None
+    # Verify filter structure (must conditions for $in)
+    assert "must" in payload["filter"]
 
 
 @pytest.mark.asyncio
