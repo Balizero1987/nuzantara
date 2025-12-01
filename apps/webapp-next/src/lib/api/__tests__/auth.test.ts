@@ -106,16 +106,20 @@ describe('authAPI', () => {
 
       const result = await authAPI.login(credentials);
 
-      expect(fetch).toHaveBeenCalledWith('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: credentials.email,
-          pin: credentials.pin,
-        }),
-      });
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/auth/login',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: credentials.email,
+            pin: credentials.pin,
+          }),
+          signal: expect.any(AbortSignal),
+        })
+      );
 
       expect(result.token).toBe(mockResponse.token);
       expect(result.user.email).toBe(mockUser.email);

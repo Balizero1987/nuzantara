@@ -46,8 +46,8 @@ describe('chatAPI', () => {
   beforeAll(() => {
     // Spy on apiClient methods
     jest.spyOn(apiClient, 'getToken').mockImplementation(() => 'test-token-123');
-    jest.spyOn(apiClient, 'setToken').mockImplementation(() => { });
-    jest.spyOn(apiClient, 'clearToken').mockImplementation(() => { });
+    jest.spyOn(apiClient, 'setToken').mockImplementation(() => {});
+    jest.spyOn(apiClient, 'clearToken').mockImplementation(() => {});
   });
 
   afterAll(() => {
@@ -81,19 +81,22 @@ describe('chatAPI', () => {
         { role: 'user', content: 'Previous message' },
       ]);
 
-      expect(fetch).toHaveBeenCalledWith('/api/chat/stream', expect.objectContaining({
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer test-token-123',
-        },
-        body: JSON.stringify({
-          message: 'Hello',
-          user_id: 'web_user',
-          conversation_history: [{ role: 'user', content: 'Previous message' }],
-        }),
-        signal: expect.any(AbortSignal),
-      }));
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/chat/stream',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer test-token-123',
+          },
+          body: JSON.stringify({
+            message: 'Hello',
+            user_id: 'web_user',
+            conversation_history: [{ role: 'user', content: 'Previous message' }],
+          }),
+          signal: expect.any(AbortSignal),
+        })
+      );
     });
 
     it('should handle streaming chunks correctly', async () => {
@@ -269,7 +272,8 @@ describe('chatAPI', () => {
     });
 
     it('should handle network errors', async () => {
-      (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+      // Mock fetch to reject for all retry attempts (initial + 3 retries = 4 calls)
+      (fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
 
       const onChunk = jest.fn();
       const onMetadata = jest.fn();
@@ -279,7 +283,7 @@ describe('chatAPI', () => {
       await chatAPI.streamChat('Hello', onChunk, onMetadata, onComplete, onError);
 
       expect(onError).toHaveBeenCalledWith(expect.any(Error));
-    });
+    }, 30000); // Increase timeout for retry delays
 
     it('should use empty conversation history when not provided', async () => {
       const mockStream = createMockReadableStream(['chunk']);
