@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 # Path to rich system prompt file
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
-SYSTEM_PROMPT_FILE = PROMPTS_DIR / "zantara_v7_global_production.md"
+SYSTEM_PROMPT_FILE = PROMPTS_DIR / "zantara_v8_identity_aware.md"
 FALLBACK_PROMPT_FILE = PROMPTS_DIR / "system.md"
 
 

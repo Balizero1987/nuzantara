@@ -1,6 +1,6 @@
-import { apiClient } from "@/src/lib/api/client";
+import { apiClient } from "@/lib/api/client";
 
-type EventHandler = (data: any) => void;
+type EventHandler = (data: unknown) => void;
 
 class WebSocketClient {
     private socket: WebSocket | null = null;
@@ -80,7 +80,7 @@ class WebSocketClient {
         this.eventHandlers.set(event, handlers.filter(h => h !== handler));
     }
 
-    private handleMessage(message: { type: string; data: any }) {
+    private handleMessage(message: { type: string; data: unknown }) {
         const handlers = this.eventHandlers.get(message.type);
         if (handlers) {
             handlers.forEach(handler => handler(message.data));

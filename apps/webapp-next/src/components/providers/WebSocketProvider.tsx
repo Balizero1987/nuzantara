@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { socketClient } from "@/src/lib/api/socket";
-import { authAPI } from "@/src/lib/api/auth";
+import { authAPI } from "@/lib/api/auth";
+import { socketClient } from "@/lib/api/socket";
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {

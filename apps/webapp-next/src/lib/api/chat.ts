@@ -1,5 +1,6 @@
 import type { ChatMetadata } from './types';
 import { apiClient } from '@/lib/api/client';
+import { AUTH_TOKEN_KEY } from '@/lib/constants';
 
 export const chatAPI = {
   // Client-side chat API wrapper
@@ -16,28 +17,7 @@ export const chatAPI = {
 
     // Fallback: try localStorage directly (only in browser)
     if (!token && typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
-      const storage = globalThis.localStorage;
-      // Try all possible token keys (zantara_session_token first - matches main client)
-      token =
-        storage.getItem('zantara_session_token') ||
-        storage.getItem('token') ||
-        storage.getItem('zantara_token') ||
-        '';
-
-      // Also try to find token in any key that contains "token"
-      if (!token) {
-        const allKeys = Object.keys(storage);
-        const tokenKeys = allKeys.filter((k) => k.toLowerCase().includes('token'));
-        for (const key of tokenKeys) {
-          const value = storage.getItem(key);
-          if (value && value.length > 20) {
-            // JWT tokens are usually long
-            token = value;
-            console.log(`[ChatClient] Found token in key: ${key}`);
-            break;
-          }
-        }
-      }
+      token = globalThis.localStorage.getItem(AUTH_TOKEN_KEY) || '';
     }
 
     console.log(
@@ -150,8 +130,12 @@ export const chatAPI = {
           buffer = '';
         }
       }
-    } catch (error) {
-      onError(error as Error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        onError(error);
+      } else {
+        onError(new Error(String(error)));
+      }
     }
   },
 };
