@@ -671,7 +671,7 @@ export default function ChatPage() {
                       aria-label="Send message"
                     >
                       <img
-                        src="/images/sendb.svg"
+                        src="/images/sendb.pdf.svg"
                         alt=""
                         className="w-30 h-30 object-contain"
                       />
