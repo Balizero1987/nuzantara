@@ -660,7 +660,7 @@ export default function ChatPage() {
             <form onSubmit={handleSubmit}>
               <div className="relative group">
                 <div className="relative rounded-3xl p-[1px]">
-                  <div className="relative flex items-end gap-4 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-6 border border-gray-500/20">
+                  <div className="relative flex items-end gap-5 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-8 border border-gray-500/20">
                     <div className="relative flex-1">
                       <textarea
                         ref={textareaRef}
@@ -671,14 +671,14 @@ export default function ChatPage() {
                         className="w-full bg-transparent border-none outline-none resize-none text-white placeholder-gray-500 text-base leading-relaxed font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif]"
                         rows={1}
                         disabled={isLoading}
-                        style={{ minHeight: "32px", maxHeight: "120px" }}
+                        style={{ minHeight: "40px", maxHeight: "120px" }}
                       />
-                      <div className="absolute bottom-1 right-1 text-[10px] text-gray-500/60 pointer-events-none select-none">
+                      <div className="absolute bottom-2 right-2 text-[11px] text-gray-500/60 pointer-events-none select-none">
                         <span>Enter • Shift+Enter</span>
                       </div>
                     </div>
 
-                    {/* Generate Image Button - 80px */}
+                    {/* Generate Image Button - 120px */}
                     <button
                       type="button"
                       onClick={() => setShowImageModal(true)}
@@ -690,18 +690,18 @@ export default function ChatPage() {
                         <img
                           src="/images/imageb.svg"
                           alt=""
-                          className="w-20 h-20 object-contain animate-spin opacity-60"
+                          className="w-30 h-30 object-contain animate-spin opacity-60"
                         />
                       ) : (
                         <img
                           src="/images/imageb.svg"
                           alt=""
-                          className="w-20 h-20 object-contain"
+                          className="w-30 h-30 object-contain"
                         />
                       )}
                     </button>
 
-                    {/* Attach File Button - 80px */}
+                    {/* Attach File Button - 120px */}
                     <button
                       type="button"
                       className="flex-shrink-0 transition-all duration-200 hover:scale-105 active:scale-95"
@@ -710,11 +710,11 @@ export default function ChatPage() {
                       <img
                         src="/images/file_botton.svg"
                         alt=""
-                        className="w-20 h-20 object-contain"
+                        className="w-30 h-30 object-contain"
                       />
                     </button>
 
-                    {/* Send Button - 80px */}
+                    {/* Send Button - 120px */}
                     <button
                       type="submit"
                       disabled={isLoading || !input.trim()}
@@ -724,7 +724,7 @@ export default function ChatPage() {
                       <img
                         src="/images/sendb_string.svg"
                         alt=""
-                        className="w-20 h-20 object-contain"
+                        className="w-30 h-30 object-contain"
                       />
                     </button>
                   </div>
