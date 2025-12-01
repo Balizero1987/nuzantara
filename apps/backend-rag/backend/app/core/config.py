@@ -176,7 +176,9 @@ class Settings(BaseSettings):
     # ========================================
     # META WHATSAPP CONFIGURATION
     # ========================================
-    whatsapp_verify_token: str = "zantara-balizero-2025-secure-token"  # Matches Node.js
+    whatsapp_verify_token: str = Field(
+        ..., description="WhatsApp webhook verify token - REQUIRED, set via WHATSAPP_VERIFY_TOKEN"
+    )
     whatsapp_access_token: str | None = None  # Set via WHATSAPP_ACCESS_TOKEN env var
     whatsapp_phone_number_id: str | None = None  # Set via WHATSAPP_PHONE_NUMBER_ID env var
     whatsapp_business_account_id: str | None = None  # Set via WHATSAPP_BUSINESS_ACCOUNT_ID env var
@@ -184,7 +186,9 @@ class Settings(BaseSettings):
     # ========================================
     # META INSTAGRAM CONFIGURATION
     # ========================================
-    instagram_verify_token: str = "zantara-balizero-2025-secure-token"  # Matches Node.js
+    instagram_verify_token: str = Field(
+        ..., description="Instagram webhook verify token - REQUIRED, set via INSTAGRAM_VERIFY_TOKEN"
+    )
     instagram_access_token: str | None = None  # Set via INSTAGRAM_ACCESS_TOKEN env var
     instagram_account_id: str | None = None  # Set via INSTAGRAM_ACCOUNT_ID env var
 

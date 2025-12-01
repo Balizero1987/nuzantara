@@ -63,16 +63,16 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         """
         Fail-Closed request dispatch through authentication middleware
-        
+
         Authentication Priority:
         1. Public endpoints (health, docs, metrics) - no authentication
         2. API Key (X-API-Key header) - fastest, bypasses database
         3. JWT Token (Authorization header) - standard JWT flow
-        
+
         SECURITY: Any authentication error = deny access (fail-closed)
         """
-        print(f"DEBUG: Middleware dispatching: {request.url.path}")
-        print(f"DEBUG: Headers: {request.headers}")
+        # Removed sensitive debug logging - headers contain auth tokens
+        logger.debug(f"Middleware dispatching: {request.url.path}")
         try:
             # Step 1: Check if this is a public endpoint
             if self.is_public_endpoint(request):
@@ -91,6 +91,7 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
                         f"Authentication failed for: {request.url.path} from {request.client.host}"
                     )
                     from fastapi.responses import JSONResponse
+
                     return JSONResponse(
                         status_code=status.HTTP_401_UNAUTHORIZED,
                         content={"detail": "Authentication required"},
@@ -98,14 +99,10 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
                     )
 
                 # Inject authenticated user context into request state
-                if auth_result:
-                    request.state.user = auth_result
-                    request.state.auth_type = getattr(auth_result, "auth_method", "unknown")
-                else:
-                    request.state.user = {"id": "debug", "email": "debug@debug.com"}
-                    request.state.auth_type = "debug"
+                request.state.user = auth_result
+                request.state.auth_type = getattr(auth_result, "auth_method", "unknown")
 
-                user_email = auth_result.get('email', 'unknown') if auth_result else "debug_user"
+                user_email = auth_result.get("email", "unknown")
                 logger.debug(
                     f"Request authenticated: {request.url.path} - "
                     f"User: {user_email} via {request.state.auth_type}"
@@ -123,10 +120,9 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
         except HTTPException as exc:
             # Return JSONResponse for HTTP exceptions to avoid 500 error in BaseHTTPMiddleware
             from fastapi.responses import JSONResponse
+
             return JSONResponse(
-                status_code=exc.status_code,
-                content={"detail": exc.detail},
-                headers=exc.headers
+                status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers
             )
         except Exception as e:
             # FAIL-CLOSED: Any system error = deny access for security
@@ -137,20 +133,21 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
                 f"Request: {request.url.path} from {client_host}"
             )
             from fastapi.responses import JSONResponse
+
             return JSONResponse(
                 status_code=HTTP_503_SERVICE_UNAVAILABLE,
-                content={"detail": "Authentication service temporarily unavailable"}
+                content={"detail": "Authentication service temporarily unavailable"},
             )
 
     async def authenticate_request(self, request: Request) -> dict[str, Any] | None:
         """
         Fail-Closed hybrid authentication
-        
+
         Returns user context if authenticated, None if authentication fails
         SECURITY: None result = access denied (handled by dispatch)
         """
         client_host = request.client.host if request.client else "unknown"
-        
+
         # Priority 1: API Key Authentication (fastest, bypasses database)
         api_key = request.headers.get("X-API-Key")
         if api_key:
@@ -168,7 +165,7 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
 
         # Priority 2: JWT Authentication (fallback to existing system)
         auth_header = request.headers.get("Authorization")
-        
+
         if auth_header and auth_header.startswith("Bearer "):
             if not self.api_auth_bypass_db:
                 logger.debug(f"JWT authentication attempt from {client_host}")
@@ -195,8 +192,8 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
         Stateless JWT authentication
         """
         try:
-            from jose import jwt, JWTError
-            
+            from jose import JWTError, jwt
+
             # Extract JWT token from Authorization header
             auth_header = request.headers.get("Authorization")
             if not auth_header or not auth_header.startswith("Bearer "):
@@ -206,16 +203,14 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
 
             # Stateless validation using secret key
             payload = jwt.decode(
-                jwt_token, 
-                settings.jwt_secret_key, 
-                algorithms=[settings.jwt_algorithm]
+                jwt_token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
             )
-            
+
             # Validate required fields
             if not payload.get("sub") or not payload.get("email"):
                 logger.warning("JWT missing required claims")
                 return None
-                
+
             # Construct user context from token
             return {
                 "id": payload.get("sub"),
@@ -223,7 +218,7 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
                 "role": payload.get("role", "member"),
                 "auth_method": "jwt_stateless",
                 "name": payload.get("name", payload.get("email").split("@")[0]),
-                "status": "active"
+                "status": "active",
             }
 
         except JWTError as e:

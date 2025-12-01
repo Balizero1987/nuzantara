@@ -128,7 +128,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     # Get user from database
     conn = await get_db_connection()
     try:
-        logger.info(f"🔍 Validating user: {user_id} / {email}")
+        logger.debug(f"Validating user: {user_id}")
         query = """
             SELECT id::text, email, full_name as name, role, 'active' as status, NULL::jsonb as metadata, language as language_preference
             FROM team_members
@@ -137,10 +137,10 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         row = await conn.fetchrow(query, user_id, email)
 
         if not row:
-            logger.error(f"❌ User not found in DB: {user_id} / {email}")
+            logger.warning(f"User validation failed: {user_id}")
             raise credentials_exception
-            
-        logger.info(f"✅ User validated: {row['email']}")
+
+        logger.debug(f"User validated: {user_id}")
         return dict(row)
     finally:
         await conn.close()
@@ -155,10 +155,11 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 async def login(request: LoginRequest, req: Request = None):
     """
     User login with email and PIN
-    
+
     Returns JWT token and user profile on successful authentication
     """
     from services.audit_service import get_audit_service
+
     audit_service = get_audit_service()
     if not audit_service.pool:
         await audit_service.connect()
@@ -183,20 +184,20 @@ async def login(request: LoginRequest, req: Request = None):
                 success=False,
                 ip_address=client_ip,
                 user_agent=user_agent,
-                failure_reason="User not found"
+                failure_reason="User not found",
             )
             raise HTTPException(status_code=401, detail="Invalid email or PIN")
 
-        if not user['active']:
-             await audit_service.log_auth_event(
+        if not user["active"]:
+            await audit_service.log_auth_event(
                 email=request.email,
                 action="failed_login",
                 success=False,
                 ip_address=client_ip,
                 user_agent=user_agent,
-                failure_reason="Account inactive"
+                failure_reason="Account inactive",
             )
-             raise HTTPException(status_code=401, detail="Account inactive")
+            raise HTTPException(status_code=401, detail="Account inactive")
 
         # Verify PIN
         if not verify_password(request.credentials, user["password_hash"]):
@@ -206,14 +207,14 @@ async def login(request: LoginRequest, req: Request = None):
                 success=False,
                 ip_address=client_ip,
                 user_agent=user_agent,
-                failure_reason="Invalid PIN"
+                failure_reason="Invalid PIN",
             )
             raise HTTPException(status_code=401, detail="Invalid email or PIN")
 
         # Update last login
         await conn.execute(
             "UPDATE team_members SET last_login = NOW(), failed_attempts = 0 WHERE id = $1",
-            user['id']
+            user["id"],
         )
 
         # Create JWT token
@@ -241,7 +242,7 @@ async def login(request: LoginRequest, req: Request = None):
             success=True,
             ip_address=client_ip,
             user_agent=user_agent,
-            user_id=str(user["id"])
+            user_id=str(user["id"]),
         )
 
         return LoginResponse(
@@ -264,7 +265,7 @@ async def login(request: LoginRequest, req: Request = None):
             success=False,
             ip_address=client_ip,
             user_agent=user_agent,
-            failure_reason=f"System error: {str(e)}"
+            failure_reason=f"System error: {str(e)}",
         )
         raise HTTPException(status_code=500, detail="Authentication service unavailable")
     finally:

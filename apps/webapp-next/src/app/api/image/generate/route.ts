@@ -19,6 +19,10 @@ export async function POST(request: Request) {
 
     console.log('[ImageAPI] Production request');
 
+    // Add timeout to prevent hanging requests (image generation can be slow)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout for image generation
+
     const response = await fetch(`${API_URL}/api/v1/image/generate`, {
       method: 'POST',
       headers: {
@@ -27,7 +31,10 @@ export async function POST(request: Request) {
         Authorization: authHeader || '',
       },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     const data = (await response.json()) as {
       detail?: string;
