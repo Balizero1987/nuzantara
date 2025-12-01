@@ -27,6 +27,7 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const avatarInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [isGeneratingImage, setIsGeneratingImage] = useState(false)
   const [showImageModal, setShowImageModal] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
@@ -642,6 +643,15 @@ export default function ChatPage() {
               </div>
             )}
 
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+
             <form onSubmit={handleSubmit}>
               <div className="relative group">
                 <div className="relative rounded-3xl p-[1px]">
@@ -675,6 +685,21 @@ export default function ChatPage() {
                       />
                     </button>
 
+                    {/* File Button - 60px */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isLoading}
+                      className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+                      aria-label="Upload file"
+                    >
+                      <img
+                        src="/images/fileb.svg"
+                        alt=""
+                        className="w-[60px] h-[60px] object-contain brightness-[1.6]"
+                      />
+                    </button>
+
                     {/* Send Button - 60px */}
                     <button
                       type="submit"
@@ -685,7 +710,7 @@ export default function ChatPage() {
                       <img
                         src="/images/sendb.pdf.svg"
                         alt=""
-                        className="w-[60px] h-[60px] object-contain brightness-[1.6]"
+                        className="w-[60px] h-[60px] object-contain brightness-[2.0]"
                       />
                     </button>
                   </div>
