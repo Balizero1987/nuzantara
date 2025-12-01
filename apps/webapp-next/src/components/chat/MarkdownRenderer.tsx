@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 interface MarkdownRendererProps {
     content: string;
+}
+
+interface ComponentProps {
+    children?: ReactNode;
+}
+
+interface LinkProps extends ComponentProps {
+    href?: string;
 }
 
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
@@ -12,14 +20,14 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                    p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
-                    ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
-                    ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
-                    li: ({ children }) => <li className="mb-1">{children}</li>,
-                    h1: ({ children }) => <h1 className="text-2xl font-bold mb-2 mt-4 text-white">{children}</h1>,
-                    h2: ({ children }) => <h2 className="text-xl font-bold mb-2 mt-3 text-white">{children}</h2>,
-                    h3: ({ children }) => <h3 className="text-lg font-bold mb-2 mt-2 text-white">{children}</h3>,
-                    blockquote: ({ children }) => (
+                    p: ({ children }: ComponentProps) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                    ul: ({ children }: ComponentProps) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                    ol: ({ children }: ComponentProps) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                    li: ({ children }: ComponentProps) => <li className="mb-1">{children}</li>,
+                    h1: ({ children }: ComponentProps) => <h1 className="text-2xl font-bold mb-2 mt-4 text-white">{children}</h1>,
+                    h2: ({ children }: ComponentProps) => <h2 className="text-xl font-bold mb-2 mt-3 text-white">{children}</h2>,
+                    h3: ({ children }: ComponentProps) => <h3 className="text-lg font-bold mb-2 mt-2 text-white">{children}</h3>,
+                    blockquote: ({ children }: ComponentProps) => (
                         <blockquote className="border-l-4 border-[#d4af37] pl-4 italic my-2 text-gray-300 bg-gray-800/30 py-1 rounded-r">
                             {children}
                         </blockquote>
@@ -49,7 +57,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
                             </div>
                         );
                     },
-                    a: ({ href, children }) => (
+                    a: ({ href, children }: LinkProps) => (
                         <a
                             href={href}
                             target="_blank"
@@ -59,20 +67,20 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
                             {children}
                         </a>
                     ),
-                    table: ({ children }) => (
+                    table: ({ children }: ComponentProps) => (
                         <div className="overflow-x-auto my-3 rounded-lg border border-gray-700">
                             <table className="min-w-full divide-y divide-gray-700 bg-gray-800/20">{children}</table>
                         </div>
                     ),
-                    thead: ({ children }) => <thead className="bg-gray-800/50">{children}</thead>,
-                    tbody: ({ children }) => <tbody className="divide-y divide-gray-700">{children}</tbody>,
-                    tr: ({ children }) => <tr className="hover:bg-white/5 transition-colors">{children}</tr>,
-                    th: ({ children }) => (
+                    thead: ({ children }: ComponentProps) => <thead className="bg-gray-800/50">{children}</thead>,
+                    tbody: ({ children }: ComponentProps) => <tbody className="divide-y divide-gray-700">{children}</tbody>,
+                    tr: ({ children }: ComponentProps) => <tr className="hover:bg-white/5 transition-colors">{children}</tr>,
+                    th: ({ children }: ComponentProps) => (
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                             {children}
                         </th>
                     ),
-                    td: ({ children }) => <td className="px-4 py-3 text-sm text-gray-300 whitespace-pre-wrap">{children}</td>,
+                    td: ({ children }: ComponentProps) => <td className="px-4 py-3 text-sm text-gray-300 whitespace-pre-wrap">{children}</td>,
                 }}
             >
                 {content}
