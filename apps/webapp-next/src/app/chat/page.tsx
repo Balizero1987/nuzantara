@@ -685,7 +685,7 @@ export default function ChatPage() {
                       />
                     </button>
 
-                    {/* File Button - 60px */}
+                    {/* File Button - 48px */}
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
@@ -696,7 +696,7 @@ export default function ChatPage() {
                       <img
                         src="/images/fileb.svg"
                         alt=""
-                        className="w-[60px] h-[60px] object-contain brightness-[1.6]"
+                        className="w-[48px] h-[48px] object-contain brightness-[1.6]"
                       />
                     </button>
 
