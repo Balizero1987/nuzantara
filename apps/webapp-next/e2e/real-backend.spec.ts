@@ -22,7 +22,6 @@ import { test, expect } from '@playwright/test'
  */
 
 const BACKEND_URL = process.env.NUZANTARA_API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://nuzantara-rag.fly.dev'
-const API_KEY = process.env.NUZANTARA_API_KEY
 const TEST_EMAIL = process.env.E2E_TEST_EMAIL
 const TEST_PIN = process.env.E2E_TEST_PIN
 
