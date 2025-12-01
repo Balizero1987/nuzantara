@@ -16,7 +16,6 @@ import { test, expect } from '@playwright/test';
  *
  * Environment variables:
  * - NUZANTARA_API_URL: Backend API URL (default: https://nuzantara-rag.fly.dev)
- * - NUZANTARA_API_KEY: API key for backend
  * - E2E_TEST_EMAIL: Test user email
  * - E2E_TEST_PIN: Test user PIN
  */
