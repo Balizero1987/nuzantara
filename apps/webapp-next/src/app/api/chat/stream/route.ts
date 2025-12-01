@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 
 const API_URL = process.env.NUZANTARA_API_URL || 'https://nuzantara-rag.fly.dev';
-const API_KEY = process.env.NUZANTARA_API_KEY || 'zantara-secret-2024';
+const API_KEY = process.env.NUZANTARA_API_KEY;
+
+if (!API_KEY) {
+  throw new Error('NUZANTARA_API_KEY environment variable is required');
+}
 
 export async function POST(request: Request) {
   try {

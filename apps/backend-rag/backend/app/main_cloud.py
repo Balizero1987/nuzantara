@@ -328,10 +328,6 @@ async def _validate_auth_token(token: str | None) -> dict | None:
     if not token:
         return None
 
-    if token == "dev-token-bypass":
-        logger.warning("⚠️ Using dev-token-bypass for authentication")
-        return {"id": "dev-user", "email": "dev@balizero.com", "name": "Dev User", "role": "admin"}
-
     # 1. Try Local Validation (Primary)
     try:
         from jose import JWTError, jwt
