@@ -65,11 +65,16 @@ async def verify_webhook(
     """
     Meta Webhook Verification Endpoint
     """
+    # Fail-closed: reject if verify token not configured
+    if not settings.whatsapp_verify_token:
+        logger.error("❌ WhatsApp Webhook verification failed: WHATSAPP_VERIFY_TOKEN not configured")
+        raise HTTPException(status_code=503, detail="Webhook not configured")
+
     if mode == "subscribe" and token == settings.whatsapp_verify_token:
         logger.info("✅ WhatsApp Webhook verified successfully")
         return int(challenge)
-    
-    logger.warning(f"❌ WhatsApp Webhook verification failed. Token: {token}")
+
+    logger.warning("❌ WhatsApp Webhook verification failed: invalid token")
     raise HTTPException(status_code=403, detail="Verification failed")
 
 

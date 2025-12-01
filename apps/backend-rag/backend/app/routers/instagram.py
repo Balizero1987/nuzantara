@@ -59,11 +59,16 @@ async def verify_webhook(
     """
     Meta Webhook Verification Endpoint
     """
+    # Fail-closed: reject if verify token not configured
+    if not settings.instagram_verify_token:
+        logger.error("❌ Instagram Webhook verification failed: INSTAGRAM_VERIFY_TOKEN not configured")
+        raise HTTPException(status_code=503, detail="Webhook not configured")
+
     if mode == "subscribe" and token == settings.instagram_verify_token:
         logger.info("✅ Instagram Webhook verified successfully")
         return int(challenge)
-    
-    logger.warning(f"❌ Instagram Webhook verification failed. Token: {token}")
+
+    logger.warning("❌ Instagram Webhook verification failed: invalid token")
     raise HTTPException(status_code=403, detail="Verification failed")
 
 

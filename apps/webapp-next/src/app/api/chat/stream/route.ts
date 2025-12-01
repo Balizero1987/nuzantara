@@ -32,14 +32,31 @@ export async function POST(request: Request) {
       conversation_history: JSON.stringify(conversationHistory),
     });
 
-    const response = await fetch(`${API_URL}/bali-zero/chat-stream?${params.toString()}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': API_KEY,
-        Authorization: `Bearer ${request.headers.get('Authorization')?.replace('Bearer ', '') || ''}`,
-      },
-    });
+    // Create abort controller for timeout (120 seconds for streaming)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
+
+    let response: Response;
+    try {
+      response = await fetch(`${API_URL}/bali-zero/chat-stream?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': API_KEY,
+          Authorization: `Bearer ${request.headers.get('Authorization')?.replace('Bearer ', '') || ''}`,
+        },
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        console.error('[ChatAPI] Backend request timed out after 120s');
+        return NextResponse.json({ error: 'Backend request timed out' }, { status: 504 });
+      }
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       console.error('[ChatAPI] Backend error:', response.status, response.statusText);

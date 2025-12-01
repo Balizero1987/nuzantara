@@ -71,8 +71,6 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
         
         SECURITY: Any authentication error = deny access (fail-closed)
         """
-        print(f"DEBUG: Middleware dispatching: {request.url.path}")
-        print(f"DEBUG: Headers: {request.headers}")
         try:
             # Step 1: Check if this is a public endpoint
             if self.is_public_endpoint(request):
@@ -98,14 +96,9 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
                     )
 
                 # Inject authenticated user context into request state
-                if auth_result:
-                    request.state.user = auth_result
-                    request.state.auth_type = getattr(auth_result, "auth_method", "unknown")
-                else:
-                    request.state.user = {"id": "debug", "email": "debug@debug.com"}
-                    request.state.auth_type = "debug"
-
-                user_email = auth_result.get('email', 'unknown') if auth_result else "debug_user"
+                request.state.user = auth_result
+                request.state.auth_type = auth_result.get("auth_method", "unknown")
+                user_email = auth_result.get('email', 'unknown')
                 logger.debug(
                     f"Request authenticated: {request.url.path} - "
                     f"User: {user_email} via {request.state.auth_type}"
@@ -131,7 +124,6 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             # FAIL-CLOSED: Any system error = deny access for security
             client_host = request.client.host if request.client else "unknown"
-            print(f"CRITICAL: Authentication system failure: {e}")
             logger.critical(
                 f"Authentication system failure - ACCESS DENIED: {e}. "
                 f"Request: {request.url.path} from {client_host}"

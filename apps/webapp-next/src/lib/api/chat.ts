@@ -56,6 +56,10 @@ export const chatAPI = {
       return;
     }
 
+    // Create abort controller for timeout (60 seconds for streaming)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
     try {
       const response = await fetch('/api/chat/stream', {
         method: 'POST',
@@ -68,6 +72,7 @@ export const chatAPI = {
           user_id: 'web_user',
           conversation_history: conversationHistory || [],
         }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -131,11 +136,18 @@ export const chatAPI = {
         }
       }
     } catch (error: unknown) {
+      clearTimeout(timeoutId);
       if (error instanceof Error) {
-        onError(error);
+        if (error.name === 'AbortError') {
+          onError(new Error('Request timed out. Please try again.'));
+        } else {
+          onError(error);
+        }
       } else {
         onError(new Error(String(error)));
       }
+    } finally {
+      clearTimeout(timeoutId);
     }
   },
 };

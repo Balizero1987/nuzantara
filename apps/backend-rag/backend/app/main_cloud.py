@@ -116,7 +116,7 @@ TS_BACKEND_FALLBACK_URL = settings.ts_backend_url
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    debug=True,  # Force debug mode for detailed errors
+    debug=(settings.log_level == "DEBUG"),  # Only enable debug in development
 )
 
 # --- Observability: Metrics (Prometheus) ---
@@ -126,7 +126,10 @@ Instrumentator().instrument(app).expose(app)
 # Only enable if JAEGER_ENABLED is set (optional but good practice)
 resource = Resource.create(attributes={"service.name": "nuzantara-backend"})
 trace.set_tracer_provider(TracerProvider(resource=resource))
-otlp_exporter = OTLPSpanExporter(endpoint="http://jaeger:4317", insecure=True)
+otlp_exporter = OTLPSpanExporter(
+    endpoint="http://jaeger:4317",
+    insecure=(settings.log_level == "DEBUG")  # Only insecure in development
+)
 trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
 
 # Instrument FastAPI
