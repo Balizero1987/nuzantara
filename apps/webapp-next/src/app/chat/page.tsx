@@ -682,20 +682,20 @@ export default function ChatPage() {
                       type="button"
                       onClick={() => setShowImageModal(true)}
                       disabled={isGeneratingImage}
-                      className="flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+                      className="flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
                       title="Generate Image"
                     >
                       {isGeneratingImage ? (
                         <img
-                          src="/create_image.png"
+                          src="/images/sfera_image.png"
                           alt="Generating..."
-                          className="w-full h-full object-contain animate-spin opacity-60"
+                          className="w-10 h-10 object-contain animate-spin opacity-60"
                         />
                       ) : (
                         <img
-                          src="/create_image.png"
+                          src="/images/sfera_image.png"
                           alt="Generate Image"
-                          className="w-full h-full object-contain hover:drop-shadow-[0_0_8px_rgba(139,92,246,0.6)] transition-all"
+                          className="w-10 h-10 object-contain"
                         />
                       )}
                     </button>
