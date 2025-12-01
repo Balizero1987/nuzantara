@@ -1,15 +1,19 @@
 name: Frontend Tests & Build
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, develop]
     paths:
       - "apps/webapp-next/**"
       - ".github/workflows/frontend-tests.yml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
   pull_request:
     branches: [main, develop]
     paths:
       - "apps/webapp-next/**"
+      - "pnpm-lock.yaml"
 
 jobs:
   test:
