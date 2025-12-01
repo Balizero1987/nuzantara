@@ -673,7 +673,7 @@ export default function ChatPage() {
                       <img
                         src="/images/sendb.pdf.svg"
                         alt=""
-                        className="w-15 h-15 object-contain brightness-125"
+                        className="w-[60px] h-[60px] object-contain brightness-125"
                       />
                     </button>
                   </div>
