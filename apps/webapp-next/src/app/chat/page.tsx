@@ -663,7 +663,7 @@ export default function ChatPage() {
                       </div>
                     </div>
 
-                    {/* Send Button - 120px */}
+                    {/* Send Button - 60px */}
                     <button
                       type="submit"
                       disabled={isLoading || !input.trim()}
@@ -673,7 +673,7 @@ export default function ChatPage() {
                       <img
                         src="/images/sendb.pdf.svg"
                         alt=""
-                        className="w-30 h-30 object-contain"
+                        className="w-15 h-15 object-contain brightness-125"
                       />
                     </button>
                   </div>
