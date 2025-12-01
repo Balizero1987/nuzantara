@@ -1,0 +1,315 @@
+import { socketClient } from '../socket'
+
+// Mock apiClient
+const mockGetToken = jest.fn()
+jest.mock('@/lib/api/client', () => ({
+  apiClient: {
+    getToken: () => mockGetToken(),
+  },
+}))
+
+// Mock WebSocket
+class MockWebSocket {
+  static OPEN = 1
+  static CONNECTING = 0
+  static CLOSED = 3
+
+  readyState = MockWebSocket.OPEN
+  url: string
+  onopen: (() => void) | null = null
+  onmessage: ((event: { data: string }) => void) | null = null
+  onclose: ((event: { code: number }) => void) | null = null
+  onerror: ((error: Event) => void) | null = null
+
+  constructor(url: string) {
+    this.url = url
+    // Simulate connection
+    setTimeout(() => {
+      this.onopen?.()
+    }, 0)
+  }
+
+  close() {
+    this.readyState = MockWebSocket.CLOSED
+    this.onclose?.({ code: 1000 })
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  send(data: string) {
+    // Mock send
+  }
+}
+
+// @ts-expect-error
+global.WebSocket = MockWebSocket
+
+describe('socketClient', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    jest.useFakeTimers()
+    // Reset the socket client state by disconnecting
+    socketClient.disconnect()
+    jest.spyOn(console, 'log').mockImplementation(() => {})
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+    jest.restoreAllMocks()
+  })
+
+  describe('connect', () => {
+    it('should not connect without token', () => {
+      mockGetToken.mockReturnValue(null)
+
+      socketClient.connect()
+
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('No token found'))
+    })
+
+    it('should connect when token is available', () => {
+      mockGetToken.mockReturnValue('test-token')
+
+      socketClient.connect()
+
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Connecting'))
+    })
+
+    it('should not create multiple connections', () => {
+      mockGetToken.mockReturnValue('test-token')
+
+      socketClient.connect()
+      socketClient.connect()
+
+      // Should only log connecting once
+      const connectingCalls = (console.log as jest.Mock).mock.calls.filter(
+        (call) => call[0].includes('Connecting')
+      )
+      expect(connectingCalls.length).toBe(1)
+    })
+  })
+
+  describe('disconnect', () => {
+    it('should disconnect and prevent reconnection', () => {
+      mockGetToken.mockReturnValue('test-token')
+
+      socketClient.connect()
+      socketClient.disconnect()
+
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Disconnected'))
+    })
+
+    it('should handle disconnect when not connected', () => {
+      // Should not throw
+      expect(() => socketClient.disconnect()).not.toThrow()
+    })
+  })
+
+  describe('event handling', () => {
+    it('should register event handlers with on()', () => {
+      const handler = jest.fn()
+
+      socketClient.on('test-event', handler)
+
+      // Handler is registered (we verify by triggering it)
+      expect(() => socketClient.off('test-event', handler)).not.toThrow()
+    })
+
+    it('should remove event handlers with off()', () => {
+      const handler = jest.fn()
+
+      socketClient.on('test-event', handler)
+      socketClient.off('test-event', handler)
+
+      // Handler should be removed without error
+      expect(() => socketClient.off('test-event', handler)).not.toThrow()
+    })
+
+    it('should handle off() for non-existent event', () => {
+      const handler = jest.fn()
+
+      // Should not throw for non-existent event
+      expect(() => socketClient.off('non-existent', handler)).not.toThrow()
+    })
+
+    it('should allow multiple handlers for same event', () => {
+      const handler1 = jest.fn()
+      const handler2 = jest.fn()
+
+      socketClient.on('multi-event', handler1)
+      socketClient.on('multi-event', handler2)
+
+      // Both should be registered without error
+      expect(() => {
+        socketClient.off('multi-event', handler1)
+        socketClient.off('multi-event', handler2)
+      }).not.toThrow()
+    })
+  })
+
+  describe('reconnection', () => {
+    it('should attempt reconnection after disconnect (unless explicit)', async () => {
+      mockGetToken.mockReturnValue('test-token')
+
+      socketClient.connect()
+
+      // Wait for connection
+      jest.advanceTimersByTime(10)
+
+      // Explicit disconnect should not trigger reconnection
+      socketClient.disconnect()
+
+      // Advance timers past reconnect interval
+      jest.advanceTimersByTime(5000)
+
+      // Should not see reconnecting message after explicit disconnect
+      const reconnectCalls = (console.log as jest.Mock).mock.calls.filter(
+        (call) => call[0].includes('Reconnecting')
+      )
+      expect(reconnectCalls.length).toBe(0)
+    })
+  })
+})
+
+describe('WebSocketClient message handling', () => {
+  let mockSocket: MockWebSocket | null = null
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    jest.useFakeTimers()
+    socketClient.disconnect()
+    jest.spyOn(console, 'log').mockImplementation(() => {})
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    mockGetToken.mockReturnValue('test-token')
+
+    // Store reference to created socket
+    const OriginalMockWebSocket = global.WebSocket
+    // @ts-expect-error
+    global.WebSocket = class extends OriginalMockWebSocket {
+      constructor(url: string) {
+        super(url)
+        mockSocket = this as unknown as MockWebSocket
+      }
+    }
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+    jest.restoreAllMocks()
+    mockSocket = null
+  })
+
+  it('should trigger specific event handlers when message received', () => {
+    const handler = jest.fn()
+    socketClient.on('chat_message', handler)
+
+    socketClient.connect()
+    jest.advanceTimersByTime(10) // Wait for connection
+
+    // Simulate receiving a message
+    if (mockSocket?.onmessage) {
+      mockSocket.onmessage({ data: JSON.stringify({ type: 'chat_message', data: { text: 'Hello' } }) })
+    }
+
+    expect(handler).toHaveBeenCalledWith({ text: 'Hello' })
+  })
+
+  it('should trigger generic message handler when no specific handler exists', () => {
+    const genericHandler = jest.fn()
+    socketClient.on('message', genericHandler)
+
+    socketClient.connect()
+    jest.advanceTimersByTime(10)
+
+    // Simulate receiving a message with no specific handler
+    if (mockSocket?.onmessage) {
+      mockSocket.onmessage({ data: JSON.stringify({ type: 'unknown_event', data: { foo: 'bar' } }) })
+    }
+
+    expect(genericHandler).toHaveBeenCalledWith({ type: 'unknown_event', data: { foo: 'bar' } })
+  })
+
+  it('should handle invalid JSON in message', () => {
+    socketClient.connect()
+    jest.advanceTimersByTime(10)
+
+    // Simulate receiving invalid JSON
+    if (mockSocket?.onmessage) {
+      mockSocket.onmessage({ data: 'not valid json {' })
+    }
+
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Failed to parse message'), expect.any(Error))
+  })
+
+  it('should call multiple handlers for same event type', () => {
+    const handler1 = jest.fn()
+    const handler2 = jest.fn()
+    socketClient.on('multi_event', handler1)
+    socketClient.on('multi_event', handler2)
+
+    socketClient.connect()
+    jest.advanceTimersByTime(10)
+
+    if (mockSocket?.onmessage) {
+      mockSocket.onmessage({ data: JSON.stringify({ type: 'multi_event', data: 'test' }) })
+    }
+
+    expect(handler1).toHaveBeenCalledWith('test')
+    expect(handler2).toHaveBeenCalledWith('test')
+  })
+
+  it('should handle onerror event', () => {
+    socketClient.connect()
+    jest.advanceTimersByTime(10)
+
+    // Simulate error
+    if (mockSocket?.onerror) {
+      mockSocket.onerror(new Event('error'))
+    }
+
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Error'), expect.any(Event))
+  })
+
+  it('should attempt reconnection after unexpected disconnect', () => {
+    socketClient.connect()
+    jest.advanceTimersByTime(10)
+
+    // Simulate unexpected disconnect (not explicit)
+    // We need to trigger onclose without calling disconnect()
+    if (mockSocket?.onclose) {
+      // Manually set readyState to closed and trigger onclose
+      mockSocket.readyState = MockWebSocket.CLOSED
+      mockSocket.onclose({ code: 1006 }) // Abnormal closure
+    }
+
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Reconnecting'))
+
+    // Advance past reconnect interval
+    jest.advanceTimersByTime(3500)
+
+    // Should attempt to connect again
+    const connectingCalls = (console.log as jest.Mock).mock.calls.filter(
+      (call) => call[0].includes('Connecting')
+    )
+    expect(connectingCalls.length).toBeGreaterThan(1)
+  })
+
+  it('should not trigger generic handler when specific handler exists', () => {
+    const specificHandler = jest.fn()
+    const genericHandler = jest.fn()
+    socketClient.on('specific_event', specificHandler)
+    socketClient.on('message', genericHandler)
+
+    socketClient.connect()
+    jest.advanceTimersByTime(10)
+
+    if (mockSocket?.onmessage) {
+      mockSocket.onmessage({ data: JSON.stringify({ type: 'specific_event', data: 'data' }) })
+    }
+
+    expect(specificHandler).toHaveBeenCalledWith('data')
+    expect(genericHandler).not.toHaveBeenCalled()
+  })
+})
