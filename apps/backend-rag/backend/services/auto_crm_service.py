@@ -227,19 +227,18 @@ class AutoCRMService:
             cursor.execute(
                 """
                 INSERT INTO interactions (
-                    client_id, practice_id, conversation_id,
+                    client_id, practice_id,
                     interaction_type, channel, summary, full_content,
                     sentiment, team_member, direction,
                     extracted_entities, action_items, interaction_date
                 ) VALUES (
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                 )
                 RETURNING id
             """,
                 (
                     client_id,
                     practice_id,
-                    conversation_id,
                     "chat",
                     "web_chat",
                     conversation_summary[:500],  # Limit summary length

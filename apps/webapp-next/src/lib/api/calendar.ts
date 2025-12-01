@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { apiClient } from './client';
+import { apiClient } from '@/lib/api/client';
 
 interface CalendarEvent {
   id?: string;

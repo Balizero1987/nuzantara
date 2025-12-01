@@ -1,5 +1,5 @@
 import type { ChatMetadata } from './types';
-import { apiClient } from './client';
+import { apiClient } from '@/lib/api/client';
 
 export const chatAPI = {
   // Client-side chat API wrapper
@@ -17,11 +17,11 @@ export const chatAPI = {
     // Fallback: try localStorage directly (only in browser)
     if (!token && typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
       const storage = globalThis.localStorage;
-      // Try all possible token keys
+      // Try all possible token keys (zantara_session_token first - matches main client)
       token =
+        storage.getItem('zantara_session_token') ||
         storage.getItem('token') ||
         storage.getItem('zantara_token') ||
-        storage.getItem('zantara_session_token') ||
         '';
 
       // Also try to find token in any key that contains "token"
@@ -59,7 +59,7 @@ export const chatAPI = {
       console.log('[ChatClient] Token sources:', {
         apiClient: apiClient.getToken() ? 'found' : 'not found',
         apiClientValue: apiClient.getToken()
-          ? apiClient.getToken().substring(0, 20) + '...'
+          ? apiClient.getToken()?.substring(0, 20) + '...'
           : 'none',
         localStorage_token: storage.getItem('token') ? 'found' : 'not found',
         zantara_token: storage.getItem('zantara_token') ? 'found' : 'not found',

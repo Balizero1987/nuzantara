@@ -23,6 +23,12 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Langchain/Langgraph compatibility fix: add 'debug' attribute if missing
+# This fixes: "module 'langchain' has no attribute 'debug'" error
+import langchain
+if not hasattr(langchain, 'debug'):
+    langchain.debug = False
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse

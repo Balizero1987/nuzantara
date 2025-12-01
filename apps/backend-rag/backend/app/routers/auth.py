@@ -34,7 +34,13 @@ class LoginRequest(BaseModel):
     """Login request model"""
 
     email: EmailStr
-    password: str
+    pin: str | None = None
+    password: str | None = None  # Alias for pin (backwards compatibility)
+
+    @property
+    def credentials(self) -> str:
+        """Return pin or password, whichever is provided"""
+        return self.pin or self.password or ""
 
 
 class LoginResponse(BaseModel):
@@ -124,7 +130,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     try:
         logger.info(f"🔍 Validating user: {user_id} / {email}")
         query = """
-            SELECT id::text, email, full_name as name, role, 'active' as status, permissions as metadata, language as language_preference
+            SELECT id::text, email, full_name as name, role, 'active' as status, NULL::jsonb as metadata, language as language_preference
             FROM team_members
             WHERE id::text = $1 AND email = $2 AND active = true
         """
@@ -164,7 +170,7 @@ async def login(request: LoginRequest, req: Request = None):
     try:
         # Real database authentication using team_members
         query = """
-            SELECT id, email, full_name as name, pin_hash as password_hash, role, 'active' as status, permissions as metadata, language as language_preference, active
+            SELECT id, email, full_name as name, pin_hash as password_hash, role, 'active' as status, NULL::jsonb as metadata, language as language_preference, active
             FROM team_members
             WHERE email = $1
         """
@@ -193,7 +199,7 @@ async def login(request: LoginRequest, req: Request = None):
              raise HTTPException(status_code=401, detail="Account inactive")
 
         # Verify PIN
-        if not verify_password(request.password, user["password_hash"]):
+        if not verify_password(request.credentials, user["password_hash"]):
             await audit_service.log_auth_event(
                 email=request.email,
                 action="failed_login",
