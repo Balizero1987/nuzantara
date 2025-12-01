@@ -7,6 +7,8 @@ import logging
 from datetime import datetime
 from typing import Any
 
+from app.core.config import settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -17,25 +19,31 @@ class APIKeyAuth:
     """
 
     def __init__(self):
-        """Initialize API key service with valid keys and permissions"""
-        self.valid_keys = {
-            "zantara-secret-2024": {
-                "role": "admin",
-                "permissions": ["*"],
-                "created_at": "2024-01-01T00:00:00Z",
-                "description": "Main API key for testing and development",
-            },
-            "zantara-test-2024": {
-                "role": "test",
-                "permissions": ["read"],
-                "created_at": "2024-01-01T00:00:00Z",
-                "description": "Test API key with read-only permissions",
-            },
-        }
+        """Initialize API key service with valid keys and permissions from settings"""
+        # Load API keys from environment variable (comma-separated)
+        api_keys_str = settings.api_keys
+        api_key_list = [key.strip() for key in api_keys_str.split(",") if key.strip()]
+
+        # Initialize valid_keys dictionary from environment variable
+        self.valid_keys = {}
+        for api_key in api_key_list:
+            # Default role and permissions - can be customized per key if needed
+            self.valid_keys[api_key] = {
+                "role": "admin"
+                if "admin" in api_key.lower() or "secret" in api_key.lower()
+                else "user",
+                "permissions": ["*"]
+                if "admin" in api_key.lower() or "secret" in api_key.lower()
+                else ["read"],
+                "created_at": datetime.utcnow().isoformat() + "Z",
+                "description": "API key loaded from environment variable",
+            }
 
         self.key_stats = {key: {"usage_count": 0, "last_used": None} for key in self.valid_keys}
 
-        logger.info(f"API Key service initialized with {len(self.valid_keys)} valid keys")
+        logger.info(
+            f"API Key service initialized with {len(self.valid_keys)} valid keys from environment"
+        )
 
     def validate_api_key(self, api_key: str) -> dict[str, Any] | None:
         """
