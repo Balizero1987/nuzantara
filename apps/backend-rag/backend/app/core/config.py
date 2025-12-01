@@ -120,14 +120,23 @@ class Settings(BaseSettings):
     # ========================================
     # AUTHENTICATION CONFIGURATION
     # ========================================
-    jwt_secret_key: str = "zantara_default_secret_key_2025_change_in_production"
+    jwt_secret_key: str = Field(..., description="JWT secret key - REQUIRED, no default")
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_hours: int = 24
+
+    @field_validator("jwt_secret_key", mode="before")
+    @classmethod
+    def validate_jwt_secret(cls, v):
+        if not v or v == "zantara_default_secret_key_2025_change_in_production":
+            raise ValueError("JWT_SECRET_KEY must be set to a secure value in production")
+        if len(v) < 32:
+            raise ValueError("JWT_SECRET_KEY must be at least 32 characters")
+        return v
 
     # ========================================
     # API KEY AUTHENTICATION CONFIGURATION
     # ========================================
-    api_keys: str = "zantara-secret-2024,zantara-test-2024"
+    api_keys: str = Field(..., description="API keys - REQUIRED, comma-separated")
     api_auth_enabled: bool = True
     api_auth_bypass_db: bool = False  # Must be False to enable JWT auth
 
