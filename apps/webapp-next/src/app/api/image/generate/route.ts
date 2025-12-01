@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server';
 
 const API_URL = process.env.NUZANTARA_API_URL || 'https://nuzantara-rag.fly.dev';
-const API_KEY = process.env.NUZANTARA_API_KEY;
-
-if (!API_KEY) {
-  throw new Error('NUZANTARA_API_KEY environment variable is required');
-}
 
 export async function POST(request: Request) {
+  const API_KEY = process.env.NUZANTARA_API_KEY;
+
+  if (!API_KEY) {
+    console.error('[ImageAPI] NUZANTARA_API_KEY environment variable is required');
+    return NextResponse.json(
+      { error: 'Server configuration error: API key not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
     const body = await request.json();
     const authHeader = request.headers.get('Authorization');
@@ -18,7 +23,7 @@ export async function POST(request: Request) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': API_KEY!,
+        'X-API-Key': API_KEY,
         Authorization: authHeader || '',
       },
       body: JSON.stringify(body),
