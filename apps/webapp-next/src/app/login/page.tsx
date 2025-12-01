@@ -124,7 +124,13 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#1a1a1a] via-[#2a2a2a] to-[#1a1a1a] font-sans">
       <div className="w-full max-w-md p-8">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-white mb-2">ZANTARA</h1>
+          <div className="mb-4 flex justify-center">
+            <img
+              src="/logo-zantara.svg"
+              alt="ZANTARA"
+              className="h-20 w-auto"
+            />
+          </div>
           <p className="text-gray-400">Sign in to continue</p>
         </div>
 

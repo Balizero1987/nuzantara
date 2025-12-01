@@ -409,11 +409,11 @@ export default function ChatPage() {
             </button>
           </div>
 
-          <div className="animate-pulse-glow -my-32 scale-[2.69] mx-auto">
+          <div className="scale-[2.69] mx-auto">
             <img
               src="/logo-zantara.svg"
               alt="ZANTARA"
-              className="h-16 w-auto drop-shadow-[0_0_20px_rgba(212,175,55,0.6)]"
+              className="h-16 w-auto"
             />
           </div>
 
@@ -434,13 +434,11 @@ export default function ChatPage() {
                 {avatarImage ? (
                   <img src={avatarImage} alt="User" className="w-full h-full object-cover" />
                 ) : (
-                  <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <img
+                    src="/logo-zantara.svg"
+                    alt="ZANTARA"
+                    className="w-10 h-10 object-contain p-1"
+                  />
                 )}
               </button>
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#2a2a2a] animate-pulse" />
