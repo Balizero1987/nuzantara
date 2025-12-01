@@ -25,10 +25,8 @@ const mockLocation = {
   reload: jest.fn(),
 };
 
-// Save original location - using typeof mockLocation to satisfy eslint
-// Save original location
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const originalLocation = (globalThis as any).location;
+// Save original location - window.location is available in Jest DOM environment
+const originalLocation = window.location;
 
 describe('authAPI', () => {
   beforeAll(() => {
