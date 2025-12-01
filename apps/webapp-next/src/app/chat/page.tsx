@@ -688,14 +688,14 @@ export default function ChatPage() {
                       {isGeneratingImage ? (
                         <img
                           src="/images/sfera_image.png"
-                          alt="Generating..."
-                          className="w-24 h-24 object-contain animate-spin opacity-60"
+                          alt=""
+                          className="w-[230px] h-[230px] object-contain animate-spin opacity-60"
                         />
                       ) : (
                         <img
                           src="/images/sfera_image.png"
-                          alt="Generate Image"
-                          className="w-24 h-24 object-contain"
+                          alt=""
+                          className="w-[230px] h-[230px] object-contain"
                         />
                       )}
                     </button>
@@ -705,7 +705,7 @@ export default function ChatPage() {
                       className="flex-shrink-0 text-gray-300 hover:text-white transition-all duration-200 hover:scale-110 active:scale-95"
                       title="Attach file"
                     >
-                      <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-[70px] h-[70px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -722,8 +722,8 @@ export default function ChatPage() {
                     >
                       <img
                         src="/images/infinity_button.png"
-                        alt="Send"
-                        className="w-24 h-24 object-contain"
+                        alt=""
+                        className="w-[120px] h-[120px] object-contain"
                       />
                     </button>
                   </div>
