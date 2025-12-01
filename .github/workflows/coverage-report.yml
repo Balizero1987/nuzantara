@@ -53,7 +53,7 @@ jobs:
     - name: Generate coverage badge
       run: |
         COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
-        COVERAGE_PERCENT=$(python -c "print(f'{float('$COVERAGE') * 100:.1f}%')")
+        COVERAGE_PERCENT=$(python -c "import sys; print(f'{float(sys.argv[1]) * 100:.1f}%')" "$COVERAGE")
         echo "COVERAGE_PERCENT=$COVERAGE_PERCENT" >> $GITHUB_ENV
         echo "Coverage: $COVERAGE_PERCENT"
 
