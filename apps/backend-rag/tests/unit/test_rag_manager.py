@@ -208,8 +208,8 @@ async def test_retrieve_context_respects_limit(rag_manager):
 
 @pytest.mark.asyncio
 async def test_retrieve_context_truncates_document_text(rag_manager):
-    """Test retrieve_context truncates document text to 500 chars"""
-    long_text = "A" * 600  # 600 characters
+    """Test retrieve_context truncates document text to 2500 chars (updated from 500)"""
+    long_text = "A" * 3000  # 3000 characters
     query = "Test query"
     query_type = "business"
     user_level = 2
@@ -218,15 +218,18 @@ async def test_retrieve_context_truncates_document_text(rag_manager):
     rag_manager.search.search_with_conflict_resolution = AsyncMock(
         return_value={
             "query": query,
-            "results": [{"text": long_text, "metadata": {"title": "Long Doc"}}],
+            "results": [{"text": long_text, "metadata": {"title": "Long Doc", "source_collection": "test"}}],
         }
     )
 
     result = await rag_manager.retrieve_context(query, query_type, user_level, limit)
 
     assert result["context"] is not None
-    # Each doc should be truncated to 500 chars
+    # Each doc should be truncated to 2500 chars (updated limit)
     assert len(result["context"]) < len(long_text) + 100  # Account for formatting
+    # Verify truncation happened
+    doc_text_in_context = result["context"].split(": ", 1)[1] if ": " in result["context"] else ""
+    assert len(doc_text_in_context) <= 2500
 
 
 @pytest.mark.asyncio

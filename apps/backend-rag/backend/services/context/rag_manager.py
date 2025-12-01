@@ -98,7 +98,7 @@ class RAGManager:
             rag_docs = []
             collections_used = set()
             for result in search_results["results"][:limit]:
-                doc_text = result["text"][:500]  # Limit each doc to 500 chars
+                doc_text = result["text"][:2500]  # Increased from 500 to leverage Gemini 2.5 Flash's large context window
                 doc_title = result.get("metadata", {}).get("title", "Unknown")
                 doc_source = result.get("metadata", {}).get("source_collection", "Unknown")
                 collections_used.add(doc_source)
@@ -161,7 +161,7 @@ class RAGManager:
             # Build team context
             team_docs = []
             for result in search_results["results"][:limit]:
-                doc_text = result["text"][:600]  # Slightly more for team profiles
+                doc_text = result["text"][:2500]  # Increased from 600 to leverage Gemini 2.5 Flash's large context window
                 doc_title = result.get("metadata", {}).get("title", "Team Member")
                 team_docs.append(f"👤 {doc_title}: {doc_text}")
 
@@ -210,7 +210,7 @@ class RAGManager:
             # Build light context
             docs = []
             for result in search_results["results"][:limit]:
-                doc_text = result["text"][:300]  # Shorter for light search
+                doc_text = result["text"][:1500]  # Increased from 300 for light search (still lighter than full search)
                 doc_title = result.get("metadata", {}).get("title", "Document")
                 docs.append(f"📄 {doc_title}: {doc_text}")
 

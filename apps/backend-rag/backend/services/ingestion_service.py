@@ -40,6 +40,8 @@ class IngestionService:
         author: str | None = None,
         language: str = "en",
         tier_override: TierLevel | None = None,
+        status_vigensi: str | None = None,
+        wilayah: str | None = None,
     ) -> dict[str, Any]:
         """
         Ingest a single book through the complete pipeline.
@@ -50,6 +52,8 @@ class IngestionService:
             author: Book author (auto-detected if not provided)
             language: Book language code
             tier_override: Manual tier classification (optional)
+            status_vigensi: Legal validity status (e.g., "berlaku", "dicabut") - extracted from doc_info if not provided
+            wilayah: Region/territory (e.g., "Indonesia", "Bali") - extracted from doc_info if not provided
 
         Returns:
             Dictionary with ingestion results
@@ -61,8 +65,16 @@ class IngestionService:
             doc_info = get_document_info(file_path)
             book_title = title or doc_info.get("title", Path(file_path).stem)
             book_author = author or doc_info.get("author", "Unknown")
+            
+            # Extract legal metadata if available
+            extracted_status_vigensi = status_vigensi or doc_info.get("status_vigensi") or doc_info.get("status")
+            extracted_wilayah = wilayah or doc_info.get("wilayah") or doc_info.get("region")
 
             logger.info(f"Book: {book_title} by {book_author}")
+            if extracted_status_vigensi:
+                logger.info(f"Legal status: {extracted_status_vigensi}")
+            if extracted_wilayah:
+                logger.info(f"Region: {extracted_wilayah}")
 
             # Step 2: Parse document
             text = auto_detect_and_parse(file_path)
@@ -88,6 +100,12 @@ class IngestionService:
                 "language": language,
                 "file_path": file_path,
             }
+            
+            # Add legal metadata if available
+            if extracted_status_vigensi:
+                base_metadata["status_vigensi"] = extracted_status_vigensi
+            if extracted_wilayah:
+                base_metadata["wilayah"] = extracted_wilayah
 
             chunks = self.chunker.semantic_chunk(text, metadata=base_metadata)
             logger.info(f"Created {len(chunks)} chunks")
@@ -110,6 +128,11 @@ class IngestionService:
                     "language": language,
                     "file_path": file_path,
                 }
+                # Add legal metadata if available
+                if extracted_status_vigensi:
+                    meta["status_vigensi"] = extracted_status_vigensi
+                if extracted_wilayah:
+                    meta["wilayah"] = extracted_wilayah
                 metadatas.append(meta)
 
             # Step 7: Store in vector database

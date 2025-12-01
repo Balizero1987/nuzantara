@@ -768,23 +768,36 @@ async def bali_zero_chat_stream(
                 memory=user_memory,
                 collaborator=collaborator,  # ← NOW PASSED INSTEAD OF None!
             ):
-                # Intercept legacy [METADATA] tags and convert to SSE metadata events
-                if chunk.startswith("[METADATA]"):
-                    try:
-                        # Extract JSON content between tags
-                        json_str = chunk.replace("[METADATA]", "")
-                        metadata_data = json.loads(json_str)
-                        yield f"data: {json.dumps({'type': 'metadata', 'data': metadata_data}, ensure_ascii=False)}\n\n"
-                    except Exception as e:
-                        logger.warning(f"Failed to parse metadata chunk: {e}")
-                        # Fallback: send as hidden token or ignore? sending as token might show garbage
-                        # Let's ignore it to be safe, or send as debug log
-                        pass
+                # Handle structured chunk format (dict) from IntelligentRouter
+                if isinstance(chunk, dict):
+                    # Direct structured format: {"type": "metadata|token|done", "data": ...}
+                    chunk_type = chunk.get("type", "token")
+                    chunk_data = chunk.get("data", "")
+                    
+                    if chunk_type == "metadata":
+                        yield f"data: {json.dumps({'type': 'metadata', 'data': chunk_data}, ensure_ascii=False)}\n\n"
+                    elif chunk_type == "token":
+                        yield f"data: {json.dumps({'type': 'token', 'data': chunk_data}, ensure_ascii=False)}\n\n"
+                    elif chunk_type == "done":
+                        yield f"data: {json.dumps({'type': 'done', 'data': chunk_data}, ensure_ascii=False)}\n\n"
+                    else:
+                        # Unknown type, log and skip
+                        logger.warning(f"Unknown chunk type: {chunk_type}")
+                elif isinstance(chunk, str):
+                    # Legacy string format (fallback compatibility)
+                    # Check for legacy [METADATA] tags for backward compatibility
+                    if chunk.startswith("[METADATA]"):
+                        try:
+                            json_str = chunk.replace("[METADATA]", "").replace("[METADATA]", "")
+                            metadata_data = json.loads(json_str)
+                            yield f"data: {json.dumps({'type': 'metadata', 'data': metadata_data}, ensure_ascii=False)}\n\n"
+                        except Exception as e:
+                            logger.warning(f"Failed to parse legacy metadata chunk: {e}")
+                    else:
+                        # Plain text token
+                        yield f"data: {json.dumps({'type': 'token', 'data': chunk}, ensure_ascii=False)}\n\n"
                 else:
-                    yield f"data: {json.dumps({'type': 'token', 'data': chunk}, ensure_ascii=False)}\n\n"
-
-            # Done
-            yield f"data: {json.dumps({'type': 'done', 'data': None})}\n\n"
+                    logger.warning(f"Unexpected chunk type: {type(chunk)}")
 
             # Background: Auto-CRM Processing
             try:
