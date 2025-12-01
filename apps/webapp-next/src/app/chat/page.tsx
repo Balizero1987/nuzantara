@@ -660,7 +660,7 @@ export default function ChatPage() {
             <form onSubmit={handleSubmit}>
               <div className="relative group">
                 <div className="relative rounded-3xl p-[1px]">
-                  <div className="relative flex items-end gap-2 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-3 border border-gray-500/20">
+                  <div className="relative flex items-end gap-3 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-4 border border-gray-500/20">
                     <div className="relative flex-1">
                       <textarea
                         ref={textareaRef}
@@ -668,7 +668,7 @@ export default function ChatPage() {
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
                         placeholder="Ketik pesan Anda..."
-                        className="w-full bg-transparent border-none outline-none resize-none text-white placeholder-gray-500 text-base leading-relaxed font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif] pr-24"
+                        className="w-full bg-transparent border-none outline-none resize-none text-white placeholder-gray-500 text-base leading-relaxed font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif]"
                         rows={1}
                         disabled={isLoading}
                         style={{ minHeight: "24px", maxHeight: "120px" }}
@@ -677,55 +677,6 @@ export default function ChatPage() {
                         <span>Enter • Shift+Enter</span>
                       </div>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setShowImageModal(true)}
-                      disabled={isGeneratingImage}
-                      className="flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
-                      title="Generate Image"
-                    >
-                      {isGeneratingImage ? (
-                        <img
-                          src="/images/sfera_image.png"
-                          alt=""
-                          className="w-[230px] h-[230px] object-contain animate-spin opacity-60"
-                        />
-                      ) : (
-                        <img
-                          src="/images/sfera_image.png"
-                          alt=""
-                          className="w-[230px] h-[230px] object-contain"
-                        />
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="flex-shrink-0 text-gray-300 hover:text-white transition-all duration-200 hover:scale-110 active:scale-95"
-                      title="Attach file"
-                    >
-                      <svg className="w-[70px] h-[70px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15.172 7l-6.586 6.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </button>
-
-                    <button
-                      type="submit"
-                      disabled={isLoading || !input.trim()}
-                      className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 hover:scale-110 active:scale-95"
-                    >
-                      <img
-                        src="/images/infinity_button.png"
-                        alt=""
-                        className="w-[120px] h-[120px] object-contain"
-                      />
-                    </button>
                   </div>
                 </div>
               </div>
