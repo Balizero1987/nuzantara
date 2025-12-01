@@ -56,24 +56,27 @@ const localStorageMock = (() => {
   }
 })()
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-})
+// Only set up window mocks when running in jsdom environment
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+  })
 
-// Mock window.matchMedia for responsive hooks
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-})
+  // Mock window.matchMedia for responsive hooks
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(), // deprecated
+      removeListener: jest.fn(), // deprecated
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  })
+}
 
 // Mock fetch globally
 global.fetch = jest.fn()
@@ -120,7 +123,9 @@ if (typeof ReadableStream === 'undefined') {
 
 // Reset mocks between tests
 beforeEach(() => {
-  localStorage.clear()
+  if (typeof localStorage !== 'undefined') {
+    localStorage.clear()
+  }
   jest.clearAllMocks()
 })
 
