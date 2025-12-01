@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server';
 
 const API_URL = process.env.NUZANTARA_API_URL || 'https://nuzantara-rag.fly.dev';
-const API_KEY = process.env.NUZANTARA_API_KEY;
-
-if (!API_KEY) {
-  throw new Error('NUZANTARA_API_KEY environment variable is required');
-}
 
 export async function POST(request: Request) {
+  const API_KEY = process.env.NUZANTARA_API_KEY;
+
+  if (!API_KEY) {
+    console.error('[ChatAPI] NUZANTARA_API_KEY environment variable is required');
+    return NextResponse.json(
+      { error: 'Server configuration error: API key not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
     const body = await request.json();
     const message = body.message;
