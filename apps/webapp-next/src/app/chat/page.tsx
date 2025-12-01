@@ -658,9 +658,6 @@ export default function ChatPage() {
                         disabled={isLoading}
                         style={{ minHeight: "40px", maxHeight: "120px" }}
                       />
-                      <div className="absolute bottom-2 right-2 text-[11px] text-gray-500/60 pointer-events-none select-none">
-                        <span>Enter • Shift+Enter</span>
-                      </div>
                     </div>
 
                     {/* Send Button - 60px */}
@@ -673,7 +670,7 @@ export default function ChatPage() {
                       <img
                         src="/images/sendb.pdf.svg"
                         alt=""
-                        className="w-[60px] h-[60px] object-contain brightness-125"
+                        className="w-[60px] h-[60px] object-contain brightness-[1.6]"
                       />
                     </button>
                   </div>
