@@ -660,7 +660,7 @@ export default function ChatPage() {
             <form onSubmit={handleSubmit}>
               <div className="relative group">
                 <div className="relative rounded-3xl p-[1px]">
-                  <div className="relative flex items-end gap-3 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-4 border border-gray-500/20">
+                  <div className="relative flex items-end gap-4 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-6 border border-gray-500/20">
                     <div className="relative flex-1">
                       <textarea
                         ref={textareaRef}
@@ -671,43 +671,43 @@ export default function ChatPage() {
                         className="w-full bg-transparent border-none outline-none resize-none text-white placeholder-gray-500 text-base leading-relaxed font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif]"
                         rows={1}
                         disabled={isLoading}
-                        style={{ minHeight: "24px", maxHeight: "120px" }}
+                        style={{ minHeight: "32px", maxHeight: "120px" }}
                       />
                       <div className="absolute bottom-1 right-1 text-[10px] text-gray-500/60 pointer-events-none select-none">
                         <span>Enter • Shift+Enter</span>
                       </div>
                     </div>
 
-                    {/* Generate Image Button - 48px */}
+                    {/* Generate Image Button - 80px */}
                     <button
                       type="button"
                       onClick={() => setShowImageModal(true)}
                       disabled={isGeneratingImage}
-                      className="flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-40"
+                      className="flex-shrink-0 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40"
                       aria-label="Generate image"
                     >
                       {isGeneratingImage ? (
                         <img
                           src="/images/sfera_image.png"
                           alt=""
-                          className="w-12 h-12 object-contain animate-spin opacity-60"
+                          className="w-20 h-20 object-contain animate-spin opacity-60"
                         />
                       ) : (
                         <img
                           src="/images/sfera_image.png"
                           alt=""
-                          className="w-12 h-12 object-contain"
+                          className="w-20 h-20 object-contain"
                         />
                       )}
                     </button>
 
-                    {/* Attach File Button - 48px */}
+                    {/* Attach File Button - 80px */}
                     <button
                       type="button"
-                      className="flex-shrink-0 text-gray-400 hover:text-white transition-all duration-200 hover:scale-110 active:scale-95"
+                      className="flex-shrink-0 text-gray-400 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95"
                       aria-label="Attach file"
                     >
-                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                      <svg className="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -716,17 +716,17 @@ export default function ChatPage() {
                       </svg>
                     </button>
 
-                    {/* Send Button - 48px */}
+                    {/* Send Button - 80px */}
                     <button
                       type="submit"
                       disabled={isLoading || !input.trim()}
-                      className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95"
+                      className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
                       aria-label="Send message"
                     >
                       <img
                         src="/images/string_good.png"
                         alt=""
-                        className="w-12 h-12 object-contain"
+                        className="w-20 h-20 object-contain"
                       />
                     </button>
                   </div>
