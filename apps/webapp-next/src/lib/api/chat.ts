@@ -57,6 +57,10 @@ export const chatAPI = {
     }
 
     try {
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
       const response = await fetch('/api/chat/stream', {
         method: 'POST',
         headers: {
@@ -68,7 +72,10 @@ export const chatAPI = {
           user_id: 'web_user',
           conversation_history: conversationHistory || [],
         }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         if (response.status === 401) {

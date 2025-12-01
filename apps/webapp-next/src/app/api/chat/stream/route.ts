@@ -32,6 +32,10 @@ export async function POST(request: Request) {
       conversation_history: JSON.stringify(conversationHistory),
     });
 
+    // Add timeout to prevent hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout for streaming
+
     const response = await fetch(`${API_URL}/bali-zero/chat-stream?${params.toString()}`, {
       method: 'GET',
       headers: {
@@ -39,7 +43,10 @@ export async function POST(request: Request) {
         'X-API-Key': API_KEY,
         Authorization: `Bearer ${request.headers.get('Authorization')?.replace('Bearer ', '') || ''}`,
       },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       console.error('[ChatAPI] Backend error:', response.status, response.statusText);

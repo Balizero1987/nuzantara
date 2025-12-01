@@ -34,7 +34,7 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (response.ok && data.token) {
-        console.log("[Login] Received token:", data.token.substring(0, 20) + "...")
+        console.log("[Login] Authentication successful")
         
         // Save token using apiClient (saves to localStorage with key 'token')
         apiClient.setToken(data.token)
@@ -56,12 +56,10 @@ export default function LoginPage() {
         const allKeys = typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage) : []
         const tokenKeys = allKeys.filter(k => k.toLowerCase().includes('token'))
         
-        console.log("[Login] Verification:", {
-          apiClient: savedToken ? savedToken.substring(0, 20) + "..." : "NONE",
-          direct: directToken ? directToken.substring(0, 20) + "..." : "NONE",
-          allKeys: allKeys,
-          tokenKeys: tokenKeys,
-          tokenValues: tokenKeys.map(k => ({ key: k, value: typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem(k)?.substring(0, 20) + '...' : null }))
+        console.log("[Login] Token storage verification:", {
+          apiClient: savedToken ? "OK" : "MISSING",
+          direct: directToken ? "OK" : "MISSING",
+          tokenKeys: tokenKeys.length
         })
 
         // Also save user data if provided

@@ -14,11 +14,8 @@ import json
 import logging
 from collections.abc import AsyncIterator
 
-import asyncio
 import asyncpg
 import httpx
-import time
-from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -27,7 +24,8 @@ load_dotenv()
 # Langchain/Langgraph compatibility fix: add 'debug' attribute if missing
 # This fixes: "module 'langchain' has no attribute 'debug'" error
 import langchain
-if not hasattr(langchain, 'debug'):
+
+if not hasattr(langchain, "debug"):
     langchain.debug = False
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,10 +33,10 @@ from fastapi.responses import StreamingResponse
 
 # --- LLM Client ---
 from llm.zantara_ai_client import ZantaraAIClient
+from middleware.error_monitoring import ErrorMonitoringMiddleware
 
 # --- Middleware ---
 from middleware.hybrid_auth import HybridAuthMiddleware
-from middleware.error_monitoring import ErrorMonitoringMiddleware
 from middleware.rate_limiter import RateLimitMiddleware
 
 # --- OpenTelemetry ---
@@ -53,7 +51,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 # --- App Dependencies & Config ---
 from app import dependencies
 from app.core.config import settings
-from app.core.service_health import ServiceRegistry, ServiceStatus, service_registry
+from app.core.service_health import ServiceStatus, service_registry
 from app.modules.identity.router import router as identity_router
 from app.modules.knowledge.router import router as knowledge_router
 
@@ -70,6 +68,7 @@ from app.routers import (
     handlers,
     health,
     ingest,
+    instagram,
     intel,
     media,
     memory_vector,
@@ -79,25 +78,25 @@ from app.routers import (
     productivity,
     team_activity,
     whatsapp,
-    instagram,
 )
+
+# --- Core Services ---
+from services.alert_service import AlertService
 from services.auto_crm_service import get_auto_crm_service
 
 # --- Specialized Agents ---
 from services.autonomous_research_service import AutonomousResearchService
 from services.client_journey_orchestrator import ClientJourneyOrchestrator
+from services.collaborator_service import CollaboratorService
 from services.collective_memory_workflow import create_collective_memory_workflow
 from services.cross_oracle_synthesis_service import CrossOracleSynthesisService
 from services.cultural_rag_service import CulturalRAGService
 from services.handler_proxy import HandlerProxyService
+from services.health_monitor import HealthMonitor
 from services.intelligent_router import IntelligentRouter
 from services.memory_service_postgres import MemoryServicePostgres
 from services.personality_service import PersonalityService
 from services.query_router import QueryRouter
-from services.collaborator_service import CollaboratorService
-# --- Core Services ---
-from services.alert_service import AlertService
-from services.health_monitor import HealthMonitor
 from services.search_service import SearchService
 from services.tool_executor import ToolExecutor
 from services.zantara_tools import ZantaraTools
@@ -116,7 +115,7 @@ TS_BACKEND_FALLBACK_URL = settings.ts_backend_url
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    debug=True,  # Force debug mode for detailed errors
+    debug=settings.log_level == "DEBUG",  # Environment-based debug mode
 )
 
 # --- Observability: Metrics (Prometheus) ---
@@ -126,7 +125,11 @@ Instrumentator().instrument(app).expose(app)
 # Only enable if JAEGER_ENABLED is set (optional but good practice)
 resource = Resource.create(attributes={"service.name": "nuzantara-backend"})
 trace.set_tracer_provider(TracerProvider(resource=resource))
-otlp_exporter = OTLPSpanExporter(endpoint="http://jaeger:4317", insecure=True)
+# Use insecure only in development, configure TLS for production
+otlp_exporter = OTLPSpanExporter(
+    endpoint="http://jaeger:4317",
+    insecure=settings.log_level == "DEBUG"  # Only insecure in debug mode
+)
 trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
 
 # Instrument FastAPI
@@ -161,7 +164,7 @@ def _allowed_origins() -> list[str]:
         "https://balizero1987.github.io",
         "https://balizero.github.io",
         "https://nuzantara-webapp.fly.dev",  # Frontend Fly.io deployment
-        "http://localhost:3000",             # Local development
+        "http://localhost:3000",  # Local development
     ]
 
     # Always include defaults
@@ -193,7 +196,9 @@ app.add_middleware(ErrorMonitoringMiddleware, alert_service=alert_service)
 # Add Rate Limiting middleware (prevents API abuse, DoS protection)
 app.add_middleware(RateLimitMiddleware)
 
-logger.info("✅ Full Stack Observability: Prometheus + OpenTelemetry + ErrorMonitoring + RateLimiting")
+logger.info(
+    "✅ Full Stack Observability: Prometheus + OpenTelemetry + ErrorMonitoring + RateLimiting"
+)
 
 
 # --- Router Inclusion ---
@@ -565,12 +570,19 @@ async def initialize_services() -> None:
             service_registry.register("database", ServiceStatus.HEALTHY, critical=False)
             logger.info("✅ Team Timesheet Service initialized with auto-logout monitor")
         except Exception as e:
-            service_registry.register("database", ServiceStatus.UNAVAILABLE, error=str(e), critical=False)
+            service_registry.register(
+                "database", ServiceStatus.UNAVAILABLE, error=str(e), critical=False
+            )
             logger.error(f"❌ Failed to initialize Team Timesheet Service: {e}")
             app.state.ts_service = None
             app.state.db_pool = None
     else:
-        service_registry.register("database", ServiceStatus.UNAVAILABLE, error="DATABASE_URL not configured", critical=False)
+        service_registry.register(
+            "database",
+            ServiceStatus.UNAVAILABLE,
+            error="DATABASE_URL not configured",
+            critical=False,
+        )
         logger.warning("⚠️ DATABASE_URL not configured - Team Timesheet Service unavailable")
         app.state.ts_service = None
         app.state.db_pool = None
@@ -629,7 +641,9 @@ async def initialize_services() -> None:
         service_registry.register("health_monitor", ServiceStatus.HEALTHY, critical=False)
         logger.info("✅ Health Monitor: Active (check_interval=60s)")
     except Exception as e:
-        service_registry.register("health_monitor", ServiceStatus.DEGRADED, error=str(e), critical=False)
+        service_registry.register(
+            "health_monitor", ServiceStatus.DEGRADED, error=str(e), critical=False
+        )
         logger.error(f"❌ Failed to initialize Health Monitor: {e}")
 
     app.state.services_initialized = True
@@ -755,9 +769,11 @@ async def bali_zero_chat_stream(
                 user_memory = {
                     "facts": memory_obj.profile_facts,
                     "summary": memory_obj.summary,
-                    "counters": memory_obj.counters
+                    "counters": memory_obj.counters,
                 }
-                logger.info(f"✅ Loaded memory for {user_id}: {len(memory_obj.profile_facts)} facts")
+                logger.info(
+                    f"✅ Loaded memory for {user_id}: {len(memory_obj.profile_facts)} facts"
+                )
         except Exception as e:
             logger.warning(f"⚠️ Failed to load memory for {user_id}: {e}")
 
@@ -779,7 +795,7 @@ async def bali_zero_chat_stream(
                     # Direct structured format: {"type": "metadata|token|done", "data": ...}
                     chunk_type = chunk.get("type", "token")
                     chunk_data = chunk.get("data", "")
-                    
+
                     if chunk_type == "metadata":
                         yield f"data: {json.dumps({'type': 'metadata', 'data': chunk_data}, ensure_ascii=False)}\n\n"
                     elif chunk_type == "token":
