@@ -721,7 +721,7 @@ export default function ChatPage() {
                       className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 hover:scale-110 active:scale-95"
                     >
                       <img
-                        src="/images/string_good.png"
+                        src="/images/infinity_button.png"
                         alt="Send"
                         className="w-14 h-14 object-contain"
                       />
