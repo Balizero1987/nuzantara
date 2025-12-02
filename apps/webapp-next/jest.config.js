@@ -1,9 +1,10 @@
-const nextJest = require('next/jest')
+/* eslint-disable @typescript-eslint/no-require-imports */
+const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
   dir: './',
-})
+});
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
@@ -21,10 +22,7 @@ const customJestConfig = {
     // Handle module aliases (this will be automatically configured for you based on your tsconfig.json paths)
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testMatch: [
-    '**/__tests__/**/*.[jt]s?(x)',
-    '**/?(*.)+(spec|test).[jt]s?(x)',
-  ],
+  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
   collectCoverageFrom: [
     // ========================================
     // FULL COVERAGE (95% target)
@@ -81,17 +79,14 @@ const customJestConfig = {
     '<rootDir>/coverage/',
     '<rootDir>/e2e/', // Exclude E2E tests (run with Playwright)
     'e2e/.*\\.spec\\.ts$', // Exclude all Playwright test files
+    '**/*.spec.ts', // Exclude all spec files (Playwright)
   ],
-  modulePathIgnorePatterns: [
-    '<rootDir>/.next/',
-    '<rootDir>/node_modules/',
-  ],
+  modulePathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
   // Transform ignore patterns for node_modules except specific packages
   transformIgnorePatterns: [
     '/node_modules/(?!(zustand|@testing-library|react-markdown|remark-.*|unified|bail|trough|vfile|unist-.*|hast-.*|mdast-.*|micromark.*|decode-named-character-reference|character-entities|property-information|space-separated-tokens|comma-separated-tokens|ccount|escape-string-regexp|markdown-table|trim-lines|devlop)/)',
   ],
-}
+};
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
-module.exports = createJestConfig(customJestConfig)
-
+module.exports = createJestConfig(customJestConfig);
