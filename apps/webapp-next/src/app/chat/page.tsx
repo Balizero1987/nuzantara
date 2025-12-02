@@ -501,7 +501,7 @@ export default function ChatPage() {
                       <img
                         src="/images/logo_zan.svg"
                         alt="Zantara AI"
-                        className="w-8 h-8 object-contain"
+                        className="w-10 h-10 object-contain"
                       />
                     </div>
                   )}
@@ -536,7 +536,7 @@ export default function ChatPage() {
                 <img
                   src="/images/logo_zan.svg"
                   alt="Zantara AI"
-                  className="w-8 h-8 object-contain"
+                  className="w-10 h-10 object-contain"
                 />
               </div>
 
@@ -556,7 +556,7 @@ export default function ChatPage() {
                 <img
                   src="/images/logo_zan.svg"
                   alt="Zantara AI"
-                  className="w-8 h-8 object-contain"
+                  className="w-10 h-10 object-contain"
                 />
               </div>
 
@@ -623,13 +623,13 @@ export default function ChatPage() {
                         type="button"
                         onClick={() => setShowImageModal(true)}
                         disabled={isLoading}
-                        className="h-14 w-14 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-30 w-30 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Generate image"
                       >
                         <img
                           src="/images/imageb.svg"
                           alt=""
-                          className="h-7 w-7 object-contain brightness-[1.6]"
+                          className="h-30 w-30 object-contain brightness-[1.6]"
                         />
                       </button>
 
@@ -637,26 +637,26 @@ export default function ChatPage() {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isLoading}
-                        className="h-14 w-14 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-30 w-30 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Upload file"
                       >
                         <img
                           src="/images/file_botton.svg"
                           alt=""
-                          className="h-7 w-7 object-contain brightness-[1.6]"
+                          className="h-30 w-30 object-contain brightness-[1.6]"
                         />
                       </button>
 
                       <button
                         type="submit"
                         disabled={isLoading || !input.trim()}
-                        className="h-14 w-14 flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-30 w-30 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Send message"
                       >
                         <img
                           src="/images/sendb.svg"
                           alt=""
-                          className="h-7 w-7 object-contain brightness-[2.5]"
+                          className="h-30 w-30 object-contain brightness-[4.5]"
                         />
                       </button>
                     </div>
