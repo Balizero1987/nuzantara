@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 };
 
 import { WebSocketProvider } from "@/components/providers/WebSocketProvider";
+import { AuthProvider } from "@/context/AuthContext";
 
 // ...
 
@@ -23,9 +24,11 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased`}
       >
-        <WebSocketProvider>
-          {children}
-        </WebSocketProvider>
+        <AuthProvider>
+          <WebSocketProvider>
+            {children}
+          </WebSocketProvider>
+        </AuthProvider>
       </body>
     </html>
   );

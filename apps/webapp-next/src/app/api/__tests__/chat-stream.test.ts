@@ -60,11 +60,9 @@ class MockResponse {
   }
 }
 
-// @ts-expect-error - Mock globals
+// Mock globals
 global.Request = MockRequest as any
-// @ts-expect-error
 global.Response = MockResponse as any
-// @ts-expect-error
 global.Headers = MockHeaders as any
 
 // Mock NextResponse
@@ -188,7 +186,7 @@ describe('POST /api/chat/stream', () => {
     const data = await response.json()
 
     expect(response.status).toBe(503)
-    expect(data.error).toBe('Backend service unavailable')
+    expect((data as any).error).toBe('Backend service unavailable')
   })
 
   it('should return 500 on network error', async () => {
@@ -207,7 +205,7 @@ describe('POST /api/chat/stream', () => {
     const data = await response.json()
 
     expect(response.status).toBe(500)
-    expect(data.error).toBe('Failed to connect to AI service')
+    expect((data as any).error).toBe('Failed to connect to AI service')
   })
 
   it('should use default API URL when env var not set', async () => {

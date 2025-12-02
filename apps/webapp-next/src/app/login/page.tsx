@@ -2,121 +2,35 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { apiClient } from "@/lib/api/client"
+import { useAuth } from "@/context/AuthContext"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login, isAuthenticated } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    // Check if already logged in
-    const token = apiClient.getToken()
-    if (token) {
+    if (isAuthenticated) {
       router.push("/chat")
     }
-  }, [router])
+  }, [isAuthenticated, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    setIsLoading(true)
+    setIsSubmitting(true)
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, pin: password }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.token) {
-        console.log("[Login] Authentication successful")
-        
-        // Save token using apiClient (saves to localStorage with key 'token')
-        apiClient.setToken(data.token)
-        console.log("[Login] Token saved via apiClient.setToken()")
-        
-        // Also save directly to localStorage as backup using globalThis
-        if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
-          const storage = globalThis.localStorage;
-          storage.setItem('token', data.token);
-          storage.setItem('zantara_token', data.token);
-          // Force sync
-          storage.getItem('token');
-          console.log("[Login] Token also saved directly to localStorage (globalThis)")
-        }
-        
-        // Verify token was saved
-        const savedToken = apiClient.getToken()
-        const directToken = typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('token') : null
-        const allKeys = typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage) : []
-        const tokenKeys = allKeys.filter(k => k.toLowerCase().includes('token'))
-        
-        console.log("[Login] Token storage verification:", {
-          apiClient: savedToken ? "OK" : "MISSING",
-          direct: directToken ? "OK" : "MISSING",
-          tokenKeys: tokenKeys.length
-        })
-
-        // Also save user data if provided
-        if (data.user) {
-          localStorage.setItem("zantara_user", JSON.stringify(data.user))
-        }
-
-        // Force synchronous write and verify token is persisted
-        // Save token multiple times to ensure it's available
-        if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
-          const storage = globalThis.localStorage;
-          storage.setItem('token', data.token);
-          storage.setItem('zantara_token', data.token);
-          // Force sync
-          storage.getItem('token'); // Force read to ensure write completed
-        }
-        
-        // Verify token is accessible immediately
-        const finalCheck = apiClient.getToken() || (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('token') : null)
-        if (!finalCheck) {
-          console.error("[Login] ERROR: Token not found after save!")
-          setError("Failed to save authentication token. Please try again.")
-          setIsLoading(false)
-          return
-        }
-        
-        console.log("[Login] Token verified and persisted, redirecting to chat")
-        console.log("[Login] Final token check:", {
-          apiClient: apiClient.getToken() ? 'OK' : 'FAIL',
-          localStorage: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('token') ? 'OK' : 'FAIL',
-          zantara_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_token') ? 'OK' : 'FAIL'
-        })
-        
-        // Use window.location instead of router.push for more reliable navigation
-        // This ensures the page fully reloads and can access the token
-        if (typeof globalThis !== 'undefined' && 'location' in globalThis) {
-          (globalThis as any).location.href = "/chat"
-        } else {
-          router.push("/chat")
-        }
-      } else {
-        // Handle error - could be string, object, or array
-        let errorMessage = "Login failed. Please try again."
-        if (typeof data.error === "string") {
-          errorMessage = data.error
-        } else if (data.error && typeof data.error === "object") {
-          errorMessage = JSON.stringify(data.error)
-        } else if (data.detail) {
-          errorMessage = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail)
-        }
-        setError(errorMessage)
-      }
-    } catch (err) {
-      setError("Network error. Please try again.")
+      await login({ email, pin: password })
+      // Navigation is handled by login() in AuthContext
+    } catch (err: any) {
       console.error("Login error:", err)
+      setError(err.message || "Login failed. Please check your credentials.")
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
   }
 
@@ -175,10 +89,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="w-full py-3 px-4 bg-gradient-to-r from-[#d4af37] to-[#f0c75e] hover:from-[#f0c75e] hover:to-[#d4af37] text-black font-bold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isSubmitting ? "Signing in..." : "Sign In"}
           </button>
         </form>
       </div>
