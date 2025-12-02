@@ -1,11 +1,13 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { chatAPI } from "@/lib/api/chat"
 import { useAuth } from "@/context/AuthContext"
 import { apiClient } from "@/lib/api/client"
+import { zantaraAPI } from "@/lib/api/zantara-integration"
+import { useChatStore, selectConversationHistory } from "@/lib/store/chat-store"
 import { RAGDrawer } from "@/components/chat/RAGDrawer"
 import { MarkdownRenderer } from "@/components/chat/MarkdownRenderer"
 import { ThinkingIndicator } from "@/components/chat/ThinkingIndicator"
@@ -15,7 +17,6 @@ export default function ChatPage() {
   const router = useRouter()
   const { user, token, logout, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const [input, setInput] = useState("")
-  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [streamingContent, setStreamingContent] = useState("")
@@ -33,6 +34,24 @@ export default function ChatPage() {
   const [showImageModal, setShowImageModal] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [imagePrompt, setImagePrompt] = useState("")
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Zustand store
+  const {
+    messages,
+    addMessage,
+    clearMessages,
+    replaceMessages,
+    session,
+    setSession,
+    crmContext,
+    setCRMContext,
+    setZantaraContext,
+    isSessionInitialized,
+    setSessionInitialized,
+  } = useChatStore()
+
+  const conversationHistory = useChatStore(selectConversationHistory)
 
   const [previousChats, setPreviousChats] = useState([
     { id: 1, title: "Tourist visa for Bali", date: "2 hours ago" },
@@ -41,11 +60,113 @@ export default function ChatPage() {
     { id: 4, title: "Work permit application", date: "1 week ago" },
   ])
 
+  // Initialize ZANTARA session and load context
+  const initializeSession = useCallback(async () => {
+    if (isInitialized) return
+
+    try {
+      console.log('[ChatPage] Initializing ZANTARA session...')
+
+      // Initialize session with backend
+      const newSession = await zantaraAPI.initSession()
+      setSession(newSession)
+
+      // Load conversation history from backend
+      const backendHistory = await zantaraAPI.loadConversationHistory(50)
+      if (backendHistory.length > 0) {
+        console.log('[ChatPage] Loaded', backendHistory.length, 'messages from backend')
+        const formattedMessages = backendHistory.map((m, idx) => ({
+          id: `msg_${idx}_${Date.now()}`,
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(),
+        }))
+        replaceMessages(formattedMessages)
+      }
+
+      // Load CRM context if available
+      if (newSession.crmClientId) {
+        const crmCtx = await zantaraAPI.getCRMContext(newSession.userEmail)
+        if (crmCtx) {
+          setCRMContext({
+            clientId: crmCtx.clientId,
+            clientName: crmCtx.clientName,
+            status: crmCtx.status,
+            practices: crmCtx.practices,
+          })
+        }
+      }
+
+      setSessionInitialized(true)
+      setIsInitialized(true)
+      console.log('[ChatPage] ZANTARA session initialized:', {
+        sessionId: newSession.sessionId,
+        hasCRM: !!newSession.crmClientId,
+      })
+    } catch (error) {
+      console.error('[ChatPage] Failed to initialize session:', error)
+      setIsInitialized(true) // Continue anyway
+    }
+  }, [isInitialized, setSession, replaceMessages, setCRMContext, setSessionInitialized])
+
   useEffect(() => {
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
+    // Check for token - try multiple possible storage keys with retry mechanism
+    const checkToken = () => {
+      const token = apiClient.getToken() ||
+        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('token') : null) ||
+        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('zantara_token') : null) ||
+        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('zantara_session_token') : null)
+      return token
+    }
+
+    let token = checkToken()
+
+    // If token not found immediately, wait a bit and retry (for navigation from login)
+    if (!token) {
+      setTimeout(() => {
+        token = checkToken()
+        console.log('[ChatPage] Token check (retry):', {
+          apiClient: apiClient.getToken() ? 'found' : 'not found',
+          localStorage_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('token') ? 'found' : 'not found',
+          zantara_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_token') ? 'found' : 'not found',
+          zantara_session_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_session_token') ? 'found' : 'not found',
+          allKeys: typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage).filter(k => k.toLowerCase().includes('token')) : []
+        })
+
+        if (!token) {
+          console.log('[ChatPage] No token found after retry, redirecting to login')
+          router.push("/login")
+          return
+        }
+
+        // Initialize session after token found
+        initializeSession()
+      }, 100)
+    }
+
+    console.log('[ChatPage] Token check:', {
+      apiClient: apiClient.getToken() ? 'found' : 'not found',
+      localStorage_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('token') ? 'found' : 'not found',
+      zantara_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_token') ? 'found' : 'not found',
+      zantara_session_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_session_token') ? 'found' : 'not found',
+      allKeys: typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage).filter(k => k.toLowerCase().includes('token')) : []
+    })
+
+    if (!token) {
+      // Don't redirect immediately, wait for retry
+      return
+
     if (!isAuthLoading && !isAuthenticated) {
       router.push("/login")
+ main
     }
   }, [isAuthLoading, isAuthenticated, router])
+
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
+    // Initialize ZANTARA session
+    initializeSession()
+  }, [router, initializeSession])
 
   useEffect(() => {
     // Load conversation history from localStorage
@@ -66,6 +187,7 @@ export default function ChatPage() {
       localStorage.setItem("zantara_conversation", JSON.stringify(messages))
     }
   }, [messages])
+ main
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -90,24 +212,26 @@ export default function ChatPage() {
     const userMessage = input.trim()
     setInput("")
 
-    const newUserMessage: ChatMessage = { role: "user", content: userMessage }
-    setMessages((prev) => [...prev, newUserMessage])
+    // Add user message to store
+    const newUserMessage = {
+      id: `user_${Date.now()}`,
+      role: "user" as const,
+      content: userMessage,
+      timestamp: new Date(),
+    }
+    addMessage(newUserMessage)
     setIsLoading(true)
     setStreamingContent("")
 
     let accumulatedContent = ""
     let metadata: ChatMetadata | undefined = undefined
 
-    // Prepare conversation history (max 100 turns = 200 messages)
+    // Prepare conversation history from store (max 100 turns = 200 messages)
     // Keep only the last 200 messages to ensure context window management
     // Filter out error messages to avoid confusing the AI
-    const conversationHistory = messages
-      .filter(msg => msg.content !== "Sorry, I encountered an error. Please try again.") // Filter errors
-      .slice(-200) // Last 200 messages = 100 user + 100 assistant turns
-      .map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }))
+    const history = conversationHistory
+      .filter(msg => msg.content !== "Sorry, I encountered an error. Please try again.")
+      .slice(-200)
 
     try {
       await chatAPI.streamChat(
@@ -117,33 +241,45 @@ export default function ChatPage() {
           setStreamingContent(accumulatedContent)
         },
         (meta: ChatMetadata) => {
-          console.log("[v0] Metadata received:", meta)
+          console.log("[ZANTARA] Metadata received:", meta)
           metadata = meta
         },
         () => {
-          const aiMessage: ChatMessage = {
-            role: "assistant",
+          // Add assistant message to store
+          const aiMessage = {
+            id: `assistant_${Date.now()}`,
+            role: "assistant" as const,
             content: accumulatedContent,
-            metadata,
+            timestamp: new Date(),
+            metadata: metadata ? {
+              model_used: metadata.model_used,
+              rag_sources: metadata.sources?.map((s: { source: string; relevance: number; preview?: string }) => ({
+                source: s.source,
+                relevance: s.relevance,
+                preview: s.preview,
+              })),
+            } : undefined,
           }
-          setMessages((prev) => [...prev, aiMessage])
+          addMessage(aiMessage)
           setStreamingContent("")
           setIsLoading(false)
         },
         (error: Error) => {
-          console.error("[v0] Chat stream error:", error)
+          console.error("[ZANTARA] Chat stream error:", error)
           setStreamingContent("")
           setIsLoading(false)
-          const errorMessage: ChatMessage = {
-            role: "assistant",
+          const errorMessage = {
+            id: `error_${Date.now()}`,
+            role: "assistant" as const,
             content: "Sorry, I encountered an error. Please try again.",
+            timestamp: new Date(),
           }
-          setMessages((prev) => [...prev, errorMessage])
+          addMessage(errorMessage)
         },
-        conversationHistory
+        history
       )
     } catch (error) {
-      console.error("[v0] Chat error:", error)
+      console.error("[ZANTARA] Chat error:", error)
       setStreamingContent("")
       setIsLoading(false)
     }
@@ -161,10 +297,21 @@ export default function ChatPage() {
     logout()
   }
 
-  const handleNewConversation = () => {
-    setMessages([])
+  const handleNewConversation = async () => {
+    // Clear local store
+    clearMessages()
+
+    // Clear backend history
+    try {
+      await chatAPI.clearHistory()
+      console.log("[ZANTARA] Conversation cleared from backend")
+    } catch (error) {
+      console.warn("[ZANTARA] Failed to clear backend history:", error)
+    }
+
+    // Clear legacy localStorage
     localStorage.removeItem("zantara_conversation")
-    console.log("[Chat] Started new conversation")
+    console.log("[ZANTARA] Started new conversation")
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -250,8 +397,8 @@ export default function ChatPage() {
     }
   }
 
-  const handleNewChat = () => {
-    setMessages([])
+  const handleNewChat = async () => {
+    await handleNewConversation()
     setIsSidebarOpen(false)
   }
 
@@ -370,6 +517,26 @@ export default function ChatPage() {
                 </svg>
               )}
             </button>
+
+            {/* CRM Context Badge */}
+            {crmContext && (
+              <div
+                className="flex items-center gap-2 px-3 py-1.5 bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-full text-xs"
+                title={`CRM Client: ${crmContext.clientName} (${crmContext.status})`}
+              >
+                <svg className="w-4 h-4 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="text-[#d4af37] font-medium truncate max-w-[100px]">
+                  {crmContext.clientName}
+                </span>
+                {crmContext.practices && crmContext.practices.length > 0 && (
+                  <span className="bg-[#d4af37]/20 text-[#d4af37] px-1.5 py-0.5 rounded-full text-[10px]">
+                    {crmContext.practices.length} pratiche
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <img
