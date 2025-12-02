@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { chatAPI } from "@/lib/api/chat"
-import { authAPI } from "@/lib/api/auth"
+import { useAuth } from "@/context/AuthContext"
 import { apiClient } from "@/lib/api/client"
 import { RAGDrawer } from "@/components/chat/RAGDrawer"
 import { MarkdownRenderer } from "@/components/chat/MarkdownRenderer"
@@ -13,6 +13,7 @@ import type { ChatMessage, ChatMetadata } from "@/lib/api/types"
 
 export default function ChatPage() {
   const router = useRouter()
+  const { user, token, logout, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const [input, setInput] = useState("")
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -41,50 +42,12 @@ export default function ChatPage() {
   ])
 
   useEffect(() => {
-    // Check for token - try multiple possible storage keys with retry mechanism
-    const checkToken = () => {
-      const token = apiClient.getToken() ||
-        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('token') : null) ||
-        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('zantara_token') : null) ||
-        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('zantara_session_token') : null)
-      return token
+    if (!isAuthLoading && !isAuthenticated) {
+      router.push("/login")
     }
+  }, [isAuthLoading, isAuthenticated, router])
 
-    let token = checkToken()
-
-    // If token not found immediately, wait a bit and retry (for navigation from login)
-    if (!token) {
-      setTimeout(() => {
-        token = checkToken()
-        console.log('[ChatPage] Token check (retry):', {
-          apiClient: apiClient.getToken() ? 'found' : 'not found',
-          localStorage_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('token') ? 'found' : 'not found',
-          zantara_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_token') ? 'found' : 'not found',
-          zantara_session_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_session_token') ? 'found' : 'not found',
-          allKeys: typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage).filter(k => k.toLowerCase().includes('token')) : []
-        })
-
-        if (!token) {
-          console.log('[ChatPage] No token found after retry, redirecting to login')
-          router.push("/login")
-          return
-        }
-      }, 100)
-    }
-
-    console.log('[ChatPage] Token check:', {
-      apiClient: apiClient.getToken() ? 'found' : 'not found',
-      localStorage_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('token') ? 'found' : 'not found',
-      zantara_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_token') ? 'found' : 'not found',
-      zantara_session_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_session_token') ? 'found' : 'not found',
-      allKeys: typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage).filter(k => k.toLowerCase().includes('token')) : []
-    })
-
-    if (!token) {
-      // Don't redirect immediately, wait for retry
-      return
-    }
-
+  useEffect(() => {
     // Load conversation history from localStorage
     const savedMessages = localStorage.getItem("zantara_conversation")
     if (savedMessages) {
@@ -95,7 +58,7 @@ export default function ChatPage() {
         console.error("Failed to load conversation history:", e)
       }
     }
-  }, [router])
+  }, [])
 
   // Save conversation history to localStorage whenever messages change
   useEffect(() => {
@@ -195,9 +158,7 @@ export default function ChatPage() {
   }
 
   const handleLogout = () => {
-    apiClient.clearToken()
-    authAPI.clearUser()
-    router.push("/")
+    logout()
   }
 
   const handleNewConversation = () => {
@@ -657,19 +618,18 @@ export default function ChatPage() {
                       />
                     </div>
 
-                    {/* BOTTONI TEMPORANEAMENTE RIMOSSI */}
-                    {/* <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                       <button
                         type="button"
                         onClick={() => setShowImageModal(true)}
                         disabled={isLoading}
-                        className="h-12 w-12 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-14 w-14 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Generate image"
                       >
                         <img
                           src="/images/imageb.svg"
                           alt=""
-                          className="h-6 w-6 object-contain brightness-[1.6]"
+                          className="h-7 w-7 object-contain brightness-[1.6]"
                         />
                       </button>
 
@@ -677,29 +637,29 @@ export default function ChatPage() {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isLoading}
-                        className="h-12 w-12 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-14 w-14 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Upload file"
                       >
                         <img
                           src="/images/file_botton.svg"
                           alt=""
-                          className="h-6 w-6 object-contain brightness-[1.6]"
+                          className="h-7 w-7 object-contain brightness-[1.6]"
                         />
                       </button>
 
                       <button
                         type="submit"
                         disabled={isLoading || !input.trim()}
-                        className="h-12 w-12 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-14 w-14 flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Send message"
                       >
                         <img
                           src="/images/sendb.svg"
                           alt=""
-                          className="h-6 w-6 object-contain brightness-[2.0]"
+                          className="h-7 w-7 object-contain brightness-[2.5]"
                         />
                       </button>
-                    </div> */}
+                    </div>
                   </div>
                 </div>
               </div>
