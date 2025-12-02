@@ -180,7 +180,7 @@ export const zantaraAPI = {
     try {
       const request: SaveConversationRequest = {
         user_email: user.email,
-        messages: messages.map(m => ({
+        messages: messages.map((m) => ({
           role: m.role,
           content: m.content,
           timestamp: m.timestamp || new Date().toISOString(),
@@ -214,18 +214,15 @@ export const zantaraAPI = {
   /**
    * Load conversation history from backend
    */
-  async loadConversationHistory(
-    limit: number = 50,
-    sessionId?: string
-  ): Promise<ChatMessage[]> {
+  async loadConversationHistory(limit: number = 50, sessionId?: string): Promise<ChatMessage[]> {
     const user = authAPI.getUser();
     if (!user?.email) {
       return [];
     }
 
     try {
-      const response: ConversationHistoryResponse = await client.conversations
-        .getConversationHistoryApiBaliZeroConversationsHistoryGet({
+      const response: ConversationHistoryResponse =
+        await client.conversations.getConversationHistoryApiBaliZeroConversationsHistoryGet({
           userEmail: user.email,
           limit,
           sessionId: sessionId || getSessionId(),
@@ -323,7 +320,7 @@ export const zantaraAPI = {
         return searchResponse.results.map((r: Record<string, unknown>) => ({
           content: r.document as string,
           relevance: r.score as number,
-          type: (r.metadata as Record<string, unknown>)?.type as string || 'general',
+          type: ((r.metadata as Record<string, unknown>)?.type as string) || 'general',
         }));
       }
       return [];
@@ -435,7 +432,7 @@ export const zantaraAPI = {
           date: i.created_at as string,
         })),
       };
-    } catch (error) {
+    } catch {
       // Client not found is expected for new users
       console.log('[Zantara] No CRM client found for email:', email);
       return null;
@@ -461,9 +458,9 @@ export const zantaraAPI = {
           client_id: clientId,
           interaction_type: type,
           summary,
-          notes: `Automated log from ZANTARA chat session`,
+          full_content: `Automated log from ZANTARA chat session`,
+          team_member: user.email,
         },
-        recordedBy: user.email,
       });
       return true;
     } catch (error) {
@@ -539,17 +536,20 @@ export const zantaraAPI = {
   async getComplianceAlerts(
     clientId?: string,
     severity?: string
-  ): Promise<Array<{
-    type: string;
-    severity: string;
-    dueDate: string;
-    description: string;
-  }>> {
+  ): Promise<
+    Array<{
+      type: string;
+      severity: string;
+      dueDate: string;
+      description: string;
+    }>
+  > {
     try {
-      const response = await client.agenticFunctions.getComplianceAlertsApiAgentsComplianceAlertsGet({
-        clientId,
-        severity,
-      });
+      const response =
+        await client.agenticFunctions.getComplianceAlertsApiAgentsComplianceAlertsGet({
+          clientId,
+          severity,
+        });
       return (response.alerts || []).map((a: Record<string, unknown>) => ({
         type: a.type as string,
         severity: a.severity as string,
@@ -575,11 +575,12 @@ export const zantaraAPI = {
     breakdown: Record<string, number>;
   } | null> {
     try {
-      const response = await client.agenticFunctions.calculateDynamicPricingApiAgentsPricingCalculatePost({
-        serviceType,
-        complexity,
-        urgency,
-      });
+      const response =
+        await client.agenticFunctions.calculateDynamicPricingApiAgentsPricingCalculatePost({
+          serviceType,
+          complexity,
+          urgency,
+        });
       return {
         basePrice: response.base_price,
         finalPrice: response.final_price,
@@ -602,10 +603,11 @@ export const zantaraAPI = {
     sources: Array<{ domain: string; content: string; relevance: number }>;
   } | null> {
     try {
-      const response = await client.agenticFunctions.crossOracleSynthesisApiAgentsSynthesisCrossOraclePost({
-        query,
-        domains,
-      });
+      const response =
+        await client.agenticFunctions.crossOracleSynthesisApiAgentsSynthesisCrossOraclePost({
+          query,
+          domains,
+        });
       return {
         synthesizedAnswer: response.synthesized_answer || '',
         sources: response.sources || [],
@@ -640,11 +642,13 @@ export const zantaraAPI = {
       session,
       recentMemories: memories.length > 0 ? memories : undefined,
       crmContext: crmContext || undefined,
-      agentsStatus: agentsStatus ? {
-        available: agentsStatus.available,
-        activeJourneys: agentsStatus.activeJourneys.length,
-        pendingAlerts: agentsStatus.pendingAlerts,
-      } : undefined,
+      agentsStatus: agentsStatus
+        ? {
+            available: agentsStatus.available,
+            activeJourneys: agentsStatus.activeJourneys.length,
+            pendingAlerts: agentsStatus.pendingAlerts,
+          }
+        : undefined,
     };
 
     return context;
