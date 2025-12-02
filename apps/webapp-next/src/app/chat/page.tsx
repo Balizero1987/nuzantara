@@ -414,7 +414,7 @@ export default function ChatPage() {
           <img
             src="/images/logo_zan.svg"
             alt="ZANTARA"
-            className="h-20 w-auto mx-auto"
+            className="h-24 w-auto mx-auto"
           />
 
           <div className="flex items-center gap-3">
