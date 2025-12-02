@@ -1,5 +1,16 @@
 import { NuzantaraClient } from './generated/NuzantaraClient';
-import { AUTH_TOKEN_KEY, API_BASE_URL } from '@/lib/constants';
+import { AUTH_TOKEN_KEY, API_BASE_URL } from '../constants';
+
+/**
+ * Global API Client Instance
+ * Automatically configured with Base URL and Authentication
+ */
+export const tokenProvider = async () => {
+  if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+    return globalThis.localStorage.getItem(AUTH_TOKEN_KEY) || '';
+  }
+  return '';
+};
 
 /**
  * Global API Client Instance
@@ -7,12 +18,7 @@ import { AUTH_TOKEN_KEY, API_BASE_URL } from '@/lib/constants';
  */
 export const client = new NuzantaraClient({
   BASE: API_BASE_URL,
-  TOKEN: async () => {
-    if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
-      return globalThis.localStorage.getItem(AUTH_TOKEN_KEY) || '';
-    }
-    return '';
-  },
+  TOKEN: tokenProvider,
 });
 
 /**

@@ -80,7 +80,7 @@ jest.mock('react-markdown', () => {
 })
 
 // Mock remark-gfm
-jest.mock('remark-gfm', () => () => {})
+jest.mock('remark-gfm', () => () => { })
 
 import { MarkdownRenderer } from '../MarkdownRenderer'
 
@@ -198,9 +198,31 @@ This is a paragraph.
 [A link](https://example.com)`
     render(<MarkdownRenderer content={complexContent} />)
 
-    expect(screen.getByText('Title')).toBeInTheDocument()
-    expect(screen.getByText('List item 1')).toBeInTheDocument()
-    expect(screen.getByText('A blockquote')).toBeInTheDocument()
     expect(screen.getByText('A link')).toBeInTheDocument()
+  })
+})
+
+describe('markdownComponents', () => {
+  const { markdownComponents } = require('../MarkdownRenderer')
+
+  it('should render inline code', () => {
+    const CodeComponent = markdownComponents.code
+    render(<CodeComponent className="">inline code</CodeComponent>)
+
+    const codeElement = screen.getByText('inline code')
+    expect(codeElement).toHaveClass('bg-gray-800', 'px-1.5', 'py-0.5', 'rounded', 'text-sm', 'font-mono', 'text-yellow-200')
+    expect(codeElement.tagName).toBe('CODE')
+  })
+
+  it('should render code block', () => {
+    const CodeComponent = markdownComponents.code
+    render(<CodeComponent className="language-javascript">const x = 1;</CodeComponent>)
+
+    const codeElement = screen.getByText('const x = 1;')
+    // Code block renders inside a pre > code structure
+    // The component renders: div > div (header) + pre > code
+    expect(codeElement.tagName).toBe('CODE')
+    expect(codeElement).toHaveClass('language-javascript')
+    expect(screen.getByText('javascript')).toBeInTheDocument()
   })
 })

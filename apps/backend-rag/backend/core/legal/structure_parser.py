@@ -58,13 +58,16 @@ class LegalStructureParser:
         }
 
         # Step 1: Extract Konsiderans
-        structure["konsiderans"] = self._extract_konsiderans(text)
+        structure["konsiderans"], body_start_index = self._extract_konsiderans_with_index(text)
 
         # Step 2: Split document into sections
         penjelasan_match = PENJELASAN_PATTERN.search(text)
         penjelasan_start = penjelasan_match.start() if penjelasan_match else len(text)
 
-        batang_tubuh_text = text[:penjelasan_start]
+        # Batang Tubuh starts after Konsiderans (or at 0 if no Konsiderans)
+        start_index = body_start_index if body_start_index is not None else 0
+        batang_tubuh_text = text[start_index:penjelasan_start]
+        
         penjelasan_text = text[penjelasan_start:] if penjelasan_match else ""
 
         # Step 3: Parse Batang Tubuh (Body)
@@ -84,15 +87,15 @@ class LegalStructureParser:
 
         return structure
 
-    def _extract_konsiderans(self, text: str) -> str | None:
+    def _extract_konsiderans_with_index(self, text: str) -> tuple[str | None, int | None]:
         """
-        Extract Konsiderans (Considerations) section.
-
+        Extract Konsiderans and return its text and end index.
+        
         Args:
             text: Document text
-
+            
         Returns:
-            Konsiderans text or None
+            Tuple (konsiderans_text, end_index)
         """
         konsiderans_start = None
         konsiderans_end = None
@@ -105,7 +108,7 @@ class LegalStructureParser:
                 break
 
         if konsiderans_start is None:
-            return None
+            return None, None
 
         # Find end of Konsiderans (start of Batang Tubuh)
         # Usually marked by "MEMUTUSKAN:" or first "BAB" or first "Pasal"
@@ -119,6 +122,22 @@ class LegalStructureParser:
             match = re.search(marker, text[konsiderans_start:], re.IGNORECASE | re.MULTILINE)
             if match:
                 konsiderans_end = konsiderans_start + match.start()
+                # If marker is MEMUTUSKAN, we want to include it in Konsiderans or skip it?
+                # Usually MEMUTUSKAN: Menetapkan: ... is the bridge. 
+                # The actual body starts after "Menetapkan: ...".
+                # But for simplicity, let's say body starts at the marker match if it's BAB or Pasal,
+                # or after MEMUTUSKAN block if it's MEMUTUSKAN.
+                
+                # If marker is MEMUTUSKAN, let's try to find "Menetapkan:" and go after that.
+                if "MEMUTUSKAN" in marker.upper() or "MEMUTUSKAN" in match.group(0).upper():
+                     # Look for "Menetapkan" after this
+                     menetapkan_match = re.search(r"Menetapkan\s*:", text[konsiderans_start + match.start():], re.IGNORECASE)
+                     if menetapkan_match:
+                         # The body usually starts after the title of the law in Menetapkan.
+                         # E.g. Menetapkan: UNDANG-UNDANG TENTANG ...
+                         # Then BAB I.
+                         # So we might want to look for the first BAB or Pasal after this.
+                         pass
                 break
 
         if konsiderans_end is None:
@@ -126,7 +145,12 @@ class LegalStructureParser:
             konsiderans_end = konsiderans_start + 2000
 
         konsiderans_text = text[konsiderans_start:konsiderans_end].strip()
-        return konsiderans_text if konsiderans_text else None
+        return konsiderans_text, konsiderans_end
+
+    def _extract_konsiderans(self, text: str) -> str | None:
+        """Wrapper for backward compatibility if needed"""
+        content, _ = self._extract_konsiderans_with_index(text)
+        return content
 
     def _parse_batang_tubuh(self, text: str) -> list[dict[str, Any]]:
         """

@@ -12,34 +12,30 @@ jest.mock('next/navigation', () => ({
   }),
 }))
 
-// Mock apiClient
-const mockGetToken = jest.fn()
-const mockSetToken = jest.fn()
-jest.mock('@/lib/api/client', () => ({
-  apiClient: {
-    getToken: () => mockGetToken(),
-    setToken: (token: string) => mockSetToken(token),
-    clearToken: jest.fn(),
-  },
-}))
+// Mock AuthContext
+const mockLogin = jest.fn()
+const mockUseAuth = jest.fn()
 
-// Mock fetch
-const mockFetch = jest.fn()
-global.fetch = mockFetch
+jest.mock('@/context/AuthContext', () => ({
+  useAuth: () => mockUseAuth(),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
 
 describe('LoginPage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockGetToken.mockReturnValue(null)
-    // Mock globalThis.location
-    delete (globalThis as any).location
-    ;(globalThis as any).location = { href: '' }
+
+    // Default auth state
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: false,
+      login: mockLogin,
+    })
   })
 
   it('should render login form', () => {
     render(<LoginPage />)
 
-    expect(screen.getByText('ZANTARA')).toBeInTheDocument()
+    expect(screen.getByAltText('ZANTARA')).toBeInTheDocument()
     expect(screen.getByText('Sign in to continue')).toBeInTheDocument()
     expect(screen.getByLabelText('Email')).toBeInTheDocument()
     expect(screen.getByLabelText('PIN')).toBeInTheDocument()
@@ -47,7 +43,11 @@ describe('LoginPage', () => {
   })
 
   it('should redirect to chat if already logged in', () => {
-    mockGetToken.mockReturnValue('existing-token')
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      login: mockLogin,
+    })
+
     render(<LoginPage />)
 
     expect(mockPush).toHaveBeenCalledWith('/chat')
@@ -72,7 +72,7 @@ describe('LoginPage', () => {
   })
 
   it('should show loading state during login', async () => {
-    mockFetch.mockImplementation(() => new Promise(() => {})) // Never resolves
+    mockLogin.mockImplementation(() => new Promise(() => { })) // Never resolves
 
     render(<LoginPage />)
 
@@ -86,14 +86,7 @@ describe('LoginPage', () => {
   })
 
   it('should handle successful login', async () => {
-    const mockResponse = {
-      ok: true,
-      json: async () => ({
-        token: 'test-jwt-token-12345',
-        user: { id: '1', email: 'test@example.com', name: 'Test User' },
-      }),
-    }
-    mockFetch.mockResolvedValue(mockResponse)
+    mockLogin.mockResolvedValue(undefined)
 
     render(<LoginPage />)
 
@@ -102,22 +95,15 @@ describe('LoginPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sign In' }))
 
     await waitFor(() => {
-      expect(mockSetToken).toHaveBeenCalledWith('test-jwt-token-12345')
-    })
-
-    await waitFor(() => {
-      expect((globalThis as any).location.href).toBe('/chat')
+      expect(mockLogin).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        pin: '123456',
+      })
     })
   })
 
   it('should display error on failed login', async () => {
-    const mockResponse = {
-      ok: false,
-      json: async () => ({
-        error: 'Invalid credentials',
-      }),
-    }
-    mockFetch.mockResolvedValue(mockResponse)
+    mockLogin.mockRejectedValue(new Error('Invalid credentials'))
 
     render(<LoginPage />)
 
@@ -130,14 +116,8 @@ describe('LoginPage', () => {
     })
   })
 
-  it('should display error with detail field', async () => {
-    const mockResponse = {
-      ok: false,
-      json: async () => ({
-        detail: 'Authentication failed',
-      }),
-    }
-    mockFetch.mockResolvedValue(mockResponse)
+  it('should display default error message if error has no message', async () => {
+    mockLogin.mockRejectedValue({})
 
     render(<LoginPage />)
 
@@ -146,109 +126,7 @@ describe('LoginPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sign In' }))
 
     await waitFor(() => {
-      expect(screen.getByText('Authentication failed')).toBeInTheDocument()
-    })
-  })
-
-  it('should display error with object error', async () => {
-    const mockResponse = {
-      ok: false,
-      json: async () => ({
-        error: { message: 'Complex error' },
-      }),
-    }
-    mockFetch.mockResolvedValue(mockResponse)
-
-    render(<LoginPage />)
-
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } })
-    fireEvent.change(screen.getByLabelText('PIN'), { target: { value: 'wrong' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Sign In' }))
-
-    await waitFor(() => {
-      expect(screen.getByText(/Complex error/)).toBeInTheDocument()
-    })
-  })
-
-  it('should handle network error', async () => {
-    mockFetch.mockRejectedValue(new Error('Network error'))
-
-    render(<LoginPage />)
-
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } })
-    fireEvent.change(screen.getByLabelText('PIN'), { target: { value: '123456' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Sign In' }))
-
-    await waitFor(() => {
-      expect(screen.getByText('Network error. Please try again.')).toBeInTheDocument()
-    })
-  })
-
-  it('should save user data on successful login', async () => {
-    const mockUser = { id: '1', email: 'test@example.com', name: 'Test User' }
-    const mockResponse = {
-      ok: true,
-      json: async () => ({
-        token: 'test-token',
-        user: mockUser,
-      }),
-    }
-    mockFetch.mockResolvedValue(mockResponse)
-
-    render(<LoginPage />)
-
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } })
-    fireEvent.change(screen.getByLabelText('PIN'), { target: { value: '123456' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Sign In' }))
-
-    // Verify token was set and redirect happened
-    await waitFor(() => {
-      expect(mockSetToken).toHaveBeenCalledWith('test-token')
-    })
-
-    await waitFor(() => {
-      expect((globalThis as any).location.href).toBe('/chat')
-    })
-  })
-
-  it('should display generic error when no token returned', async () => {
-    const mockResponse = {
-      ok: true,
-      json: async () => ({}),
-    }
-    mockFetch.mockResolvedValue(mockResponse)
-
-    render(<LoginPage />)
-
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } })
-    fireEvent.change(screen.getByLabelText('PIN'), { target: { value: '123456' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Sign In' }))
-
-    await waitFor(() => {
-      expect(screen.getByText('Login failed. Please try again.')).toBeInTheDocument()
-    })
-  })
-
-  it('should use router.push when globalThis.location is not available', async () => {
-    delete (globalThis as any).location
-
-    const mockResponse = {
-      ok: true,
-      json: async () => ({
-        token: 'test-token',
-        user: { id: '1' },
-      }),
-    }
-    mockFetch.mockResolvedValue(mockResponse)
-
-    render(<LoginPage />)
-
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } })
-    fireEvent.change(screen.getByLabelText('PIN'), { target: { value: '123456' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Sign In' }))
-
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/chat')
+      expect(screen.getByText('Login failed. Please check your credentials.')).toBeInTheDocument()
     })
   })
 })

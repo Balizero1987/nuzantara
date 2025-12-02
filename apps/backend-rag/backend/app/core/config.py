@@ -216,6 +216,14 @@ class Settings(BaseSettings):
     hf_api_key: str | None = None  # Set via HF_API_KEY env var
 
     # ========================================
+    # JAKSEL AI PERSONALITY SYSTEM
+    # ========================================
+    jaksel_oracle_url: str = "https://jaksel.balizero.com"  # Production Oracle Cloud
+    jaksel_tunnel_url: str = "https://jaksel-ollama.nuzantara.com"  # Backup tunnel
+    jaksel_enabled: bool = True  # Feature flag (set via JAKSEL_ENABLED env var)
+    jaksel_local_url: str = "http://127.0.0.1:11434"  # Local development
+
+    # ========================================
     # FLY.IO DEPLOYMENT
     # ========================================
     fly_app_name: str | None = None  # Set via FLY_APP_NAME env var

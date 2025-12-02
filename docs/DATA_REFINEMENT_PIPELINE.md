@@ -1,6 +1,6 @@
 # DATA REFINEMENT PIPELINE: Indonesian Legal RAG
 
-**Status**: DRAFT
+**Status**: IMPLEMENTED
 **Target**: `apps/backend-rag`
 **Goal**: Transform raw Indonesian legal documents (PDF/HTML) into high-precision vector embeddings.
 

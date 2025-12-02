@@ -50,7 +50,34 @@ graph TD
 ## 5. Jaksel AI System Architecture
 
 ### Overview
-Jaksel AI is a custom personality module for the Zantara AI system that provides casual, friendly responses using Jakarta Selatan (Jaksel) slang. It is designed to be model-agnostic, currently utilizing a robust fallback mechanism to ensure availability.
+**Status**: ✅ ACTIVE (Production - Official Voice)
+
+Jaksel is the **official personality layer** for ALL Zantara responses. It provides casual, friendly responses using Jakarta Selatan (Jaksel) slang, adapted to the user's language (190+ languages supported).
+
+### Architecture Flow
+
+```
+User Query
+    ↓
+┌─────────────────────────────────────┐
+│   Jaksel reads query (context only) │  ← Extracts: language, tone, style
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│   Gemini 2.5 Flash elaborates       │  ← RAG + reasoning (simple or complex)
+│   response                           │
+└─────────────────────────────────────┘
+    ↓
+    Professional answer from Gemini
+    ↓
+┌─────────────────────────────────────┐
+│   Jaksel receives Gemini response    │
+│   Applies: tone + personality        │  ← Gemma 9B via Oracle Cloud
+│   Adapts to user's language          │
+└─────────────────────────────────────┘
+    ↓
+    Final response with Jaksel style
+```
 
 ### Core Components
 
@@ -58,42 +85,39 @@ Jaksel AI is a custom personality module for the Zantara AI system that provides
 **Location**: `apps/backend-rag/backend/app/routers/simple_jaksel_caller.py`
 
 **Features**:
-- **Routing Logic**:
-  1.  **Primary**: Hugging Face Inference API (Currently disabled due to model format mismatch).
-  2.  **Ultimate Fallback**: **Gemini 2.5** with style-transfer system prompt.
-- **Style Transfer**: Converts professional AI responses into Jaksel slang (e.g., "jujurly", "basically", "lo/gue").
-- **No-Info Handling**: Translates standard "I don't know" responses into character-appropriate apologies.
-- **User Mapping**: Only authorized users get Jaksel responses:
-  ```python
-  jaksel_users = {
-      "anton@balizero.com": "Anton",
-      "amanda@balizero.com": "Amanda",
-      "krisna@balizero.com": "Krisna",
-  }
-  ```
+- **Context Analysis**: `analyze_query_context()` - Reads user query to extract language, formality, tone (NO response generation)
+- **Style Application**: `apply_jaksel_style()` - Receives Gemini response and applies Jaksel personality + adapts language
+- **Multilingual Support**: Detects and adapts to 190+ languages while maintaining Jaksel personality
+- **Style Transfer**: Converts professional AI responses into Jaksel slang (e.g., "basically", "literally", "which is")
+- **No-Info Handling**: Translates standard "I don't know" responses into character-appropriate apologies
+- **Universal Activation**: Applied to ALL users (no whitelist)
 
 #### 5.2 Integration Points
-- **Called From**: `IntelligentRouter` (`stream_chat` and `route_chat`) when user is in `jaksel_users`.
-- **Mechanism**: Post-processing of the standard AI response.
+- **Called From**: `IntelligentRouter` (`stream_chat` and `route_chat`) - **ALWAYS** applied
+- **Mechanism**: Two-step process:
+  1. Context extraction from user query
+  2. Post-processing of Gemini response with Jaksel personality
 - **Response Format**:
   ```json
   {
     "success": true,
-    "response": "Halo bro! Basically ini jawabannya...",
-    "metadata": {
-      "model_used": "gemini-2.5-flash",
-      "style_applied": true,
-      "fallback_active": true
-    }
+    "response": "Ciao! Praticamente, il contratto è basically un documento legale...",
+    "language": "it",
+    "model_used": "gemma-9b-jaksel",
+    "connected_via": "https://jaksel.balizero.com"
   }
   ```
 
 ### Deployment Details
 - **Current Status**: **Active via Production Endpoint**.
 - **Primary Endpoint**: `https://jaksel.balizero.com` (Oracle Cloud VM + Ollama).
-- **Model**: `zantara:latest` (Gemma 9B Fine-tuned).
-- **Fallback**: Gemini 2.5 Flash.
+- **Model**: `zantara:latest` (Gemma 9B Fine-tuned - Sahabat AI → Jaksel custom).
+- **Fallback**: Gemini 2.5 Flash with style-transfer prompt.
 - **Health Monitoring**: Logs track success/failure rates and fallback activation.
+- **Configuration**: Centralized in `apps/backend-rag/backend/app/core/config.py`:
+  - `jaksel_oracle_url`: Production endpoint
+  - `jaksel_tunnel_url`: Backup tunnel
+  - `jaksel_enabled`: Feature flag
 
 ---
 
