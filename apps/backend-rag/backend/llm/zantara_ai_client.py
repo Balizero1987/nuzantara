@@ -76,9 +76,15 @@ class ZantaraAIClient:
                 logger.info("✅ Gemini AI Client initialized in production mode")
             except Exception as e:
                 logger.error(f"❌ Failed to configure Gemini: {e}")
+                if settings.environment == "production":
+                    raise ValueError(f"CRITICAL: Failed to configure Gemini in production: {e}")
                 self.mock_mode = True
         else:
-            logger.warning("⚠️ No Gemini API key found - some features may not work")
+            if settings.environment == "production":
+                logger.critical("❌ CRITICAL: No Gemini API key found in PRODUCTION environment")
+                raise ValueError("GOOGLE_API_KEY is required in production environment")
+            
+            logger.warning("⚠️ No Gemini API key found - defaulting to MOCK MODE (Development only)")
             self.mock_mode = True
 
         # Default: usa Gemini 2.5 Pro se disponibile (migliore qualità, meno restrittivo)

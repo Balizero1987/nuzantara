@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { chatAPI } from "@/lib/api/chat"
-import { authAPI } from "@/lib/api/auth"
+import { useAuth } from "@/context/AuthContext"
 import { apiClient } from "@/lib/api/client"
 import { zantaraAPI } from "@/lib/api/zantara-integration"
 import { useChatStore, selectConversationHistory } from "@/lib/store/chat-store"
@@ -15,6 +15,7 @@ import type { ChatMessage, ChatMetadata } from "@/lib/api/types"
 
 export default function ChatPage() {
   const router = useRouter()
+  const { user, token, logout, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -109,6 +110,7 @@ export default function ChatPage() {
   }, [isInitialized, setSession, replaceMessages, setCRMContext, setSessionInitialized])
 
   useEffect(() => {
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
     // Check for token - try multiple possible storage keys with retry mechanism
     const checkToken = () => {
       const token = apiClient.getToken() ||
@@ -154,11 +156,38 @@ export default function ChatPage() {
     if (!token) {
       // Don't redirect immediately, wait for retry
       return
-    }
 
+    if (!isAuthLoading && !isAuthenticated) {
+      router.push("/login")
+ main
+    }
+  }, [isAuthLoading, isAuthenticated, router])
+
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
     // Initialize ZANTARA session
     initializeSession()
   }, [router, initializeSession])
+
+  useEffect(() => {
+    // Load conversation history from localStorage
+    const savedMessages = localStorage.getItem("zantara_conversation")
+    if (savedMessages) {
+      try {
+        const parsed = JSON.parse(savedMessages)
+        setMessages(parsed)
+      } catch (e) {
+        console.error("Failed to load conversation history:", e)
+      }
+    }
+  }, [])
+
+  // Save conversation history to localStorage whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem("zantara_conversation", JSON.stringify(messages))
+    }
+  }, [messages])
+ main
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -265,9 +294,7 @@ export default function ChatPage() {
   }
 
   const handleLogout = () => {
-    apiClient.clearToken()
-    authAPI.clearUser()
-    router.push("/")
+    logout()
   }
 
   const handleNewConversation = async () => {
@@ -636,16 +663,15 @@ export default function ChatPage() {
                     </div>
                   )}
 
-                  {/* AVATAR ZANTARA TEMPORANEAMENTE RIMOSSO */}
-                  {/* {msg.role === "assistant" && (
-                    <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
+                  {msg.role === "assistant" && (
+                    <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-white/10 flex items-center justify-center">
                       <img
-                        src="/images/zantara_avatar.png"
+                        src="/images/logo_zan.svg"
                         alt="Zantara AI"
-                        className="w-full h-full object-cover"
+                        className="w-10 h-10 object-contain"
                       />
                     </div>
-                  )} */}
+                  )}
 
                   <div className="flex flex-col gap-1 max-w-[75%]">
                     {msg.role === "user" ? (
@@ -673,14 +699,13 @@ export default function ChatPage() {
 
           {streamingContent && (
             <div className="flex items-start gap-3 justify-start animate-message-fade-in">
-              {/* AVATAR ZANTARA TEMPORANEAMENTE RIMOSSO */}
-              {/* <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-white/10 flex items-center justify-center">
                 <img
-                  src="/images/zantara_avatar.png"
+                  src="/images/logo_zan.svg"
                   alt="Zantara AI"
-                  className="w-full h-full object-cover"
+                  className="w-10 h-10 object-contain"
                 />
-              </div> */}
+              </div>
 
               <div className="flex-1 max-w-[75%]">
                 <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
@@ -694,14 +719,13 @@ export default function ChatPage() {
 
           {isLoading && !streamingContent && (
             <div className="flex items-start gap-3 justify-start">
-              {/* AVATAR ZANTARA TEMPORANEAMENTE RIMOSSO */}
-              {/* <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-white/10 flex items-center justify-center">
                 <img
-                  src="/images/zantara_avatar.png"
+                  src="/images/logo_zan.svg"
                   alt="Zantara AI"
-                  className="w-full h-full object-cover"
+                  className="w-10 h-10 object-contain"
                 />
-              </div> */}
+              </div>
 
               <div className="flex-1 max-w-[75%]">
                 <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
@@ -761,19 +785,18 @@ export default function ChatPage() {
                       />
                     </div>
 
-                    {/* BOTTONI TEMPORANEAMENTE RIMOSSI */}
-                    {/* <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                       <button
                         type="button"
                         onClick={() => setShowImageModal(true)}
                         disabled={isLoading}
-                        className="h-12 w-12 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-10 w-10 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Generate image"
                       >
                         <img
                           src="/images/imageb.svg"
                           alt=""
-                          className="h-6 w-6 object-contain brightness-[1.6]"
+                          className="h-10 w-10 object-contain brightness-[1.6]"
                         />
                       </button>
 
@@ -781,29 +804,29 @@ export default function ChatPage() {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isLoading}
-                        className="h-12 w-12 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-10 w-10 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Upload file"
                       >
                         <img
                           src="/images/file_botton.svg"
                           alt=""
-                          className="h-6 w-6 object-contain brightness-[1.6]"
+                          className="h-10 w-10 object-contain brightness-[1.6]"
                         />
                       </button>
 
                       <button
                         type="submit"
                         disabled={isLoading || !input.trim()}
-                        className="h-12 w-12 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-10 w-10 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Send message"
                       >
                         <img
                           src="/images/sendb.svg"
                           alt=""
-                          className="h-6 w-6 object-contain brightness-[2.0]"
+                          className="h-10 w-10 object-contain brightness-[4.5]"
                         />
                       </button>
-                    </div> */}
+                    </div>
                   </div>
                 </div>
               </div>

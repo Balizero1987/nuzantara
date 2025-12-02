@@ -83,9 +83,7 @@ test.describe('Real Backend Integration', () => {
     await expect(page).toHaveURL(/\/(chat|dashboard)/, { timeout: 15000 });
 
     // Verify token stored
-    const token = await page.evaluate(
-      () => localStorage.getItem('zantara_token') || localStorage.getItem('token')
-    );
+    const token = await page.evaluate(() => localStorage.getItem('zantara_auth_token'));
     expect(token).toBeTruthy();
   });
 
@@ -260,9 +258,7 @@ test.describe('Real Backend Integration', () => {
     expect(currentUrl).not.toMatch(/\/(login|auth)/);
 
     // Token should still be present
-    const token = await page.evaluate(
-      () => localStorage.getItem('zantara_token') || localStorage.getItem('token')
-    );
+    const token = await page.evaluate(() => localStorage.getItem('zantara_auth_token'));
     expect(token).toBeTruthy();
   });
 });

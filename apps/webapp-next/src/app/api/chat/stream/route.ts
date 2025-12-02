@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json();
+    const body = await request.json() as any;
     const message = body.message;
     const conversationHistory = body.conversation_history || [];
     const metadata = body.metadata || {};
@@ -106,8 +106,8 @@ export async function POST(request: Request) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': API_KEY,
-        ...(token ? { Authorization: `Bearer ${token}` } : {}), // Only include if token exists
+        'X-API-Key': API_KEY, // Primary auth method (fastest, bypasses DB)
+        ...(token ? { Authorization: `Bearer ${token}` } : {}), // Fallback to JWT if API key fails
       },
       signal: controller.signal,
     });

@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     # ========================================
     PROJECT_NAME: str = "Nuzantara Prime"
     API_V1_STR: str = "/api/v1"
+    environment: str = "development"  # Set via ENVIRONMENT env var (production/development)
 
     # ========================================
     # EMBEDDINGS CONFIGURATION
