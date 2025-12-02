@@ -14,7 +14,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Tuple, Dict, Any
+from typing import Any
 
 
 class CoverageMonitor:
@@ -38,7 +38,7 @@ class CoverageMonitor:
             f"--cov-report=json:{self.coverage_json}",
             "--cov-report=term",
             "-v",
-            "--tb=no"
+            "--tb=no",
         ]
 
         result = subprocess.run(cmd, capture_output=True, text=True)
@@ -48,15 +48,15 @@ class CoverageMonitor:
 
         return self.coverage_json.exists()
 
-    def load_coverage_data(self) -> Dict[str, Any]:
+    def load_coverage_data(self) -> dict[str, Any]:
         """Carica coverage.json"""
         if not self.coverage_json.exists():
             raise FileNotFoundError(f"Coverage file not found: {self.coverage_json}")
 
-        with open(self.coverage_json, 'r') as f:
+        with open(self.coverage_json) as f:
             return json.load(f)
 
-    def identify_gaps(self, coverage_data: Dict) -> List[Tuple[str, float, List[int]]]:
+    def identify_gaps(self, coverage_data: dict) -> list[tuple[str, float, list[int]]]:
         """Identifica file con coverage sotto target"""
         gaps = []
         files = coverage_data.get("files", {})
@@ -78,7 +78,7 @@ class CoverageMonitor:
 
         return gaps
 
-    def generate_report(self, coverage_data: Dict, gaps: List[Tuple[str, float, List[int]]]) -> str:
+    def generate_report(self, coverage_data: dict, gaps: list[tuple[str, float, list[int]]]) -> str:
         """Genera report dettagliato"""
         lines = []
 
@@ -134,7 +134,7 @@ class CoverageMonitor:
 
     def save_report(self, report: str) -> None:
         """Salva report su file"""
-        with open(self.report_file, 'w') as f:
+        with open(self.report_file, "w") as f:
             f.write(report)
         print(f"✅ Report saved to: {self.report_file}")
 
@@ -174,8 +174,14 @@ def main():
     """Main entry point"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Monitor test coverage')
-    parser.add_argument('target', type=float, nargs='?', default=90.0, help='Target coverage percentage (default: 90)')
+    parser = argparse.ArgumentParser(description="Monitor test coverage")
+    parser.add_argument(
+        "target",
+        type=float,
+        nargs="?",
+        default=90.0,
+        help="Target coverage percentage (default: 90)",
+    )
 
     args = parser.parse_args()
 

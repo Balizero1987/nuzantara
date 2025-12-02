@@ -32,7 +32,6 @@ from app.routers.crm_practices import (
     update_practice,
 )
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -110,7 +109,9 @@ async def test_create_practice_success(mock_db_connection, mock_settings, sample
 
 
 @pytest.mark.asyncio
-async def test_create_practice_with_base_price(mock_db_connection, mock_settings, sample_practice_data):
+async def test_create_practice_with_base_price(
+    mock_db_connection, mock_settings, sample_practice_data
+):
     """Test practice creation uses base price when no quoted price provided"""
     conn, cursor = mock_db_connection
     cursor.fetchone.side_effect = [
@@ -408,7 +409,9 @@ async def test_update_practice_success(mock_db_connection, mock_settings, sample
 
     with patch("app.routers.crm_practices.settings", mock_settings):
         with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
-            result = await update_practice(practice_id=1, updates=update_data, updated_by="admin@example.com")
+            result = await update_practice(
+                practice_id=1, updates=update_data, updated_by="admin@example.com"
+            )
 
             # update_practice returns dict
             assert isinstance(result, dict)
@@ -418,7 +421,9 @@ async def test_update_practice_success(mock_db_connection, mock_settings, sample
 
 
 @pytest.mark.asyncio
-async def test_update_practice_with_documents(mock_db_connection, mock_settings, sample_practice_data):
+async def test_update_practice_with_documents(
+    mock_db_connection, mock_settings, sample_practice_data
+):
     """Test updating practice with documents field"""
     conn, cursor = mock_db_connection
     cursor.fetchone.return_value = sample_practice_data
@@ -428,13 +433,17 @@ async def test_update_practice_with_documents(mock_db_connection, mock_settings,
 
     with patch("app.routers.crm_practices.settings", mock_settings):
         with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
-            result = await update_practice(practice_id=1, updates=update_data, updated_by="admin@example.com")
+            result = await update_practice(
+                practice_id=1, updates=update_data, updated_by="admin@example.com"
+            )
 
             assert result is not None
 
 
 @pytest.mark.asyncio
-async def test_update_practice_with_renewal_alert(mock_db_connection, mock_settings, sample_practice_data):
+async def test_update_practice_with_renewal_alert(
+    mock_db_connection, mock_settings, sample_practice_data
+):
     """Test updating practice to completed creates renewal alert"""
     conn, cursor = mock_db_connection
     cursor.fetchone.return_value = sample_practice_data
@@ -444,7 +453,9 @@ async def test_update_practice_with_renewal_alert(mock_db_connection, mock_setti
 
     with patch("app.routers.crm_practices.settings", mock_settings):
         with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
-            result = await update_practice(practice_id=1, updates=update_data, updated_by="admin@example.com")
+            result = await update_practice(
+                practice_id=1, updates=update_data, updated_by="admin@example.com"
+            )
 
             # Should execute: UPDATE, activity_log, renewal_alert INSERT
             assert cursor.execute.call_count >= 2
@@ -460,7 +471,9 @@ async def test_update_practice_no_fields(mock_db_connection, mock_settings):
     with patch("app.routers.crm_practices.settings", mock_settings):
         with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
             with pytest.raises(HTTPException) as exc_info:
-                await update_practice(practice_id=1, updates=update_data, updated_by="admin@example.com")
+                await update_practice(
+                    practice_id=1, updates=update_data, updated_by="admin@example.com"
+                )
 
             assert exc_info.value.status_code == 400
 
@@ -476,7 +489,9 @@ async def test_update_practice_not_found(mock_db_connection, mock_settings):
     with patch("app.routers.crm_practices.settings", mock_settings):
         with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
             with pytest.raises(HTTPException) as exc_info:
-                await update_practice(practice_id=999, updates=update_data, updated_by="admin@example.com")
+                await update_practice(
+                    practice_id=999, updates=update_data, updated_by="admin@example.com"
+                )
 
             assert exc_info.value.status_code == 404
 
@@ -492,7 +507,9 @@ async def test_update_practice_database_error(mock_db_connection, mock_settings)
     with patch("app.routers.crm_practices.settings", mock_settings):
         with patch("app.routers.crm_practices.get_db_connection", return_value=conn):
             with pytest.raises(HTTPException) as exc_info:
-                await update_practice(practice_id=1, updates=update_data, updated_by="admin@example.com")
+                await update_practice(
+                    practice_id=1, updates=update_data, updated_by="admin@example.com"
+                )
 
             assert exc_info.value.status_code == 500
 
@@ -663,7 +680,9 @@ async def test_get_db_connection_success():
     mock_connection = MagicMock()
 
     with patch("app.routers.crm_practices.settings", mock_settings_with_db):
-        with patch("app.routers.crm_practices.psycopg2.connect", return_value=mock_connection) as mock_connect:
+        with patch(
+            "app.routers.crm_practices.psycopg2.connect", return_value=mock_connection
+        ) as mock_connect:
             result = get_db_connection()
 
             # Verify psycopg2.connect was called with correct parameters
@@ -672,7 +691,9 @@ async def test_get_db_connection_success():
 
 
 @pytest.mark.asyncio
-async def test_list_practices_with_all_filters(mock_db_connection, mock_settings, sample_practice_data):
+async def test_list_practices_with_all_filters(
+    mock_db_connection, mock_settings, sample_practice_data
+):
     """Test list practices with all optional filters provided"""
     conn, cursor = mock_db_connection
     cursor.fetchall.return_value = [sample_practice_data]
@@ -686,7 +707,7 @@ async def test_list_practices_with_all_filters(mock_db_connection, mock_settings
                 practice_type="kitas",
                 priority="high",
                 limit=10,
-                offset=0
+                offset=0,
             )
 
             assert len(result) == 1
@@ -701,7 +722,9 @@ async def test_list_practices_with_all_filters(mock_db_connection, mock_settings
 
 
 @pytest.mark.asyncio
-async def test_list_practices_no_optional_filters(mock_db_connection, mock_settings, sample_practice_data):
+async def test_list_practices_no_optional_filters(
+    mock_db_connection, mock_settings, sample_practice_data
+):
     """Test list practices with no optional filters (only required params)"""
     conn, cursor = mock_db_connection
     cursor.fetchall.return_value = [sample_practice_data]
@@ -715,7 +738,7 @@ async def test_list_practices_no_optional_filters(mock_db_connection, mock_setti
                 practice_type=None,
                 priority=None,
                 limit=10,
-                offset=0
+                offset=0,
             )
 
             assert len(result) == 1
@@ -727,7 +750,9 @@ async def test_list_practices_no_optional_filters(mock_db_connection, mock_setti
 
 
 @pytest.mark.asyncio
-async def test_get_active_practices_without_assigned_to(mock_db_connection, mock_settings, sample_practice_data):
+async def test_get_active_practices_without_assigned_to(
+    mock_db_connection, mock_settings, sample_practice_data
+):
     """Test get active practices without assigned_to filter"""
     conn, cursor = mock_db_connection
     cursor.fetchall.return_value = [sample_practice_data]
@@ -746,7 +771,9 @@ async def test_get_active_practices_without_assigned_to(mock_db_connection, mock
 
 
 @pytest.mark.asyncio
-async def test_update_practice_with_none_values(mock_db_connection, mock_settings, sample_practice_data):
+async def test_update_practice_with_none_values(
+    mock_db_connection, mock_settings, sample_practice_data
+):
     """Test update practice skips None values in update dict"""
     conn, cursor = mock_db_connection
 
@@ -760,13 +787,15 @@ async def test_update_practice_with_none_values(mock_db_connection, mock_setting
                 status="completed",
                 notes="Updated notes",
                 assigned_to=None,  # This should be skipped
-                priority=None,     # This should be skipped
+                priority=None,  # This should be skipped
             )
 
             result = await update_practice(practice_id=1, updates=updates)
 
             # Verify update was called
-            update_call = [call for call in cursor.execute.call_args_list if "UPDATE practices" in str(call)]
+            update_call = [
+                call for call in cursor.execute.call_args_list if "UPDATE practices" in str(call)
+            ]
             assert len(update_call) > 0
 
             # The None values should not be in the update
@@ -776,7 +805,9 @@ async def test_update_practice_with_none_values(mock_db_connection, mock_setting
 
 
 @pytest.mark.asyncio
-async def test_list_practices_partial_filters(mock_db_connection, mock_settings, sample_practice_data):
+async def test_list_practices_partial_filters(
+    mock_db_connection, mock_settings, sample_practice_data
+):
     """Test list practices with some filters provided, others None"""
     conn, cursor = mock_db_connection
     cursor.fetchall.return_value = [sample_practice_data]
@@ -791,7 +822,7 @@ async def test_list_practices_partial_filters(mock_db_connection, mock_settings,
                 practice_type=None,
                 priority=None,
                 limit=10,
-                offset=0
+                offset=0,
             )
 
             assert len(result) == 1

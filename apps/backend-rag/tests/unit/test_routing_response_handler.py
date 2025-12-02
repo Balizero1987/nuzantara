@@ -5,7 +5,7 @@ Comprehensive tests targeting 90%+ coverage
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -199,7 +199,9 @@ def test_sanitize_response_with_santai_disabled(response_handler):
     with patch("services.routing.response_handler.process_zantara_response") as mock_process:
         mock_process.return_value = "Sanitized"
         response_handler.sanitize_response("Raw", "business", apply_santai=False)
-        mock_process.assert_called_once_with("Raw", "business", apply_santai=False, add_contact=True)
+        mock_process.assert_called_once_with(
+            "Raw", "business", apply_santai=False, add_contact=True
+        )
 
 
 def test_sanitize_response_with_santai_enabled(response_handler):
@@ -215,7 +217,9 @@ def test_sanitize_response_without_contact(response_handler):
     with patch("services.routing.response_handler.process_zantara_response") as mock_process:
         mock_process.return_value = "Sanitized"
         response_handler.sanitize_response("Raw", "business", add_contact=False)
-        mock_process.assert_called_once_with("Raw", "business", apply_santai=True, add_contact=False)
+        mock_process.assert_called_once_with(
+            "Raw", "business", apply_santai=True, add_contact=False
+        )
 
 
 def test_sanitize_response_with_contact(response_handler):
@@ -230,8 +234,12 @@ def test_sanitize_response_both_flags_disabled(response_handler):
     """Test sanitizing response with both SANTAI and contact disabled"""
     with patch("services.routing.response_handler.process_zantara_response") as mock_process:
         mock_process.return_value = "Sanitized"
-        response_handler.sanitize_response("Raw", "emergency", apply_santai=False, add_contact=False)
-        mock_process.assert_called_once_with("Raw", "emergency", apply_santai=False, add_contact=False)
+        response_handler.sanitize_response(
+            "Raw", "emergency", apply_santai=False, add_contact=False
+        )
+        mock_process.assert_called_once_with(
+            "Raw", "emergency", apply_santai=False, add_contact=False
+        )
 
 
 def test_sanitize_response_both_flags_enabled(response_handler):
@@ -303,7 +311,9 @@ def test_sanitize_response_all_query_types(response_handler):
 
 def test_sanitize_response_exception(response_handler):
     """Test sanitizing response with exception"""
-    with patch("services.routing.response_handler.process_zantara_response", side_effect=Exception("Error")):
+    with patch(
+        "services.routing.response_handler.process_zantara_response", side_effect=Exception("Error")
+    ):
         original = "Original response"
         result = response_handler.sanitize_response(original, "business")
         assert result == original
@@ -311,7 +321,10 @@ def test_sanitize_response_exception(response_handler):
 
 def test_sanitize_response_exception_returns_original_on_value_error(response_handler):
     """Test sanitizing response with ValueError"""
-    with patch("services.routing.response_handler.process_zantara_response", side_effect=ValueError("Invalid")):
+    with patch(
+        "services.routing.response_handler.process_zantara_response",
+        side_effect=ValueError("Invalid"),
+    ):
         original = "Original response"
         result = response_handler.sanitize_response(original, "business")
         assert result == original
@@ -319,7 +332,10 @@ def test_sanitize_response_exception_returns_original_on_value_error(response_ha
 
 def test_sanitize_response_exception_returns_original_on_runtime_error(response_handler):
     """Test sanitizing response with RuntimeError"""
-    with patch("services.routing.response_handler.process_zantara_response", side_effect=RuntimeError("Runtime")):
+    with patch(
+        "services.routing.response_handler.process_zantara_response",
+        side_effect=RuntimeError("Runtime"),
+    ):
         original = "Original response"
         result = response_handler.sanitize_response(original, "business")
         assert result == original
@@ -327,7 +343,10 @@ def test_sanitize_response_exception_returns_original_on_runtime_error(response_
 
 def test_sanitize_response_exception_returns_original_on_type_error(response_handler):
     """Test sanitizing response with TypeError"""
-    with patch("services.routing.response_handler.process_zantara_response", side_effect=TypeError("Type error")):
+    with patch(
+        "services.routing.response_handler.process_zantara_response",
+        side_effect=TypeError("Type error"),
+    ):
         original = "Original response"
         result = response_handler.sanitize_response(original, "business")
         assert result == original
@@ -337,7 +356,10 @@ def test_sanitize_response_exception_logs_error(response_handler):
     """Test that exceptions are logged"""
     with patch("services.routing.response_handler.logger") as mock_logger:
         handler = ResponseHandler()
-        with patch("services.routing.response_handler.process_zantara_response", side_effect=Exception("Test error")):
+        with patch(
+            "services.routing.response_handler.process_zantara_response",
+            side_effect=Exception("Test error"),
+        ):
             handler.sanitize_response("Original", "business")
             # Verify error was logged
             assert mock_logger.error.called
@@ -397,7 +419,7 @@ def test_sanitize_response_with_whitespace(response_handler):
     with patch("services.routing.response_handler.process_zantara_response") as mock_process:
         mock_process.return_value = "   Response with spaces   "
         result = response_handler.sanitize_response("Query", "business")
-        assert "   Response with spaces   " == result
+        assert result == "   Response with spaces   "
 
 
 # ============================================================================
@@ -479,4 +501,3 @@ def test_handler_state_isolation(response_handler):
         calls = mock_process.call_args_list
         assert calls[0][1]["apply_santai"] is True
         assert calls[1][1]["apply_santai"] is False
-

@@ -5,7 +5,6 @@ Unit tests for Clarification Service
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -14,7 +13,7 @@ backend_path = Path(__file__).parent.parent.parent / "backend"
 if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
-from services.clarification_service import AmbiguityType, ClarificationService
+from services.clarification_service import ClarificationService
 
 # ============================================================================
 # Fixtures
@@ -369,9 +368,7 @@ def test_generate_clarification_options_visa_it(clarification_service):
     """Test _generate_clarification_options for visa in Italian"""
     # Use query with "visa" keyword to trigger options
     # The method checks for "visa" or "permit" in query_lower
-    options = clarification_service._generate_clarification_options(
-        "Dimmi dei visa", "vague", "it"
-    )
+    options = clarification_service._generate_clarification_options("Dimmi dei visa", "vague", "it")
     # Should return Italian visa options
     assert options is not None
     assert "Visto turistico" in options
@@ -406,9 +403,7 @@ def test_generate_clarification_options_business(clarification_service):
 
 def test_generate_clarification_options_no_match(clarification_service):
     """Test _generate_clarification_options with no match"""
-    options = clarification_service._generate_clarification_options(
-        "Hello there", "vague", "en"
-    )
+    options = clarification_service._generate_clarification_options("Hello there", "vague", "en")
     assert options is None
 
 
@@ -474,4 +469,3 @@ async def test_health_check(clarification_service):
     assert "configuration" in result
     assert result["features"]["ambiguity_detection"] is True
     assert result["configuration"]["ambiguity_threshold"] == 0.6
-

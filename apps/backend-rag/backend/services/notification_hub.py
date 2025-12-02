@@ -411,7 +411,7 @@ def create_notification_from_template(
     except KeyError as e:
         logger.warning(f"Missing key in template title: {e}")
         title = template["title"]
-    
+
     try:
         message = (
             template.get("email_body", template.get("whatsapp", "")).format(**template_data)

@@ -5,7 +5,6 @@ Note: The detailed health endpoint (/health/detailed) requires integration testi
 with the full application context due to complex import dependencies.
 """
 
-import pytest
 from datetime import datetime, timezone
 
 from app.core.service_health import ServiceRegistry, ServiceStatus

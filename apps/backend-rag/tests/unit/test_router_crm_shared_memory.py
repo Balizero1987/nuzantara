@@ -21,7 +21,6 @@ from app.routers.crm_shared_memory import (
     search_shared_memory,
 )
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -71,7 +70,10 @@ async def test_search_shared_memory_renewal_query(mock_db_connection, mock_setti
             assert "practices" in result
             assert "interpretation" in result
             assert len(result["practices"]) == 1
-            assert "expir" in result["interpretation"][0].lower() or "renewal" in result["interpretation"][0].lower()
+            assert (
+                "expir" in result["interpretation"][0].lower()
+                or "renewal" in result["interpretation"][0].lower()
+            )
 
 
 @pytest.mark.asyncio
@@ -203,8 +205,23 @@ async def test_search_shared_memory_client_with_practices(mock_db_connection, mo
 
     # Mock fetchall to return clients first, then practices
     cursor.fetchall.side_effect = [
-        [{"id": 1, "full_name": "John Smith", "email": "john@example.com", "total_practices": 5, "active_practices": 2}],  # clients
-        [{"id": 1, "client_name": "John Smith", "practice_type_name": "KITAS", "status": "in_progress"}],  # practices for clients
+        [
+            {
+                "id": 1,
+                "full_name": "John Smith",
+                "email": "john@example.com",
+                "total_practices": 5,
+                "active_practices": 2,
+            }
+        ],  # clients
+        [
+            {
+                "id": 1,
+                "client_name": "John Smith",
+                "practice_type_name": "KITAS",
+                "status": "in_progress",
+            }
+        ],  # practices for clients
     ]
 
     with patch("app.routers.crm_shared_memory.settings", mock_settings):
@@ -219,10 +236,14 @@ async def test_search_shared_memory_client_with_practices(mock_db_connection, mo
 
 
 @pytest.mark.asyncio
-async def test_search_shared_memory_recent_interactions_with_30_days(mock_db_connection, mock_settings):
+async def test_search_shared_memory_recent_interactions_with_30_days(
+    mock_db_connection, mock_settings
+):
     """Test recent interactions with 30 days keyword (line 252)"""
     conn, cursor = mock_db_connection
-    cursor.fetchall.return_value = [{"id": 1, "client_name": "Test", "interaction_date": "2024-01-01"}]
+    cursor.fetchall.return_value = [
+        {"id": 1, "client_name": "Test", "interaction_date": "2024-01-01"}
+    ]
 
     with patch("app.routers.crm_shared_memory.settings", mock_settings):
         with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
@@ -237,7 +258,9 @@ async def test_search_shared_memory_recent_interactions_with_30_days(mock_db_con
 async def test_search_shared_memory_recent_interactions_today(mock_db_connection, mock_settings):
     """Test recent interactions with today keyword (line 256)"""
     conn, cursor = mock_db_connection
-    cursor.fetchall.return_value = [{"id": 1, "client_name": "Test", "interaction_date": "2024-01-01"}]
+    cursor.fetchall.return_value = [
+        {"id": 1, "client_name": "Test", "interaction_date": "2024-01-01"}
+    ]
 
     with patch("app.routers.crm_shared_memory.settings", mock_settings):
         with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
@@ -250,7 +273,9 @@ async def test_search_shared_memory_recent_interactions_today(mock_db_connection
 async def test_search_shared_memory_recent_interactions_week(mock_db_connection, mock_settings):
     """Test recent interactions with week keyword (line 254)"""
     conn, cursor = mock_db_connection
-    cursor.fetchall.return_value = [{"id": 1, "client_name": "Test", "interaction_date": "2024-01-01"}]
+    cursor.fetchall.return_value = [
+        {"id": 1, "client_name": "Test", "interaction_date": "2024-01-01"}
+    ]
 
     with patch("app.routers.crm_shared_memory.settings", mock_settings):
         with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
@@ -340,7 +365,9 @@ async def test_get_client_full_context_success(mock_db_connection, mock_settings
 
     cursor.fetchall.side_effect = [
         [{"id": 1, "status": "in_progress", "practice_type_name": "KITAS"}],  # practices
-        [{"id": 1, "interaction_date": datetime.now(), "action_items": ["Follow up"]}],  # interactions
+        [
+            {"id": 1, "interaction_date": datetime.now(), "action_items": ["Follow up"]}
+        ],  # interactions
         [{"id": 1, "practice_type_name": "KITAS", "days_until_expiry": 30}],  # renewals
     ]
 
@@ -405,7 +432,10 @@ async def test_get_team_overview_success(mock_db_connection, mock_settings):
     ]
 
     cursor.fetchall.side_effect = [
-        [{"status": "in_progress", "count": 20}, {"status": "completed", "count": 30}],  # practices_by_status
+        [
+            {"status": "in_progress", "count": 20},
+            {"status": "completed", "count": 30},
+        ],  # practices_by_status
         [{"assigned_to": "team1@example.com", "count": 15}],  # active_practices_by_team_member
         [{"code": "KITAS", "name": "KITAS", "count": 10}],  # active_practices_by_type
     ]
@@ -468,7 +498,9 @@ async def test_get_db_connection_success():
     mock_connection = MagicMock()
 
     with patch("app.routers.crm_shared_memory.settings", mock_settings_obj):
-        with patch("app.routers.crm_shared_memory.psycopg2.connect", return_value=mock_connection) as mock_connect:
+        with patch(
+            "app.routers.crm_shared_memory.psycopg2.connect", return_value=mock_connection
+        ) as mock_connect:
             result = get_db_connection()
 
             # Verify connection was created with correct parameters
@@ -489,12 +521,21 @@ async def test_search_shared_memory_practice_type_search(mock_db_connection, moc
     # Setup cursor fetchall to return appropriate data
     cursor.fetchall.side_effect = [
         [],  # clients query (no clients found)
-        [{"id": 1, "practice_type_name": "KITAS", "client_name": "Test Client", "status": "in_progress"}],  # practice type search
+        [
+            {
+                "id": 1,
+                "practice_type_name": "KITAS",
+                "client_name": "Test Client",
+                "status": "in_progress",
+            }
+        ],  # practice type search
     ]
 
     with patch("app.routers.crm_shared_memory.settings", mock_settings):
         with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
-            with patch("app.routers.crm_shared_memory._get_practice_codes", return_value=practice_types):
+            with patch(
+                "app.routers.crm_shared_memory._get_practice_codes", return_value=practice_types
+            ):
                 # Search for specific practice type
                 result = await search_shared_memory(q="KITAS practices", limit=20)
 
@@ -502,7 +543,9 @@ async def test_search_shared_memory_practice_type_search(mock_db_connection, moc
                 assert len(result["practices"]) == 1
                 assert "interpretation" in result
                 # Verify practice type search was detected
-                any_interpretation = any("practice type" in interp.lower() for interp in result["interpretation"])
+                any_interpretation = any(
+                    "practice type" in interp.lower() for interp in result["interpretation"]
+                )
                 assert any_interpretation
 
 
@@ -516,12 +559,16 @@ async def test_search_shared_memory_practice_type_active_filter(mock_db_connecti
 
     cursor.fetchall.side_effect = [
         [],  # clients query
-        [{"id": 1, "practice_type_name": "PT PMA", "status": "in_progress"}],  # practice type search
+        [
+            {"id": 1, "practice_type_name": "PT PMA", "status": "in_progress"}
+        ],  # practice type search
     ]
 
     with patch("app.routers.crm_shared_memory.settings", mock_settings):
         with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
-            with patch("app.routers.crm_shared_memory._get_practice_codes", return_value=practice_types):
+            with patch(
+                "app.routers.crm_shared_memory._get_practice_codes", return_value=practice_types
+            ):
                 result = await search_shared_memory(q="active PT_PMA practices", limit=20)
 
                 assert "practices" in result
@@ -529,7 +576,9 @@ async def test_search_shared_memory_practice_type_active_filter(mock_db_connecti
 
 
 @pytest.mark.asyncio
-async def test_search_shared_memory_practice_type_completed_filter(mock_db_connection, mock_settings):
+async def test_search_shared_memory_practice_type_completed_filter(
+    mock_db_connection, mock_settings
+):
     """Test practice type search with 'completed' keyword (covers line 180)"""
     from app.routers.crm_shared_memory import search_shared_memory
 
@@ -543,7 +592,9 @@ async def test_search_shared_memory_practice_type_completed_filter(mock_db_conne
 
     with patch("app.routers.crm_shared_memory.settings", mock_settings):
         with patch("app.routers.crm_shared_memory.get_db_connection", return_value=conn):
-            with patch("app.routers.crm_shared_memory._get_practice_codes", return_value=practice_types):
+            with patch(
+                "app.routers.crm_shared_memory._get_practice_codes", return_value=practice_types
+            ):
                 result = await search_shared_memory(q="completed KITAS", limit=20)
 
                 assert "practices" in result
@@ -571,7 +622,11 @@ async def test_get_client_full_context_without_action_items(mock_db_connection, 
         [{"id": 1, "status": "in_progress", "practice_type_name": "KITAS"}],  # practices
         [
             {"id": 1, "interaction_date": datetime.now()},  # interaction without action_items
-            {"id": 2, "interaction_date": datetime.now(), "action_items": None},  # interaction with None action_items
+            {
+                "id": 2,
+                "interaction_date": datetime.now(),
+                "action_items": None,
+            },  # interaction with None action_items
         ],  # interactions
         [],  # renewals
     ]

@@ -4,11 +4,9 @@ Unit tests for Alert Service
 """
 
 import sys
-from datetime import datetime
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
 import pytest
 
 # Ensure backend is in path
@@ -138,7 +136,10 @@ async def test_send_alert_logging_failure(alert_service):
 async def test_send_alert_slack_failure(alert_service):
     """Test alert handling when Slack fails"""
     with patch.object(alert_service, "_log_alert"), patch.object(
-        alert_service, "_send_slack_alert", new_callable=AsyncMock, side_effect=Exception("Slack failed")
+        alert_service,
+        "_send_slack_alert",
+        new_callable=AsyncMock,
+        side_effect=Exception("Slack failed"),
     ), patch.object(alert_service, "_send_discord_alert", new_callable=AsyncMock):
         result = await alert_service.send_alert(
             title="Test Alert", message="Test message", level=AlertLevel.ERROR
@@ -443,4 +444,3 @@ def test_get_alert_service_singleton():
 
         assert service1 is service2
         assert isinstance(service1, AlertService)
-

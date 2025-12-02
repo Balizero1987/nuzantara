@@ -1,6 +1,6 @@
 """Verify coverage for all critical files"""
-import subprocess
 import re
+import subprocess
 
 files = [
     "app.routers.crm_clients",
@@ -17,11 +17,11 @@ print("=" * 80)
 for module in files:
     test_file = f"tests/unit/test_router_{module.split('.')[-1]}.py"
     cmd = f"python -m pytest {test_file} --cov={module} --cov-report=term -q 2>&1"
-    
+
     try:
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=30)
         output = result.stdout + result.stderr
-        
+
         # Extract coverage percentage
         match = re.search(r"(\d+)%\s*$", output, re.MULTILINE)
         if match:
@@ -30,7 +30,7 @@ for module in files:
             print(f"{module.split('.')[-1]:<40} {cov}%{'':<12} {status:<15}")
         else:
             print(f"{module.split('.')[-1]:<40} {'ERROR':<15} {'❌ ERROR':<15}")
-    except Exception as e:
+    except Exception:
         print(f"{module.split('.')[-1]:<40} {'ERROR':<15} {'❌ ERROR':<15}")
 
 print("=" * 80)

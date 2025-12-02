@@ -57,11 +57,13 @@ async def test_ingest_documents_success(mock_search_service, sample_ingest_reque
     mock_vector_db = MagicMock()
     mock_vector_db.upsert_documents = MagicMock()
     mock_search_service.collections = {"legal_intelligence": mock_vector_db}
-    
+
     # Mock EmbeddingsGenerator
     mock_embedder = MagicMock()
-    mock_embedder.generate_batch_embeddings = MagicMock(return_value=[[0.1] * 1536])  # Return embeddings
-    
+    mock_embedder.generate_batch_embeddings = MagicMock(
+        return_value=[[0.1] * 1536]
+    )  # Return embeddings
+
     with patch("app.routers.oracle_ingest.EmbeddingsGenerator", return_value=mock_embedder):
         response = await ingest_documents(sample_ingest_request, mock_search_service)
 
@@ -212,11 +214,12 @@ async def test_list_collections_stats_error(mock_search_service):
 async def test_list_collections_general_exception(mock_search_service):
     """Test list_collections when general exception occurs"""
     # Make collections property raise exception
-    type(mock_search_service).collections = property(lambda self: (_ for _ in ()).throw(Exception("Critical error")))
+    type(mock_search_service).collections = property(
+        lambda self: (_ for _ in ()).throw(Exception("Critical error"))
+    )
 
     with pytest.raises(HTTPException) as exc_info:
         await list_collections(mock_search_service)
 
     assert exc_info.value.status_code == 500
     assert "Critical error" in str(exc_info.value.detail)
-

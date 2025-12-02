@@ -113,7 +113,10 @@ async def analyze_content_intent(state: CollectiveMemoryState) -> CollectiveMemo
         state["detected_category"] = MemoryCategory.PREFERENCE
     elif any(word in query for word in ["compleanno", "anniversario", "festa", "celebrazione"]):
         state["detected_category"] = MemoryCategory.MILESTONE
-    elif any(word in query for word in ["amicizia", "conosco", "incontri", "incontrato", "social", "amico"]):
+    elif any(
+        word in query
+        for word in ["amicizia", "conosco", "incontri", "incontrato", "social", "amico"]
+    ):
         state["detected_category"] = MemoryCategory.RELATIONSHIP
     elif any(word in query for word in ["cultura", "tradizione", "costume", "locale"]):
         state["detected_category"] = MemoryCategory.CULTURAL

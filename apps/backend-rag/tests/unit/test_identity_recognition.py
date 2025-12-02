@@ -5,7 +5,7 @@ Tests the complete flow: collaborator lookup, identity detection, RAG routing, a
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -15,11 +15,10 @@ if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
 from services.classification.intent_classifier import IntentClassifier
+from services.collaborator_service import CollaboratorProfile, CollaboratorService
 from services.context.context_builder import ContextBuilder
 from services.context.rag_manager import RAGManager
-from services.collaborator_service import CollaboratorProfile, CollaboratorService
 from services.query_router import QueryRouter
-
 
 # ============================================================================
 # Fixtures
@@ -48,27 +47,31 @@ def mock_collaborator_profile():
 def mock_search_service():
     """Mock SearchService"""
     service = MagicMock()
-    
+
     # Mock search_collection method (used by _retrieve_from_team_collection)
-    service.search_collection = AsyncMock(return_value={
-        "results": [
-            {
-                "text": "Anton is an Executive Consultant in the Setup department...",
-                "metadata": {"title": "Anton Profile", "source_collection": "bali_zero_team"},
-            }
-        ]
-    })
-    
+    service.search_collection = AsyncMock(
+        return_value={
+            "results": [
+                {
+                    "text": "Anton is an Executive Consultant in the Setup department...",
+                    "metadata": {"title": "Anton Profile", "source_collection": "bali_zero_team"},
+                }
+            ]
+        }
+    )
+
     # Mock search_with_conflict_resolution (used for regular queries and fallback)
-    service.search_with_conflict_resolution = AsyncMock(return_value={
-        "results": [
-            {
-                "text": "Anton is an Executive Consultant...",
-                "metadata": {"title": "Anton Profile", "source_collection": "bali_zero_team"},
-            }
-        ]
-    })
-    
+    service.search_with_conflict_resolution = AsyncMock(
+        return_value={
+            "results": [
+                {
+                    "text": "Anton is an Executive Consultant...",
+                    "metadata": {"title": "Anton Profile", "source_collection": "bali_zero_team"},
+                }
+            ]
+        }
+    )
+
     return service
 
 
@@ -103,29 +106,33 @@ async def test_intent_classifier_identity_detection(intent_classifier):
     assert (await intent_classifier.classify_intent("chi sono io?"))["category"] == "identity"
     assert (await intent_classifier.classify_intent("mi conosci?"))["category"] == "identity"
     assert (await intent_classifier.classify_intent("cosa sai di me?"))["category"] == "identity"
-    
+
     # English identity queries
     assert (await intent_classifier.classify_intent("who am i?"))["category"] == "identity"
     assert (await intent_classifier.classify_intent("do you know me?"))["category"] == "identity"
     assert (await intent_classifier.classify_intent("my name"))["category"] == "identity"
-    
+
     # Indonesian identity queries
     assert (await intent_classifier.classify_intent("siapa saya?"))["category"] == "identity"
-    assert (await intent_classifier.classify_intent("apakah kamu kenal saya?"))["category"] == "identity"
+    assert (await intent_classifier.classify_intent("apakah kamu kenal saya?"))[
+        "category"
+    ] == "identity"
 
 
 @pytest.mark.asyncio
 async def test_intent_classifier_team_query_detection(intent_classifier):
     """Test that team queries are correctly classified"""
     # Italian team queries
-    assert (await intent_classifier.classify_intent("conosci i membri di bali zero?"))["category"] == "team_query"
+    assert (await intent_classifier.classify_intent("conosci i membri di bali zero?"))[
+        "category"
+    ] == "team_query"
     assert (await intent_classifier.classify_intent("quanti siamo?"))["category"] == "team_query"
     assert (await intent_classifier.classify_intent("parlami del team"))["category"] == "team_query"
-    
+
     # English team queries
     assert (await intent_classifier.classify_intent("team members"))["category"] == "team_query"
     assert (await intent_classifier.classify_intent("who works here?"))["category"] == "team_query"
-    
+
     # Indonesian team queries
     assert (await intent_classifier.classify_intent("anggota tim"))["category"] == "team_query"
 
@@ -150,7 +157,7 @@ def test_query_router_team_enumeration_override(query_router):
 def test_context_builder_identity_context(context_builder, mock_collaborator_profile):
     """Test that identity context is built correctly"""
     identity_context = context_builder.build_identity_context(mock_collaborator_profile)
-    
+
     assert identity_context is not None
     assert "Anton" in identity_context
     assert "anton@balizero.com" in identity_context
@@ -180,14 +187,14 @@ def test_context_builder_team_query_detection(context_builder):
 async def test_rag_manager_identity_query(mock_search_service):
     """Test that RAG Manager handles identity queries correctly"""
     rag_manager = RAGManager(search_service=mock_search_service)
-    
+
     result = await rag_manager.retrieve_context(
         query="io chi sono?",
         query_type="identity",
         user_level=0,
         limit=5,
     )
-    
+
     assert result["used_rag"] is True
     assert result["document_count"] > 0
     assert result["context"] is not None
@@ -199,14 +206,14 @@ async def test_rag_manager_identity_query(mock_search_service):
 async def test_rag_manager_team_query(mock_search_service):
     """Test that RAG Manager handles team queries correctly"""
     rag_manager = RAGManager(search_service=mock_search_service)
-    
+
     result = await rag_manager.retrieve_context(
         query="conosci i membri di bali zero?",
         query_type="team_query",
         user_level=0,
         limit=5,
     )
-    
+
     assert result["used_rag"] is True
     assert result["document_count"] > 0
     assert result["context"] is not None
@@ -216,14 +223,14 @@ async def test_rag_manager_team_query(mock_search_service):
 async def test_rag_manager_skips_casual_queries(mock_search_service):
     """Test that RAG Manager still skips casual queries (not identity/team)"""
     rag_manager = RAGManager(search_service=mock_search_service)
-    
+
     result = await rag_manager.retrieve_context(
         query="come stai?",
         query_type="casual",
         user_level=0,
         limit=5,
     )
-    
+
     # Casual queries should do light search, not full skip
     # But they shouldn't force bali_zero_team
     assert result is not None
@@ -233,14 +240,14 @@ def test_context_builder_combine_with_identity(context_builder, mock_collaborato
     """Test that identity context is included when combining contexts"""
     identity_context = context_builder.build_identity_context(mock_collaborator_profile)
     team_context = context_builder.build_team_context(mock_collaborator_profile)
-    
+
     combined = context_builder.combine_contexts(
         memory_context=None,
         team_context=team_context,
         rag_context="Some RAG context",
         identity_context=identity_context,
     )
-    
+
     assert combined is not None
     assert "Anton" in combined
     assert "UTENTE ATTUALMENTE CONNESSO" in combined
@@ -256,7 +263,7 @@ async def test_collaborator_service_identify():
     try:
         service = CollaboratorService()
         collaborator = await service.identify("anton@balizero.com")
-        
+
         assert collaborator is not None
         assert collaborator.id != "anonymous"
         assert collaborator.email == "anton@balizero.com"
@@ -271,7 +278,7 @@ async def test_collaborator_service_anonymous():
     try:
         service = CollaboratorService()
         collaborator = await service.identify("unknown@example.com")
-        
+
         assert collaborator is not None
         assert collaborator.id == "anonymous"
     except FileNotFoundError:
@@ -291,16 +298,16 @@ async def test_complete_identity_recognition_flow(
     # Step 1: Classify query
     classification = await intent_classifier.classify_intent("io chi sono?")
     assert classification["category"] == "identity"
-    
+
     # Step 2: Route query
     collection = query_router.route("io chi sono?")
     assert collection == "bali_zero_team"
-    
+
     # Step 3: Build identity context
     identity_context = context_builder.build_identity_context(mock_collaborator_profile)
     assert identity_context is not None
     assert "Anton" in identity_context
-    
+
     # Step 4: RAG retrieval
     rag_manager = RAGManager(search_service=mock_search_service)
     rag_result = await rag_manager.retrieve_context(
@@ -310,7 +317,7 @@ async def test_complete_identity_recognition_flow(
         limit=5,
     )
     assert rag_result["used_rag"] is True
-    
+
     # Step 5: Combine contexts
     combined = context_builder.combine_contexts(
         memory_context=None,
@@ -320,4 +327,3 @@ async def test_complete_identity_recognition_flow(
     )
     assert combined is not None
     assert "Anton" in combined
-

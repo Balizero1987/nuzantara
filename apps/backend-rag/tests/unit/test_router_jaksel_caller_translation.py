@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import aiohttp
 import pytest
 
 # Ensure backend is in path
@@ -45,7 +44,9 @@ def jaksel_caller(mock_settings):
 
 def test_init(jaksel_caller):
     """Test initialization"""
-    assert jaksel_caller.hf_api_url == "https://api-inference.huggingface.co/models/zeroai87/jaksel-ai"
+    assert (
+        jaksel_caller.hf_api_url == "https://api-inference.huggingface.co/models/zeroai87/jaksel-ai"
+    )
     assert "Bearer test-hf-key-12345" in jaksel_caller.hf_headers["Authorization"]
     assert jaksel_caller.hf_headers["Content-Type"] == "application/json"
     assert len(jaksel_caller.oracle_urls) == 4
@@ -142,9 +143,11 @@ async def test_call_jaksel_direct_success(jaksel_caller):
     # HF API returns list format: [{"generated_text": "..."}]
     mock_hf_response = MagicMock()
     mock_hf_response.status = 200
-    mock_hf_response.json = AsyncMock(return_value=[{"generated_text": "Halo Kak Anton! Gue baik-baik aja!"}])
+    mock_hf_response.json = AsyncMock(
+        return_value=[{"generated_text": "Halo Kak Anton! Gue baik-baik aja!"}]
+    )
     mock_hf_response.text = AsyncMock(return_value="")
-    
+
     # Create async context manager for HF response
     mock_hf_response_cm = AsyncMock()
     mock_hf_response_cm.__aenter__ = AsyncMock(return_value=mock_hf_response)
@@ -157,7 +160,7 @@ async def test_call_jaksel_direct_success(jaksel_caller):
     mock_get_response_cm = AsyncMock()
     mock_get_response_cm.__aenter__ = AsyncMock(return_value=mock_get_response)
     mock_get_response_cm.__aexit__ = AsyncMock(return_value=None)
-    
+
     # Mock session.post() to return HF success for HF API URL
     def mock_post(url, **kwargs):
         # HF API URL returns success
@@ -210,7 +213,7 @@ async def test_translate_text(jaksel_caller):
     mock_response = MagicMock()
     mock_response.status = 200
     mock_response.json = AsyncMock(return_value=[[["Ciao", "Hello", None, None]], None, "en"])
-    
+
     # Create async context manager for response
     mock_response_cm = AsyncMock()
     mock_response_cm.__aenter__ = AsyncMock(return_value=mock_response)
@@ -320,9 +323,7 @@ async def test_translate_text_multiple_segments(jaksel_caller):
 
     mock_response = MagicMock()
     mock_response.status = 200
-    mock_response.json = AsyncMock(return_value=[
-        [["ciao ", None], ["come ", None], ["va", None]]
-    ])
+    mock_response.json = AsyncMock(return_value=[[["ciao ", None], ["come ", None], ["va", None]]])
     mock_response_cm = AsyncMock()
     mock_response_cm.__aenter__ = AsyncMock(return_value=mock_response)
     mock_response_cm.__aexit__ = AsyncMock(return_value=None)
@@ -420,7 +421,9 @@ async def test_call_jaksel_hf_success_list_response(jaksel_caller):
     """Test HF API success with list response"""
     mock_hf_response = MagicMock()
     mock_hf_response.status = 200
-    mock_hf_response.json = AsyncMock(return_value=[{"generated_text": "Halo bro! Jaksel response"}])
+    mock_hf_response.json = AsyncMock(
+        return_value=[{"generated_text": "Halo bro! Jaksel response"}]
+    )
     mock_hf_response.text = AsyncMock(return_value="")
     mock_hf_response_cm = AsyncMock()
     mock_hf_response_cm.__aenter__ = AsyncMock(return_value=mock_hf_response)
@@ -654,12 +657,14 @@ async def test_translate_response_adds_ciao_bro(jaksel_caller):
 def test_backward_compatibility_alias():
     """Test backward compatibility alias"""
     from app.routers.simple_jaksel_caller_translation import SimpleJakselCaller
+
     assert SimpleJakselCaller == SimpleJakselCallerTranslation
 
 
 @pytest.mark.asyncio
 async def test_call_jaksel_hf_exception(jaksel_caller):
     """Test HF exception handling"""
+
     def mock_post_exception(*args, **kwargs):
         raise Exception("Network error")
 
@@ -726,4 +731,3 @@ async def test_call_jaksel_multiple_users(jaksel_caller):
                 gemini_answer="Answer",
             )
             assert result["user_name"] == expected_name
-

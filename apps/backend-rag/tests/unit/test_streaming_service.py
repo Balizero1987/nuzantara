@@ -3,7 +3,6 @@ Unit tests for Streaming Service
 100% coverage target with comprehensive mocking
 """
 
-import json
 import sys
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -833,4 +832,3 @@ async def test_stream_with_retry_sleeps_between_retries(streaming_service):
     # There should be approximately 1 second between attempts
     time_diff = retry_times[1] - retry_times[0]
     assert time_diff >= 0.9  # Allow some tolerance for execution time
-

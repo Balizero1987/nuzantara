@@ -3,7 +3,6 @@ Unit tests for Work Session Service
 100% coverage target with comprehensive mocking
 """
 
-import json
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -35,9 +34,9 @@ def mock_settings():
 @pytest.fixture
 def work_session_service(mock_settings):
     """Create WorkSessionService instance"""
-    with patch("services.work_session_service.logger"), patch(
-        "pathlib.Path.mkdir"
-    ), patch("pathlib.Path.exists", return_value=True):
+    with patch("services.work_session_service.logger"), patch("pathlib.Path.mkdir"), patch(
+        "pathlib.Path.exists", return_value=True
+    ):
         service = WorkSessionService()
         service.pool = MagicMock(spec=asyncpg.Pool)
         return service
@@ -86,7 +85,7 @@ async def test_connect_success(work_session_service):
 @pytest.mark.asyncio
 @pytest.mark.skipif(
     True,  # Skip in CI where PostgreSQL is not available
-    reason="Requires PostgreSQL service - test needs better mocking for CI"
+    reason="Requires PostgreSQL service - test needs better mocking for CI",
 )
 async def test_connect_no_database_url(work_session_service_no_db):
     """Test connecting without database URL"""
@@ -1003,4 +1002,3 @@ def test_work_session_service_log_file_path():
             service = WorkSessionService()
             assert service.log_file.name == "work_sessions_log.jsonl"
             assert "data" in str(service.log_file)
-

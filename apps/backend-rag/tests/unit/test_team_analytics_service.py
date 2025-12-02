@@ -95,7 +95,9 @@ async def test_analyze_work_patterns_no_sessions(team_analytics_service, mock_db
 
 
 @pytest.mark.asyncio
-async def test_analyze_work_patterns_all_users(team_analytics_service, mock_db_pool, sample_sessions):
+async def test_analyze_work_patterns_all_users(
+    team_analytics_service, mock_db_pool, sample_sessions
+):
     """Test analyzing work patterns for all users"""
     mock_db_pool.fetch = AsyncMock(return_value=sample_sessions)
 
@@ -238,7 +240,9 @@ async def test_detect_burnout_signals_long_sessions(team_analytics_service, mock
     result = await team_analytics_service.detect_burnout_signals("user1@example.com")
 
     if result:
-        assert any("long sessions" in str(signal).lower() for signal in result[0]["warning_signals"])
+        assert any(
+            "long sessions" in str(signal).lower() for signal in result[0]["warning_signals"]
+        )
 
 
 @pytest.mark.asyncio
@@ -619,7 +623,9 @@ async def test_calculate_productivity_scores_needs_attention(team_analytics_serv
 
 
 @pytest.mark.asyncio
-async def test_calculate_productivity_scores_session_length_short(team_analytics_service, mock_db_pool):
+async def test_calculate_productivity_scores_session_length_short(
+    team_analytics_service, mock_db_pool
+):
     """Test productivity scores with short sessions (< 4 hours)"""
     short_sessions = [
         {
@@ -641,7 +647,9 @@ async def test_calculate_productivity_scores_session_length_short(team_analytics
 
 
 @pytest.mark.asyncio
-async def test_calculate_productivity_scores_session_length_long(team_analytics_service, mock_db_pool):
+async def test_calculate_productivity_scores_session_length_long(
+    team_analytics_service, mock_db_pool
+):
     """Test productivity scores with very long sessions (> 8 hours)"""
     long_sessions = [
         {
@@ -734,7 +742,9 @@ async def test_detect_burnout_signals_declining_efficiency(team_analytics_servic
     result = await team_analytics_service.detect_burnout_signals("user1@example.com")
 
     if result:
-        assert any("efficiency dropped" in str(signal).lower() for signal in result[0]["warning_signals"])
+        assert any(
+            "efficiency dropped" in str(signal).lower() for signal in result[0]["warning_signals"]
+        )
 
 
 @pytest.mark.asyncio
@@ -796,7 +806,8 @@ async def test_detect_burnout_signals_risk_levels(team_analytics_service, mock_d
         {
             "user_name": "User 1",
             "user_email": "user1@example.com",
-            "session_start": datetime.now() - timedelta(days=9 - i),  # Reversed order (oldest first)
+            "session_start": datetime.now()
+            - timedelta(days=9 - i),  # Reversed order (oldest first)
             "duration_minutes": 300 if i < 5 else 700,  # Increasing: first 5 = 5h, last 5 = 11.7h
             "conversations_count": 10,
             "activities_count": 50,
@@ -1243,4 +1254,3 @@ async def test_generate_team_insights_text_generation(team_analytics_service, mo
     assert any("active team members" in insight.lower() for insight in result["insights"])
     assert any("hours worked" in insight.lower() for insight in result["insights"])
     assert any("conversations" in insight.lower() for insight in result["insights"])
-

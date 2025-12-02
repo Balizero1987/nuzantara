@@ -3,16 +3,17 @@ WhatsApp Business API Router
 Handles webhook verification and incoming messages from Meta
 """
 
-import logging
 import json
-from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Request, HTTPException, Query, BackgroundTasks, Depends
-from pydantic import BaseModel, Field
+import logging
+from typing import Any, Optional
+
 import httpx
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
+from pydantic import BaseModel, Field
 
 from app.core.config import settings
-from services.intelligent_router import IntelligentRouter
 from app.dependencies import get_intelligent_router
+from services.intelligent_router import IntelligentRouter
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,10 @@ router = APIRouter(prefix="/webhook/whatsapp", tags=["whatsapp"])
 # PYDANTIC MODELS FOR WEBHOOK PAYLOAD
 # ============================================================================
 
+
 class WhatsAppText(BaseModel):
     body: str
+
 
 class WhatsAppMessage(BaseModel):
     from_: str = Field(..., alias="from")
@@ -33,28 +36,33 @@ class WhatsAppMessage(BaseModel):
     text: Optional[WhatsAppText] = None
     type: str
 
+
 class WhatsAppValue(BaseModel):
     messaging_product: str
-    metadata: Dict[str, Any]
-    contacts: Optional[List[Dict[str, Any]]] = None
-    messages: Optional[List[WhatsAppMessage]] = None
+    metadata: dict[str, Any]
+    contacts: Optional[list[dict[str, Any]]] = None
+    messages: Optional[list[WhatsAppMessage]] = None
+
 
 class WhatsAppChange(BaseModel):
     value: WhatsAppValue
     field: str
 
+
 class WhatsAppEntry(BaseModel):
     id: str
-    changes: List[WhatsAppChange]
+    changes: list[WhatsAppChange]
+
 
 class WhatsAppWebhookPayload(BaseModel):
     object: str
-    entry: List[WhatsAppEntry]
+    entry: list[WhatsAppEntry]
 
 
 # ============================================================================
 # WEBHOOK VERIFICATION (GET)
 # ============================================================================
+
 
 @router.get("")
 async def verify_webhook(
@@ -68,7 +76,7 @@ async def verify_webhook(
     if mode == "subscribe" and token == settings.whatsapp_verify_token:
         logger.info("✅ WhatsApp Webhook verified successfully")
         return int(challenge)
-    
+
     logger.warning(f"❌ WhatsApp Webhook verification failed. Token: {token}")
     raise HTTPException(status_code=403, detail="Verification failed")
 
@@ -77,11 +85,12 @@ async def verify_webhook(
 # MESSAGE HANDLING (POST)
 # ============================================================================
 
+
 @router.post("")
 async def handle_webhook(
     request: Request,
     background_tasks: BackgroundTasks,
-    intelligent_router: IntelligentRouter = Depends(get_intelligent_router)
+    intelligent_router: IntelligentRouter = Depends(get_intelligent_router),
 ):
     """
     Handle incoming WhatsApp messages
@@ -101,7 +110,7 @@ async def handle_webhook(
             message_data = payload["entry"][0]["changes"][0]["value"]["messages"][0]
             from_number = message_data["from"]
             message_type = message_data["type"]
-            
+
             # Only handle text messages for now
             if message_type == "text":
                 message_body = message_data["text"]["body"]
@@ -109,10 +118,7 @@ async def handle_webhook(
 
                 # Process in background to avoid timeout
                 background_tasks.add_task(
-                    process_whatsapp_message,
-                    from_number,
-                    message_body,
-                    intelligent_router
+                    process_whatsapp_message, from_number, message_body, intelligent_router
                 )
 
         return {"status": "ok"}
@@ -123,11 +129,7 @@ async def handle_webhook(
         return {"status": "error", "message": str(e)}
 
 
-async def process_whatsapp_message(
-    user_id: str,
-    message: str,
-    router: IntelligentRouter
-):
+async def process_whatsapp_message(user_id: str, message: str, router: IntelligentRouter):
     """
     Process message via IntelligentRouter and send response
     """
@@ -138,15 +140,15 @@ async def process_whatsapp_message(
         async for chunk in router.stream_chat(
             message=message,
             user_id=f"whatsapp_{user_id}",
-            conversation_history=[], # TODO: Load history
-            memory=None, # TODO: Load memory
-            collaborator=None
+            conversation_history=[],  # TODO: Load history
+            memory=None,  # TODO: Load memory
+            collaborator=None,
         ):
             if not chunk.startswith("[METADATA]"):
                 response_chunks.append(chunk)
 
         full_response = "".join(response_chunks)
-        
+
         # Send response back to WhatsApp
         await send_whatsapp_message(user_id, full_response)
 

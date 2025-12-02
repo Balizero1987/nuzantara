@@ -3,13 +3,12 @@ Unit tests for utils.response_sanitizer module
 Coverage target: 100%
 """
 
-import pytest
 from utils.response_sanitizer import (
-    sanitize_zantara_response,
-    enforce_santai_mode,
     add_contact_if_appropriate,
     classify_query_type,
+    enforce_santai_mode,
     process_zantara_response,
+    sanitize_zantara_response,
 )
 
 
@@ -427,7 +426,9 @@ class TestClassifyQueryType:
 
     def test_casual_long_query_becomes_business(self):
         """Test that long queries with casual patterns become business"""
-        long_query = "how are you doing with the visa application process and documentation requirements"
+        long_query = (
+            "how are you doing with the visa application process and documentation requirements"
+        )
         # More than 10 words, should be business even though has "how are you"
         result = classify_query_type(long_query)
         assert result == "business"
@@ -508,7 +509,9 @@ class TestProcessZantaraResponse:
 
     def test_full_pipeline_business(self):
         """Test full pipeline with business query"""
-        response = "The visa process [MANDATORY] takes 30 days. ### **Requirements**\nYou need a passport."
+        response = (
+            "The visa process [MANDATORY] takes 30 days. ### **Requirements**\nYou need a passport."
+        )
         result = process_zantara_response(response, "business", apply_santai=True, add_contact=True)
 
         # Should sanitize
@@ -526,7 +529,9 @@ class TestProcessZantaraResponse:
     def test_full_pipeline_emergency(self):
         """Test full pipeline with emergency query"""
         response = "Context: Emergency info\nPlease visit the embassy immediately! natural language summary"
-        result = process_zantara_response(response, "emergency", apply_santai=True, add_contact=True)
+        result = process_zantara_response(
+            response, "emergency", apply_santai=True, add_contact=True
+        )
 
         # Should sanitize
         assert "Context:" not in result
@@ -541,7 +546,9 @@ class TestProcessZantaraResponse:
     def test_pipeline_skip_santai(self):
         """Test pipeline with apply_santai=False"""
         long_greeting = "Hi! " + "Sentence. " * 10
-        result = process_zantara_response(long_greeting, "greeting", apply_santai=False, add_contact=False)
+        result = process_zantara_response(
+            long_greeting, "greeting", apply_santai=False, add_contact=False
+        )
 
         # Should NOT truncate even for greeting
         sentences = result.split(". ")
@@ -550,7 +557,9 @@ class TestProcessZantaraResponse:
     def test_pipeline_skip_contact(self):
         """Test pipeline with add_contact=False"""
         response = "Business answer here."
-        result = process_zantara_response(response, "business", apply_santai=True, add_contact=False)
+        result = process_zantara_response(
+            response, "business", apply_santai=True, add_contact=False
+        )
 
         # Should NOT add contact even for business
         assert "+62" not in result
@@ -559,7 +568,9 @@ class TestProcessZantaraResponse:
     def test_pipeline_all_disabled(self):
         """Test pipeline with all processing disabled"""
         response = "[PRICE] User: Hello! Very long response. " * 10
-        result = process_zantara_response(response, "business", apply_santai=False, add_contact=False)
+        result = process_zantara_response(
+            response, "business", apply_santai=False, add_contact=False
+        )
 
         # Should only sanitize (other steps disabled)
         assert "[PRICE]" not in result  # Sanitization still happens

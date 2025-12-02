@@ -6,7 +6,7 @@ Unit tests for Reranker Audit Service
 import json
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -274,9 +274,7 @@ def test_log_security_event_warning(audit_service, temp_log_file):
 
 def test_log_security_event_no_metadata(audit_service, temp_log_file):
     """Test log_security_event without metadata"""
-    audit_service.log_security_event(
-        event_type="test_event", description="Test", severity="info"
-    )
+    audit_service.log_security_event(event_type="test_event", description="Test", severity="info")
 
     with open(temp_log_file) as f:
         entry = json.loads(f.readline())
@@ -367,7 +365,7 @@ def test_get_stats_no_file(audit_service, temp_log_file):
     # Ensure file doesn't exist
     if temp_log_file.exists():
         temp_log_file.unlink()
-    
+
     result = audit_service.get_stats()
 
     assert result["enabled"] is True
@@ -388,7 +386,7 @@ def test_get_stats_with_entries(audit_service, temp_log_file):
     audit_service.log_rate_limit_violation(
         user_id_hash="user123", endpoint="/api", limit=100, window=60
     )
-    
+
     # Ensure file exists and has content
     assert temp_log_file.exists()
     with open(temp_log_file) as f:
@@ -415,9 +413,10 @@ def test_get_stats_many_entries(audit_service, temp_log_file):
             cache_hit=True,
             success=True,
         )
-    
+
     # Ensure file is written
     import time
+
     time.sleep(0.1)
 
     result = audit_service.get_stats()
@@ -451,7 +450,7 @@ def test_get_stats_exception(audit_service, temp_log_file):
         cache_hit=True,
         success=True,
     )
-    
+
     # Now simulate read error
     with patch("builtins.open", side_effect=Exception("Read error")):
         result = audit_service.get_stats()
@@ -494,4 +493,3 @@ def test_initialize_audit_service(temp_log_file):
     assert isinstance(result, RerankerAuditService)
     assert result.enabled is True
     assert get_audit_service() == result
-

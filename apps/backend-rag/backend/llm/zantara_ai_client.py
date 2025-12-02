@@ -40,17 +40,17 @@ FALLBACK_PROMPT_FILE = PROMPTS_DIR / "system.md"
 
 class ZantaraAIClient:
     """
-    ZANTARA AI Client – primary engine for all conversational
-AI.
+        ZANTARA AI Client – primary engine for all conversational
+    AI.
 
-    AI Models:
-    - PRIMARY: Google Gemini 2.5 Flash (production)
-    - JAKSEL: Gemma 9B via Oracle Cloud
-(https://jaksel.balizero.com)
-      - Activated for specific users via SimpleJakselCaller
-      - Provides Indonesian Jaksel slang personality
+        AI Models:
+        - PRIMARY: Google Gemini 2.5 Flash (production)
+        - JAKSEL: Gemma 9B via Oracle Cloud
+    (https://jaksel.balizero.com)
+          - Activated for specific users via SimpleJakselCaller
+          - Provides Indonesian Jaksel slang personality
 
-    Provider: Google AI (Gemini) - native implementation
+        Provider: Google AI (Gemini) - native implementation
     """
 
     def __init__(
@@ -81,7 +81,9 @@ AI.
             logger.warning("⚠️ No Gemini API key found - some features may not work")
             self.mock_mode = True
 
-        self.model = model or "gemini-2.5-flash"
+        # Default: usa Gemini 2.5 Pro se disponibile (migliore qualità, meno restrittivo)
+        # Fallback a Flash per compatibilità
+        self.model = model or "gemini-2.5-pro"
 
         # Initialize pricing even in mock mode
         self.pricing = {
@@ -251,18 +253,21 @@ language clear and accessible.
 
         # Identity context (highest priority - who is the user)
         if identity_context:
-            context_sections.append(f"""
+            context_sections.append(
+                f"""
 <user_identity>
 {identity_context}
 </user_identity>
 
 IMPORTANT: Use the user identity information above to personalize your responses.
 If the user asks "who am I?" or similar, refer to this identity information.
-""")
+"""
+            )
 
         # Memory/RAG context
         if memory_context:
-            context_sections.append(f"""
+            context_sections.append(
+                """
 
 CONTEXT USAGE INSTRUCTIONS:
 1. Use the information in <context> tags to answer questions accurately
@@ -270,7 +275,8 @@ CONTEXT USAGE INSTRUCTIONS:
 3. If the context doesn't contain specific information, acknowledge this honestly
 4. Do NOT make up information - only use what's in the context or your general knowledge
 5. For pricing, legal requirements, and specific procedures: ONLY use context data
-""")
+"""
+            )
 
         # Combine everything
         if context_sections:
@@ -317,7 +323,9 @@ CONTEXT USAGE INSTRUCTIONS:
         logger.debug(f"Messages ({len(messages)} messages):")
         for i, msg in enumerate(messages):
             role = msg.get("role", "unknown")
-            content_preview = msg.get("content", "")[:200] + ("..." if len(msg.get("content", "")) > 200 else "")
+            content_preview = msg.get("content", "")[:200] + (
+                "..." if len(msg.get("content", "")) > 200 else ""
+            )
             logger.debug(f"  [{i}] {role}: {content_preview}")
         logger.debug("=" * 80)
 
@@ -371,7 +379,31 @@ CONTEXT USAGE INSTRUCTIONS:
                     safety_settings=safety_settings,
                 )
 
-                answer = response.text
+                # Handle safety blocks - check candidates first
+                if hasattr(response, 'candidates') and response.candidates:
+                    candidate = response.candidates[0]
+                    # Check if blocked by safety filters
+                    if hasattr(candidate, 'safety_ratings'):
+                        blocked = any(
+                            rating.probability.name in ['HIGH', 'MEDIUM'] 
+                            for rating in candidate.safety_ratings
+                        )
+                        if blocked:
+                            # Try to extract content anyway from parts
+                            if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                                if candidate.content.parts:
+                                    answer = candidate.content.parts[0].text
+                                else:
+                                    raise ValueError("Response blocked by safety filters and no content available")
+                            else:
+                                raise ValueError("Response blocked by safety filters")
+                        else:
+                            answer = response.text
+                    else:
+                        answer = response.text
+                else:
+                    # Fallback to response.text
+                    answer = response.text if hasattr(response, 'text') else ""
 
                 # Estimate tokens
                 tokens_input = len(str(messages)) / 4
@@ -459,7 +491,9 @@ CONTEXT USAGE INSTRUCTIONS:
             logger.debug(f"Conversation History ({len(conversation_history)} messages):")
             for i, msg in enumerate(conversation_history):
                 role = msg.get("role", "unknown")
-                content_preview = msg.get("content", "")[:200] + ("..." if len(msg.get("content", "")) > 200 else "")
+                content_preview = msg.get("content", "")[:200] + (
+                    "..." if len(msg.get("content", "")) > 200 else ""
+                )
                 logger.debug(f"  [{i}] {role}: {content_preview}")
         else:
             logger.debug("Conversation History: None")
@@ -597,9 +631,7 @@ CONTEXT USAGE INSTRUCTIONS:
 
         for attempt in range(max_retries):
             try:
-                logger.info(
-                    f"🌊 [ZantaraAI] OpenAI Compat Attempt {attempt + 1}/{max_retries}"
-                )
+                logger.info(f"🌊 [ZantaraAI] OpenAI Compat Attempt {attempt + 1}/{max_retries}")
 
                 stream = await self.client.chat.completions.create(
                     model=self.model,
@@ -618,12 +650,14 @@ CONTEXT USAGE INSTRUCTIONS:
                         yield content
 
                 if stream_active:
-                    logger.info(f"✅ [ZantaraAI] OpenAI Compat Stream completed")
+                    logger.info("✅ [ZantaraAI] OpenAI Compat Stream completed")
                     return
 
             except Exception as e:
                 error_msg = str(e).lower()
-                logger.error(f"❌ [ZantaraAI] OpenAI Compat Stream attempt {attempt + 1} failed: {e}")
+                logger.error(
+                    f"❌ [ZantaraAI] OpenAI Compat Stream attempt {attempt + 1} failed: {e}"
+                )
 
                 should_retry = attempt < max_retries - 1 and any(
                     keyword in error_msg

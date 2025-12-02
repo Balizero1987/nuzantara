@@ -6,7 +6,7 @@ Tests plugin execution, validation, error handling
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -17,8 +17,11 @@ if str(backend_path) not in sys.path:
 
 from plugins.bali_zero.pricing_plugin import PricingPlugin, PricingQueryInput, PricingQueryOutput
 from plugins.team.list_members_plugin import TeamListInput, TeamListOutput, TeamMembersListPlugin
-from plugins.team.search_member_plugin import TeamMemberSearchPlugin, TeamSearchInput, TeamSearchOutput
-
+from plugins.team.search_member_plugin import (
+    TeamMemberSearchPlugin,
+    TeamSearchInput,
+    TeamSearchOutput,
+)
 
 # ============================================================================
 # Tests for PricingPlugin
@@ -31,7 +34,10 @@ def test_pricing_plugin_metadata():
 
     assert plugin.metadata.name == "bali_zero.pricing"
     assert plugin.metadata.version == "1.0.0"
-    assert "OFFICIAL" in plugin.metadata.description or "official" in plugin.metadata.description.lower()
+    assert (
+        "OFFICIAL" in plugin.metadata.description
+        or "official" in plugin.metadata.description.lower()
+    )
     assert "pricing" in plugin.metadata.tags
     assert plugin.metadata.requires_auth is False
     assert plugin.metadata.rate_limit == 30
@@ -134,7 +140,10 @@ def test_team_list_plugin_metadata():
 
     assert plugin.metadata.name == "team.list_members"
     assert plugin.metadata.version == "1.0.0"
-    assert "roster" in plugin.metadata.description.lower() or "team" in plugin.metadata.description.lower()
+    assert (
+        "roster" in plugin.metadata.description.lower()
+        or "team" in plugin.metadata.description.lower()
+    )
     assert "team" in plugin.metadata.tags
     assert plugin.metadata.requires_auth is False
 

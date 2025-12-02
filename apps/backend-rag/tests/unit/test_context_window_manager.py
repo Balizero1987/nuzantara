@@ -398,4 +398,3 @@ def test_format_summary_for_display_missing_stats(context_manager):
 
     assert result["stats"]["total_messages"] == 0
     assert result["stats"]["messages_in_context"] == 0
-

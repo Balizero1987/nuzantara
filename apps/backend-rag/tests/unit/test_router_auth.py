@@ -20,13 +20,10 @@ if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
 from app.routers.auth import (
-    LoginRequest,
-    LoginResponse,
     create_access_token,
     get_current_user,
     verify_password,
 )
-
 
 # ============================================================================
 # Fixtures
@@ -80,8 +77,9 @@ def test_user_data():
 @pytest.fixture
 def client(mock_settings):
     """Create test client"""
-    from app.routers.auth import router
     from fastapi import FastAPI
+
+    from app.routers.auth import router
 
     app = FastAPI()
     app.include_router(router)
@@ -134,7 +132,7 @@ def test_verify_password_error_handling():
 
 def test_verify_password_empty_password():
     """Test verification with empty password"""
-    hashed = bcrypt.hashpw("test".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    hashed = bcrypt.hashpw(b"test", bcrypt.gensalt()).decode("utf-8")
     result = verify_password("", hashed)
     assert result is False
 

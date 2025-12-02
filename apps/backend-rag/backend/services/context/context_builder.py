@@ -158,10 +158,19 @@ COME POSSO AIUTARTI:
 
             # Group facts by type
             personal_facts = [
-                f for f in top_facts
-                if any(word in f.lower() for word in [
-                    "talking to", "role:", "level:", "language:", "colleague", "preferisce"
-                ])
+                f
+                for f in top_facts
+                if any(
+                    word in f.lower()
+                    for word in [
+                        "talking to",
+                        "role:",
+                        "level:",
+                        "language:",
+                        "colleague",
+                        "preferisce",
+                    ]
+                )
             ]
             other_facts = [f for f in top_facts if f not in personal_facts]
 
@@ -200,12 +209,7 @@ COME POSSO AIUTARTI:
         team_parts = []
 
         # LANGUAGE REQUIREMENT (ABSOLUTE - MUST BE FIRST)
-        language_map = {
-            "it": "Italian",
-            "id": "Indonesian",
-            "en": "English",
-            "ua": "Ukrainian"
-        }
+        language_map = {"it": "Italian", "id": "Indonesian", "en": "English", "ua": "Ukrainian"}
         lang_full = language_map.get(collaborator.language, collaborator.language.upper())
         team_parts.append(f"IMPORTANT: You MUST respond ONLY in {lang_full} language")
 
@@ -321,7 +325,8 @@ COME POSSO AIUTARTI:
 
         # 5. RAG context (knowledge base) - wrapped in XML tags
         if rag_context:
-            contexts.append(f"""<knowledge_base>
+            contexts.append(
+                f"""<knowledge_base>
 {rag_context}
 </knowledge_base>
 
@@ -329,7 +334,8 @@ ISTRUZIONI PER L'USO DELLA KNOWLEDGE BASE:
 - Usa le informazioni sopra per rispondere alle domande
 - Cita la fonte quando fornisci informazioni specifiche
 - Se non trovi l'informazione nella knowledge base, dillo onestamente
-- NON inventare dati, codici, prezzi o requisiti legali""")
+- NON inventare dati, codici, prezzi o requisiti legali"""
+            )
 
         # 6. Cultural context (Indonesian insights)
         if cultural_context:
@@ -360,14 +366,26 @@ ISTRUZIONI PER L'USO DELLA KNOWLEDGE BASE:
 
         identity_patterns = [
             # Italian
-            "chi sono", "chi sei tu", "mi conosci", "sai chi sono",
-            "cosa sai di me", "il mio nome", "il mio ruolo",
-            "chi sono io", "conosci me",
+            "chi sono",
+            "chi sei tu",
+            "mi conosci",
+            "sai chi sono",
+            "cosa sai di me",
+            "il mio nome",
+            "il mio ruolo",
+            "chi sono io",
+            "conosci me",
             # English
-            "who am i", "do you know me", "my name", "my role",
-            "what do you know about me", "who is this",
+            "who am i",
+            "do you know me",
+            "my name",
+            "my role",
+            "what do you know about me",
+            "who is this",
             # Indonesian
-            "siapa saya", "apakah kamu kenal saya", "nama saya",
+            "siapa saya",
+            "apakah kamu kenal saya",
+            "nama saya",
             "kamu tahu siapa saya",
         ]
 
@@ -387,14 +405,25 @@ ISTRUZIONI PER L'USO DELLA KNOWLEDGE BASE:
 
         zantara_patterns = [
             # Italian
-            "chi sei", "cosa sei", "cosa sai fare", "cosa puoi fare",
-            "cosa hai nella kb", "knowledge base", "quali collezioni",
-            "di cosa sei capace", "le tue competenze",
+            "chi sei",
+            "cosa sei",
+            "cosa sai fare",
+            "cosa puoi fare",
+            "cosa hai nella kb",
+            "knowledge base",
+            "quali collezioni",
+            "di cosa sei capace",
+            "le tue competenze",
             # English
-            "who are you", "what are you", "what can you do",
-            "your capabilities", "what's in your kb",
+            "who are you",
+            "what are you",
+            "what can you do",
+            "your capabilities",
+            "what's in your kb",
             # Indonesian
-            "siapa kamu", "apa kamu", "kamu bisa apa",
+            "siapa kamu",
+            "apa kamu",
+            "kamu bisa apa",
         ]
 
         return any(pattern in message_lower for pattern in zantara_patterns)
@@ -413,14 +442,31 @@ ISTRUZIONI PER L'USO DELLA KNOWLEDGE BASE:
 
         team_patterns = [
             # Italian
-            "team", "membri", "colleghi", "chi lavora", "quanti siamo",
-            "dipartimento", "chi è", "conosci", "bali zero team",
-            "lista team", "elenco membri", "dipendenti",
+            "team",
+            "membri",
+            "colleghi",
+            "chi lavora",
+            "quanti siamo",
+            "dipartimento",
+            "chi è",
+            "conosci",
+            "bali zero team",
+            "lista team",
+            "elenco membri",
+            "dipendenti",
             # English
-            "team members", "colleagues", "who works", "department",
-            "staff", "employees", "how many people",
+            "team members",
+            "colleagues",
+            "who works",
+            "department",
+            "staff",
+            "employees",
+            "how many people",
             # Indonesian
-            "tim", "anggota tim", "rekan kerja", "siapa yang bekerja",
+            "tim",
+            "anggota tim",
+            "rekan kerja",
+            "siapa yang bekerja",
         ]
 
         return any(pattern in message_lower for pattern in team_patterns)

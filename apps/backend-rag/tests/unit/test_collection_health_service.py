@@ -21,7 +21,6 @@ from services.collection_health_service import (
     StalenessSeverity,
 )
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -101,7 +100,7 @@ def test_init(health_service, mock_search_service):
 def test_init_metrics_structure(health_service):
     """Test that metrics are initialized with correct structure"""
     metrics = health_service.metrics["bali_zero_pricing"]
-    
+
     assert "query_count" in metrics
     assert "hit_count" in metrics
     assert "total_results" in metrics
@@ -123,7 +122,7 @@ def test_record_query_success(health_service):
         result_count=5,
         avg_score=0.85,
     )
-    
+
     metrics = health_service.metrics["bali_zero_pricing"]
     assert metrics["query_count"] == 1
     assert metrics["hit_count"] == 1
@@ -141,7 +140,7 @@ def test_record_query_no_results(health_service):
         result_count=0,
         avg_score=0.0,
     )
-    
+
     metrics = health_service.metrics["visa_oracle"]
     assert metrics["query_count"] == 1
     assert metrics["hit_count"] == 0
@@ -151,12 +150,12 @@ def test_record_query_no_results(health_service):
 def test_record_query_unknown_collection(health_service):
     """Test recording query for unknown collection"""
     initial_count = len(health_service.metrics)
-    
+
     health_service.record_query(
         collection_name="unknown_collection",
         had_results=True,
     )
-    
+
     # Should not create new collection
     assert len(health_service.metrics) == initial_count
     assert "unknown_collection" not in health_service.metrics
@@ -171,7 +170,7 @@ def test_record_query_multiple(health_service):
             result_count=3 if i % 2 == 0 else 0,
             avg_score=0.7 if i % 2 == 0 else 0.0,
         )
-    
+
     metrics = health_service.metrics["kbli_eye"]
     assert metrics["query_count"] == 5
     assert metrics["hit_count"] == 3  # 3 successful queries
@@ -186,7 +185,7 @@ def test_calculate_staleness_fresh(health_service):
     """Test calculating staleness for fresh data"""
     last_updated = (datetime.now() - timedelta(days=15)).isoformat()
     staleness = health_service.calculate_staleness(last_updated)
-    
+
     assert staleness == StalenessSeverity.FRESH
 
 
@@ -194,7 +193,7 @@ def test_calculate_staleness_aging(health_service):
     """Test calculating staleness for aging data"""
     last_updated = (datetime.now() - timedelta(days=60)).isoformat()
     staleness = health_service.calculate_staleness(last_updated)
-    
+
     assert staleness == StalenessSeverity.AGING
 
 
@@ -202,7 +201,7 @@ def test_calculate_staleness_stale(health_service):
     """Test calculating staleness for stale data"""
     last_updated = (datetime.now() - timedelta(days=150)).isoformat()
     staleness = health_service.calculate_staleness(last_updated)
-    
+
     assert staleness == StalenessSeverity.STALE
 
 
@@ -210,21 +209,21 @@ def test_calculate_staleness_very_stale(health_service):
     """Test calculating staleness for very stale data"""
     last_updated = (datetime.now() - timedelta(days=400)).isoformat()
     staleness = health_service.calculate_staleness(last_updated)
-    
+
     assert staleness == StalenessSeverity.VERY_STALE
 
 
 def test_calculate_staleness_none(health_service):
     """Test calculating staleness when last_updated is None"""
     staleness = health_service.calculate_staleness(None)
-    
+
     assert staleness == StalenessSeverity.VERY_STALE
 
 
 def test_calculate_staleness_invalid_format(health_service):
     """Test calculating staleness with invalid timestamp"""
     staleness = health_service.calculate_staleness("invalid-timestamp")
-    
+
     assert staleness == StalenessSeverity.VERY_STALE
 
 
@@ -241,7 +240,7 @@ def test_calculate_health_status_excellent(health_service):
         staleness=StalenessSeverity.FRESH,
         query_count=15,
     )
-    
+
     assert status == HealthStatus.EXCELLENT
 
 
@@ -253,7 +252,7 @@ def test_calculate_health_status_good(health_service):
         staleness=StalenessSeverity.AGING,
         query_count=8,
     )
-    
+
     assert status == HealthStatus.GOOD
 
 
@@ -265,7 +264,7 @@ def test_calculate_health_status_warning_stale(health_service):
         staleness=StalenessSeverity.STALE,
         query_count=10,
     )
-    
+
     assert status == HealthStatus.WARNING
 
 
@@ -277,7 +276,7 @@ def test_calculate_health_status_warning_low_hit_rate(health_service):
         staleness=StalenessSeverity.FRESH,
         query_count=10,
     )
-    
+
     assert status == HealthStatus.WARNING
 
 
@@ -289,7 +288,7 @@ def test_calculate_health_status_critical_very_stale(health_service):
         staleness=StalenessSeverity.VERY_STALE,
         query_count=10,
     )
-    
+
     assert status == HealthStatus.CRITICAL
 
 
@@ -301,7 +300,7 @@ def test_calculate_health_status_critical_low_hit_rate(health_service):
         staleness=StalenessSeverity.FRESH,
         query_count=15,
     )
-    
+
     assert status == HealthStatus.CRITICAL
 
 
@@ -313,7 +312,7 @@ def test_calculate_health_status_critical_low_confidence(health_service):
         staleness=StalenessSeverity.FRESH,
         query_count=15,
     )
-    
+
     assert status == HealthStatus.CRITICAL
 
 
@@ -332,7 +331,7 @@ def test_generate_recommendations_very_stale(health_service):
         avg_confidence=0.8,
         query_count=10,
     )
-    
+
     assert len(recommendations) > 0
     assert any("URGENT" in rec or ">6 months" in rec for rec in recommendations)
 
@@ -347,7 +346,7 @@ def test_generate_recommendations_low_hit_rate(health_service):
         avg_confidence=0.6,
         query_count=15,
     )
-    
+
     assert len(recommendations) > 0
     assert any("hit rate" in rec.lower() for rec in recommendations)
 
@@ -362,7 +361,7 @@ def test_generate_recommendations_low_confidence(health_service):
         avg_confidence=0.25,
         query_count=15,
     )
-    
+
     assert len(recommendations) > 0
     assert any("confidence" in rec.lower() for rec in recommendations)
 
@@ -377,7 +376,7 @@ def test_generate_recommendations_no_queries(health_service):
         avg_confidence=0.0,
         query_count=0,
     )
-    
+
     assert len(recommendations) > 0
     assert any("No queries" in rec or "unused" in rec.lower() for rec in recommendations)
 
@@ -392,7 +391,7 @@ def test_generate_recommendations_updates_collection(health_service):
         avg_confidence=0.6,
         query_count=10,
     )
-    
+
     assert len(recommendations) > 0
     assert any("auto-ingestion" in rec.lower() for rec in recommendations)
 
@@ -407,9 +406,11 @@ def test_generate_recommendations_good_health(health_service):
         avg_confidence=0.8,
         query_count=20,
     )
-    
+
     assert len(recommendations) > 0
-    assert any("no action needed" in rec.lower() or "good" in rec.lower() for rec in recommendations)
+    assert any(
+        "no action needed" in rec.lower() or "good" in rec.lower() for rec in recommendations
+    )
 
 
 # ============================================================================
@@ -420,27 +421,36 @@ def test_generate_recommendations_good_health(health_service):
 def test_get_collection_health_existing(health_service):
     """Test getting health for existing collection"""
     # Record some queries
-    health_service.record_query("bali_zero_pricing", had_results=True, result_count=3, avg_score=0.8)
-    health_service.record_query("bali_zero_pricing", had_results=True, result_count=2, avg_score=0.75)
-    
+    health_service.record_query(
+        "bali_zero_pricing", had_results=True, result_count=3, avg_score=0.8
+    )
+    health_service.record_query(
+        "bali_zero_pricing", had_results=True, result_count=2, avg_score=0.75
+    )
+
     health = health_service.get_collection_health(
         collection_name="bali_zero_pricing",
         document_count=100,
         last_updated=(datetime.now() - timedelta(days=10)).isoformat(),
     )
-    
+
     assert isinstance(health, CollectionMetrics)
     assert health.collection_name == "bali_zero_pricing"
     assert health.query_count == 2
     assert health.hit_count == 2
     assert health.document_count == 100
-    assert health.health_status in [HealthStatus.EXCELLENT, HealthStatus.GOOD, HealthStatus.WARNING, HealthStatus.CRITICAL]
+    assert health.health_status in [
+        HealthStatus.EXCELLENT,
+        HealthStatus.GOOD,
+        HealthStatus.WARNING,
+        HealthStatus.CRITICAL,
+    ]
 
 
 def test_get_collection_health_unknown_collection(health_service):
     """Test getting health for unknown collection"""
     health = health_service.get_collection_health(collection_name="unknown_collection")
-    
+
     assert health.collection_name == "unknown_collection"
     assert health.health_status == HealthStatus.CRITICAL
     assert health.staleness == StalenessSeverity.VERY_STALE
@@ -452,12 +462,12 @@ def test_get_collection_health_with_issues(health_service):
     # Record queries with low hit rate
     for _ in range(15):
         health_service.record_query("visa_oracle", had_results=False)
-    
+
     health = health_service.get_collection_health(
         collection_name="visa_oracle",
         last_updated=(datetime.now() - timedelta(days=200)).isoformat(),
     )
-    
+
     assert len(health.issues) > 0
     assert health.health_status in [HealthStatus.WARNING, HealthStatus.CRITICAL]
 
@@ -468,7 +478,7 @@ def test_get_collection_health_empty_collection(health_service):
         collection_name="kbli_eye",
         document_count=0,
     )
-    
+
     assert "Empty collection" in health.issues
 
 
@@ -480,7 +490,7 @@ def test_get_collection_health_empty_collection(health_service):
 def test_get_all_collection_health_include_empty(health_service):
     """Test getting all collection health including empty"""
     all_health = health_service.get_all_collection_health(include_empty=True)
-    
+
     assert len(all_health) == 14
     assert all(isinstance(health, CollectionMetrics) for health in all_health.values())
 
@@ -489,9 +499,9 @@ def test_get_all_collection_health_exclude_empty(health_service):
     """Test getting all collection health excluding empty"""
     # Record query for one collection
     health_service.record_query("bali_zero_pricing", had_results=True)
-    
+
     all_health = health_service.get_all_collection_health(include_empty=False)
-    
+
     assert len(all_health) == 1
     assert "bali_zero_pricing" in all_health
 
@@ -504,11 +514,13 @@ def test_get_all_collection_health_exclude_empty(health_service):
 def test_get_dashboard_summary(health_service):
     """Test getting dashboard summary"""
     # Record some queries
-    health_service.record_query("bali_zero_pricing", had_results=True, result_count=5, avg_score=0.8)
+    health_service.record_query(
+        "bali_zero_pricing", had_results=True, result_count=5, avg_score=0.8
+    )
     health_service.record_query("visa_oracle", had_results=False)
-    
+
     summary = health_service.get_dashboard_summary()
-    
+
     assert "timestamp" in summary
     assert "total_collections" in summary
     assert summary["total_collections"] == 14
@@ -524,14 +536,16 @@ def test_get_dashboard_summary(health_service):
 def test_get_dashboard_summary_counts(health_service):
     """Test that dashboard summary counts are correct"""
     # Set up different health statuses
-    health_service.record_query("bali_zero_pricing", had_results=True, result_count=5, avg_score=0.85)
+    health_service.record_query(
+        "bali_zero_pricing", had_results=True, result_count=5, avg_score=0.85
+    )
     health_service.record_query("visa_oracle", had_results=False)
-    
+
     summary = health_service.get_dashboard_summary()
-    
+
     total_statuses = sum(summary["health_distribution"].values())
     assert total_statuses == 14  # All collections should be counted
-    
+
     assert summary["total_queries"] == 2
 
 
@@ -543,7 +557,7 @@ def test_get_dashboard_summary_counts(health_service):
 def test_get_health_report_text(health_service):
     """Test getting health report in text format"""
     report = health_service.get_health_report(format="text")
-    
+
     assert isinstance(report, str)
     assert "COLLECTION HEALTH REPORT" in report
     assert "SUMMARY" in report
@@ -553,7 +567,7 @@ def test_get_health_report_text(health_service):
 def test_get_health_report_markdown(health_service):
     """Test getting health report in markdown format"""
     report = health_service.get_health_report(format="markdown")
-    
+
     assert isinstance(report, str)
     assert len(report) > 0
 
@@ -561,9 +575,9 @@ def test_get_health_report_markdown(health_service):
 def test_get_health_report_includes_collections(health_service):
     """Test that health report includes collection details"""
     health_service.record_query("bali_zero_pricing", had_results=True)
-    
+
     report = health_service.get_health_report()
-    
+
     assert "bali_zero_pricing" in report.upper() or "BALI_ZERO_PRICING" in report
 
 
@@ -572,10 +586,11 @@ def test_get_health_report_includes_critical(health_service):
     # Create a critical collection
     health_service.record_query("visa_oracle", had_results=False)
     # Set stale data
-    health_service.metrics["visa_oracle"]["last_updated"] = (datetime.now() - timedelta(days=400)).isoformat()
-    
+    health_service.metrics["visa_oracle"]["last_updated"] = (
+        datetime.now() - timedelta(days=400)
+    ).isoformat()
+
     report = health_service.get_health_report()
-    
+
     # Should mention critical or warning
     assert "CRITICAL" in report or "critical" in report.lower() or "⚠️" in report or "🚨" in report
-

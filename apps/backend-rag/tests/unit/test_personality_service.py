@@ -41,10 +41,11 @@ def personality_service(mock_zantara_client):
     mock_settings = MagicMock()
     mock_settings.zantara_oracle_url = "http://test"
     mock_settings.oracle_api_key = "test_key"
-    
+
     # Mock TEAM_MEMBERS - use actual structure if available
     try:
         from data.team_members import TEAM_MEMBERS as real_team_members
+
         mock_team_members = real_team_members
     except ImportError:
         mock_team_members = {
@@ -53,10 +54,11 @@ def personality_service(mock_zantara_client):
                 "personality": "jaksel",
             }
         }
-    
+
     # Patch settings before import
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         service = PersonalityService()
         return service, mock_zantara_client
 
@@ -125,7 +127,7 @@ def test_detect_language_fallback(jaksel_matcher):
 def test_adapt_query_for_jaksel_italian(jaksel_matcher):
     """Test adapt_query_for_jaksel for Italian"""
     lang_info = {"language": "it", "family": "latin"}
-    
+
     result = jaksel_matcher.adapt_query_for_jaksel("Test query", lang_info)
 
     assert isinstance(result, dict)
@@ -133,27 +135,35 @@ def test_adapt_query_for_jaksel_italian(jaksel_matcher):
     instruction_key = "jaksel_instruction" if "jaksel_instruction" in result else "adapted_query"
     assert instruction_key in result
     instruction_text = result[instruction_key]
-    assert "ITALIANO" in instruction_text or "italiano" in instruction_text.lower() or "it" in instruction_text.lower()
+    assert (
+        "ITALIANO" in instruction_text
+        or "italiano" in instruction_text.lower()
+        or "it" in instruction_text.lower()
+    )
 
 
 def test_adapt_query_for_jaksel_arabic(jaksel_matcher):
     """Test adapt_query_for_jaksel for Arabic"""
     lang_info = {"language": "ar", "family": "arabic"}
-    
+
     result = jaksel_matcher.adapt_query_for_jaksel("Test query", lang_info)
 
     assert isinstance(result, dict)
     instruction_key = "jaksel_instruction" if "jaksel_instruction" in result else "adapted_query"
     assert instruction_key in result
     instruction_text = result[instruction_key]
-    assert "العربية" in instruction_text or "arabic" in instruction_text.lower() or "ar" in instruction_text.lower()
+    assert (
+        "العربية" in instruction_text
+        or "arabic" in instruction_text.lower()
+        or "ar" in instruction_text.lower()
+    )
 
 
 def test_adapt_query_for_jaksel_family_fallback(jaksel_matcher):
     """Test adapt_query_for_jaksel uses family fallback"""
     # Code requires language key, use empty string to trigger family fallback
     lang_info = {"language": "", "family": "latin"}
-    
+
     result = jaksel_matcher.adapt_query_for_jaksel("Test query", lang_info)
 
     assert isinstance(result, dict)
@@ -231,15 +241,15 @@ def test_get_personality_system_prompt_unknown(personality_service):
 async def test_translate_to_personality_success(personality_service):
     """Test translate_to_personality successful"""
     service, mock_client = personality_service
-    
+
     # Mock aiohttp for HTTP calls
     mock_response = MagicMock()
     mock_response.status = 200
     mock_response.json = AsyncMock(return_value={"text": "Translated response"})
-    
+
     with patch("aiohttp.ClientSession") as mock_session:
         mock_session.return_value.__aenter__.return_value.post.return_value.__aenter__.return_value = mock_response
-        
+
         result = await service.translate_to_personality(
             "Professional answer", "amanda@balizero.com", "Hello"
         )
@@ -252,7 +262,7 @@ async def test_translate_to_personality_success(personality_service):
 async def test_translate_to_personality_exception(personality_service):
     """Test translate_to_personality handles exception"""
     service, mock_client = personality_service
-    
+
     with patch("aiohttp.ClientSession", side_effect=Exception("AI error")):
         result = await service.translate_to_personality(
             "Professional answer", "amanda@balizero.com", "Hello"
@@ -359,15 +369,15 @@ async def test_test_personality(personality_service):
 async def test_translate_to_personality_gemini_only(personality_service):
     """Test translate_to_personality_gemini_only"""
     service, mock_client = personality_service
-    
+
     # Mock aiohttp for HTTP calls
     mock_response = MagicMock()
     mock_response.status = 200
     mock_response.json = AsyncMock(return_value={"text": "Gemini response"})
-    
+
     with patch("aiohttp.ClientSession") as mock_session:
         mock_session.return_value.__aenter__.return_value.post.return_value.__aenter__.return_value = mock_response
-        
+
         result = await service.translate_to_personality_gemini_only(
             "Professional answer", "amanda@balizero.com", "Hello"
         )
@@ -422,13 +432,16 @@ def test_get_user_personality_zero_user(personality_service):
     service, mock_client = personality_service
 
     # Mock a user with zero personality
-    with patch("data.team_members.TEAM_MEMBERS", {
-        "zero@balizero.com": {
-            "id": "zero_id",
-            "name": "Zero",
-            "personality": "zero",
-        }
-    }):
+    with patch(
+        "data.team_members.TEAM_MEMBERS",
+        {
+            "zero@balizero.com": {
+                "id": "zero_id",
+                "name": "Zero",
+                "personality": "zero",
+            }
+        },
+    ):
         # Re-instantiate service with new team members
         mock_settings = MagicMock()
         mock_settings.zantara_oracle_url = "http://test"
@@ -436,6 +449,7 @@ def test_get_user_personality_zero_user(personality_service):
 
         with patch("app.core.config.settings", mock_settings):
             from services.personality_service import PersonalityService
+
             service = PersonalityService()
 
             result = service.get_user_personality("zero@balizero.com")
@@ -451,19 +465,23 @@ def test_get_user_personality_professional_user(personality_service):
     service, mock_client = personality_service
 
     # Mock a user with professional personality
-    with patch("data.team_members.TEAM_MEMBERS", {
-        "pro@balizero.com": {
-            "id": "pro_id",
-            "name": "Professional",
-            "personality": "professional",
-        }
-    }):
+    with patch(
+        "data.team_members.TEAM_MEMBERS",
+        {
+            "pro@balizero.com": {
+                "id": "pro_id",
+                "name": "Professional",
+                "personality": "professional",
+            }
+        },
+    ):
         mock_settings = MagicMock()
         mock_settings.zantara_oracle_url = "http://test"
         mock_settings.oracle_api_key = "test_key"
 
         with patch("app.core.config.settings", mock_settings):
             from services.personality_service import PersonalityService
+
             service = PersonalityService()
 
             result = service.get_user_personality("pro@balizero.com")
@@ -487,9 +505,11 @@ def test_get_user_personality_fallback_to_professional():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Ensure the ID is not in jaksel or zero team_members
@@ -518,9 +538,11 @@ async def test_translate_to_personality_jaksel_with_language_forcing():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Mock aiohttp for HTTP calls
@@ -566,9 +588,11 @@ async def test_translate_to_personality_jaksel_http_error():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Ensure amanda is in jaksel team_members
@@ -619,9 +643,11 @@ async def test_translate_to_personality_jaksel_exception():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Ensure amanda is in jaksel team_members
@@ -656,9 +682,11 @@ async def test_translate_to_personality_non_jaksel():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Mock the translate_to_personality_gemini_only method
@@ -668,8 +696,11 @@ async def test_translate_to_personality_non_jaksel():
             "model_used": "gemini-pro",
         }
 
-        with patch.object(service, 'translate_to_personality_gemini_only',
-                         AsyncMock(return_value=mock_gemini_response)):
+        with patch.object(
+            service,
+            "translate_to_personality_gemini_only",
+            AsyncMock(return_value=mock_gemini_response),
+        ):
             result = await service.translate_to_personality(
                 "Professional answer", "pro@balizero.com", "Hello"
             )
@@ -699,6 +730,7 @@ async def test_test_personality_http_error():
 
     with patch("app.core.config.settings", mock_settings):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Mock aiohttp for HTTP calls with error
@@ -735,6 +767,7 @@ async def test_test_personality_exception():
 
     with patch("app.core.config.settings", mock_settings):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         with patch("aiohttp.ClientSession", side_effect=Exception("Connection error")):
@@ -762,9 +795,11 @@ async def test_translate_to_personality_gemini_only_with_model_getter():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Mock Gemini model
@@ -778,7 +813,10 @@ async def test_translate_to_personality_gemini_only_with_model_getter():
             return mock_gemini_model
 
         result = await service.translate_to_personality_gemini_only(
-            "Professional answer", "amanda@balizero.com", "Hello", gemini_model_getter=mock_model_getter
+            "Professional answer",
+            "amanda@balizero.com",
+            "Hello",
+            gemini_model_getter=mock_model_getter,
         )
 
         assert isinstance(result, dict)
@@ -803,9 +841,11 @@ async def test_translate_to_personality_gemini_only_model_getter_exception():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Mock model getter that raises exception
@@ -813,7 +853,10 @@ async def test_translate_to_personality_gemini_only_model_getter_exception():
             raise Exception("Model getter failed")
 
         result = await service.translate_to_personality_gemini_only(
-            "Professional answer", "amanda@balizero.com", "Hello", gemini_model_getter=mock_model_getter
+            "Professional answer",
+            "amanda@balizero.com",
+            "Hello",
+            gemini_model_getter=mock_model_getter,
         )
 
         assert isinstance(result, dict)
@@ -838,13 +881,15 @@ async def test_translate_to_personality_gemini_only_exception():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Mock get_user_personality to raise exception
-        with patch.object(service, 'get_user_personality', side_effect=Exception("User error")):
+        with patch.object(service, "get_user_personality", side_effect=Exception("User error")):
             result = await service.translate_to_personality_gemini_only(
                 "Professional answer", "amanda@balizero.com", "Hello"
             )
@@ -894,6 +939,7 @@ async def test_enhance_with_zantara_model_http_error():
 
     with patch("app.core.config.settings", mock_settings):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Mock aiohttp for HTTP calls with error
@@ -930,6 +976,7 @@ async def test_enhance_with_zantara_model_exception():
 
     with patch("app.core.config.settings", mock_settings):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         with patch("aiohttp.ClientSession", side_effect=Exception("Connection error")):
@@ -956,9 +1003,11 @@ async def test_fast_chat_http_error():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         # Mock aiohttp for HTTP calls with error
@@ -1002,9 +1051,11 @@ async def test_fast_chat_exception():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), \
-         patch("data.team_members.TEAM_MEMBERS", mock_team_members):
+    with patch("app.core.config.settings", mock_settings), patch(
+        "data.team_members.TEAM_MEMBERS", mock_team_members
+    ):
         from services.personality_service import PersonalityService
+
         service = PersonalityService()
 
         with patch("aiohttp.ClientSession", side_effect=Exception("Connection error")):
@@ -1013,4 +1064,3 @@ async def test_fast_chat_exception():
             assert isinstance(result, dict)
             assert "response" in result
             assert result["category"] == "error"
-

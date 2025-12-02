@@ -4,7 +4,7 @@ Unit tests for Health Router
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -79,6 +79,7 @@ async def test_health_check_partial_initialization(mock_search_service):
 @pytest.mark.asyncio
 async def test_health_check_attribute_error():
     """Test health check when embedder raises AttributeError"""
+
     # Create a class where accessing embedder raises AttributeError
     class MockServiceWithBrokenEmbedder:
         @property
@@ -98,6 +99,7 @@ async def test_health_check_attribute_error():
 @pytest.mark.asyncio
 async def test_health_check_general_exception():
     """Test health check when general exception occurs"""
+
     # Create a class where accessing embedder raises non-AttributeError exception
     class MockServiceWithError:
         @property
@@ -112,4 +114,3 @@ async def test_health_check_general_exception():
         assert response.status == "degraded"
         assert response.database["status"] == "error"
         assert response.embeddings["status"] == "error"
-

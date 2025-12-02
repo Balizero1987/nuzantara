@@ -1,6 +1,7 @@
 """
 ZANTARA RAG - Ingestion Service
 Book processing pipeline: parse → chunk → embed → store
+Auto-routes legal documents to LegalIngestionService
 """
 
 import logging
@@ -42,9 +43,11 @@ class IngestionService:
         tier_override: TierLevel | None = None,
         status_vigensi: str | None = None,
         wilayah: str | None = None,
+        doc_type: str | None = None,
     ) -> dict[str, Any]:
         """
         Ingest a single book through the complete pipeline.
+        Auto-routes legal documents to LegalIngestionService.
 
         Args:
             file_path: Path to book file (PDF or EPUB)
@@ -54,6 +57,7 @@ class IngestionService:
             tier_override: Manual tier classification (optional)
             status_vigensi: Legal validity status (e.g., "berlaku", "dicabut") - extracted from doc_info if not provided
             wilayah: Region/territory (e.g., "Indonesia", "Bali") - extracted from doc_info if not provided
+            doc_type: Document type override ("legal" to force legal pipeline)
 
         Returns:
             Dictionary with ingestion results
@@ -61,13 +65,27 @@ class IngestionService:
         try:
             logger.info(f"Starting ingestion for: {file_path}")
 
+            # AUTO-ROUTING: Check if this is a legal document
+            if doc_type == "legal" or self._is_legal_document(file_path):
+                logger.info("📜 Legal document detected - routing to LegalIngestionService")
+                from services.legal_ingestion_service import LegalIngestionService
+
+                legal_service = LegalIngestionService()
+                return await legal_service.ingest_legal_document(
+                    file_path=file_path,
+                    title=title,
+                    tier_override=tier_override,
+                )
+
             # Step 1: Extract document info
             doc_info = get_document_info(file_path)
             book_title = title or doc_info.get("title", Path(file_path).stem)
             book_author = author or doc_info.get("author", "Unknown")
-            
+
             # Extract legal metadata if available
-            extracted_status_vigensi = status_vigensi or doc_info.get("status_vigensi") or doc_info.get("status")
+            extracted_status_vigensi = (
+                status_vigensi or doc_info.get("status_vigensi") or doc_info.get("status")
+            )
             extracted_wilayah = wilayah or doc_info.get("wilayah") or doc_info.get("region")
 
             logger.info(f"Book: {book_title} by {book_author}")
@@ -100,7 +118,7 @@ class IngestionService:
                 "language": language,
                 "file_path": file_path,
             }
-            
+
             # Add legal metadata if available
             if extracted_status_vigensi:
                 base_metadata["status_vigensi"] = extracted_status_vigensi
@@ -163,3 +181,28 @@ class IngestionService:
                 "message": "Failed to ingest book",
                 "error": str(e),
             }
+
+    def _is_legal_document(self, file_path: str) -> bool:
+        """
+        Detect if file is an Indonesian legal document.
+
+        Args:
+            file_path: Path to document file
+
+        Returns:
+            True if document appears to be legal
+        """
+        try:
+            # Quick check: parse first 5000 chars
+            text = auto_detect_and_parse(file_path)
+            sample = text[:5000] if len(text) > 5000 else text
+
+            # Use LegalMetadataExtractor to detect
+            from core.legal import LegalMetadataExtractor
+
+            extractor = LegalMetadataExtractor()
+            return extractor.is_legal_document(sample)
+
+        except Exception as e:
+            logger.warning(f"Error detecting legal document: {e}")
+            return False

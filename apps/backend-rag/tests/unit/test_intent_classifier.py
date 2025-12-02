@@ -5,7 +5,7 @@ Unit tests for Intent Classifier Service
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -207,7 +207,9 @@ async def test_classify_intent_fallback_short(intent_classifier):
 @pytest.mark.asyncio
 async def test_classify_intent_fallback_long(intent_classifier):
     """Test classify_intent fallback for long message"""
-    long_query = "this is a very long query that doesn't match any specific pattern but contains many words"
+    long_query = (
+        "this is a very long query that doesn't match any specific pattern but contains many words"
+    )
     result = await intent_classifier.classify_intent(long_query)
 
     assert result["category"] == "business_simple"
@@ -297,4 +299,3 @@ async def test_classify_intent_simple_patterns(intent_classifier):
         result = await intent_classifier.classify_intent(query)
         assert result["category"] in ["business_simple", "casual", "unknown"]
         assert result["confidence"] > 0.0
-

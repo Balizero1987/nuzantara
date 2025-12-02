@@ -4,9 +4,8 @@ Unit tests for Knowledge Graph Builder
 """
 
 import sys
-from datetime import datetime
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -448,7 +447,9 @@ def test_get_relationships_both(knowledge_graph_builder):
     knowledge_graph_builder.add_relationship(rel1)
     knowledge_graph_builder.add_relationship(rel2)
 
-    relationships = knowledge_graph_builder.get_relationships_for_entity("entity2", direction="both")
+    relationships = knowledge_graph_builder.get_relationships_for_entity(
+        "entity2", direction="both"
+    )
 
     assert len(relationships) == 2
 
@@ -559,4 +560,3 @@ def test_get_graph_stats_empty(knowledge_graph_builder):
     assert stats["total_entities"] == 0
     assert stats["total_relationships"] == 0
     assert stats["avg_relationships_per_entity"] == 0.0
-

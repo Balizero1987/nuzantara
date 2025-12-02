@@ -2,7 +2,6 @@
 Unit tests for ServiceRegistry and service health tracking.
 """
 
-import pytest
 from datetime import datetime, timezone
 
 from app.core.service_health import (

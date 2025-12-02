@@ -5,9 +5,10 @@ Target: Autonomous conversation trainer
 File: backend/agents/agents/conversation_trainer.py (53 lines)
 """
 
-import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
 from datetime import datetime
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 
 class TestConversationTrainer:
@@ -29,9 +30,9 @@ class TestConversationTrainer:
     @pytest.mark.asyncio
     async def test_analyze_winning_patterns_no_conversations(self):
         """Test: Returns None when no high-rated conversations found"""
-        with patch("app.core.config.settings") as mock_settings, \
-             patch("psycopg2.connect") as mock_connect:
-
+        with patch("app.core.config.settings") as mock_settings, patch(
+            "psycopg2.connect"
+        ) as mock_connect:
             mock_settings.database_url = "postgresql://test"
             mock_settings.github_token = "token"
 
@@ -53,9 +54,9 @@ class TestConversationTrainer:
     @pytest.mark.asyncio
     async def test_analyze_winning_patterns_with_conversations(self):
         """Test: Analyzes patterns from high-rated conversations"""
-        with patch("app.core.config.settings") as mock_settings, \
-             patch("psycopg2.connect") as mock_connect:
-
+        with patch("app.core.config.settings") as mock_settings, patch(
+            "psycopg2.connect"
+        ) as mock_connect:
             mock_settings.database_url = "postgresql://test"
             mock_settings.github_token = "token"
 
@@ -67,7 +68,7 @@ class TestConversationTrainer:
             # Mock conversation data
             mock_cursor.fetchall.return_value = [
                 ("conv1", "User: Hello\nAssistant: Hi there!", 5, "Great service!", datetime.now()),
-                ("conv2", "User: Help\nAssistant: Sure!", 4, "Very helpful", datetime.now())
+                ("conv2", "User: Help\nAssistant: Sure!", 4, "Very helpful", datetime.now()),
             ]
 
             from agents.agents.conversation_trainer import ConversationTrainer

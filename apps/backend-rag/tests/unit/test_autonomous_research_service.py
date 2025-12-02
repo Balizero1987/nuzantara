@@ -5,7 +5,7 @@ Unit tests for Autonomous Research Service
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -37,7 +37,9 @@ def mock_search_service():
 def mock_query_router():
     """Mock QueryRouter"""
     router = MagicMock()
-    router.route_with_confidence = MagicMock(return_value=("visa_oracle", 0.8, ["visa_oracle", "tax_genius"]))
+    router.route_with_confidence = MagicMock(
+        return_value=("visa_oracle", 0.8, ["visa_oracle", "tax_genius"])
+    )
     return router
 
 
@@ -52,7 +54,12 @@ def mock_zantara_service():
 @pytest.fixture
 def autonomous_research_service(mock_search_service, mock_query_router, mock_zantara_service):
     """Create AutonomousResearchService instance"""
-    return AutonomousResearchService(mock_search_service, mock_query_router, mock_zantara_service), mock_search_service, mock_query_router, mock_zantara_service
+    return (
+        AutonomousResearchService(mock_search_service, mock_query_router, mock_zantara_service),
+        mock_search_service,
+        mock_query_router,
+        mock_zantara_service,
+    )
 
 
 # ============================================================================
@@ -245,7 +252,7 @@ async def test_expand_query_with_business_terms(autonomous_research_service):
 async def test_research_iteration_success(autonomous_research_service):
     """Test research_iteration successful"""
     service, mock_search, mock_router, mock_zantara = autonomous_research_service
-    
+
     mock_search.search.return_value = {
         "results": [
             {"text": "Result 1", "score": 0.9},
@@ -266,7 +273,7 @@ async def test_research_iteration_success(autonomous_research_service):
 async def test_research_iteration_no_collection(autonomous_research_service):
     """Test research_iteration when no collection available"""
     service, mock_search, mock_router, mock_zantara = autonomous_research_service
-    
+
     mock_router.route_with_confidence.return_value = ("visa_oracle", 0.8, [])
 
     step = await service.research_iteration("Test query", 1, ["visa_oracle"], user_level=3)
@@ -279,7 +286,7 @@ async def test_research_iteration_no_collection(autonomous_research_service):
 async def test_research_iteration_no_results(autonomous_research_service):
     """Test research_iteration with no results"""
     service, mock_search, mock_router, mock_zantara = autonomous_research_service
-    
+
     mock_search.search.return_value = {"results": []}
 
     step = await service.research_iteration("Test query", 1, [], user_level=3)
@@ -292,7 +299,7 @@ async def test_research_iteration_no_results(autonomous_research_service):
 async def test_research_iteration_exception(autonomous_research_service):
     """Test research_iteration handles exception"""
     service, mock_search, mock_router, mock_zantara = autonomous_research_service
-    
+
     mock_search.search.side_effect = Exception("Search error")
 
     step = await service.research_iteration("Test query", 1, [], user_level=3)
@@ -310,12 +317,12 @@ async def test_research_iteration_exception(autonomous_research_service):
 async def test_synthesize_research_success(autonomous_research_service):
     """Test synthesize_research successful"""
     service, mock_search, mock_router, mock_zantara = autonomous_research_service
-    
+
     async def mock_conversational(*args, **kwargs):
         return {"text": "Synthesized answer"}
-    
+
     mock_zantara.conversational = mock_conversational
-    
+
     research_steps = [
         ResearchStep(
             step_number=1,
@@ -338,7 +345,7 @@ async def test_synthesize_research_success(autonomous_research_service):
 async def test_synthesize_research_no_findings(autonomous_research_service):
     """Test synthesize_research with no findings"""
     service, mock_search, mock_router, mock_zantara = autonomous_research_service
-    
+
     research_steps = [
         ResearchStep(
             step_number=1,
@@ -354,19 +361,23 @@ async def test_synthesize_research_no_findings(autonomous_research_service):
     answer, confidence = await service.synthesize_research("Test query", research_steps)
 
     assert isinstance(answer, str)
-    assert "couldn't find" in answer.lower() or "insufficient" in answer.lower() or "not found" in answer.lower()
+    assert (
+        "couldn't find" in answer.lower()
+        or "insufficient" in answer.lower()
+        or "not found" in answer.lower()
+    )
 
 
 @pytest.mark.asyncio
 async def test_synthesize_research_exception(autonomous_research_service):
     """Test synthesize_research handles exception"""
     service, mock_search, mock_router, mock_zantara = autonomous_research_service
-    
+
     async def mock_conversational_error(*args, **kwargs):
         raise Exception("AI error")
-    
+
     mock_zantara.conversational = mock_conversational_error
-    
+
     research_steps = [
         ResearchStep(
             step_number=1,
@@ -395,16 +406,16 @@ async def test_synthesize_research_exception(autonomous_research_service):
 async def test_research_success(autonomous_research_service):
     """Test research successful"""
     service, mock_search, mock_router, mock_zantara = autonomous_research_service
-    
+
     mock_search.search.return_value = {
         "results": [
             {"text": "Result", "score": 0.9},
         ]
     }
-    
+
     async def mock_conversational(*args, **kwargs):
         return {"text": "Final answer"}
-    
+
     mock_zantara.conversational = mock_conversational
 
     result = await service.research("How to get visa?", user_level=3)
@@ -420,12 +431,12 @@ async def test_research_success(autonomous_research_service):
 async def test_research_max_iterations(autonomous_research_service):
     """Test research stops at max iterations"""
     service, mock_search, mock_router, mock_zantara = autonomous_research_service
-    
+
     mock_search.search.return_value = {"results": []}  # Always no results to force iterations
-    
+
     async def mock_conversational(*args, **kwargs):
         return {"text": "Answer"}
-    
+
     mock_zantara.conversational = mock_conversational
 
     result = await service.research("Test query", user_level=3)
@@ -437,14 +448,14 @@ async def test_research_max_iterations(autonomous_research_service):
 async def test_research_updates_stats(autonomous_research_service):
     """Test research updates statistics"""
     service, mock_search, mock_router, mock_zantara = autonomous_research_service
-    
+
     initial_count = service.research_stats["total_researches"]
-    
+
     mock_search.search.return_value = {"results": [{"text": "Result", "score": 0.9}]}
-    
+
     async def mock_conversational(*args, **kwargs):
         return {"text": "Answer"}
-    
+
     mock_zantara.conversational = mock_conversational
 
     await service.research("Test query", user_level=3)
@@ -467,4 +478,3 @@ def test_get_research_stats(autonomous_research_service):
     assert "avg_iterations" in stats
     assert "avg_confidence" in stats
     assert "max_iterations_reached" in stats
-

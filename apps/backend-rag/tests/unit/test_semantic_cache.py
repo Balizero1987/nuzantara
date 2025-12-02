@@ -5,9 +5,8 @@ Unit tests for Semantic Cache Service
 
 import json
 import sys
-from datetime import datetime
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 import numpy as np
 import pytest
@@ -17,7 +16,7 @@ backend_path = Path(__file__).parent.parent.parent / "backend"
 if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
-from services.semantic_cache import SemanticCache, get_semantic_cache
+from services.semantic_cache import SemanticCache
 
 # ============================================================================
 # Fixtures
@@ -464,7 +463,7 @@ async def test_clear_cache_exception_handling(semantic_cache):
 async def test_find_similar_query_skips_missing_embeddings(semantic_cache, sample_embedding):
     """Test _find_similar_query skips missing embeddings"""
     embedding_key = b"embedding:abc123"
-    
+
     semantic_cache.redis.zrange = AsyncMock(return_value=[embedding_key])
     semantic_cache.redis.get = AsyncMock(return_value=None)  # Missing embedding
 
@@ -498,7 +497,9 @@ async def test_find_similar_query_handles_cache_key_conversion(semantic_cache, s
 
 
 @pytest.mark.asyncio
-async def test_find_similar_query_returns_none_when_no_cached_data(semantic_cache, sample_embedding):
+async def test_find_similar_query_returns_none_when_no_cached_data(
+    semantic_cache, sample_embedding
+):
     """Test _find_similar_query returns None when cached data is missing"""
     embedding_key = b"embedding:abc123"
     similar_embedding = sample_embedding * 0.98  # Very similar
@@ -524,7 +525,7 @@ async def test_find_similar_query_handles_bytes_and_string_keys(semantic_cache, 
     # Test with string key (not bytes)
     embedding_key_str = "embedding:abc123"
     similar_embedding = sample_embedding * 0.98
-    
+
     semantic_cache.redis.zrange = AsyncMock(return_value=[embedding_key_str])
     semantic_cache.redis.get = AsyncMock(
         side_effect=[
@@ -545,9 +546,9 @@ async def test_find_similar_query_no_similar_result_branch(semantic_cache, sampl
     """Test _find_similar_query returns None when no similar result found (branch 82->89)"""
     # Mock to return None from _find_similar_query
     semantic_cache.redis.zrange = AsyncMock(return_value=[])
-    
+
     result = await semantic_cache._find_similar_query(sample_embedding)
-    
+
     # Should return None when no embeddings found
     assert result is None
 
@@ -556,21 +557,23 @@ async def test_find_similar_query_no_similar_result_branch(semantic_cache, sampl
 async def test_get_cached_result_no_similar_match_branch(semantic_cache, sample_embedding):
     """Test get_cached_result when no similar match found (branch 82->89)"""
     query = "Test query"
-    
+
     # Mock exact match miss
     semantic_cache.redis.get = AsyncMock(return_value=None)
-    
+
     # Mock _find_similar_query to return None
     semantic_cache._find_similar_query = AsyncMock(return_value=None)
-    
+
     result = await semantic_cache.get_cached_result(query, query_embedding=sample_embedding)
-    
+
     # Should return None when no match found
     assert result is None
 
 
 @pytest.mark.asyncio
-async def test_find_similar_query_similarity_not_better_than_current(semantic_cache, sample_embedding):
+async def test_find_similar_query_similarity_not_better_than_current(
+    semantic_cache, sample_embedding
+):
     """Test _find_similar_query when similarity is not better than current best (branch 182->169)"""
     embedding_key1 = b"embedding:key1"
     embedding_key2 = b"embedding:key2"
@@ -578,7 +581,7 @@ async def test_find_similar_query_similarity_not_better_than_current(semantic_ca
     similar_embedding1 = sample_embedding * 0.98  # 98% similar
     # Second embedding is less similar
     similar_embedding2 = sample_embedding * 0.50  # 50% similar
-    
+
     semantic_cache.redis.zrange = AsyncMock(return_value=[embedding_key1, embedding_key2])
     semantic_cache.redis.get = AsyncMock(
         side_effect=[
@@ -588,9 +591,9 @@ async def test_find_similar_query_similarity_not_better_than_current(semantic_ca
         ]
     )
     semantic_cache.similarity_threshold = 0.90
-    
+
     result = await semantic_cache._find_similar_query(sample_embedding)
-    
+
     # Should use best_match (key1) even though key2 was checked
     # Result depends on similarity calculation, but best_match should be key1
     assert result is None or isinstance(result, dict)
@@ -598,21 +601,20 @@ async def test_find_similar_query_similarity_not_better_than_current(semantic_ca
 
 def test_get_semantic_cache_singleton():
     """Test get_semantic_cache returns singleton instance"""
-    from services.semantic_cache import get_semantic_cache, _semantic_cache
-    
     # Reset singleton
     import services.semantic_cache
-    services.semantic_cache._semantic_cache = None
-    
-    mock_redis1 = AsyncMock()
-    mock_redis2 = AsyncMock()
-    
-    cache1 = get_semantic_cache(mock_redis1)
-    cache2 = get_semantic_cache(mock_redis2)
-    
-    # Should return same instance
-    assert cache1 is cache2
-    
-    # Reset for other tests
+    from services.semantic_cache import get_semantic_cache
+
     services.semantic_cache._semantic_cache = None
 
+    mock_redis1 = AsyncMock()
+    mock_redis2 = AsyncMock()
+
+    cache1 = get_semantic_cache(mock_redis1)
+    cache2 = get_semantic_cache(mock_redis2)
+
+    # Should return same instance
+    assert cache1 is cache2
+
+    # Reset for other tests
+    services.semantic_cache._semantic_cache = None

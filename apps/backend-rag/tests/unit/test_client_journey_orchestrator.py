@@ -5,7 +5,6 @@ Unit tests for Client Journey Orchestrator
 import sys
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -21,7 +20,6 @@ from services.client_journey_orchestrator import (
     JourneyStep,
     StepStatus,
 )
-
 
 # ============================================================================
 # Fixtures
@@ -143,7 +141,7 @@ def test_create_journey_from_template(orchestrator):
         journey_type="pt_pma_setup",
         client_id="client123",
     )
-    
+
     assert journey is not None
     assert journey.journey_type == "pt_pma_setup"
     assert journey.client_id == "client123"
@@ -161,7 +159,7 @@ def test_create_journey_with_custom_metadata(orchestrator):
         client_id="client456",
         custom_metadata=custom_metadata,
     )
-    
+
     assert journey.metadata == custom_metadata
 
 
@@ -185,13 +183,13 @@ def test_create_journey_with_custom_steps(orchestrator):
             "estimated_duration_days": 5,
         },
     ]
-    
+
     journey = orchestrator.create_journey(
         journey_type="pt_pma_setup",
         client_id="client789",
         custom_steps=custom_steps,
     )
-    
+
     assert len(journey.steps) == 2
     assert journey.steps[0].step_id == "custom1"
     assert journey.steps[1].step_id == "custom2"
@@ -213,7 +211,7 @@ def test_create_journey_calculates_estimated_completion(orchestrator):
         journey_type="pt_pma_setup",
         client_id="client123",
     )
-    
+
     assert journey.estimated_completion is not None
     total_days = sum(s.estimated_duration_days for s in journey.steps)
     assert total_days > 0
@@ -227,7 +225,7 @@ def test_create_journey_calculates_estimated_completion(orchestrator):
 def test_get_journey_exists(orchestrator, sample_journey):
     """Test getting existing journey"""
     journey = orchestrator.get_journey(sample_journey.journey_id)
-    
+
     assert journey is not None
     assert journey.journey_id == sample_journey.journey_id
 
@@ -235,7 +233,7 @@ def test_get_journey_exists(orchestrator, sample_journey):
 def test_get_journey_not_exists(orchestrator):
     """Test getting non-existent journey"""
     journey = orchestrator.get_journey("nonexistent")
-    
+
     assert journey is None
 
 
@@ -249,7 +247,7 @@ def test_check_prerequisites_no_prerequisites(orchestrator, sample_journey):
     # First step should have no prerequisites
     first_step = sample_journey.steps[0]
     prereqs_met, missing = orchestrator.check_prerequisites(sample_journey, first_step.step_id)
-    
+
     assert prereqs_met is True
     assert len(missing) == 0
 
@@ -259,14 +257,12 @@ def test_check_prerequisites_met(orchestrator, sample_journey):
     # Complete first step
     first_step = sample_journey.steps[0]
     orchestrator.complete_step(sample_journey.journey_id, first_step.step_id)
-    
+
     # Check second step (should have first step as prerequisite)
     if len(sample_journey.steps) > 1:
         second_step = sample_journey.steps[1]
-        prereqs_met, missing = orchestrator.check_prerequisites(
-            sample_journey, second_step.step_id
-        )
-        
+        prereqs_met, missing = orchestrator.check_prerequisites(sample_journey, second_step.step_id)
+
         if second_step.prerequisites:
             assert prereqs_met is True
             assert len(missing) == 0
@@ -280,12 +276,12 @@ def test_check_prerequisites_not_met(orchestrator, sample_journey):
         if step.prerequisites:
             step_with_prereqs = step
             break
-    
+
     if step_with_prereqs:
         prereqs_met, missing = orchestrator.check_prerequisites(
             sample_journey, step_with_prereqs.step_id
         )
-        
+
         assert prereqs_met is False
         assert len(missing) > 0
         assert all(prereq in missing for prereq in step_with_prereqs.prerequisites)
@@ -294,7 +290,7 @@ def test_check_prerequisites_not_met(orchestrator, sample_journey):
 def test_check_prerequisites_step_not_found(orchestrator, sample_journey):
     """Test checking prerequisites for non-existent step"""
     prereqs_met, missing = orchestrator.check_prerequisites(sample_journey, "nonexistent_step")
-    
+
     assert prereqs_met is False
     assert "Step not found" in missing
 
@@ -308,7 +304,7 @@ def test_start_step_success(orchestrator, sample_journey):
     """Test starting a step successfully"""
     first_step = sample_journey.steps[0]
     result = orchestrator.start_step(sample_journey.journey_id, first_step.step_id)
-    
+
     assert result is True
     step = next(s for s in sample_journey.steps if s.step_id == first_step.step_id)
     assert step.status == StepStatus.IN_PROGRESS
@@ -324,10 +320,10 @@ def test_start_step_prerequisites_not_met(orchestrator, sample_journey):
         if step.prerequisites:
             step_with_prereqs = step
             break
-    
+
     if step_with_prereqs:
         result = orchestrator.start_step(sample_journey.journey_id, step_with_prereqs.step_id)
-        
+
         assert result is False
         step = next(s for s in sample_journey.steps if s.step_id == step_with_prereqs.step_id)
         assert step.status == StepStatus.PENDING
@@ -336,14 +332,14 @@ def test_start_step_prerequisites_not_met(orchestrator, sample_journey):
 def test_start_step_journey_not_found(orchestrator):
     """Test starting step for non-existent journey"""
     result = orchestrator.start_step("nonexistent", "step1")
-    
+
     assert result is False
 
 
 def test_start_step_step_not_found(orchestrator, sample_journey):
     """Test starting non-existent step"""
     result = orchestrator.start_step(sample_journey.journey_id, "nonexistent_step")
-    
+
     assert result is False
 
 
@@ -356,11 +352,11 @@ def test_complete_step_success(orchestrator, sample_journey):
     """Test completing a step successfully"""
     first_step = sample_journey.steps[0]
     orchestrator.start_step(sample_journey.journey_id, first_step.step_id)
-    
+
     result = orchestrator.complete_step(
         sample_journey.journey_id, first_step.step_id, notes="Completed successfully"
     )
-    
+
     assert result is True
     step = next(s for s in sample_journey.steps if s.step_id == first_step.step_id)
     assert step.status == StepStatus.COMPLETED
@@ -374,12 +370,12 @@ def test_complete_step_journey_completed(orchestrator):
         journey_type="kitas_application",
         client_id="client999",
     )
-    
+
     # Complete all steps
     for step in journey.steps:
         orchestrator.start_step(journey.journey_id, step.step_id)
         orchestrator.complete_step(journey.journey_id, step.step_id)
-    
+
     assert journey.status == JourneyStatus.COMPLETED
     assert journey.completed_at is not None
     assert orchestrator.orchestrator_stats["completed_journeys"] == 1
@@ -389,14 +385,14 @@ def test_complete_step_journey_completed(orchestrator):
 def test_complete_step_journey_not_found(orchestrator):
     """Test completing step for non-existent journey"""
     result = orchestrator.complete_step("nonexistent", "step1")
-    
+
     assert result is False
 
 
 def test_complete_step_step_not_found(orchestrator, sample_journey):
     """Test completing non-existent step"""
     result = orchestrator.complete_step(sample_journey.journey_id, "nonexistent_step")
-    
+
     assert result is False
 
 
@@ -406,16 +402,17 @@ def test_complete_step_updates_stats(orchestrator):
         journey_type="kitas_application",
         client_id="client888",
     )
-    
+
     # Mock started_at to ensure duration > 0
     from datetime import timedelta
+
     journey.started_at = (datetime.now() - timedelta(days=1)).isoformat()
-    
+
     # Complete all steps
     for step in journey.steps:
         orchestrator.start_step(journey.journey_id, step.step_id)
         orchestrator.complete_step(journey.journey_id, step.step_id)
-    
+
     assert orchestrator.orchestrator_stats["avg_completion_days"] >= 0  # Can be 0 if very fast
     assert orchestrator.orchestrator_stats["completed_journeys"] == 1
 
@@ -429,11 +426,11 @@ def test_block_step_success(orchestrator, sample_journey):
     """Test blocking a step successfully"""
     first_step = sample_journey.steps[0]
     orchestrator.start_step(sample_journey.journey_id, first_step.step_id)
-    
+
     result = orchestrator.block_step(
         sample_journey.journey_id, first_step.step_id, reason="Missing documents"
     )
-    
+
     assert result is True
     step = next(s for s in sample_journey.steps if s.step_id == first_step.step_id)
     assert step.status == StepStatus.BLOCKED
@@ -445,14 +442,14 @@ def test_block_step_success(orchestrator, sample_journey):
 def test_block_step_journey_not_found(orchestrator):
     """Test blocking step for non-existent journey"""
     result = orchestrator.block_step("nonexistent", "step1", "reason")
-    
+
     assert result is False
 
 
 def test_block_step_step_not_found(orchestrator, sample_journey):
     """Test blocking non-existent step"""
     result = orchestrator.block_step(sample_journey.journey_id, "nonexistent_step", "reason")
-    
+
     assert result is False
 
 
@@ -464,7 +461,7 @@ def test_block_step_step_not_found(orchestrator, sample_journey):
 def test_get_next_steps_initial(orchestrator, sample_journey):
     """Test getting next steps at journey start"""
     next_steps = orchestrator.get_next_steps(sample_journey.journey_id)
-    
+
     # Should return steps with no prerequisites
     assert len(next_steps) > 0
     for step in next_steps:
@@ -473,7 +470,8 @@ def test_get_next_steps_initial(orchestrator, sample_journey):
             next(
                 (s for s in sample_journey.steps if s.step_id == prereq_id),
                 None,
-            ).status == StepStatus.COMPLETED
+            ).status
+            == StepStatus.COMPLETED
             for prereq_id in step.prerequisites
         )
 
@@ -484,9 +482,9 @@ def test_get_next_steps_after_completion(orchestrator, sample_journey):
     first_step = sample_journey.steps[0]
     orchestrator.start_step(sample_journey.journey_id, first_step.step_id)
     orchestrator.complete_step(sample_journey.journey_id, first_step.step_id)
-    
+
     next_steps = orchestrator.get_next_steps(sample_journey.journey_id)
-    
+
     # Should include steps that had first_step as prerequisite
     assert len(next_steps) >= 0  # May be 0 if no steps depend on first step
 
@@ -494,7 +492,7 @@ def test_get_next_steps_after_completion(orchestrator, sample_journey):
 def test_get_next_steps_journey_not_found(orchestrator):
     """Test getting next steps for non-existent journey"""
     next_steps = orchestrator.get_next_steps("nonexistent")
-    
+
     assert next_steps == []
 
 
@@ -506,7 +504,7 @@ def test_get_next_steps_journey_not_found(orchestrator):
 def test_get_progress_initial(orchestrator, sample_journey):
     """Test getting progress for new journey"""
     progress = orchestrator.get_progress(sample_journey.journey_id)
-    
+
     assert progress["journey_id"] == sample_journey.journey_id
     assert progress["status"] == JourneyStatus.NOT_STARTED.value
     assert progress["progress_percentage"] == 0.0
@@ -521,9 +519,9 @@ def test_get_progress_partial(orchestrator, sample_journey):
     first_step = sample_journey.steps[0]
     orchestrator.start_step(sample_journey.journey_id, first_step.step_id)
     orchestrator.complete_step(sample_journey.journey_id, first_step.step_id)
-    
+
     progress = orchestrator.get_progress(sample_journey.journey_id)
-    
+
     assert progress["completed_steps"] == 1
     assert progress["progress_percentage"] > 0
     assert progress["status"] == JourneyStatus.IN_PROGRESS.value
@@ -535,14 +533,14 @@ def test_get_progress_completed(orchestrator):
         journey_type="kitas_application",
         client_id="client777",
     )
-    
+
     # Complete all steps
     for step in journey.steps:
         orchestrator.start_step(journey.journey_id, step.step_id)
         orchestrator.complete_step(journey.journey_id, step.step_id)
-    
+
     progress = orchestrator.get_progress(journey.journey_id)
-    
+
     assert progress["status"] == JourneyStatus.COMPLETED.value
     assert progress["progress_percentage"] == 100.0
     assert progress["completed_steps"] == len(journey.steps)
@@ -552,7 +550,7 @@ def test_get_progress_completed(orchestrator):
 def test_get_progress_journey_not_found(orchestrator):
     """Test getting progress for non-existent journey"""
     progress = orchestrator.get_progress("nonexistent")
-    
+
     assert progress == {}
 
 
@@ -564,7 +562,7 @@ def test_get_progress_journey_not_found(orchestrator):
 def test_get_orchestrator_stats(orchestrator):
     """Test getting orchestrator statistics"""
     stats = orchestrator.get_orchestrator_stats()
-    
+
     assert "total_journeys_created" in stats
     assert "active_journeys" in stats
     assert "completed_journeys" in stats
@@ -578,14 +576,13 @@ def test_get_orchestrator_stats_updates(orchestrator):
     """Test that stats update correctly"""
     initial_stats = orchestrator.get_orchestrator_stats()
     initial_total = initial_stats["total_journeys_created"]
-    
+
     orchestrator.create_journey(
         journey_type="pt_pma_setup",
         client_id="client111",
     )
-    
+
     updated_stats = orchestrator.get_orchestrator_stats()
-    
+
     assert updated_stats["total_journeys_created"] == initial_total + 1
     assert updated_stats["active_journeys"] == initial_stats["active_journeys"] + 1
-

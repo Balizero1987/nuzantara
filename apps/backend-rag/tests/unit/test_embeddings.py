@@ -39,10 +39,7 @@ def mock_openai_client():
     """Mock OpenAI client"""
     client = MagicMock()
     mock_response = MagicMock()
-    mock_response.data = [
-        MagicMock(embedding=[0.1] * 1536),
-        MagicMock(embedding=[0.2] * 1536)
-    ]
+    mock_response.data = [MagicMock(embedding=[0.1] * 1536), MagicMock(embedding=[0.2] * 1536)]
     client.embeddings.create = MagicMock(return_value=mock_response)
     return client
 
@@ -66,12 +63,12 @@ def test_init_openai_provider(mock_settings, mock_openai_client):
 def test_init_openai_missing_api_key(mock_settings):
     """Test _init_openai raises ValueError when API key is missing"""
     mock_settings.openai_api_key = None
-    
+
     with patch("openai.OpenAI"):
         generator = EmbeddingsGenerator.__new__(EmbeddingsGenerator)
         generator._initialized = False
         generator._settings = mock_settings
-        
+
         with pytest.raises(ValueError, match="OpenAI API key is required"):
             generator._init_openai(api_key=None)
 
@@ -82,9 +79,7 @@ def test_init_sentence_transformers(mock_settings):
     mock_transformer.get_sentence_embedding_dimension = MagicMock(return_value=384)
 
     with patch("sentence_transformers.SentenceTransformer", return_value=mock_transformer):
-        generator = EmbeddingsGenerator(
-            provider="sentence-transformers", settings=mock_settings
-        )
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
         assert generator.provider == "sentence-transformers"
         assert generator.dimensions == 384
 
@@ -107,9 +102,7 @@ def test_generate_embeddings_empty_list(mock_settings):
     """Test generating embeddings with empty list"""
     mock_transformer = MagicMock()
     with patch("sentence_transformers.SentenceTransformer", return_value=mock_transformer):
-        generator = EmbeddingsGenerator(
-            provider="sentence-transformers", settings=mock_settings
-        )
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
         embeddings = generator.generate_embeddings([])
         assert embeddings == []
 
@@ -157,9 +150,7 @@ def test_get_model_info_sentence_transformers(mock_settings):
     mock_transformer.get_sentence_embedding_dimension = MagicMock(return_value=384)
 
     with patch("sentence_transformers.SentenceTransformer", return_value=mock_transformer):
-        generator = EmbeddingsGenerator(
-            provider="sentence-transformers", settings=mock_settings
-        )
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
         info = generator.get_model_info()
 
         assert info["provider"] == "sentence-transformers"
@@ -182,7 +173,9 @@ def test_singleton_pattern(mock_settings, mock_openai_client):
 
 def test_fallback_to_openai_on_sentence_transformers_error(mock_settings, mock_openai_client):
     """Test fallback to OpenAI when Sentence Transformers fails"""
-    with patch("sentence_transformers.SentenceTransformer", side_effect=ImportError("Not available")):
+    with patch(
+        "sentence_transformers.SentenceTransformer", side_effect=ImportError("Not available")
+    ):
         with patch("openai.OpenAI", return_value=mock_openai_client):
             generator = EmbeddingsGenerator(
                 provider="sentence-transformers", settings=mock_settings
@@ -196,20 +189,20 @@ def test_reset_instance():
     mock_settings = MagicMock()
     mock_settings.embedding_provider = "openai"
     mock_settings.openai_api_key = "test-key"
-    
+
     with patch("openai.OpenAI") as mock_openai:
         generator1 = EmbeddingsGenerator(
             provider="openai", api_key="test-key", settings=mock_settings
         )
-        
+
         # Reset singleton
         EmbeddingsGenerator.reset_instance()
-        
+
         # Create new instance - should be different object
         generator2 = EmbeddingsGenerator(
             provider="openai", api_key="test-key", settings=mock_settings
         )
-        
+
         # After reset, they should be different instances
         # (though in practice they'll be the same due to singleton)
         # But the initialization should happen again
@@ -224,7 +217,7 @@ def test_settings_injection(mock_settings, mock_openai_client):
         generator = EmbeddingsGenerator(
             provider="openai", api_key="test-key", settings=mock_settings
         )
-        
+
         # Verify it uses injected settings
         assert generator._settings is mock_settings
         assert generator.provider == "openai"
@@ -234,13 +227,13 @@ def test_default_settings_when_none_provided(mock_openai_client):
     """Test that default settings are used when None provided"""
     # Reset singleton
     EmbeddingsGenerator.reset_instance()
-    
+
     # Mock the module-level settings
     with patch("core.embeddings._default_settings") as mock_default:
         mock_default.embedding_provider = "openai"
         mock_default.openai_api_key = "test-key"
         mock_default.embedding_model = "text-embedding-3-small"
-        
+
         with patch("openai.OpenAI", return_value=mock_openai_client):
             generator = EmbeddingsGenerator(provider="openai", api_key="test-key")
             assert generator.provider == "openai"
@@ -267,7 +260,7 @@ def test_init_with_custom_model_openai(mock_settings, mock_openai_client):
             provider="openai",
             api_key="test-key",
             model="text-embedding-3-large",
-            settings=mock_settings
+            settings=mock_settings,
         )
         assert generator.model == "text-embedding-3-large"
         assert generator.provider == "openai"
@@ -282,7 +275,7 @@ def test_init_with_custom_model_sentence_transformers(mock_settings):
         generator = EmbeddingsGenerator(
             provider="sentence-transformers",
             model="sentence-transformers/all-mpnet-base-v2",
-            settings=mock_settings
+            settings=mock_settings,
         )
         assert generator.model == "sentence-transformers/all-mpnet-base-v2"
         assert generator.dimensions == 768
@@ -302,7 +295,9 @@ def test_init_without_settings_no_provider():
 
 def test_init_sentence_transformers_generic_exception(mock_settings, mock_openai_client):
     """Test generic exception fallback in Sentence Transformers initialization"""
-    with patch("sentence_transformers.SentenceTransformer", side_effect=RuntimeError("Generic error")):
+    with patch(
+        "sentence_transformers.SentenceTransformer", side_effect=RuntimeError("Generic error")
+    ):
         with patch("openai.OpenAI", return_value=mock_openai_client):
             generator = EmbeddingsGenerator(
                 provider="sentence-transformers", settings=mock_settings
@@ -330,9 +325,7 @@ def test_generate_embeddings_sentence_transformers(mock_settings):
     mock_transformer.encode = MagicMock(return_value=mock_embeddings)
 
     with patch("sentence_transformers.SentenceTransformer", return_value=mock_transformer):
-        generator = EmbeddingsGenerator(
-            provider="sentence-transformers", settings=mock_settings
-        )
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
         embeddings = generator.generate_embeddings(["text1", "text2"])
 
         assert len(embeddings) == 2
@@ -353,15 +346,13 @@ def test_generate_embeddings_sentence_transformers_large_batch(mock_settings):
     mock_transformer.encode = MagicMock(return_value=mock_embeddings)
 
     with patch("sentence_transformers.SentenceTransformer", return_value=mock_transformer):
-        generator = EmbeddingsGenerator(
-            provider="sentence-transformers", settings=mock_settings
-        )
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
         embeddings = generator.generate_embeddings(texts)
 
         assert len(embeddings) == 15
         # Verify show_progress_bar was True
         call_kwargs = mock_transformer.encode.call_args[1]
-        assert call_kwargs['show_progress_bar'] is True
+        assert call_kwargs["show_progress_bar"] is True
 
 
 def test_generate_embeddings_sentence_transformers_error(mock_settings):
@@ -371,9 +362,7 @@ def test_generate_embeddings_sentence_transformers_error(mock_settings):
     mock_transformer.encode = MagicMock(side_effect=RuntimeError("Encoding error"))
 
     with patch("sentence_transformers.SentenceTransformer", return_value=mock_transformer):
-        generator = EmbeddingsGenerator(
-            provider="sentence-transformers", settings=mock_settings
-        )
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
 
         with pytest.raises(RuntimeError, match="Encoding error"):
             generator.generate_embeddings(["text1"])
@@ -381,9 +370,7 @@ def test_generate_embeddings_sentence_transformers_error(mock_settings):
 
 def test_generate_embeddings_openai_error(mock_settings, mock_openai_client):
     """Test error handling in OpenAI generate_embeddings"""
-    mock_openai_client.embeddings.create = MagicMock(
-        side_effect=Exception("API error")
-    )
+    mock_openai_client.embeddings.create = MagicMock(side_effect=Exception("API error"))
 
     with patch("openai.OpenAI", return_value=mock_openai_client):
         generator = EmbeddingsGenerator(
@@ -447,10 +434,10 @@ def test_sentence_transformers_model_from_settings():
     mock_transformer = MagicMock()
     mock_transformer.get_sentence_embedding_dimension = MagicMock(return_value=384)
 
-    with patch("sentence_transformers.SentenceTransformer", return_value=mock_transformer) as mock_st:
-        generator = EmbeddingsGenerator(
-            provider="sentence-transformers", settings=mock_settings
-        )
+    with patch(
+        "sentence_transformers.SentenceTransformer", return_value=mock_transformer
+    ) as mock_st:
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
         # Verify it used the model from settings
         mock_st.assert_called_once_with("sentence-transformers/paraphrase-MiniLM-L6-v2")
 
@@ -464,10 +451,10 @@ def test_sentence_transformers_default_model():
     mock_transformer = MagicMock()
     mock_transformer.get_sentence_embedding_dimension = MagicMock(return_value=384)
 
-    with patch("sentence_transformers.SentenceTransformer", return_value=mock_transformer) as mock_st:
-        generator = EmbeddingsGenerator(
-            provider="sentence-transformers", settings=mock_settings
-        )
+    with patch(
+        "sentence_transformers.SentenceTransformer", return_value=mock_transformer
+    ) as mock_st:
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
         # Should use default model
         mock_st.assert_called_once_with("sentence-transformers/all-MiniLM-L6-v2")
 
@@ -491,8 +478,8 @@ def test_convenience_function_generate_embeddings(mock_openai_client):
 
 def test_convenience_function_without_api_key():
     """Test convenience function without API key (uses sentence transformers)"""
-    from core.embeddings import generate_embeddings
     import numpy as np
+    from core.embeddings import generate_embeddings
 
     mock_transformer = MagicMock()
     mock_transformer.get_sentence_embedding_dimension = MagicMock(return_value=384)
@@ -517,9 +504,7 @@ def test_api_key_from_settings(mock_openai_client):
     mock_settings.embedding_model = "text-embedding-3-small"
 
     with patch("openai.OpenAI", return_value=mock_openai_client) as mock_openai_init:
-        generator = EmbeddingsGenerator(
-            provider="openai", settings=mock_settings
-        )
+        generator = EmbeddingsGenerator(provider="openai", settings=mock_settings)
         # Verify it used the API key from settings
         mock_openai_init.assert_called_once_with(api_key="settings-api-key")
 
@@ -572,9 +557,7 @@ def test_get_model_info_sentence_transformers_cost(mock_settings):
     mock_transformer.get_sentence_embedding_dimension = MagicMock(return_value=384)
 
     with patch("sentence_transformers.SentenceTransformer", return_value=mock_transformer):
-        generator = EmbeddingsGenerator(
-            provider="sentence-transformers", settings=mock_settings
-        )
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
         info = generator.get_model_info()
 
         assert info["cost"] == "FREE (Local)"

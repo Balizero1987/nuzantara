@@ -272,12 +272,12 @@ def test_rerank_tracks_target_latency(reranker_service, sample_documents):
 def test_rerank_latency_samples_pop_when_over_1000(reranker_service, sample_documents):
     """Test that rerank pops oldest latency sample when over 1000"""
     query = "Test query"
-    
+
     # Fill latency_samples to over 1000
     reranker_service._stats["latency_samples"] = [10.0] * 1001
-    
+
     reranker_service.rerank(query, sample_documents, top_k=3)
-    
+
     # Should have popped oldest entry, so length should be 1001 (1000 old + 1 new)
     assert len(reranker_service._stats["latency_samples"]) == 1001
 
@@ -285,12 +285,12 @@ def test_rerank_latency_samples_pop_when_over_1000(reranker_service, sample_docu
 def test_rerank_percentile_calculation_with_single_sample(reranker_service, sample_documents):
     """Test percentile calculation when there's only one latency sample"""
     query = "Test query"
-    
+
     # Clear samples and add just one
     reranker_service._stats["latency_samples"] = [10.0]
-    
+
     reranker_service.rerank(query, sample_documents, top_k=3)
-    
+
     stats = reranker_service.get_stats()
     # p99 should use sorted_samples[0] when n == 1
     assert stats["p99_latency_ms"] >= 0
@@ -299,16 +299,17 @@ def test_rerank_percentile_calculation_with_single_sample(reranker_service, samp
 def test_rerank_updates_min_latency(reranker_service, sample_documents):
     """Test that rerank updates min latency correctly"""
     query = "Test query"
-    
+
     # Set initial min to high value
     reranker_service._stats["min_latency_ms"] = 1000.0
-    
+
     # Mock model to return quickly
     import time
+
     start = time.time()
     reranker_service.rerank(query, sample_documents, top_k=3)
     elapsed = (time.time() - start) * 1000
-    
+
     stats = reranker_service.get_stats()
     # Min should be updated if elapsed < 1000
     if elapsed < 1000:
@@ -318,12 +319,12 @@ def test_rerank_updates_min_latency(reranker_service, sample_documents):
 def test_rerank_updates_max_latency(reranker_service, sample_documents):
     """Test that rerank updates max latency correctly"""
     query = "Test query"
-    
+
     # Set initial max to low value
     reranker_service._stats["max_latency_ms"] = 0.0
-    
+
     reranker_service.rerank(query, sample_documents, top_k=3)
-    
+
     stats = reranker_service.get_stats()
     # Max should be updated
     assert stats["max_latency_ms"] > 0.0
@@ -332,12 +333,12 @@ def test_rerank_updates_max_latency(reranker_service, sample_documents):
 def test_rerank_calculates_percentiles_when_samples_exist(reranker_service, sample_documents):
     """Test that rerank calculates percentiles when latency_samples exist"""
     query = "Test query"
-    
+
     # Add some samples
     reranker_service._stats["latency_samples"] = [10.0, 20.0, 30.0, 40.0, 50.0]
-    
+
     reranker_service.rerank(query, sample_documents, top_k=3)
-    
+
     stats = reranker_service.get_stats()
     # Percentiles should be calculated
     assert stats["p50_latency_ms"] > 0
@@ -348,13 +349,13 @@ def test_rerank_calculates_percentiles_when_samples_exist(reranker_service, samp
 def test_rerank_tracks_target_latency_achievement(reranker_service, sample_documents):
     """Test that rerank tracks when target latency is met"""
     query = "Test query"
-    
+
     # Set target to very high value so it's always met
     reranker_service._stats["target_latency_ms"] = 100000.0
     initial_count = reranker_service._stats["latency_target_met"]
-    
+
     reranker_service.rerank(query, sample_documents, top_k=3)
-    
+
     stats = reranker_service.get_stats()
     # Should increment count
     assert stats["latency_target_met"] == initial_count + 1
@@ -363,40 +364,42 @@ def test_rerank_tracks_target_latency_achievement(reranker_service, sample_docum
 def test_rerank_calculates_cache_hit_rate(reranker_service, sample_documents):
     """Test that rerank calculates cache hit rate"""
     query = "Test query"
-    
+
     # Reset cache stats
     reranker_service._cache_hits = 0
     reranker_service._cache_misses = 0
-    
+
     # Perform reranks to generate hits and misses
     reranker_service.rerank(query, sample_documents, top_k=3)  # Miss
     reranker_service.rerank(query, sample_documents, top_k=3)  # Hit
-    
+
     stats = reranker_service.get_stats()
     # Cache hit rate should be calculated and present in stats
     assert "cache_hit_rate" in stats or "cache_hit_rate_percent" in stats
     # With one hit and one miss, rate should be 50%
     cache_rate = stats.get("cache_hit_rate_percent", stats.get("cache_hit_rate", 0))
-    assert cache_rate == 50.0 or abs(cache_rate - 50.0) < 1.0  # Allow small floating point differences
+    assert (
+        cache_rate == 50.0 or abs(cache_rate - 50.0) < 1.0
+    )  # Allow small floating point differences
 
 
 def test_rerank_cache_hit_with_audit_logs_correctly(reranker_service, sample_documents):
     """Test that cache hit triggers audit logging correctly (branch 203->217)"""
     query = "Test query"
-    
+
     with patch("services.reranker_service.AUDIT_AVAILABLE", True):
         with patch("services.reranker_service.get_audit_service") as mock_get_audit:
             mock_audit = MagicMock()
             mock_get_audit.return_value = mock_audit
-            
+
             # First call - cache miss
             reranker_service.rerank(query, sample_documents, top_k=3)
             mock_get_audit.reset_mock()
             mock_audit.log_rerank.reset_mock()
-            
+
             # Second call - cache hit (branch 203->217)
             reranker_service.rerank(query, sample_documents, top_k=3)
-            
+
             # Audit should be called for cache hit (branch 203->217)
             assert mock_get_audit.called
             assert mock_audit.log_rerank.called
@@ -425,12 +428,12 @@ def test_get_audit_service_returns_none_when_unavailable():
 def test_rerank_percentiles_calculated_when_samples_exist(reranker_service, sample_documents):
     """Test that percentiles are calculated when latency_samples exist (branch 268->278)"""
     query = "Test query"
-    
+
     # Add samples to trigger percentile calculation branch (268->278)
     reranker_service._stats["latency_samples"] = [10.0, 20.0, 30.0, 40.0, 50.0]
-    
+
     reranker_service.rerank(query, sample_documents, top_k=3)
-    
+
     stats = reranker_service.get_stats()
     # Percentiles should be calculated (branch 268->278)
     assert stats["p50_latency_ms"] > 0
@@ -443,13 +446,13 @@ def test_rerank_percentiles_calculated_when_samples_exist(reranker_service, samp
 def test_rerank_target_latency_tracking_branch(reranker_service, sample_documents):
     """Test target latency tracking branch (278->282)"""
     query = "Test query"
-    
+
     # Set target to very high so it's always met (branch 278->282)
     reranker_service._stats["target_latency_ms"] = 100000.0
     initial_count = reranker_service._stats["latency_target_met"]
-    
+
     reranker_service.rerank(query, sample_documents, top_k=3)
-    
+
     # Should increment latency_target_met (branch 278->282)
     assert reranker_service._stats["latency_target_met"] == initial_count + 1
     # Verify branch condition was met
@@ -460,17 +463,17 @@ def test_rerank_target_latency_tracking_branch(reranker_service, sample_document
 def test_rerank_cache_hit_rate_calculation_branch(reranker_service, sample_documents):
     """Test cache hit rate calculation branch (283->287)"""
     query = "Test query"
-    
+
     # Reset stats
     reranker_service._cache_hits = 0
     reranker_service._cache_misses = 0
     reranker_service._stats["cache_hits"] = 0
     reranker_service._stats["cache_misses"] = 0
-    
+
     # Generate hits and misses to trigger branch 283->287
     reranker_service.rerank(query, sample_documents, top_k=3)  # Miss
     reranker_service.rerank(query, sample_documents, top_k=3)  # Hit
-    
+
     # Cache hit rate should be calculated (branch 283->287)
     # Verify total_cache_requests > 0 triggers the branch
     assert reranker_service._cache_hits + reranker_service._cache_misses > 0
@@ -482,14 +485,14 @@ def test_rerank_error_audit_logging_branch(reranker_service, sample_documents):
     """Test error audit logging branch (316->332)"""
     query = "Test query"
     reranker_service.model.predict = Mock(side_effect=Exception("Model error"))
-    
+
     with patch("services.reranker_service.AUDIT_AVAILABLE", True):
         with patch("services.reranker_service.get_audit_service") as mock_get_audit:
             mock_audit = MagicMock()
             mock_get_audit.return_value = mock_audit
-            
+
             result = reranker_service.rerank(query, sample_documents, top_k=3)
-            
+
             # Should return fallback results (branch 316->332)
             assert len(result) > 0
             # Audit should be called with success=False (branch 316->332)
@@ -730,7 +733,7 @@ def test_update_cache_with_none_cache_key(reranker_service):
 
     # Should not raise exception when cache_key is None
     reranker_service._update_cache(cache_key, result)
-    
+
     # Cache should remain unchanged
     assert len(reranker_service._cache) == 0
 
@@ -742,7 +745,7 @@ def test_update_cache_when_cache_disabled(reranker_service):
     result = [({"text": "doc"}, 0.9)]
 
     reranker_service._update_cache(cache_key, result)
-    
+
     # Cache should remain empty
     assert len(reranker_service._cache) == 0
 
@@ -796,4 +799,3 @@ def test_rerank_audit_logging_error_with_audit_service(reranker_service, sample_
             call_args = mock_audit.log_rerank.call_args
             assert call_args[1]["success"] is False
             assert "error" in call_args[1]
-

@@ -43,27 +43,29 @@ class QdrantClient:
             f"url='{self.qdrant_url}'"
         )
 
-    def _convert_filter_to_qdrant_format(self, filter_dict: dict[str, Any]) -> dict[str, Any] | None:
+    def _convert_filter_to_qdrant_format(
+        self, filter_dict: dict[str, Any]
+    ) -> dict[str, Any] | None:
         """
         Convert simplified filter format to Qdrant filter format.
-        
+
         Supports:
         - {"tier": {"$in": ["S", "A"]}} -> must match any of these values
         - {"status_vigensi": {"$ne": "dicabut"}} -> must_not match this value
         - {"status_vigensi": "berlaku"} -> must match this value
-        
+
         Args:
             filter_dict: Simplified filter dictionary
-            
+
         Returns:
             Qdrant filter format or None if filter is empty/invalid
         """
         if not filter_dict:
             return None
-            
+
         must_conditions = []
         must_not_conditions = []
-        
+
         for key, value in filter_dict.items():
             if isinstance(value, dict):
                 # Handle operators like $in, $ne, etc.
@@ -71,36 +73,30 @@ class QdrantClient:
                     # Match any of the values
                     match_values = value["$in"]
                     if match_values:
-                        must_conditions.append({
-                            "key": f"metadata.{key}",
-                            "match": {"any": match_values}
-                        })
+                        must_conditions.append(
+                            {"key": f"metadata.{key}", "match": {"any": match_values}}
+                        )
                 elif "$ne" in value:
                     # Must NOT match this value
-                    must_not_conditions.append({
-                        "key": f"metadata.{key}",
-                        "match": {"value": value["$ne"]}
-                    })
+                    must_not_conditions.append(
+                        {"key": f"metadata.{key}", "match": {"value": value["$ne"]}}
+                    )
                 elif "$nin" in value:
                     # Must NOT match any of these values
                     for excluded_value in value["$nin"]:
-                        must_not_conditions.append({
-                            "key": f"metadata.{key}",
-                            "match": {"value": excluded_value}
-                        })
+                        must_not_conditions.append(
+                            {"key": f"metadata.{key}", "match": {"value": excluded_value}}
+                        )
             else:
                 # Direct value match
-                must_conditions.append({
-                    "key": f"metadata.{key}",
-                    "match": {"value": value}
-                })
-        
+                must_conditions.append({"key": f"metadata.{key}", "match": {"value": value}})
+
         result = {}
         if must_conditions:
             result["must"] = must_conditions
         if must_not_conditions:
             result["must_not"] = must_not_conditions
-            
+
         return result if result else None
 
     def search(

@@ -8,7 +8,6 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 # Ensure backend is in path
@@ -75,8 +74,9 @@ def mock_search_service():
 @pytest.fixture
 def client(mock_search_service):
     """Create test client with mocked dependencies"""
-    from app.routers.search import router
     from fastapi import FastAPI
+
+    from app.routers.search import router
 
     app = FastAPI()
     app.include_router(router)
@@ -151,7 +151,6 @@ def test_semantic_search_with_collection_override(client, mock_search_service):
 
 def test_semantic_search_with_tier_filter(client, mock_search_service):
     """Test semantic search with tier filter"""
-    from app.models import TierLevel
 
     request_data = {
         "query": "tax regulations",

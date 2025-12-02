@@ -257,17 +257,19 @@ async def get_compliance_alerts(
     # Filter by client if specified
     if client_id:
         alerts = [
-            a for a in alerts
-            if (hasattr(a, 'client_id') and a.client_id == client_id)
-            or (isinstance(a, dict) and a.get('client_id') == client_id)
+            a
+            for a in alerts
+            if (hasattr(a, "client_id") and a.client_id == client_id)
+            or (isinstance(a, dict) and a.get("client_id") == client_id)
         ]
 
     # Filter by severity if specified
     if severity:
         alerts = [
-            a for a in alerts
-            if (hasattr(a, 'severity') and a.severity.value == severity)
-            or (isinstance(a, dict) and a.get('severity') == severity)
+            a
+            for a in alerts
+            if (hasattr(a, "severity") and a.severity.value == severity)
+            or (isinstance(a, dict) and a.get("severity") == severity)
         ]
 
     # Auto-notify if requested
@@ -278,10 +280,13 @@ async def get_compliance_alerts(
         for alert in alerts:
             # Get days_until from alert (dict or object)
             days_until = (
-                alert.days_until_deadline if hasattr(alert, 'days_until_deadline')
-                else alert.get('days_until', 0) if isinstance(alert, dict) else 0
+                alert.days_until_deadline
+                if hasattr(alert, "days_until_deadline")
+                else alert.get("days_until", 0)
+                if isinstance(alert, dict)
+                else 0
             )
-            
+
             # Determine template based on days until deadline
             if days_until <= 7:
                 template_id = "compliance_7_days"
@@ -292,11 +297,19 @@ async def get_compliance_alerts(
 
             try:
                 # Get alert fields (dict or object)
-                alert_client_id = alert.client_id if hasattr(alert, 'client_id') else alert.get('client_id', '')
-                alert_title = alert.title if hasattr(alert, 'title') else alert.get('title', '')
-                alert_deadline = alert.deadline if hasattr(alert, 'deadline') else alert.get('deadline', '')
-                alert_estimated_cost = alert.estimated_cost if hasattr(alert, 'estimated_cost') else alert.get('estimated_cost')
-                
+                alert_client_id = (
+                    alert.client_id if hasattr(alert, "client_id") else alert.get("client_id", "")
+                )
+                alert_title = alert.title if hasattr(alert, "title") else alert.get("title", "")
+                alert_deadline = (
+                    alert.deadline if hasattr(alert, "deadline") else alert.get("deadline", "")
+                )
+                alert_estimated_cost = (
+                    alert.estimated_cost
+                    if hasattr(alert, "estimated_cost")
+                    else alert.get("estimated_cost")
+                )
+
                 # Create and send notification
                 notification = create_notification_from_template(
                     template_id=template_id,
@@ -304,13 +317,19 @@ async def get_compliance_alerts(
                     template_data={
                         "client_name": alert_client_id,
                         "item_title": alert_title,
-                        "deadline": alert_deadline.isoformat() if hasattr(alert_deadline, 'isoformat') else str(alert_deadline),
-                        "cost": f"IDR {alert_estimated_cost:,.0f}" if alert_estimated_cost else "TBD",
+                        "deadline": alert_deadline.isoformat()
+                        if hasattr(alert_deadline, "isoformat")
+                        else str(alert_deadline),
+                        "cost": f"IDR {alert_estimated_cost:,.0f}"
+                        if alert_estimated_cost
+                        else "TBD",
                     },
                 )
 
                 result = await notification_hub.send(notification)
-                alert_id = alert.alert_id if hasattr(alert, 'alert_id') else alert.get('alert_id', '')
+                alert_id = (
+                    alert.alert_id if hasattr(alert, "alert_id") else alert.get("alert_id", "")
+                )
                 notifications_sent.append(
                     {
                         "alert_id": alert_id,
@@ -323,13 +342,41 @@ async def get_compliance_alerts(
 
     return {
         "success": True,
-        "alerts": [alert.__dict__ if hasattr(alert, '__dict__') else alert for alert in alerts],
+        "alerts": [alert.__dict__ if hasattr(alert, "__dict__") else alert for alert in alerts],
         "count": len(alerts),
         "breakdown": {
-            "critical": len([a for a in alerts if (hasattr(a, 'severity') and a.severity == AlertSeverity.CRITICAL) or (isinstance(a, dict) and a.get('severity') == AlertSeverity.CRITICAL.value)]),
-            "urgent": len([a for a in alerts if (hasattr(a, 'severity') and a.severity == AlertSeverity.URGENT) or (isinstance(a, dict) and a.get('severity') == AlertSeverity.URGENT.value)]),
-            "warning": len([a for a in alerts if (hasattr(a, 'severity') and a.severity == AlertSeverity.WARNING) or (isinstance(a, dict) and a.get('severity') == AlertSeverity.WARNING.value)]),
-            "info": len([a for a in alerts if (hasattr(a, 'severity') and a.severity == AlertSeverity.INFO) or (isinstance(a, dict) and a.get('severity') == AlertSeverity.INFO.value)]),
+            "critical": len(
+                [
+                    a
+                    for a in alerts
+                    if (hasattr(a, "severity") and a.severity == AlertSeverity.CRITICAL)
+                    or (isinstance(a, dict) and a.get("severity") == AlertSeverity.CRITICAL.value)
+                ]
+            ),
+            "urgent": len(
+                [
+                    a
+                    for a in alerts
+                    if (hasattr(a, "severity") and a.severity == AlertSeverity.URGENT)
+                    or (isinstance(a, dict) and a.get("severity") == AlertSeverity.URGENT.value)
+                ]
+            ),
+            "warning": len(
+                [
+                    a
+                    for a in alerts
+                    if (hasattr(a, "severity") and a.severity == AlertSeverity.WARNING)
+                    or (isinstance(a, dict) and a.get("severity") == AlertSeverity.WARNING.value)
+                ]
+            ),
+            "info": len(
+                [
+                    a
+                    for a in alerts
+                    if (hasattr(a, "severity") and a.severity == AlertSeverity.INFO)
+                    or (isinstance(a, dict) and a.get("severity") == AlertSeverity.INFO.value)
+                ]
+            ),
         },
         "notifications_sent": notifications_sent if auto_notify else None,
     }
@@ -378,7 +425,13 @@ async def extract_knowledge_graph(
             "relationship_count": len(result.get("relationships", [])),
             "features": {
                 "entity_types": ["Person", "Organization", "Location", "Document", "Concept"],
-                "relationship_types": ["WORKS_FOR", "LOCATED_IN", "REQUIRES", "RELATED_TO", "PART_OF"],
+                "relationship_types": [
+                    "WORKS_FOR",
+                    "LOCATED_IN",
+                    "REQUIRES",
+                    "RELATED_TO",
+                    "PART_OF",
+                ],
             },
         }
     except Exception as e:
@@ -392,7 +445,13 @@ async def extract_knowledge_graph(
             "relationships": [],
             "features": {
                 "entity_types": ["Person", "Organization", "Location", "Document", "Concept"],
-                "relationship_types": ["WORKS_FOR", "LOCATED_IN", "REQUIRES", "RELATED_TO", "PART_OF"],
+                "relationship_types": [
+                    "WORKS_FOR",
+                    "LOCATED_IN",
+                    "REQUIRES",
+                    "RELATED_TO",
+                    "PART_OF",
+                ],
             },
             "note": "Full NER extraction requires additional dependencies. Basic mode active.",
         }
@@ -479,7 +538,7 @@ async def cross_oracle_synthesis(
     query: str,
     domains: list[str] = Query(
         default=["tax", "legal", "property", "visa", "kbli"],
-        description="Domains to search: tax, legal, property, visa, kbli"
+        description="Domains to search: tax, legal, property, visa, kbli",
     ),
 ):
     """
@@ -499,13 +558,13 @@ async def cross_oracle_synthesis(
     if not cross_oracle_service:
         # Try to get it directly from app.state
         from services.cross_oracle_synthesis_service import CrossOracleSynthesisService
+
         search_service = getattr(request.app.state, "search_service", None)
         ai_client = getattr(request.app.state, "ai_client", None)
 
         if search_service and ai_client:
             cross_oracle_service = CrossOracleSynthesisService(
-                search_service=search_service,
-                zantara_ai_client=ai_client
+                search_service=search_service, zantara_ai_client=ai_client
             )
         else:
             return {
@@ -520,7 +579,7 @@ async def cross_oracle_synthesis(
         result = await cross_oracle_service.synthesize(
             query=query,
             user_level=3,  # Full access for API calls
-            use_cache=True
+            use_cache=True,
         )
 
         return {
@@ -562,10 +621,7 @@ async def calculate_dynamic_pricing(
 
 @router.post("/research/autonomous")
 async def run_autonomous_research(
-    request: Request,
-    topic: str,
-    depth: str = "standard",
-    sources: list[str] | None = None
+    request: Request, topic: str, depth: str = "standard", sources: list[str] | None = None
 ):
     """
     🔬 AGENT 7: Autonomous Research Service
@@ -602,9 +658,7 @@ async def run_autonomous_research(
 
         # Create service instance with dependencies
         research_service = AutonomousResearchService(
-            search_service=search_service,
-            query_router=query_router,
-            zantara_ai_service=ai_client
+            search_service=search_service, query_router=query_router, zantara_ai_service=ai_client
         )
 
         # Adjust max iterations based on depth
@@ -618,7 +672,7 @@ async def run_autonomous_research(
         # Run research
         result = await research_service.research(
             query=topic,
-            user_level=3  # Full access
+            user_level=3,  # Full access
         )
 
         return {

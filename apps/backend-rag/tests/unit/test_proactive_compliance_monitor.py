@@ -23,7 +23,6 @@ from services.proactive_compliance_monitor import (
     ProactiveComplianceMonitor,
 )
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -148,7 +147,7 @@ def test_init_annual_deadlines(compliance_monitor):
 def test_add_compliance_item(compliance_monitor):
     """Test adding compliance item"""
     deadline = (datetime.now() + timedelta(days=60)).isoformat()
-    
+
     item = compliance_monitor.add_compliance_item(
         client_id="client123",
         compliance_type=ComplianceType.VISA_EXPIRY,
@@ -157,7 +156,7 @@ def test_add_compliance_item(compliance_monitor):
         description="KITAS expires soon",
         estimated_cost=5000000.0,
     )
-    
+
     assert isinstance(item, ComplianceItem)
     assert item.client_id == "client123"
     assert item.item_id in compliance_monitor.compliance_items
@@ -168,7 +167,7 @@ def test_add_compliance_item(compliance_monitor):
 def test_add_compliance_item_with_documents(compliance_monitor):
     """Test adding compliance item with required documents"""
     deadline = (datetime.now() + timedelta(days=30)).isoformat()
-    
+
     item = compliance_monitor.add_compliance_item(
         client_id="client456",
         compliance_type=ComplianceType.LICENSE_RENEWAL,
@@ -176,7 +175,7 @@ def test_add_compliance_item_with_documents(compliance_monitor):
         deadline=deadline,
         required_documents=["Passport", "CV", "Educational certificates"],
     )
-    
+
     assert len(item.required_documents) == 3
     assert "Passport" in item.required_documents
 
@@ -189,14 +188,14 @@ def test_add_compliance_item_with_documents(compliance_monitor):
 def test_add_visa_expiry(compliance_monitor):
     """Test adding visa expiry tracking"""
     expiry_date = (datetime.now() + timedelta(days=90)).isoformat()
-    
+
     item = compliance_monitor.add_visa_expiry(
         client_id="client789",
         visa_type="KITAS",
         expiry_date=expiry_date,
         passport_number="A12345678",
     )
-    
+
     assert item.compliance_type == ComplianceType.VISA_EXPIRY
     assert "KITAS" in item.title
     assert item.metadata["visa_type"] == "KITAS"
@@ -215,7 +214,7 @@ def test_add_annual_tax_deadline(compliance_monitor):
         deadline_type="spt_tahunan_individual",
         year=2024,
     )
-    
+
     assert item.compliance_type == ComplianceType.TAX_FILING
     assert "2024" in item.title
     assert item.metadata["tax_year"] == 2024
@@ -241,7 +240,7 @@ def test_calculate_severity_info(compliance_monitor):
     """Test calculating INFO severity (>30 days)"""
     deadline = (datetime.now() + timedelta(days=45)).isoformat()
     severity, days_until = compliance_monitor.calculate_severity(deadline)
-    
+
     assert severity == AlertSeverity.INFO
     assert days_until > 30
 
@@ -250,7 +249,7 @@ def test_calculate_severity_warning(compliance_monitor):
     """Test calculating WARNING severity (7-30 days)"""
     deadline = (datetime.now() + timedelta(days=25)).isoformat()
     severity, days_until = compliance_monitor.calculate_severity(deadline)
-    
+
     assert severity == AlertSeverity.WARNING
     assert 7 < days_until <= 30
 
@@ -259,7 +258,7 @@ def test_calculate_severity_urgent(compliance_monitor):
     """Test calculating URGENT severity (<=7 days)"""
     deadline = (datetime.now() + timedelta(days=5)).isoformat()
     severity, days_until = compliance_monitor.calculate_severity(deadline)
-    
+
     assert severity == AlertSeverity.URGENT
     assert days_until <= 7
 
@@ -268,7 +267,7 @@ def test_calculate_severity_critical_overdue(compliance_monitor):
     """Test calculating CRITICAL severity (overdue)"""
     deadline = (datetime.now() - timedelta(days=5)).isoformat()
     severity, days_until = compliance_monitor.calculate_severity(deadline)
-    
+
     assert severity == AlertSeverity.CRITICAL
     assert days_until < 0
 
@@ -277,7 +276,7 @@ def test_calculate_severity_critical_very_close(compliance_monitor):
     """Test calculating URGENT severity (<=7 days)"""
     deadline = (datetime.now() + timedelta(days=3)).isoformat()
     severity, days_until = compliance_monitor.calculate_severity(deadline)
-    
+
     assert severity == AlertSeverity.URGENT  # URGENT for <=7 days
     assert days_until <= 7
 
@@ -297,9 +296,9 @@ def test_check_compliance_items_generates_alerts(compliance_monitor):
         title="KITAS Expiry",
         deadline=deadline,
     )
-    
+
     alerts = compliance_monitor.check_compliance_items()
-    
+
     assert len(alerts) > 0
     assert alerts[0].severity == AlertSeverity.WARNING
     assert alerts[0].compliance_item_id == item.item_id
@@ -315,10 +314,10 @@ def test_check_compliance_items_no_duplicate_alerts(compliance_monitor):
         title="KITAS Expiry",
         deadline=deadline,
     )
-    
+
     alerts1 = compliance_monitor.check_compliance_items()
     alerts2 = compliance_monitor.check_compliance_items()
-    
+
     assert len(alerts1) > 0
     assert len(alerts2) == 0  # Should not create duplicate
 
@@ -332,9 +331,9 @@ def test_check_compliance_items_critical_overdue(compliance_monitor):
         title="Overdue KITAS",
         deadline=deadline,
     )
-    
+
     alerts = compliance_monitor.check_compliance_items()
-    
+
     assert len(alerts) > 0
     assert alerts[0].severity == AlertSeverity.CRITICAL
     assert compliance_monitor.monitor_stats["overdue_items"] > 0
@@ -355,12 +354,12 @@ async def test_send_alert_success(compliance_monitor, mock_notification_service)
         title="KITAS Expiry",
         deadline=deadline,
     )
-    
+
     alerts = compliance_monitor.check_compliance_items()
     alert_id = alerts[0].alert_id
-    
+
     success = await compliance_monitor.send_alert(alert_id, via="whatsapp")
-    
+
     assert success is True
     assert compliance_monitor.alerts[alert_id].status == AlertStatus.SENT
     assert compliance_monitor.alerts[alert_id].sent_at is not None
@@ -379,12 +378,12 @@ async def test_send_alert_no_notification_service(compliance_monitor):
         title="KITAS Expiry",
         deadline=deadline,
     )
-    
+
     alerts = compliance_monitor.check_compliance_items()
     alert_id = alerts[0].alert_id
-    
+
     success = await compliance_monitor.send_alert(alert_id)
-    
+
     assert success is True  # Should succeed even without service (logs only)
 
 
@@ -392,7 +391,7 @@ async def test_send_alert_no_notification_service(compliance_monitor):
 async def test_send_alert_not_found(compliance_monitor):
     """Test sending non-existent alert"""
     success = await compliance_monitor.send_alert("nonexistent_alert")
-    
+
     assert success is False
 
 
@@ -410,12 +409,12 @@ def test_acknowledge_alert(compliance_monitor):
         title="KITAS Expiry",
         deadline=deadline,
     )
-    
+
     alerts = compliance_monitor.check_compliance_items()
     alert_id = alerts[0].alert_id
-    
+
     success = compliance_monitor.acknowledge_alert(alert_id)
-    
+
     assert success is True
     assert compliance_monitor.alerts[alert_id].status == AlertStatus.ACKNOWLEDGED
     assert compliance_monitor.alerts[alert_id].acknowledged_at is not None
@@ -424,7 +423,7 @@ def test_acknowledge_alert(compliance_monitor):
 def test_acknowledge_alert_not_found(compliance_monitor):
     """Test acknowledging non-existent alert"""
     success = compliance_monitor.acknowledge_alert("nonexistent")
-    
+
     assert success is False
 
 
@@ -442,11 +441,11 @@ def test_resolve_compliance_item(compliance_monitor):
         title="KITAS Expiry",
         deadline=deadline,
     )
-    
+
     initial_active = compliance_monitor.monitor_stats["active_items"]
-    
+
     success = compliance_monitor.resolve_compliance_item(item.item_id)
-    
+
     assert success is True
     assert item.item_id not in compliance_monitor.compliance_items
     assert compliance_monitor.monitor_stats["active_items"] == initial_active - 1
@@ -461,19 +460,19 @@ def test_resolve_compliance_item_resolves_alerts(compliance_monitor):
         title="KITAS Expiry",
         deadline=deadline,
     )
-    
+
     alerts = compliance_monitor.check_compliance_items()
     alert_id = alerts[0].alert_id
-    
+
     compliance_monitor.resolve_compliance_item(item.item_id)
-    
+
     assert compliance_monitor.alerts[alert_id].status == AlertStatus.RESOLVED
 
 
 def test_resolve_compliance_item_not_found(compliance_monitor):
     """Test resolving non-existent compliance item"""
     success = compliance_monitor.resolve_compliance_item("nonexistent")
-    
+
     assert success is False
 
 
@@ -488,7 +487,7 @@ def test_get_upcoming_deadlines_all(compliance_monitor):
     deadline1 = (datetime.now() + timedelta(days=30)).isoformat()
     deadline2 = (datetime.now() + timedelta(days=60)).isoformat()
     deadline3 = (datetime.now() + timedelta(days=120)).isoformat()
-    
+
     compliance_monitor.add_compliance_item(
         client_id="client1",
         compliance_type=ComplianceType.VISA_EXPIRY,
@@ -507,9 +506,9 @@ def test_get_upcoming_deadlines_all(compliance_monitor):
         title="Item 3",
         deadline=deadline3,
     )
-    
+
     upcoming = compliance_monitor.get_upcoming_deadlines(days_ahead=90)
-    
+
     assert len(upcoming) == 2  # Only items within 90 days
     assert upcoming[0].deadline <= upcoming[1].deadline  # Sorted by deadline
 
@@ -517,7 +516,7 @@ def test_get_upcoming_deadlines_all(compliance_monitor):
 def test_get_upcoming_deadlines_filtered_by_client(compliance_monitor):
     """Test getting upcoming deadlines filtered by client"""
     deadline = (datetime.now() + timedelta(days=30)).isoformat()
-    
+
     compliance_monitor.add_compliance_item(
         client_id="client1",
         compliance_type=ComplianceType.VISA_EXPIRY,
@@ -530,9 +529,9 @@ def test_get_upcoming_deadlines_filtered_by_client(compliance_monitor):
         title="Item 2",
         deadline=deadline,
     )
-    
+
     upcoming = compliance_monitor.get_upcoming_deadlines(client_id="client1", days_ahead=90)
-    
+
     assert len(upcoming) == 1
     assert upcoming[0].client_id == "client1"
 
@@ -546,7 +545,7 @@ def test_get_alerts_for_client(compliance_monitor):
     """Test getting alerts for specific client"""
     deadline1 = (datetime.now() + timedelta(days=30)).isoformat()
     deadline2 = (datetime.now() + timedelta(days=60)).isoformat()
-    
+
     item1 = compliance_monitor.add_compliance_item(
         client_id="client1",
         compliance_type=ComplianceType.VISA_EXPIRY,
@@ -559,11 +558,11 @@ def test_get_alerts_for_client(compliance_monitor):
         title="Item 2",
         deadline=deadline2,
     )
-    
+
     compliance_monitor.check_compliance_items()
-    
+
     alerts = compliance_monitor.get_alerts_for_client("client1")
-    
+
     assert len(alerts) > 0
     assert all(alert.client_id == "client1" for alert in alerts)
 
@@ -577,25 +576,25 @@ def test_get_alerts_for_client_filtered_by_status(compliance_monitor):
         title="Item 1",
         deadline=deadline,
     )
-    
+
     alerts = compliance_monitor.check_compliance_items()
     alert_id = alerts[0].alert_id
-    
+
     # Acknowledge alert
     compliance_monitor.acknowledge_alert(alert_id)
-    
+
     # Get only pending alerts
     pending_alerts = compliance_monitor.get_alerts_for_client(
         "client1", status_filter=AlertStatus.PENDING
     )
-    
+
     assert len(pending_alerts) == 0  # All acknowledged
-    
+
     # Get acknowledged alerts
     acknowledged_alerts = compliance_monitor.get_alerts_for_client(
         "client1", status_filter=AlertStatus.ACKNOWLEDGED
     )
-    
+
     assert len(acknowledged_alerts) > 0
 
 
@@ -605,7 +604,7 @@ def test_get_alerts_for_client_sorted_by_severity(compliance_monitor):
     overdue_deadline = (datetime.now() - timedelta(days=5)).isoformat()
     urgent_deadline = (datetime.now() + timedelta(days=5)).isoformat()
     info_deadline = (datetime.now() + timedelta(days=70)).isoformat()
-    
+
     compliance_monitor.add_compliance_item(
         client_id="client1",
         compliance_type=ComplianceType.VISA_EXPIRY,
@@ -624,11 +623,11 @@ def test_get_alerts_for_client_sorted_by_severity(compliance_monitor):
         title="Urgent",
         deadline=urgent_deadline,
     )
-    
+
     compliance_monitor.check_compliance_items()
-    
+
     alerts = compliance_monitor.get_alerts_for_client("client1")
-    
+
     assert len(alerts) >= 3
     # First should be CRITICAL (overdue)
     assert alerts[0].severity == AlertSeverity.CRITICAL
@@ -648,11 +647,11 @@ def test_get_monitor_stats(compliance_monitor):
         title="KITAS Expiry",
         deadline=deadline,
     )
-    
+
     compliance_monitor.check_compliance_items()
-    
+
     stats = compliance_monitor.get_monitor_stats()
-    
+
     assert "total_items_tracked" in stats
     assert "active_items" in stats
     assert "alerts_generated" in stats
@@ -777,7 +776,9 @@ def test_generate_alert_truncates_documents_to_five(compliance_monitor):
 
 
 @pytest.mark.asyncio
-async def test_send_alert_notification_service_failure(compliance_monitor, mock_notification_service):
+async def test_send_alert_notification_service_failure(
+    compliance_monitor, mock_notification_service
+):
     """Test sending alert when notification service fails"""
     mock_notification_service.send = AsyncMock(return_value=False)
 
@@ -795,7 +796,9 @@ async def test_send_alert_notification_service_failure(compliance_monitor, mock_
     success = await compliance_monitor.send_alert(alert_id, via="email")
 
     assert success is False
-    assert compliance_monitor.alerts[alert_id].status == AlertStatus.PENDING  # Should remain PENDING
+    assert (
+        compliance_monitor.alerts[alert_id].status == AlertStatus.PENDING
+    )  # Should remain PENDING
     assert compliance_monitor.alerts[alert_id].sent_at is None
 
 
@@ -1015,8 +1018,7 @@ def test_resolve_compliance_item_with_multiple_related_alerts(compliance_monitor
     compliance_monitor.resolve_compliance_item(item.item_id)
 
     alert_statuses = [
-        a.status for a in compliance_monitor.alerts.values()
-        if a.compliance_item_id == item.item_id
+        a.status for a in compliance_monitor.alerts.values() if a.compliance_item_id == item.item_id
     ]
     assert all(status == AlertStatus.RESOLVED for status in alert_statuses)
 
@@ -1100,6 +1102,7 @@ def test_generate_alerts_with_exception_handling(compliance_monitor):
     # Now inject a problematic item that will cause an error
     class BadComplianceItem:
         """Item that causes exception when accessing deadline"""
+
         def __init__(self):
             self.item_id = "bad_item"
 
@@ -1148,4 +1151,3 @@ def test_compliance_item_stats_distribution(compliance_monitor):
 
     assert stats["compliance_type_distribution"]["visa_expiry"] == 2
     assert stats["compliance_type_distribution"]["tax_filing"] == 1
-

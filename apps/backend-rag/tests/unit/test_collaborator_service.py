@@ -5,7 +5,7 @@ Unit tests for Collaborator Service
 
 import json
 import sys
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
@@ -407,4 +407,3 @@ def test_anonymous_profile(mock_team_data_file):
     assert profile.team == "general"
     assert profile.language == "en"
     assert profile.expertise_level == "beginner"
-

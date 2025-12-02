@@ -38,7 +38,7 @@ def test_extract_handlers_from_router(mock_router_module):
     """Test extracting handlers from router module"""
     # Set __name__ on mock module
     mock_router_module.__name__ = "test_module"
-    
+
     handlers = extract_handlers_from_router(mock_router_module)
 
     assert len(handlers) == 1
@@ -66,6 +66,7 @@ def test_extract_handlers_from_router_no_router():
 async def test_list_all_handlers_success():
     """Test listing all handlers"""
     import warnings
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)  # Ignore Pydantic warnings
         with patch("app.routers.handlers.extract_handlers_from_router", return_value=[]):
@@ -91,9 +92,12 @@ async def test_search_handlers_by_name():
     ]
 
     import warnings
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
-        with patch("app.routers.handlers.list_all_handlers", return_value={"handlers": mock_handlers}):
+        with patch(
+            "app.routers.handlers.list_all_handlers", return_value={"handlers": mock_handlers}
+        ):
             result = await search_handlers("test")
 
             assert isinstance(result, dict)
@@ -112,9 +116,12 @@ async def test_search_handlers_no_results():
     ]
 
     import warnings
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
-        with patch("app.routers.handlers.list_all_handlers", return_value={"handlers": mock_handlers}):
+        with patch(
+            "app.routers.handlers.list_all_handlers", return_value={"handlers": mock_handlers}
+        ):
             result = await search_handlers("xyz123nonexistent")
 
             assert isinstance(result, dict)
@@ -131,9 +138,12 @@ async def test_search_handlers_by_path():
     ]
 
     import warnings
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
-        with patch("app.routers.handlers.list_all_handlers", return_value={"handlers": mock_handlers}):
+        with patch(
+            "app.routers.handlers.list_all_handlers", return_value={"handlers": mock_handlers}
+        ):
             result = await search_handlers("clients")
 
             assert result["matches"] == 1
@@ -149,9 +159,12 @@ async def test_search_handlers_by_description():
     ]
 
     import warnings
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
-        with patch("app.routers.handlers.list_all_handlers", return_value={"handlers": mock_handlers}):
+        with patch(
+            "app.routers.handlers.list_all_handlers", return_value={"handlers": mock_handlers}
+        ):
             result = await search_handlers("upload")
 
             assert result["matches"] == 1
@@ -172,16 +185,23 @@ async def test_get_handlers_by_category_success():
         "agents": {
             "count": 2,
             "handlers": [
-                {"name": "create_agent", "path": "/api/agents/create", "description": "Create agent"},
+                {
+                    "name": "create_agent",
+                    "path": "/api/agents/create",
+                    "description": "Create agent",
+                },
                 {"name": "list_agents", "path": "/api/agents/list", "description": "List agents"},
-            ]
+            ],
         }
     }
 
     import warnings
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
-        with patch("app.routers.handlers.list_all_handlers", return_value={"categories": mock_categories}):
+        with patch(
+            "app.routers.handlers.list_all_handlers", return_value={"categories": mock_categories}
+        ):
             result = await get_handlers_by_category("agents")
 
             assert result["count"] == 2
@@ -193,16 +213,18 @@ async def test_get_handlers_by_category_success():
 async def test_get_handlers_by_category_not_found():
     """Test getting handlers for non-existent category"""
     from fastapi import HTTPException
+
     from app.routers.handlers import get_handlers_by_category
 
-    mock_categories = {
-        "agents": {"count": 1, "handlers": []}
-    }
+    mock_categories = {"agents": {"count": 1, "handlers": []}}
 
     import warnings
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
-        with patch("app.routers.handlers.list_all_handlers", return_value={"categories": mock_categories}):
+        with patch(
+            "app.routers.handlers.list_all_handlers", return_value={"categories": mock_categories}
+        ):
             with pytest.raises(HTTPException) as exc_info:
                 await get_handlers_by_category("nonexistent")
 
@@ -256,4 +278,3 @@ def test_extract_handlers_none_docstring():
     handlers = extract_handlers_from_router(module)
     assert len(handlers) == 1
     assert handlers[0]["description"] == ""
-

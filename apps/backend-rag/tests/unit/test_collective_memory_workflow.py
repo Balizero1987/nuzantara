@@ -4,7 +4,6 @@ Unit tests for Collective Memory Workflow
 """
 
 import sys
-from datetime import datetime
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -565,4 +564,3 @@ def test_create_collective_memory_workflow_with_services():
     mock_memory = MagicMock()
     workflow = create_collective_memory_workflow(memory_service=mock_memory)
     assert workflow is not None
-

@@ -4,7 +4,7 @@ Unit tests for Dynamic Pricing Service
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -18,7 +18,6 @@ from services.dynamic_pricing_service import (
     DynamicPricingService,
     PricingResult,
 )
-
 
 # ============================================================================
 # Fixtures
@@ -111,7 +110,7 @@ def test_extract_costs_from_text_idr_juta(pricing_service):
     """Test extracting costs in IDR juta format"""
     text = "Notary fee is Rp 5 juta for PT PMA setup"
     costs = pricing_service.extract_costs_from_text(text, "legal_architect")
-    
+
     assert len(costs) > 0
     assert any(c.amount == 5000000.0 for c in costs)
 
@@ -120,7 +119,7 @@ def test_extract_costs_from_text_idr_ribu(pricing_service):
     """Test extracting costs in IDR ribu format"""
     text = "Service fee is Rp 500 ribu per month"
     costs = pricing_service.extract_costs_from_text(text, "bali_zero_pricing")
-    
+
     assert len(costs) > 0
     assert any(c.amount == 500000.0 for c in costs)
 
@@ -129,7 +128,7 @@ def test_extract_costs_from_text_usd(pricing_service):
     """Test extracting costs in USD format"""
     text = "Visa cost is $500 USD per person"
     costs = pricing_service.extract_costs_from_text(text, "visa_oracle")
-    
+
     assert len(costs) > 0
     # Should be converted to IDR (500 * 15000)
     assert any(c.amount == 7500000.0 for c in costs)
@@ -139,7 +138,7 @@ def test_extract_costs_from_text_recurring(pricing_service):
     """Test extracting recurring costs"""
     text = "Annual tax registration fee is Rp 1 juta per year"
     costs = pricing_service.extract_costs_from_text(text, "tax_genius")
-    
+
     assert len(costs) > 0
     recurring_costs = [c for c in costs if c.is_recurring]
     assert len(recurring_costs) > 0
@@ -149,7 +148,7 @@ def test_extract_costs_from_text_no_costs(pricing_service):
     """Test extracting costs from text with no cost information"""
     text = "This is just general information about the process"
     costs = pricing_service.extract_costs_from_text(text, "test_oracle")
-    
+
     assert len(costs) == 0
 
 
@@ -157,7 +156,7 @@ def test_extract_costs_from_text_multiple_costs(pricing_service):
     """Test extracting multiple costs from text"""
     text = "Notary fee: Rp 5 juta. NIB fee: Rp 2 juta. Tax registration: Rp 1 juta"
     costs = pricing_service.extract_costs_from_text(text, "test_oracle")
-    
+
     assert len(costs) >= 3
 
 
@@ -214,16 +213,16 @@ def test_categorize_cost_other(pricing_service):
 
 
 @pytest.mark.asyncio
-async def test_calculate_pricing_success(pricing_service, mock_synthesis_service, mock_search_service):
+async def test_calculate_pricing_success(
+    pricing_service, mock_synthesis_service, mock_search_service
+):
     """Test successful pricing calculation"""
     # Mock synthesis result
     mock_synthesis_result = MagicMock()
     mock_synthesis_result.sources = {
         "legal_architect": {
             "success": True,
-            "results": [
-                {"text": "Notary fee is Rp 5 juta for PT PMA"}
-            ]
+            "results": [{"text": "Notary fee is Rp 5 juta for PT PMA"}],
         }
     }
     mock_synthesis_result.timeline = "4-6 months"
@@ -231,18 +230,14 @@ async def test_calculate_pricing_success(pricing_service, mock_synthesis_service
     mock_synthesis_result.confidence = 0.8
     mock_synthesis_result.scenario_type = "company_setup"
     mock_synthesis_result.risks = []
-    
+
     mock_synthesis_service.synthesize.return_value = mock_synthesis_result
-    
+
     # Mock search result
-    mock_search_service.search.return_value = {
-        "results": [
-            {"text": "Service fee is Rp 2 juta"}
-        ]
-    }
-    
+    mock_search_service.search.return_value = {"results": [{"text": "Service fee is Rp 2 juta"}]}
+
     result = await pricing_service.calculate_pricing("PT PMA Restaurant setup", user_level=3)
-    
+
     assert isinstance(result, PricingResult)
     assert result.scenario == "PT PMA Restaurant setup"
     assert result.total_setup_cost > 0
@@ -253,7 +248,9 @@ async def test_calculate_pricing_success(pricing_service, mock_synthesis_service
 
 
 @pytest.mark.asyncio
-async def test_calculate_pricing_no_results(pricing_service, mock_synthesis_service, mock_search_service):
+async def test_calculate_pricing_no_results(
+    pricing_service, mock_synthesis_service, mock_search_service
+):
     """Test pricing calculation with no cost results"""
     mock_synthesis_result = MagicMock()
     mock_synthesis_result.sources = {}
@@ -262,26 +259,26 @@ async def test_calculate_pricing_no_results(pricing_service, mock_synthesis_serv
     mock_synthesis_result.confidence = 0.5
     mock_synthesis_result.scenario_type = "unknown"
     mock_synthesis_result.risks = []
-    
+
     mock_synthesis_service.synthesize.return_value = mock_synthesis_result
     mock_search_service.search.return_value = {"results": []}
-    
+
     result = await pricing_service.calculate_pricing("Unknown scenario", user_level=3)
-    
+
     assert result.total_setup_cost == 0.0
     assert len(result.cost_items) == 0
 
 
 @pytest.mark.asyncio
-async def test_calculate_pricing_with_recurring_costs(pricing_service, mock_synthesis_service, mock_search_service):
+async def test_calculate_pricing_with_recurring_costs(
+    pricing_service, mock_synthesis_service, mock_search_service
+):
     """Test pricing calculation with recurring costs"""
     mock_synthesis_result = MagicMock()
     mock_synthesis_result.sources = {
         "tax_genius": {
             "success": True,
-            "results": [
-                {"text": "Annual tax fee is Rp 1 juta per year"}
-            ]
+            "results": [{"text": "Annual tax fee is Rp 1 juta per year"}],
         }
     }
     mock_synthesis_result.timeline = "1 month"
@@ -289,40 +286,39 @@ async def test_calculate_pricing_with_recurring_costs(pricing_service, mock_synt
     mock_synthesis_result.confidence = 0.7
     mock_synthesis_result.scenario_type = "tax_registration"
     mock_synthesis_result.risks = []
-    
+
     mock_synthesis_service.synthesize.return_value = mock_synthesis_result
     mock_search_service.search.return_value = {"results": []}
-    
+
     result = await pricing_service.calculate_pricing("Tax registration", user_level=3)
-    
+
     assert result.total_recurring_cost > 0
     recurring_items = [c for c in result.cost_items if c.is_recurring]
     assert len(recurring_items) > 0
 
 
 @pytest.mark.asyncio
-async def test_calculate_pricing_updates_stats(pricing_service, mock_synthesis_service, mock_search_service):
+async def test_calculate_pricing_updates_stats(
+    pricing_service, mock_synthesis_service, mock_search_service
+):
     """Test that calculate_pricing updates statistics"""
     initial_calculations = pricing_service.pricing_stats["total_calculations"]
-    
+
     mock_synthesis_result = MagicMock()
     mock_synthesis_result.sources = {
-        "test_oracle": {
-            "success": True,
-            "results": [{"text": "Cost is Rp 1 juta"}]
-        }
+        "test_oracle": {"success": True, "results": [{"text": "Cost is Rp 1 juta"}]}
     }
     mock_synthesis_result.timeline = "1 month"
     mock_synthesis_result.oracles_consulted = ["test_oracle"]
     mock_synthesis_result.confidence = 0.8
     mock_synthesis_result.scenario_type = "test"
     mock_synthesis_result.risks = []
-    
+
     mock_synthesis_service.synthesize.return_value = mock_synthesis_result
     mock_search_service.search.return_value = {"results": []}
-    
+
     await pricing_service.calculate_pricing("Test scenario", user_level=3)
-    
+
     assert pricing_service.pricing_stats["total_calculations"] == initial_calculations + 1
     assert pricing_service.pricing_stats["avg_total_cost"] > 0
 
@@ -349,9 +345,9 @@ def test_format_pricing_report_text(pricing_service):
         key_assumptions=["Test assumption"],
         confidence=0.8,
     )
-    
+
     report = pricing_service.format_pricing_report(result, format="text")
-    
+
     assert "DYNAMIC PRICING REPORT" in report
     assert "PT PMA Setup" in report
     assert "Rp 6,000,000" in report
@@ -375,9 +371,9 @@ def test_format_pricing_report_markdown(pricing_service):
         key_assumptions=[],
         confidence=0.8,
     )
-    
+
     report = pricing_service.format_pricing_report(result, format="markdown")
-    
+
     assert isinstance(report, str)
     assert len(report) > 0
 
@@ -390,10 +386,9 @@ def test_format_pricing_report_markdown(pricing_service):
 def test_get_pricing_stats(pricing_service):
     """Test getting pricing statistics"""
     stats = pricing_service.get_pricing_stats()
-    
+
     assert "total_calculations" in stats
     assert "avg_total_cost" in stats
     assert "scenarios_priced" in stats
     assert "avg_total_cost_formatted" in stats
     assert "Rp" in stats["avg_total_cost_formatted"]
-

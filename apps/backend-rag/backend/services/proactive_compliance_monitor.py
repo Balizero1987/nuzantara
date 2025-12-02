@@ -561,7 +561,11 @@ class ProactiveComplianceMonitor:
             # Get all compliance items
             for item_id, item in self.compliance_items.items():
                 # Calculate days until deadline
-                deadline_date = datetime.fromisoformat(item.deadline.replace("Z", "")) if isinstance(item.deadline, str) else item.deadline
+                deadline_date = (
+                    datetime.fromisoformat(item.deadline.replace("Z", ""))
+                    if isinstance(item.deadline, str)
+                    else item.deadline
+                )
                 days_until = (deadline_date - datetime.now()).days
 
                 # Determine severity
@@ -575,7 +579,11 @@ class ProactiveComplianceMonitor:
                     severity = AlertSeverity.INFO
 
                 # Create alert
-                deadline_str = deadline_date.isoformat() if hasattr(deadline_date, 'isoformat') else str(item.deadline)
+                deadline_str = (
+                    deadline_date.isoformat()
+                    if hasattr(deadline_date, "isoformat")
+                    else str(item.deadline)
+                )
                 alert = {
                     "alert_id": f"alert_{item_id}",
                     "client_id": item.client_id,

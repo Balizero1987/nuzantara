@@ -22,14 +22,14 @@ class SimpleJakselCallerHF:
         # Il tunnel URL può essere configurato via env var per aggiornamenti dinamici
         self.ollama_tunnel_url = os.getenv(
             "JAKSEL_TUNNEL_URL",
-            "https://jaksel-ollama.nuzantara.com"  # Default: permanent tunnel
+            "https://jaksel-ollama.nuzantara.com",  # Default: permanent tunnel
         )
 
         # Fallback URLs in ordine di priorità
         # Oracle Cloud tunnel (PRODUCTION - 24/7)
         self.oracle_cloud_url = os.getenv(
             "JAKSEL_ORACLE_URL",
-            "https://jaksel.balizero.com"  # Permanent tunnel on Oracle Cloud
+            "https://jaksel.balizero.com",  # Permanent tunnel on Oracle Cloud
         )
 
         self.oracle_urls = [
@@ -104,9 +104,7 @@ class SimpleJakselCallerHF:
 
         Jawaban Jaksel (HARUS bahasa Indonesia gaul):"""
 
-        logger.info(
-            f"📤 Calling Ollama with prompt length: {len(jaksel_prompt)}"
-        )
+        logger.info(f"📤 Calling Ollama with prompt length: {len(jaksel_prompt)}")
 
         # Try Ollama endpoints first (CloudFlare Tunnel > Local)
         logger.info("🔄 Trying Ollama endpoints...")
@@ -157,8 +155,8 @@ class SimpleJakselCallerHF:
                 # ZantaraAIClient has 'conversational' which is fine.
 
                 # Define safety settings to prevent blocking (Enum format for reliability)
-                from google.generativeai.types import HarmCategory, HarmBlockThreshold
-                
+                from google.generativeai.types import HarmBlockThreshold, HarmCategory
+
                 safety_settings = {
                     HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
                     HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,

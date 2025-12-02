@@ -11,7 +11,6 @@ UPDATED 2025-11-30:
 """
 
 import asyncio
-import json
 import logging
 from typing import Any
 
@@ -84,7 +83,7 @@ class IntelligentRouter:
         self.jaksel_caller = SimpleJakselCallerHF()
 
         logger.info("🎯 [IntelligentRouter] Initialized (ZANTARA AI, MODULAR, IDENTITY-AWARE)")
-        logger.info(f"   Classification: ✅ (Pattern Matching)")
+        logger.info("   Classification: ✅ (Pattern Matching)")
         logger.info(f"   ZANTARA AI: {'✅' if ai_client else '❌'}")
         logger.info(f"   RAG: {'✅' if search_service else '❌'}")
         logger.info(f"   Tools: {'✅' if tool_executor else '❌'}")
@@ -134,7 +133,9 @@ class IntelligentRouter:
             intent = await self.classifier.classify_intent(message)
             category = intent["category"]
             suggested_ai = intent["suggested_ai"]
-            logger.info(f"📋 [Router] Classification: {category} (Confidence: {intent.get('confidence', 0.0)})")
+            logger.info(
+                f"📋 [Router] Classification: {category} (Confidence: {intent.get('confidence', 0.0)})"
+            )
 
             # STEP 0.5: Detect special query types
             is_identity_query = self.context_builder.detect_identity_query(message)
@@ -152,7 +153,11 @@ class IntelligentRouter:
                 logger.info("👥 [Router] TEAM QUERY detected")
 
             # STEP 1: Fast Track for greetings (but NOT for identity queries)
-            if category in ["greeting", "casual"] and not is_identity_query and not is_zantara_query:
+            if (
+                category in ["greeting", "casual"]
+                and not is_identity_query
+                and not is_zantara_query
+            ):
                 if self.personality_service:
                     logger.info("🚀 [Router] FAST TRACK ACTIVATED")
                     fast_response = await self.personality_service.fast_chat(user_id, message)
@@ -166,12 +171,16 @@ class IntelligentRouter:
                     logger.info(f"🔧 [Router] Using {len(tools_to_use)} tools from BACKEND")
 
             # STEP 3: Classify query type for RAG
-            query_type = category if category in ["identity", "team_query", "zantara_identity"] else self.response_handler.classify_query(message)
+            query_type = (
+                category
+                if category in ["identity", "team_query", "zantara_identity"]
+                else self.response_handler.classify_query(message)
+            )
             logger.info(f"📋 [Router] Query type for RAG: {query_type}")
 
             # STEP 4: Build identity context (for ALL queries, not just identity)
             identity_context = None
-            if collaborator and hasattr(collaborator, 'id') and collaborator.id != "anonymous":
+            if collaborator and hasattr(collaborator, "id") and collaborator.id != "anonymous":
                 identity_context = self.context_builder.build_identity_context(collaborator)
                 logger.info(f"🆔 [Router] Built identity context for {collaborator.name}")
 
@@ -186,7 +195,7 @@ class IntelligentRouter:
                 query_type=query_type,
                 user_level=0,
                 limit=5,
-                force_collection=force_collection
+                force_collection=force_collection,
             )
 
             # STEP 7: Check for emotional override
@@ -221,7 +230,9 @@ class IntelligentRouter:
 
             # STEP 12: Check for specialized service routing
             if self.specialized_router.detect_autonomous_research(message, category):
-                result = await self.specialized_router.route_autonomous_research(message, user_level=3)
+                result = await self.specialized_router.route_autonomous_research(
+                    message, user_level=3
+                )
                 if result:
                     return result
 
@@ -340,11 +351,25 @@ class IntelligentRouter:
             logger.info(f"📋 [Router Stream] Query type: {query_type}")
 
             # STEP 3: Determine max tokens based on query complexity
-            comparison_keywords = ["confronta", "compare", "vs", "differenza tra", "difference between"]
-            cross_topic_keywords = ["timeline", "percorso completo", "tutti i costi", "step-by-step"]
+            comparison_keywords = [
+                "confronta",
+                "compare",
+                "vs",
+                "differenza tra",
+                "difference between",
+            ]
+            cross_topic_keywords = [
+                "timeline",
+                "percorso completo",
+                "tutti i costi",
+                "step-by-step",
+            ]
 
             is_comparison = any(kw in message.lower() for kw in comparison_keywords)
-            is_cross_topic = any(kw in message.lower() for kw in cross_topic_keywords) or len(message.split()) > 20
+            is_cross_topic = (
+                any(kw in message.lower() for kw in cross_topic_keywords)
+                or len(message.split()) > 20
+            )
 
             if is_comparison:
                 max_tokens_to_use = 12000
@@ -357,7 +382,9 @@ class IntelligentRouter:
             category = query_type
 
             if self.specialized_router.detect_autonomous_research(message, category):
-                result = await self.specialized_router.route_autonomous_research(message, user_level=3)
+                result = await self.specialized_router.route_autonomous_research(
+                    message, user_level=3
+                )
                 if result:
                     text = result.get("response", result.get("text", ""))
                     for word in text.split():
@@ -385,7 +412,7 @@ class IntelligentRouter:
 
             # STEP 5: Build identity context
             identity_context = None
-            if collaborator and hasattr(collaborator, 'id') and collaborator.id != "anonymous":
+            if collaborator and hasattr(collaborator, "id") and collaborator.id != "anonymous":
                 identity_context = self.context_builder.build_identity_context(collaborator)
                 logger.info(f"🆔 [Router Stream] Built identity context for {collaborator.name}")
 
@@ -400,13 +427,15 @@ class IntelligentRouter:
             logger.info(f"🔍 [Router Stream] Query rewritten: '{message}' → '{search_query}'")
 
             # STEP 9: RAG retrieval
-            force_collection = "bali_zero_team" if query_type in ["identity", "team_query"] else None
+            force_collection = (
+                "bali_zero_team" if query_type in ["identity", "team_query"] else None
+            )
             rag_result = await self.rag_manager.retrieve_context(
                 query=search_query,  # Use rewritten query for better retrieval
                 query_type=query_type,
                 user_level=0,
                 limit=5,
-                force_collection=force_collection
+                force_collection=force_collection,
             )
 
             # STEP 10: Combine contexts
@@ -422,13 +451,23 @@ class IntelligentRouter:
 
             # STEP 11: Yield metadata first (structured format)
             metadata = {
-                "memory_used": bool(memory and (memory.get("facts") if isinstance(memory, dict) else hasattr(memory, 'profile_facts'))),
+                "memory_used": bool(
+                    memory
+                    and (
+                        memory.get("facts")
+                        if isinstance(memory, dict)
+                        else hasattr(memory, "profile_facts")
+                    )
+                ),
                 "used_rag": rag_result.get("used_rag", False),
                 "rag_sources": [
-                    doc.get("metadata", {}).get("source") or doc.get("metadata", {}).get("source_collection", "Unknown")
+                    doc.get("metadata", {}).get("source")
+                    or doc.get("metadata", {}).get("source_collection", "Unknown")
                     for doc in rag_result.get("docs", [])
                 ],
-                "team_member": collaborator.name if collaborator and hasattr(collaborator, 'name') else "Zantara",
+                "team_member": collaborator.name
+                if collaborator and hasattr(collaborator, "name")
+                else "Zantara",
                 "intent": category,
                 "identity_aware": bool(identity_context),
             }
@@ -443,7 +482,6 @@ class IntelligentRouter:
             # Heartbeat mechanism to prevent Fly.io timeout (60s)
             # We yield a comment or empty space to keep connection alive while waiting for LLM
             yield {"type": "ping", "data": "ping"}
-
 
             async for chunk in self.ai.stream(
                 message=message,
@@ -483,7 +521,7 @@ class IntelligentRouter:
                     # Yield structured token dictionary
                     yield {"type": "token", "data": word + " "}
                     await asyncio.sleep(0.05)
-            
+
             # Yield done signal
             yield {"type": "done", "data": None}
 
@@ -504,7 +542,13 @@ class IntelligentRouter:
     ) -> dict | None:
         """Handle emotional override routing"""
         emotional_states_needing_empathy = [
-            "sad", "anxious", "stressed", "embarrassed", "lonely", "scared", "worried"
+            "sad",
+            "anxious",
+            "stressed",
+            "embarrassed",
+            "lonely",
+            "scared",
+            "worried",
         ]
 
         detected_state = (
@@ -556,36 +600,42 @@ class IntelligentRouter:
     ) -> str:
         """
         Rewrite user query into a standalone search query using conversation history.
-        
-        This transforms ambiguous queries (e.g., "e per le tasse?") into 
+
+        This transforms ambiguous queries (e.g., "e per le tasse?") into
         explicit search queries (e.g., "Quali sono le aliquote fiscali per le aziende in Indonesia?")
         that work better with vector search.
-        
+
         Args:
             query: Raw user query
             conversation_history: Optional conversation history for context
-            
+
         Returns:
             Rewritten query optimized for semantic search
         """
         # Skip rewriting for simple queries or if no history
         if not conversation_history or len(conversation_history) < 2:
             return query
-        
+
         # Skip rewriting for identity/team queries (they're already explicit)
-        if any(keyword in query.lower() for keyword in ["chi sono", "who am i", "who are you", "team"]):
+        if any(
+            keyword in query.lower() for keyword in ["chi sono", "who am i", "who are you", "team"]
+        ):
             return query
-        
+
         # Use AI to rewrite query if available
         if not self.ai or not self.ai.is_available():
             return query
-        
+
         try:
             # Build context from recent conversation history
             recent_context = ""
             if conversation_history:
                 # Get last 3 exchanges for context
-                recent_messages = conversation_history[-6:] if len(conversation_history) > 6 else conversation_history
+                recent_messages = (
+                    conversation_history[-6:]
+                    if len(conversation_history) > 6
+                    else conversation_history
+                )
                 for msg in recent_messages:
                     role = msg.get("role", "")
                     content = msg.get("content", "")
@@ -593,7 +643,7 @@ class IntelligentRouter:
                         recent_context += f"User: {content}\n"
                     elif role == "assistant":
                         recent_context += f"Assistant: {content[:200]}...\n"
-            
+
             # Create rewriting prompt
             rewrite_prompt = f"""Rewrite the following user query into a standalone, explicit search query that would work well for semantic search in a legal/business knowledge base.
 
@@ -618,16 +668,16 @@ Rewritten query:"""
                 max_tokens=100,
                 temperature=0.3,  # Lower temperature for more consistent rewriting
             )
-            
+
             rewritten = rewrite_result.get("text", query).strip()
-            
+
             # Validate rewritten query (should be reasonable length)
             if len(rewritten) > 500:
                 logger.warning(f"Rewritten query too long ({len(rewritten)} chars), using original")
                 return query
-            
+
             return rewritten
-            
+
         except Exception as e:
             logger.warning(f"Query rewriting failed: {e}, using original query")
             return query

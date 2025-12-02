@@ -31,10 +31,10 @@ class CoverageMonitor:
                 "--cov-config=apps/backend-rag/.coveragerc",
                 "--cov-report=json:apps/backend-rag/coverage.json",
                 "--cov-report=term",
-                "-v"
+                "-v",
             ],
             capture_output=True,
-            text=True
+            text=True,
         )
 
         print(result.stdout)
@@ -50,7 +50,7 @@ class CoverageMonitor:
             print(f"❌ Coverage report not found: {self.coverage_json}")
             return {}
 
-        with open(self.coverage_json, 'r') as f:
+        with open(self.coverage_json, "r") as f:
             data = json.load(f)
 
         return data
@@ -97,13 +97,17 @@ class CoverageMonitor:
         if total_coverage >= self.target_coverage:
             lines.append(f"✅ TARGET REACHED! Coverage is {total_coverage:.2f}%")
         else:
-            lines.append(f"⚠️  BELOW TARGET by {self.target_coverage - total_coverage:.2f}%")
+            lines.append(
+                f"⚠️  BELOW TARGET by {self.target_coverage - total_coverage:.2f}%"
+            )
 
-        lines.extend([
-            "",
-            f"📉 Coverage Gaps ({len(gaps)} files below {self.target_coverage}%):",
-            "-" * 80,
-        ])
+        lines.extend(
+            [
+                "",
+                f"📉 Coverage Gaps ({len(gaps)} files below {self.target_coverage}%):",
+                "-" * 80,
+            ]
+        )
 
         for file_path, percent, missing_lines in gaps[:20]:  # Top 20 gaps
             # Shorten path
@@ -115,18 +119,20 @@ class CoverageMonitor:
         if len(gaps) > 20:
             lines.append(f"... and {len(gaps) - 20} more files")
 
-        lines.extend([
-            "",
-            "=" * 80,
-            "💡 RECOMMENDATIONS:",
-            "",
-            "1. Focus on lowest coverage files first",
-            "2. Use test_generator.py to create test skeletons",
-            "3. Run: python scripts/test_automation/test_generator.py",
-            "4. Check missing lines in coverage.json for specifics",
-            "",
-            "=" * 80,
-        ])
+        lines.extend(
+            [
+                "",
+                "=" * 80,
+                "💡 RECOMMENDATIONS:",
+                "",
+                "1. Focus on lowest coverage files first",
+                "2. Use test_generator.py to create test skeletons",
+                "3. Run: python scripts/test_automation/test_generator.py",
+                "4. Check missing lines in coverage.json for specifics",
+                "",
+                "=" * 80,
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -152,7 +158,7 @@ class CoverageMonitor:
 
         # Write report to file
         report_file = Path("coverage_report.txt")
-        with open(report_file, 'w') as f:
+        with open(report_file, "w") as f:
             f.write(report)
         print(f"\n📝 Report saved to: {report_file}")
 

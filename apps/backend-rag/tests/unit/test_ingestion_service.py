@@ -74,9 +74,7 @@ async def test_ingest_book_success(ingestion_service):
         mock_info.return_value = {"title": "Test Book", "author": "Test Author"}
         mock_parse.return_value = "Sample book text content here"
 
-        result = await ingestion_service.ingest_book(
-            file_path="/path/to/book.pdf", language="en"
-        )
+        result = await ingestion_service.ingest_book(file_path="/path/to/book.pdf", language="en")
 
         assert result["success"] is True
         assert result["book_title"] == "Test Book"
@@ -115,7 +113,9 @@ async def test_ingest_book_with_tier_override(ingestion_service):
 @pytest.mark.asyncio
 async def test_ingest_book_exception(ingestion_service):
     """Test ingesting book with exception"""
-    with patch("services.ingestion_service.get_document_info", side_effect=Exception("Parse error")):
+    with patch(
+        "services.ingestion_service.get_document_info", side_effect=Exception("Parse error")
+    ):
         result = await ingestion_service.ingest_book(file_path="/path/to/book.pdf")
 
         assert result["success"] is False
@@ -142,4 +142,3 @@ async def test_ingest_book_auto_detect_title_author(ingestion_service):
 
         assert result["book_title"] == "Detected Title"
         assert result["book_author"] == "Detected Author"
-

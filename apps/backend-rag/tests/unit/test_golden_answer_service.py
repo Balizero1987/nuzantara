@@ -23,12 +23,13 @@ from services.golden_answer_service import GoldenAnswerService
 
 class AsyncContextManager:
     """Helper class for async context manager"""
+
     def __init__(self, return_value):
         self.return_value = return_value
-    
+
     async def __aenter__(self):
         return self.return_value
-    
+
     async def __aexit__(self, *args):
         pass
 
@@ -42,7 +43,7 @@ def mock_pool():
     conn.fetchrow = AsyncMock()
     conn.fetch = AsyncMock()
     conn.execute = AsyncMock()
-    
+
     # Mock acquire as async context manager
     pool.acquire = MagicMock(return_value=AsyncContextManager(conn))
     return pool, conn
@@ -52,10 +53,10 @@ def mock_pool():
 def golden_answer_service(mock_pool):
     """Create GoldenAnswerService instance"""
     pool, conn = mock_pool
-    
+
     async def mock_create_pool(*args, **kwargs):
         return pool
-    
+
     with patch("services.golden_answer_service.asyncpg.create_pool", side_effect=mock_create_pool):
         service = GoldenAnswerService("postgresql://test")
         service.pool = pool
@@ -86,10 +87,10 @@ def test_init():
 async def test_connect_success():
     """Test connect successful"""
     mock_pool = AsyncMock()
-    
+
     async def mock_create_pool(*args, **kwargs):
         return mock_pool
-    
+
     with patch("services.golden_answer_service.asyncpg.create_pool", side_effect=mock_create_pool):
         service = GoldenAnswerService("postgresql://test")
         await service.connect()
@@ -100,9 +101,12 @@ async def test_connect_success():
 @pytest.mark.asyncio
 async def test_connect_failure():
     """Test connect handles exception"""
-    with patch("services.golden_answer_service.asyncpg.create_pool", side_effect=Exception("Connection error")):
+    with patch(
+        "services.golden_answer_service.asyncpg.create_pool",
+        side_effect=Exception("Connection error"),
+    ):
         service = GoldenAnswerService("postgresql://test")
-        
+
         with pytest.raises(Exception):
             await service.connect()
 
@@ -139,11 +143,11 @@ async def test_close_no_pool():
 def test_load_model_lazy(golden_answer_service):
     """Test _load_model lazy loading"""
     service, pool, conn = golden_answer_service
-    
+
     with patch("services.golden_answer_service.SentenceTransformer") as mock_transformer:
         mock_model = MagicMock()
         mock_transformer.return_value = mock_model
-        
+
         service._load_model()
 
         assert service.model == mock_model
@@ -155,7 +159,7 @@ def test_load_model_already_loaded(golden_answer_service):
     service, pool, conn = golden_answer_service
     mock_model = MagicMock()
     service.model = mock_model
-    
+
     with patch("services.golden_answer_service.SentenceTransformer") as mock_transformer:
         service._load_model()
 
@@ -172,7 +176,7 @@ def test_load_model_already_loaded(golden_answer_service):
 async def test_lookup_golden_answer_exact_match(golden_answer_service):
     """Test lookup_golden_answer with exact match"""
     service, pool, conn = golden_answer_service
-    
+
     # Create a class that supports both attribute and dict access
     class MockRow:
         def __init__(self):
@@ -182,10 +186,10 @@ async def test_lookup_golden_answer_exact_match(golden_answer_service):
             self.sources = ["source1"]
             self.confidence = 0.95
             self.usage_count = 10
-        
+
         def __getitem__(self, key):
             return getattr(self, key)
-    
+
     mock_row = MockRow()
     conn.fetchrow = AsyncMock(return_value=mock_row)
     conn.execute = AsyncMock()
@@ -203,21 +207,25 @@ async def test_lookup_golden_answer_exact_match(golden_answer_service):
 async def test_lookup_golden_answer_semantic_match(golden_answer_service):
     """Test lookup_golden_answer with semantic match"""
     service, pool, conn = golden_answer_service
-    
+
     # No exact match
     conn.fetchrow = AsyncMock(return_value=None)
-    
+
     # Mock semantic lookup
-    with patch.object(service, "_semantic_lookup", return_value={
-        "cluster_id": "cluster_456",
-        "canonical_question": "KITAS process",
-        "answer": "Semantic answer",
-        "sources": [],
-        "confidence": 0.85,
-        "similarity": 0.82
-    }):
+    with patch.object(
+        service,
+        "_semantic_lookup",
+        return_value={
+            "cluster_id": "cluster_456",
+            "canonical_question": "KITAS process",
+            "answer": "Semantic answer",
+            "sources": [],
+            "confidence": 0.85,
+            "similarity": 0.82,
+        },
+    ):
         conn.execute = AsyncMock()
-        
+
         result = await service.lookup_golden_answer("How do I get KITAS?")
 
         assert result is not None
@@ -229,9 +237,9 @@ async def test_lookup_golden_answer_semantic_match(golden_answer_service):
 async def test_lookup_golden_answer_no_match(golden_answer_service):
     """Test lookup_golden_answer with no match"""
     service, pool, conn = golden_answer_service
-    
+
     conn.fetchrow = AsyncMock(return_value=None)
-    
+
     with patch.object(service, "_semantic_lookup", return_value=None):
         result = await service.lookup_golden_answer("Unknown query")
 
@@ -243,7 +251,7 @@ async def test_lookup_golden_answer_auto_connect(golden_answer_service):
     """Test lookup_golden_answer auto-connects if pool is None"""
     service, pool, conn = golden_answer_service
     service.pool = None
-    
+
     with patch.object(service, "connect", new_callable=AsyncMock) as mock_connect:
         conn.fetchrow = AsyncMock(return_value=None)
         with patch.object(service, "_semantic_lookup", return_value=None):
@@ -256,7 +264,7 @@ async def test_lookup_golden_answer_auto_connect(golden_answer_service):
 async def test_lookup_golden_answer_exception(golden_answer_service):
     """Test lookup_golden_answer handles exception"""
     service, pool, conn = golden_answer_service
-    
+
     conn.fetchrow.side_effect = Exception("Database error")
 
     result = await service.lookup_golden_answer("test")
@@ -273,7 +281,7 @@ async def test_lookup_golden_answer_exception(golden_answer_service):
 async def test_semantic_lookup_success(golden_answer_service):
     """Test _semantic_lookup successful"""
     service, pool, conn = golden_answer_service
-    
+
     mock_golden_answers = [
         {
             "cluster_id": "cluster_1",
@@ -292,17 +300,21 @@ async def test_semantic_lookup_success(golden_answer_service):
             "usage_count": 5,
         },
     ]
-    
+
     conn.fetch = AsyncMock(return_value=mock_golden_answers)
-    
-    with patch.object(service, "_load_model"), patch("services.golden_answer_service.SentenceTransformer") as mock_transformer:
+
+    with patch.object(service, "_load_model"), patch(
+        "services.golden_answer_service.SentenceTransformer"
+    ) as mock_transformer:
         mock_model = MagicMock()
-        mock_model.encode = MagicMock(side_effect=[
-            [[0.1, 0.2, 0.3]],  # Query embedding
-            [[0.1, 0.2, 0.3], [0.5, 0.6, 0.7]],  # Canonical embeddings
-        ])
+        mock_model.encode = MagicMock(
+            side_effect=[
+                [[0.1, 0.2, 0.3]],  # Query embedding
+                [[0.1, 0.2, 0.3], [0.5, 0.6, 0.7]],  # Canonical embeddings
+            ]
+        )
         service.model = mock_model
-        
+
         with patch("services.golden_answer_service.cosine_similarity", return_value=[[0.85, 0.5]]):
             with patch("services.golden_answer_service.np.argmax", return_value=0):
                 result = await service._semantic_lookup("How to get KITAS?")
@@ -316,22 +328,30 @@ async def test_semantic_lookup_success(golden_answer_service):
 async def test_semantic_lookup_below_threshold(golden_answer_service):
     """Test _semantic_lookup below threshold"""
     service, pool, conn = golden_answer_service
-    
-    conn.fetch = AsyncMock(return_value=[{
-        "cluster_id": "cluster_1",
-        "canonical_question": "Test",
-        "answer": "Answer",
-        "sources": [],
-        "confidence": 0.9,
-        "usage_count": 10,
-    }])
-    
-    with patch.object(service, "_load_model"), patch("services.golden_answer_service.SentenceTransformer"):
+
+    conn.fetch = AsyncMock(
+        return_value=[
+            {
+                "cluster_id": "cluster_1",
+                "canonical_question": "Test",
+                "answer": "Answer",
+                "sources": [],
+                "confidence": 0.9,
+                "usage_count": 10,
+            }
+        ]
+    )
+
+    with patch.object(service, "_load_model"), patch(
+        "services.golden_answer_service.SentenceTransformer"
+    ):
         mock_model = MagicMock()
         mock_model.encode = MagicMock(return_value=[[0.1, 0.2]])
         service.model = mock_model
-        
-        with patch("services.golden_answer_service.cosine_similarity", return_value=[[0.5]]):  # Below 0.8 threshold
+
+        with patch(
+            "services.golden_answer_service.cosine_similarity", return_value=[[0.5]]
+        ):  # Below 0.8 threshold
             with patch("services.golden_answer_service.np.argmax", return_value=0):
                 result = await service._semantic_lookup("test")
 
@@ -352,7 +372,7 @@ async def test_semantic_lookup_no_pool():
 async def test_semantic_lookup_no_answers(golden_answer_service):
     """Test _semantic_lookup with no golden answers"""
     service, pool, conn = golden_answer_service
-    
+
     conn.fetch = AsyncMock(return_value=[])
 
     result = await service._semantic_lookup("test")
@@ -364,7 +384,7 @@ async def test_semantic_lookup_no_answers(golden_answer_service):
 async def test_semantic_lookup_exception(golden_answer_service):
     """Test _semantic_lookup handles exception"""
     service, pool, conn = golden_answer_service
-    
+
     conn.fetch.side_effect = Exception("Database error")
 
     result = await service._semantic_lookup("test")
@@ -381,7 +401,7 @@ async def test_semantic_lookup_exception(golden_answer_service):
 async def test_increment_usage_success(golden_answer_service):
     """Test _increment_usage successful"""
     service, pool, conn = golden_answer_service
-    
+
     conn.execute = AsyncMock()
 
     await service._increment_usage("cluster_123")
@@ -405,7 +425,7 @@ async def test_increment_usage_no_pool():
 async def test_increment_usage_exception(golden_answer_service):
     """Test _increment_usage handles exception"""
     service, pool, conn = golden_answer_service
-    
+
     conn.execute.side_effect = Exception("Update error")
 
     # Should not raise exception
@@ -421,7 +441,7 @@ async def test_increment_usage_exception(golden_answer_service):
 async def test_get_golden_answer_stats_success(golden_answer_service):
     """Test get_golden_answer_stats successful"""
     service, pool, conn = golden_answer_service
-    
+
     class MockStats:
         def __init__(self):
             self.total_golden_answers = 100
@@ -429,23 +449,23 @@ async def test_get_golden_answer_stats_success(golden_answer_service):
             self.avg_confidence = 0.85
             self.max_usage = 50
             self.min_usage = 1
-        
+
         def __getitem__(self, key):
             return getattr(self, key)
-    
+
     class MockTopRow:
         def __init__(self):
             self.cluster_id = "cluster_1"
             self.canonical_question = "Question 1"
             self.usage_count = 50
             self.last_used = None
-        
+
         def __getitem__(self, key):
             return getattr(self, key)
-    
+
     mock_stats = MockStats()
     mock_top_10 = [MockTopRow()]
-    
+
     conn.fetchrow = AsyncMock(return_value=mock_stats)
     conn.fetch = AsyncMock(return_value=mock_top_10)
 
@@ -462,11 +482,12 @@ async def test_get_golden_answer_stats_auto_connect(golden_answer_service):
     """Test get_golden_answer_stats auto-connects"""
     service, pool, conn = golden_answer_service
     service.pool = None
-    
+
     async def mock_connect():
         service.pool = pool
-    
+
     with patch.object(service, "connect", side_effect=mock_connect):
+
         class MockStatsNone:
             def __init__(self):
                 self.total_golden_answers = 0
@@ -474,15 +495,15 @@ async def test_get_golden_answer_stats_auto_connect(golden_answer_service):
                 self.avg_confidence = None
                 self.max_usage = None
                 self.min_usage = None
-            
+
             def __getitem__(self, key):
                 return getattr(self, key)
-        
+
         mock_stats = MockStatsNone()
-        
+
         conn.fetchrow = AsyncMock(return_value=mock_stats)
         conn.fetch = AsyncMock(return_value=[])
-        
+
         await service.get_golden_answer_stats()
 
         assert service.pool == pool
@@ -659,8 +680,13 @@ async def test_semantic_lookup_with_multiple_candidates():
 
             # Simulate embeddings and similarities
             with patch("services.golden_answer_service.SentenceTransformer"):
-                with patch("services.golden_answer_service.cosine_similarity", return_value=[[0.75, 0.85, 0.65]]):
-                    with patch("services.golden_answer_service.np.argmax", return_value=1):  # cluster_2 is best
+                with patch(
+                    "services.golden_answer_service.cosine_similarity",
+                    return_value=[[0.75, 0.85, 0.65]],
+                ):
+                    with patch(
+                        "services.golden_answer_service.np.argmax", return_value=1
+                    ):  # cluster_2 is best
                         result = await service._semantic_lookup("get KITAS info")
 
                         assert result is not None
@@ -710,7 +736,7 @@ async def test_lookup_golden_answer_increment_usage_on_semantic_match(golden_ans
         "answer": "Semantic answer",
         "sources": [],
         "confidence": 0.85,
-        "similarity": 0.82
+        "similarity": 0.82,
     }
 
     with patch.object(service, "_semantic_lookup", return_value=semantic_result):
@@ -930,6 +956,7 @@ async def test_lookup_golden_answer_query_hash_consistency():
 
             # Extract hashes from both calls
             import hashlib
+
             expected_hash = hashlib.md5("test query".lower().strip().encode("utf-8")).hexdigest()
 
             # Both calls should use same hash
@@ -1052,6 +1079,7 @@ async def test_semantic_lookup_encodes_query_correctly():
 
             # Track encode calls
             encode_calls = []
+
             def track_encode(texts):
                 encode_calls.append(texts)
                 if isinstance(texts, list) and all(isinstance(t, str) for t in texts):
@@ -1068,12 +1096,16 @@ async def test_semantic_lookup_encodes_query_correctly():
                     # Verify encode was called for query and answers
                     assert len(encode_calls) == 2
                     assert "test query" in encode_calls[0] or encode_calls[0] == ["test query"]
-                    assert "How to get KITAS?" in encode_calls[1] or encode_calls[1][0] == "How to get KITAS?"
+                    assert (
+                        "How to get KITAS?" in encode_calls[1]
+                        or encode_calls[1][0] == "How to get KITAS?"
+                    )
 
 
 @pytest.mark.asyncio
 async def test_connect_and_lookup_flow():
     """Test complete flow: init -> connect -> lookup -> close"""
+
     async def mock_create_pool(*args, **kwargs):
         mock_pool = AsyncMock()
         return mock_pool
@@ -1344,7 +1376,9 @@ async def test_semantic_lookup_filters_by_usage_count():
             mock_model = MagicMock()
             service.model = mock_model
 
-            with patch("services.golden_answer_service.cosine_similarity", return_value=[[0.85] * 100]):
+            with patch(
+                "services.golden_answer_service.cosine_similarity", return_value=[[0.85] * 100]
+            ):
                 with patch("services.golden_answer_service.np.argmax", return_value=0):
                     result = await service._semantic_lookup("test")
 
@@ -1427,22 +1461,24 @@ async def test_test_service_with_database_url_and_match():
     mock_service_instance = MagicMock()
     mock_service_instance.connect = AsyncMock()
     mock_service_instance.close = AsyncMock()
-    mock_service_instance.lookup_golden_answer = AsyncMock(return_value={
-        "match_type": "exact",
-        "cluster_id": "cluster_123",
-        "canonical_question": "How to get KITAS in Indonesia?",
-        "confidence": 0.95,
-        "answer": "KITAS is a temporary stay permit..." * 20,  # Long answer
-        "sources": ["source1", "source2"]
-    })
-    mock_service_instance.get_golden_answer_stats = AsyncMock(return_value={
-        "total_golden_answers": 100,
-        "total_hits": 500,
-        "avg_confidence": 0.85
-    })
+    mock_service_instance.lookup_golden_answer = AsyncMock(
+        return_value={
+            "match_type": "exact",
+            "cluster_id": "cluster_123",
+            "canonical_question": "How to get KITAS in Indonesia?",
+            "confidence": 0.95,
+            "answer": "KITAS is a temporary stay permit..." * 20,  # Long answer
+            "sources": ["source1", "source2"],
+        }
+    )
+    mock_service_instance.get_golden_answer_stats = AsyncMock(
+        return_value={"total_golden_answers": 100, "total_hits": 500, "avg_confidence": 0.85}
+    )
 
     with patch("app.core.config.settings", mock_settings):
-        with patch("services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance):
+        with patch(
+            "services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance
+        ):
             # Run test_service
             await test_service()
 
@@ -1465,14 +1501,14 @@ async def test_test_service_with_database_url_and_no_match():
     mock_service_instance.connect = AsyncMock()
     mock_service_instance.close = AsyncMock()
     mock_service_instance.lookup_golden_answer = AsyncMock(return_value=None)
-    mock_service_instance.get_golden_answer_stats = AsyncMock(return_value={
-        "total_golden_answers": 100,
-        "total_hits": 500,
-        "avg_confidence": 0.85
-    })
+    mock_service_instance.get_golden_answer_stats = AsyncMock(
+        return_value={"total_golden_answers": 100, "total_hits": 500, "avg_confidence": 0.85}
+    )
 
     with patch("app.core.config.settings", mock_settings):
-        with patch("services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance):
+        with patch(
+            "services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance
+        ):
             await test_service()
 
     mock_service_instance.connect.assert_called_once()
@@ -1510,7 +1546,9 @@ async def test_test_service_with_exception_in_connect():
     mock_service_instance.close = AsyncMock()
 
     with patch("app.core.config.settings", mock_settings):
-        with patch("services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance):
+        with patch(
+            "services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance
+        ):
             # Should not raise exception
             try:
                 await test_service()
@@ -1532,22 +1570,24 @@ async def test_test_service_with_empty_sources():
     mock_service_instance = MagicMock()
     mock_service_instance.connect = AsyncMock()
     mock_service_instance.close = AsyncMock()
-    mock_service_instance.lookup_golden_answer = AsyncMock(return_value={
-        "match_type": "fuzzy",
-        "cluster_id": "cluster_456",
-        "canonical_question": "Test question",
-        "confidence": 0.75,
-        "answer": "Short answer",
-        # No sources key
-    })
-    mock_service_instance.get_golden_answer_stats = AsyncMock(return_value={
-        "total_golden_answers": 50,
-        "total_hits": 200,
-        "avg_confidence": 0.80
-    })
+    mock_service_instance.lookup_golden_answer = AsyncMock(
+        return_value={
+            "match_type": "fuzzy",
+            "cluster_id": "cluster_456",
+            "canonical_question": "Test question",
+            "confidence": 0.75,
+            "answer": "Short answer",
+            # No sources key
+        }
+    )
+    mock_service_instance.get_golden_answer_stats = AsyncMock(
+        return_value={"total_golden_answers": 50, "total_hits": 200, "avg_confidence": 0.80}
+    )
 
     with patch("app.core.config.settings", mock_settings):
-        with patch("services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance):
+        with patch(
+            "services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance
+        ):
             await test_service()
 
     mock_service_instance.connect.assert_called_once()
@@ -1559,4 +1599,3 @@ async def test_test_service_with_empty_sources():
 # This is a common pattern for scripts and is functionally tested through
 # test_service() tests above. Coverage: 97.96%
 # ============================================================================
-

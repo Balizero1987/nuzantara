@@ -28,16 +28,19 @@ def mock_pool():
     pool = MagicMock()
     conn = AsyncMock()
     conn.execute = AsyncMock()
+
     # Configure acquire() as async context manager
     # pool.acquire() must return an async context manager
     class AsyncContextManager:
         def __init__(self, conn):
             self.conn = conn
+
         async def __aenter__(self):
             return self.conn
+
         async def __aexit__(self, exc_type, exc_val, exc_tb):
             return None
-    
+
     pool.acquire = MagicMock(return_value=AsyncContextManager(conn))
     pool.close = AsyncMock()
     return pool, conn
@@ -110,11 +113,14 @@ async def test_connect_success():
         mock_settings.database_url = "postgresql://test"
         service = MemoryServicePostgres()
         mock_pool = AsyncMock()
+
         # asyncpg.create_pool is a coroutine function
         async def mock_create_pool(*args, **kwargs):
             return mock_pool
-        
-        with patch("services.memory_service_postgres.asyncpg.create_pool", side_effect=mock_create_pool):
+
+        with patch(
+            "services.memory_service_postgres.asyncpg.create_pool", side_effect=mock_create_pool
+        ):
             await service.connect()
 
             assert service.pool == mock_pool
@@ -134,7 +140,10 @@ async def test_connect_exception():
     with patch("app.core.config.settings") as mock_settings:
         mock_settings.database_url = "postgresql://test"
         service = MemoryServicePostgres()
-        with patch("services.memory_service_postgres.asyncpg.create_pool", side_effect=Exception("Connection error")):
+        with patch(
+            "services.memory_service_postgres.asyncpg.create_pool",
+            side_effect=Exception("Connection error"),
+        ):
             await service.connect()
 
             assert service.use_postgres is False
@@ -194,14 +203,26 @@ async def test_get_memory_from_postgres(memory_service):
 
     # Mock database rows - create proper row objects
     row1 = MagicMock()
-    row1.__getitem__ = lambda self, key: {"content": "Fact 1", "confidence": 0.9, "source": "user", "metadata": None, "created_at": datetime.now()}.get(key, None)
+    row1.__getitem__ = lambda self, key: {
+        "content": "Fact 1",
+        "confidence": 0.9,
+        "source": "user",
+        "metadata": None,
+        "created_at": datetime.now(),
+    }.get(key)
     row1.content = "Fact 1"
     row2 = MagicMock()
-    row2.__getitem__ = lambda self, key: {"content": "Fact 2", "confidence": 0.8, "source": "ai", "metadata": None, "created_at": datetime.now()}.get(key, None)
+    row2.__getitem__ = lambda self, key: {
+        "content": "Fact 2",
+        "confidence": 0.8,
+        "source": "ai",
+        "metadata": None,
+        "created_at": datetime.now(),
+    }.get(key)
     row2.content = "Fact 2"
-    
+
     conn.fetch = AsyncMock(return_value=[row1, row2])
-    
+
     # Create a proper mock that supports both attribute and dictionary access
     class StatsRow:
         def __init__(self):
@@ -209,15 +230,15 @@ async def test_get_memory_from_postgres(memory_service):
             self.searches_count = 10
             self.summary = "Test summary"
             self.updated_at = datetime.now()
-        
+
         def __getitem__(self, key):
             return {
                 "conversations_count": 5,
                 "searches_count": 10,
                 "summary": "Test summary",
-                "updated_at": self.updated_at
-            }.get(key, None)
-    
+                "updated_at": self.updated_at,
+            }.get(key)
+
     stats_mock = StatsRow()
     conn.fetchrow = AsyncMock(return_value=stats_mock)
 
@@ -361,7 +382,13 @@ async def test_add_fact_duplicate(memory_service):
     service, conn = memory_service
     user_id = "user-123"
     conn.fetch.return_value = [
-        MagicMock(content="Existing fact", confidence=0.9, source="user", metadata=None, created_at=datetime.now()),
+        MagicMock(
+            content="Existing fact",
+            confidence=0.9,
+            source="user",
+            metadata=None,
+            created_at=datetime.now(),
+        ),
     ]
     conn.fetchrow.return_value = MagicMock(
         conversations_count=0,
@@ -387,7 +414,9 @@ async def test_add_fact_max_facts(memory_service):
     # Create memory with max facts
     existing_facts = [f"Fact {i}" for i in range(service.MAX_FACTS)]
     conn.fetch.return_value = [
-        MagicMock(content=f, confidence=0.9, source="user", metadata=None, created_at=datetime.now())
+        MagicMock(
+            content=f, confidence=0.9, source="user", metadata=None, created_at=datetime.now()
+        )
         for f in existing_facts
     ]
     conn.fetchrow.return_value = MagicMock(
@@ -513,13 +542,19 @@ async def test_retrieve_success(memory_service):
 
     # Mock database responses
     conn.fetch.return_value = [
-        {"content": "Prefers espresso", "confidence": 1.0, "source": "system", "metadata": {}, "created_at": datetime.now()}
+        {
+            "content": "Prefers espresso",
+            "confidence": 1.0,
+            "source": "system",
+            "metadata": {},
+            "created_at": datetime.now(),
+        }
     ]
     conn.fetchrow.return_value = {
         "conversations_count": 5,
         "searches_count": 3,
         "summary": "Test summary",
-        "updated_at": datetime.now()
+        "updated_at": datetime.now(),
     }
 
     result = await service.retrieve(user_id)
@@ -538,14 +573,26 @@ async def test_retrieve_with_category_filter(memory_service):
     user_id = "user-123"
 
     conn.fetch.return_value = [
-        {"content": "Visa preference: Business visa", "confidence": 1.0, "source": "system", "metadata": {}, "created_at": datetime.now()},
-        {"content": "Coffee preference: Espresso", "confidence": 1.0, "source": "system", "metadata": {}, "created_at": datetime.now()}
+        {
+            "content": "Visa preference: Business visa",
+            "confidence": 1.0,
+            "source": "system",
+            "metadata": {},
+            "created_at": datetime.now(),
+        },
+        {
+            "content": "Coffee preference: Espresso",
+            "confidence": 1.0,
+            "source": "system",
+            "metadata": {},
+            "created_at": datetime.now(),
+        },
     ]
     conn.fetchrow.return_value = {
         "conversations_count": 5,
         "searches_count": 3,
         "summary": "Test summary",
-        "updated_at": datetime.now()
+        "updated_at": datetime.now(),
     }
 
     result = await service.retrieve(user_id, category="visa")
@@ -580,7 +627,7 @@ async def test_retrieve_exception_graceful_degradation(memory_service):
     user_id = "user-123"
 
     # Mock exception during get_memory
-    with patch.object(service, 'get_memory', side_effect=Exception("Database error")):
+    with patch.object(service, "get_memory", side_effect=Exception("Database error")):
         result = await service.retrieve(user_id)
 
         assert result["user_id"] == user_id
@@ -600,8 +647,18 @@ async def test_search_postgres_success(memory_service):
     service, conn = memory_service
 
     conn.fetch.return_value = [
-        {"user_id": "user-1", "content": "Loves espresso coffee", "confidence": 1.0, "created_at": datetime.now()},
-        {"user_id": "user-2", "content": "Prefers filtered coffee", "confidence": 0.9, "created_at": datetime.now()}
+        {
+            "user_id": "user-1",
+            "content": "Loves espresso coffee",
+            "confidence": 1.0,
+            "created_at": datetime.now(),
+        },
+        {
+            "user_id": "user-2",
+            "content": "Prefers filtered coffee",
+            "confidence": 0.9,
+            "created_at": datetime.now(),
+        },
     ]
 
     results = await service.search("coffee", limit=5)
@@ -629,6 +686,7 @@ async def test_search_postgres_connection_error(memory_service):
 
     # Mock connection error
     import asyncpg
+
     conn.fetch.side_effect = asyncpg.exceptions.PostgresConnectionError("Connection failed")
 
     # Add data to cache
@@ -637,7 +695,7 @@ async def test_search_postgres_connection_error(memory_service):
         profile_facts=["Loves espresso coffee"],
         summary="",
         counters={},
-        updated_at=datetime.now()
+        updated_at=datetime.now(),
     )
 
     results = await service.search("coffee", limit=5)
@@ -653,6 +711,7 @@ async def test_search_postgres_query_timeout(memory_service):
     service, conn = memory_service
 
     import asyncpg
+
     conn.fetch.side_effect = asyncpg.exceptions.QueryCanceledError("Query timeout")
 
     service.memory_cache["user-1"] = UserMemory(
@@ -660,7 +719,7 @@ async def test_search_postgres_query_timeout(memory_service):
         profile_facts=["Test fact"],
         summary="",
         counters={},
-        updated_at=datetime.now()
+        updated_at=datetime.now(),
     )
 
     results = await service.search("test", limit=5)
@@ -679,14 +738,14 @@ async def test_search_cache_fallback(memory_service_no_db):
         profile_facts=["Loves espresso coffee"],
         summary="",
         counters={},
-        updated_at=datetime.now()
+        updated_at=datetime.now(),
     )
     service.memory_cache["user-2"] = UserMemory(
         user_id="user-2",
         profile_facts=["No match here"],
         summary="Enjoys coffee in the morning",
         counters={},
-        updated_at=datetime.now()
+        updated_at=datetime.now(),
     )
 
     results = await service.search("coffee", limit=5)
@@ -709,7 +768,7 @@ async def test_search_cache_limit(memory_service_no_db):
             profile_facts=["Loves coffee"],
             summary="",
             counters={},
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
 
     results = await service.search("coffee", limit=3)
@@ -731,16 +790,12 @@ async def test_get_stats_with_postgres(memory_service):
         "total_users": 100,
         "total_facts": 500,
         "total_conversations": 200,
-        "total_conv_count": 1500
+        "total_conv_count": 1500,
     }
 
     # Add some cache data
     service.memory_cache["user-1"] = UserMemory(
-        user_id="user-1",
-        profile_facts=[],
-        summary="",
-        counters={},
-        updated_at=datetime.now()
+        user_id="user-1", profile_facts=[], summary="", counters={}, updated_at=datetime.now()
     )
 
     stats = await service.get_stats()
@@ -775,11 +830,7 @@ async def test_get_stats_no_postgres(memory_service_no_db):
     service = memory_service_no_db
 
     service.memory_cache["user-1"] = UserMemory(
-        user_id="user-1",
-        profile_facts=[],
-        summary="",
-        counters={},
-        updated_at=datetime.now()
+        user_id="user-1", profile_facts=[], summary="", counters={}, updated_at=datetime.now()
     )
 
     stats = await service.get_stats()
@@ -788,4 +839,3 @@ async def test_get_stats_no_postgres(memory_service_no_db):
     assert stats["postgres_enabled"] is False
     assert stats["max_facts"] == service.MAX_FACTS
     assert stats["max_summary_length"] == service.MAX_SUMMARY_LENGTH
-

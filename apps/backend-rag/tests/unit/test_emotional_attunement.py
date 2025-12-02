@@ -5,7 +5,7 @@ Unit tests for Emotional Attunement Service
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -67,7 +67,11 @@ def test_analyze_message_stressed(emotional_service):
     # May detect STRESSED, URGENT, or NEUTRAL depending on confidence threshold
     assert isinstance(result, EmotionalProfile)
     assert result.confidence > 0.0
-    assert result.suggested_tone in [ToneStyle.ENCOURAGING, ToneStyle.DIRECT, ToneStyle.PROFESSIONAL]
+    assert result.suggested_tone in [
+        ToneStyle.ENCOURAGING,
+        ToneStyle.DIRECT,
+        ToneStyle.PROFESSIONAL,
+    ]
 
 
 def test_analyze_message_excited(emotional_service):
@@ -82,7 +86,9 @@ def test_analyze_message_excited(emotional_service):
 
 def test_analyze_message_confused(emotional_service):
     """Test analyze_message detects confused"""
-    result = emotional_service.analyze_message("I don't understand how this works? confused unclear not sure")
+    result = emotional_service.analyze_message(
+        "I don't understand how this works? confused unclear not sure"
+    )
 
     # May detect CONFUSED or NEUTRAL depending on confidence
     assert isinstance(result, EmotionalProfile)
@@ -92,7 +98,9 @@ def test_analyze_message_confused(emotional_service):
 
 def test_analyze_message_frustrated(emotional_service):
     """Test analyze_message detects frustrated"""
-    result = emotional_service.analyze_message("Ugh, this is still not working again frustrated annoyed")
+    result = emotional_service.analyze_message(
+        "Ugh, this is still not working again frustrated annoyed"
+    )
 
     # May detect FRUSTRATED or NEUTRAL depending on confidence
     assert isinstance(result, EmotionalProfile)
@@ -102,7 +110,9 @@ def test_analyze_message_frustrated(emotional_service):
 
 def test_analyze_message_curious(emotional_service):
     """Test analyze_message detects curious"""
-    result = emotional_service.analyze_message("I'm curious about the technical implementation wondering interested")
+    result = emotional_service.analyze_message(
+        "I'm curious about the technical implementation wondering interested"
+    )
 
     # May detect CURIOUS or NEUTRAL depending on confidence
     assert isinstance(result, EmotionalProfile)
@@ -112,7 +122,9 @@ def test_analyze_message_curious(emotional_service):
 
 def test_analyze_message_grateful(emotional_service):
     """Test analyze_message detects grateful"""
-    result = emotional_service.analyze_message("Thank you so much! This is really helpful thanks appreciate grateful")
+    result = emotional_service.analyze_message(
+        "Thank you so much! This is really helpful thanks appreciate grateful"
+    )
 
     # May detect GRATEFUL or NEUTRAL depending on confidence
     assert isinstance(result, EmotionalProfile)
@@ -122,7 +134,9 @@ def test_analyze_message_grateful(emotional_service):
 
 def test_analyze_message_urgent(emotional_service):
     """Test analyze_message detects urgent"""
-    result = emotional_service.analyze_message("I need this RIGHT NOW immediately! urgent critical asap")
+    result = emotional_service.analyze_message(
+        "I need this RIGHT NOW immediately! urgent critical asap"
+    )
 
     # May detect URGENT or NEUTRAL depending on confidence
     assert isinstance(result, EmotionalProfile)
@@ -172,7 +186,9 @@ def test_analyze_message_lonely(emotional_service):
 
 def test_analyze_message_scared(emotional_service):
     """Test analyze_message detects scared"""
-    result = emotional_service.analyze_message("I'm scared and afraid of this situation frightened terrified")
+    result = emotional_service.analyze_message(
+        "I'm scared and afraid of this situation frightened terrified"
+    )
 
     # May detect SCARED or NEUTRAL depending on confidence
     assert isinstance(result, EmotionalProfile)
@@ -182,7 +198,9 @@ def test_analyze_message_scared(emotional_service):
 
 def test_analyze_message_worried(emotional_service):
     """Test analyze_message detects worried"""
-    result = emotional_service.analyze_message("I'm worried about the requirements concerned trouble")
+    result = emotional_service.analyze_message(
+        "I'm worried about the requirements concerned trouble"
+    )
 
     # May detect WORRIED or NEUTRAL depending on confidence
     assert isinstance(result, EmotionalProfile)
@@ -372,4 +390,3 @@ def test_get_stats(emotional_service):
     assert "emotion_patterns" in result
     assert isinstance(result["states"], list)
     assert isinstance(result["tones"], list)
-

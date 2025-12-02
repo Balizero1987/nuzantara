@@ -6,10 +6,9 @@ Testing all 8 endpoints with mocking, error handling, and edge cases
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
-from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 backend_path = Path(__file__).parent.parent.parent / "backend"
@@ -84,6 +83,7 @@ def client(mock_qdrant_client, mock_embedder):
 
     try:
         from fastapi import FastAPI
+
         app = FastAPI()
         app.include_router(memory_vector_module.router)
         yield TestClient(app)
@@ -100,7 +100,9 @@ def client(mock_qdrant_client, mock_embedder):
 
 def test_init_memory_collection_success(client, mock_qdrant_client):
     """Test successful memory collection initialization"""
-    with patch("app.routers.memory_vector.initialize_memory_vector_db", return_value=mock_qdrant_client):
+    with patch(
+        "app.routers.memory_vector.initialize_memory_vector_db", return_value=mock_qdrant_client
+    ):
         request_data = {}
 
         response = client.post("/api/memory/init", json=request_data)
@@ -154,7 +156,9 @@ def test_init_memory_collection_failure(client):
 
 def test_init_memory_collection_empty_request(client, mock_qdrant_client):
     """Test initialization with no qdrant_url (uses default)"""
-    with patch("app.routers.memory_vector.initialize_memory_vector_db", return_value=mock_qdrant_client):
+    with patch(
+        "app.routers.memory_vector.initialize_memory_vector_db", return_value=mock_qdrant_client
+    ):
         request_data = {}
 
         response = client.post("/api/memory/init", json=request_data)
@@ -900,7 +904,7 @@ def test_memory_vector_health_stats_error(client):
 
 @pytest.mark.skipif(
     True,  # Skip in CI where Qdrant is not available
-    reason="Requires Qdrant service - test needs better mocking for CI"
+    reason="Requires Qdrant service - test needs better mocking for CI",
 )
 def test_memory_workflow_complete(client, mock_qdrant_client, mock_embedder):
     """Test complete workflow: init -> embed -> store -> search -> delete"""

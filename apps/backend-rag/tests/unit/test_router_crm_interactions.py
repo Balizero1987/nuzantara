@@ -22,7 +22,6 @@ from app.routers.crm_interactions import (
     list_interactions,
 )
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -70,7 +69,9 @@ def sample_interaction_data():
 
 
 @pytest.mark.asyncio
-async def test_create_interaction_success(mock_db_connection, mock_settings, sample_interaction_data):
+async def test_create_interaction_success(
+    mock_db_connection, mock_settings, sample_interaction_data
+):
     """Test successful interaction creation"""
     conn, cursor = mock_db_connection
     cursor.fetchone.return_value = sample_interaction_data
@@ -100,9 +101,7 @@ async def test_create_interaction_database_error(mock_db_connection, mock_settin
     conn, cursor = mock_db_connection
     cursor.execute.side_effect = Exception("Database error")
 
-    interaction_data = InteractionCreate(
-        interaction_type="chat", team_member="team@example.com"
-    )
+    interaction_data = InteractionCreate(interaction_type="chat", team_member="team@example.com")
 
     with patch("app.routers.crm_interactions.settings", mock_settings):
         with patch("app.routers.crm_interactions.get_db_connection", return_value=conn):
@@ -138,7 +137,9 @@ async def test_get_interactions_success(mock_db_connection, mock_settings, sampl
 
 
 @pytest.mark.asyncio
-async def test_get_interactions_with_filters(mock_db_connection, mock_settings, sample_interaction_data):
+async def test_get_interactions_with_filters(
+    mock_db_connection, mock_settings, sample_interaction_data
+):
     """Test interactions retrieval with filters"""
     conn, cursor = mock_db_connection
     cursor.fetchall.return_value = [sample_interaction_data]
@@ -356,8 +357,14 @@ async def test_get_interactions_stats_success(mock_db_connection, mock_settings)
             return super().__getitem__(key)
 
     # Mock stats data
-    by_type = [MockRow({"interaction_type": "chat", "count": 10}), MockRow({"interaction_type": "email", "count": 5})]
-    by_sentiment = [MockRow({"sentiment": "positive", "count": 8}), MockRow({"sentiment": "neutral", "count": 7})]
+    by_type = [
+        MockRow({"interaction_type": "chat", "count": 10}),
+        MockRow({"interaction_type": "email", "count": 5}),
+    ]
+    by_sentiment = [
+        MockRow({"sentiment": "positive", "count": 8}),
+        MockRow({"sentiment": "neutral", "count": 7}),
+    ]
     by_team_member = [
         MockRow({"team_member": "anton@balizero.com", "count": 12}),
         MockRow({"team_member": "amanda@balizero.com", "count": 3}),
@@ -484,9 +491,7 @@ async def test_create_interaction_from_conversation_new_client(mock_db_connectio
 
 
 @pytest.mark.asyncio
-async def test_create_interaction_from_conversation_with_summary(
-    mock_db_connection, mock_settings
-):
+async def test_create_interaction_from_conversation_with_summary(mock_db_connection, mock_settings):
     """Test creating interaction from conversation with provided summary"""
     from app.routers.crm_interactions import create_interaction_from_conversation
 
@@ -680,4 +685,3 @@ async def test_get_interaction_database_error(mock_db_connection, mock_settings)
                 await get_interaction(interaction_id=1)
 
             assert exc_info.value.status_code == 500
-

@@ -26,7 +26,7 @@ from app.routers.ingest import router
 def client():
     """Create FastAPI test client"""
     from fastapi import FastAPI
-    
+
     app = FastAPI()
     app.include_router(router)
     return TestClient(app)
@@ -36,15 +36,17 @@ def client():
 def mock_ingestion_service():
     """Mock IngestionService"""
     service = AsyncMock()
-    service.ingest_book = AsyncMock(return_value={
-        "success": True,
-        "book_title": "Test Book",
-        "book_author": "Test Author",
-        "tier": "S",
-        "chunks_created": 100,
-        "message": "Successfully ingested Test Book",
-        "error": None
-    })
+    service.ingest_book = AsyncMock(
+        return_value={
+            "success": True,
+            "book_title": "Test Book",
+            "book_author": "Test Author",
+            "tier": "S",
+            "chunks_created": 100,
+            "message": "Successfully ingested Test Book",
+            "error": None,
+        }
+    )
     return service
 
 
@@ -65,17 +67,14 @@ def mock_file():
 @pytest.mark.asyncio
 async def test_upload_and_ingest_success(client, mock_ingestion_service):
     """Test upload_and_ingest successful"""
-    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), \
-         patch("builtins.open", create=True), \
-         patch("pathlib.Path.mkdir"), \
-         patch("pathlib.Path.exists", return_value=True), \
-         patch("os.remove"):
-        
+    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), patch(
+        "builtins.open", create=True
+    ), patch("pathlib.Path.mkdir"), patch("pathlib.Path.exists", return_value=True), patch(
+        "os.remove"
+    ):
         files = {"file": ("test.pdf", b"PDF content", "application/pdf")}
         response = client.post(
-            "/api/ingest/upload",
-            files=files,
-            data={"title": "Test Book", "author": "Test Author"}
+            "/api/ingest/upload", files=files, data={"title": "Test Book", "author": "Test Author"}
         )
 
         assert response.status_code == 200
@@ -87,10 +86,7 @@ async def test_upload_and_ingest_success(client, mock_ingestion_service):
 async def test_upload_and_ingest_invalid_file_type(client):
     """Test upload_and_ingest with invalid file type"""
     files = {"file": ("test.txt", b"Text content", "text/plain")}
-    response = client.post(
-        "/api/ingest/upload",
-        files=files
-    )
+    response = client.post("/api/ingest/upload", files=files)
 
     assert response.status_code == 400
     assert "PDF and EPUB" in response.json()["detail"]
@@ -100,18 +96,14 @@ async def test_upload_and_ingest_invalid_file_type(client):
 async def test_upload_and_ingest_exception(client, mock_ingestion_service):
     """Test upload_and_ingest handles exception"""
     mock_ingestion_service.ingest_book.side_effect = Exception("Ingestion error")
-    
-    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), \
-         patch("builtins.open", create=True), \
-         patch("pathlib.Path.mkdir"), \
-         patch("pathlib.Path.exists", return_value=True), \
-         patch("os.remove"):
-        
+
+    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), patch(
+        "builtins.open", create=True
+    ), patch("pathlib.Path.mkdir"), patch("pathlib.Path.exists", return_value=True), patch(
+        "os.remove"
+    ):
         files = {"file": ("test.pdf", b"PDF content", "application/pdf")}
-        response = client.post(
-            "/api/ingest/upload",
-            files=files
-        )
+        response = client.post("/api/ingest/upload", files=files)
 
         assert response.status_code == 500
 
@@ -124,16 +116,16 @@ async def test_upload_and_ingest_exception(client, mock_ingestion_service):
 @pytest.mark.asyncio
 async def test_ingest_local_file_success(client, mock_ingestion_service):
     """Test ingest_local_file successful"""
-    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), \
-         patch("os.path.exists", return_value=True):
-
+    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), patch(
+        "os.path.exists", return_value=True
+    ):
         response = client.post(
             "/api/ingest/file",
             json={
                 "file_path": "data/books/test.pdf",
                 "title": "Test Book",
-                "author": "Test Author"
-            }
+                "author": "Test Author",
+            },
         )
 
         assert response.status_code == 200
@@ -144,15 +136,11 @@ async def test_ingest_local_file_success(client, mock_ingestion_service):
 @pytest.mark.asyncio
 async def test_ingest_local_file_not_found(client, mock_ingestion_service):
     """Test ingest_local_file with file not found"""
-    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), \
-         patch("os.path.exists", return_value=False):
-
+    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), patch(
+        "os.path.exists", return_value=False
+    ):
         response = client.post(
-            "/api/ingest/file",
-            json={
-                "file_path": "nonexistent.pdf",
-                "title": "Test"
-            }
+            "/api/ingest/file", json={"file_path": "nonexistent.pdf", "title": "Test"}
         )
 
         assert response.status_code == 404
@@ -166,27 +154,28 @@ async def test_ingest_local_file_not_found(client, mock_ingestion_service):
 @pytest.mark.asyncio
 async def test_batch_ingest_success(client, mock_ingestion_service):
     """Test batch_ingest successful"""
-    mock_ingestion_service.ingest_book = AsyncMock(return_value={
-        "success": True,
-        "book_title": "Test Book",
-        "book_author": "Test Author",
-        "tier": "S",
-        "chunks_created": 100,
-        "message": "Successfully ingested Test Book",
-        "error": None
-    })
+    mock_ingestion_service.ingest_book = AsyncMock(
+        return_value={
+            "success": True,
+            "book_title": "Test Book",
+            "book_author": "Test Author",
+            "tier": "S",
+            "chunks_created": 100,
+            "message": "Successfully ingested Test Book",
+            "error": None,
+        }
+    )
 
-    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), \
-         patch("pathlib.Path.exists", return_value=True), \
-         patch("pathlib.Path.glob", return_value=[Path("book1.pdf"), Path("book2.pdf")]):
-
+    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), patch(
+        "pathlib.Path.exists", return_value=True
+    ), patch("pathlib.Path.glob", return_value=[Path("book1.pdf"), Path("book2.pdf")]):
         response = client.post(
             "/api/ingest/batch",
             json={
                 "directory_path": "/test/books",
                 "file_patterns": ["*.pdf"],
-                "skip_existing": True
-            }
+                "skip_existing": True,
+            },
         )
 
         assert response.status_code == 200
@@ -204,10 +193,8 @@ async def test_batch_ingest_success(client, mock_ingestion_service):
 async def test_get_stats_success(client):
     """Test get_stats successful"""
     mock_qdrant = MagicMock()
-    mock_qdrant.get_collection_info = AsyncMock(return_value={
-        "points_count": 1000
-    })
-    
+    mock_qdrant.get_collection_info = AsyncMock(return_value={"points_count": 1000})
+
     with patch("app.routers.ingest.QdrantClient", return_value=mock_qdrant):
         response = client.get("/api/ingest/stats")
 

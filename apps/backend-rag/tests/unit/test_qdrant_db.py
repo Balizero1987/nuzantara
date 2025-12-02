@@ -147,7 +147,7 @@ async def test_search_with_filter(qdrant_client, mock_requests):
     mock_requests.post.return_value = mock_response
 
     result = qdrant_client.search(query_embedding, filter=filter_dict, limit=5)
-    
+
     # Verify filter was converted and included in payload
     call_args = mock_requests.post.call_args
     assert call_args is not None

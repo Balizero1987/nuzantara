@@ -3,7 +3,6 @@ Unit tests for Health Monitor Service
 100% coverage target with comprehensive mocking
 """
 
-import asyncio
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -125,7 +124,9 @@ async def test_check_health_qdrant_down(health_monitor):
     """Test health check when Qdrant is down"""
     mock_search_service = MagicMock()
     mock_search_service.client = MagicMock()
-    mock_search_service.client.list_collections = MagicMock(side_effect=Exception("Connection failed"))
+    mock_search_service.client.list_collections = MagicMock(
+        side_effect=Exception("Connection failed")
+    )
 
     with patch("app.dependencies.get_search_service", return_value=mock_search_service):
         await health_monitor._check_health()
@@ -433,4 +434,3 @@ def test_init_health_monitor(mock_alert_service):
     assert isinstance(monitor, HealthMonitor)
     assert monitor.check_interval == 60
     assert get_health_monitor() is monitor
-

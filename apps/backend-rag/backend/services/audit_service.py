@@ -5,7 +5,6 @@ Replaces Node.js audit-trail.ts
 """
 
 import logging
-from datetime import datetime
 from typing import Any, Optional
 
 import asyncpg
@@ -77,7 +76,7 @@ class AuditService:
             async with self.pool.acquire() as conn:
                 await conn.execute(
                     """
-                    INSERT INTO auth_audit_log 
+                    INSERT INTO auth_audit_log
                     (user_id, email, action, ip_address, user_agent, success, failure_reason, metadata, timestamp)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
                     """,
@@ -124,7 +123,7 @@ class AuditService:
             async with self.pool.acquire() as conn:
                 await conn.execute(
                     """
-                    INSERT INTO audit_events 
+                    INSERT INTO audit_events
                     (event_type, user_id, resource_id, action, details, ip_address, user_agent, timestamp)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
                     """,

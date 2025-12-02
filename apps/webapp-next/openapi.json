@@ -24,9 +24,7 @@
     },
     "/api/auth/login": {
       "post": {
-        "tags": [
-          "authentication"
-        ],
+        "tags": ["authentication"],
         "summary": "Login",
         "description": "User login with email and PIN\n\nReturns JWT token and user profile on successful authentication",
         "operationId": "login_api_auth_login_post",
@@ -66,9 +64,7 @@
     },
     "/api/auth/profile": {
       "get": {
-        "tags": [
-          "authentication"
-        ],
+        "tags": ["authentication"],
         "summary": "Get Profile",
         "description": "Get current user profile",
         "operationId": "get_profile_api_auth_profile_get",
@@ -93,9 +89,7 @@
     },
     "/api/auth/logout": {
       "post": {
-        "tags": [
-          "authentication"
-        ],
+        "tags": ["authentication"],
         "summary": "Logout",
         "description": "Logout user (server-side token invalidation would go here)",
         "operationId": "logout_api_auth_logout_post",
@@ -118,9 +112,7 @@
     },
     "/api/auth/check": {
       "get": {
-        "tags": [
-          "authentication"
-        ],
+        "tags": ["authentication"],
         "summary": "Check Auth",
         "description": "Check if current session is valid",
         "operationId": "check_auth_api_auth_check_get",
@@ -143,9 +135,7 @@
     },
     "/api/auth/csrf-token": {
       "get": {
-        "tags": [
-          "authentication"
-        ],
+        "tags": ["authentication"],
         "summary": "Get Csrf Token",
         "description": "Generate CSRF token and session ID for frontend security.\nReturns token in both JSON body and response headers.",
         "operationId": "get_csrf_token_api_auth_csrf_token_get",
@@ -163,9 +153,7 @@
     },
     "/health": {
       "get": {
-        "tags": [
-          "health"
-        ],
+        "tags": ["health"],
         "summary": "Health Check",
         "description": "System health check - Non-blocking during startup.\nReturns \"initializing\" immediately if service not ready.\nPrevents container crashes during warmup by not creating heavy objects.",
         "operationId": "health_check_health_get",
@@ -185,9 +173,7 @@
     },
     "/api/handlers/list": {
       "get": {
-        "tags": [
-          "handlers"
-        ],
+        "tags": ["handlers"],
         "summary": "List All Handlers",
         "description": "Returns complete registry of all available handlers\nThis is the master catalog that ZANTARA uses to see all available tools",
         "operationId": "list_all_handlers_api_handlers_list_get",
@@ -205,9 +191,7 @@
     },
     "/api/handlers/search": {
       "get": {
-        "tags": [
-          "handlers"
-        ],
+        "tags": ["handlers"],
         "summary": "Search Handlers",
         "description": "Search handlers by name, path, or description",
         "operationId": "search_handlers_api_handlers_search_get",
@@ -246,9 +230,7 @@
     },
     "/api/handlers/category/{category}": {
       "get": {
-        "tags": [
-          "handlers"
-        ],
+        "tags": ["handlers"],
         "summary": "Get Handlers By Category",
         "description": "Get all handlers in a specific category",
         "operationId": "get_handlers_by_category_api_handlers_category__category__get",
@@ -287,9 +269,7 @@
     },
     "/api/agents/status": {
       "get": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Get Agents Status",
         "description": "Get status of all 10 agentic functions\n\nReturns:\n    Overall system status and capabilities\n\nPerformance: Cached for 5 minutes (90% faster on cache hit)",
         "operationId": "get_agents_status_api_agents_status_get",
@@ -307,9 +287,7 @@
     },
     "/api/agents/journey/create": {
       "post": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Create Client Journey",
         "description": "\ud83c\udfaf AGENT 1: Client Journey Orchestrator\n\nCreate a new multi-step client journey with automatic progress tracking\n\nExample journeys:\n- pt_pma_setup: Complete PT PMA company setup (7 steps)\n- kitas_application: KITAS visa application (5 steps)\n- property_purchase: Property purchase process (6 steps)",
         "operationId": "create_client_journey_api_agents_journey_create_post",
@@ -347,9 +325,7 @@
     },
     "/api/agents/journey/{journey_id}": {
       "get": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Get Journey",
         "description": "Get journey details and progress",
         "operationId": "get_journey_api_agents_journey__journey_id__get",
@@ -388,9 +364,7 @@
     },
     "/api/agents/journey/{journey_id}/step/{step_id}/complete": {
       "post": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Complete Journey Step",
         "description": "Mark a journey step as completed",
         "operationId": "complete_journey_step_api_agents_journey__journey_id__step__step_id__complete_post",
@@ -454,9 +428,7 @@
     },
     "/api/agents/journey/{journey_id}/next-steps": {
       "get": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Get Next Steps",
         "description": "Get next available steps in the journey",
         "operationId": "get_next_steps_api_agents_journey__journey_id__next_steps_get",
@@ -495,9 +467,7 @@
     },
     "/api/agents/compliance/track": {
       "post": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Add Compliance Tracking",
         "description": "\u26a0\ufe0f AGENT 2: Proactive Compliance Monitor\n\nTrack compliance deadlines and get automatic alerts (60/30/7 days before)\n\nSupported types:\n- visa_expiry: KITAS, KITAP, passport expiry\n- tax_filing: SPT Tahunan, PPh, PPn deadlines\n- license_renewal: IMTA, NIB, business permits\n- regulatory_change: Law/regulation changes",
         "operationId": "add_compliance_tracking_api_agents_compliance_track_post",
@@ -535,9 +505,7 @@
     },
     "/api/agents/compliance/alerts": {
       "get": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Get Compliance Alerts",
         "description": "Get upcoming compliance alerts\n\nArgs:\n    client_id: Filter by client\n    severity: Filter by severity\n    auto_notify: Automatically send notifications for alerts",
         "operationId": "get_compliance_alerts_api_agents_compliance_alerts_get",
@@ -609,9 +577,7 @@
     },
     "/api/agents/compliance/client/{client_id}": {
       "get": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Get Client Compliance",
         "description": "Get all compliance items for a client",
         "operationId": "get_client_compliance_api_agents_compliance_client__client_id__get",
@@ -650,9 +616,7 @@
     },
     "/api/agents/knowledge-graph/extract": {
       "post": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Extract Knowledge Graph",
         "description": "\ud83e\udde0 AGENT 3: Knowledge Graph Builder\n\nExtract entities and relationships from text to build knowledge graph\n\nEntities: Person, Organization, Location, Document, Concept\nRelationships: WORKS_FOR, LOCATED_IN, REQUIRES, RELATED_TO, etc.",
         "operationId": "extract_knowledge_graph_api_agents_knowledge_graph_extract_post",
@@ -693,9 +657,7 @@
     },
     "/api/agents/knowledge-graph/export": {
       "get": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Export Knowledge Graph",
         "description": "Export knowledge graph in Neo4j-ready format\n\n\u26a0\ufe0f PLACEHOLDER ENDPOINT: Service not implemented\nKnowledge Graph builder exists but export functionality is not wired.\n\nFormats:\n- neo4j: Cypher queries for Neo4j\n- json: JSON format\n- graphml: GraphML format",
         "operationId": "export_knowledge_graph_api_agents_knowledge_graph_export_get",
@@ -735,9 +697,7 @@
     },
     "/api/agents/ingestion/run": {
       "post": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Run Auto Ingestion",
         "description": "\ud83e\udd16 AGENT 4: Auto Ingestion Orchestrator\n\n\u26a0\ufe0f PLACEHOLDER ENDPOINT: Service exists but not wired into main_cloud.py\nThe AutoIngestionOrchestrator service is implemented but not initialized.\n\nAutomatically monitor and ingest updates from government sources\n\nSources:\n- https://jdih.kemenkeu.go.id (Tax regulations)\n- https://peraturan.bpk.go.id (Legal documents)\n- https://jdih.kemendag.go.id (Trade regulations)\n- https://ortax.org (Tax news)",
         "operationId": "run_auto_ingestion_api_agents_ingestion_run_post",
@@ -797,9 +757,7 @@
     },
     "/api/agents/ingestion/status": {
       "get": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Get Ingestion Status",
         "description": "Get status of automatic ingestion service",
         "operationId": "get_ingestion_status_api_agents_ingestion_status_get",
@@ -817,9 +775,7 @@
     },
     "/api/agents/synthesis/cross-oracle": {
       "post": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Cross Oracle Synthesis",
         "description": "\ud83d\udd0d AGENT 5: Cross-Oracle Synthesis\n\nSearch across multiple Oracle collections and synthesize results",
         "operationId": "cross_oracle_synthesis_api_agents_synthesis_cross_oracle_post",
@@ -872,9 +828,7 @@
     },
     "/api/agents/pricing/calculate": {
       "post": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Calculate Dynamic Pricing",
         "description": "\ud83d\udcb0 AGENT 6: Dynamic Pricing Service\n\nCalculate pricing based on service type, complexity, and urgency",
         "operationId": "calculate_dynamic_pricing_api_agents_pricing_calculate_post",
@@ -933,9 +887,7 @@
     },
     "/api/agents/research/autonomous": {
       "post": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Run Autonomous Research",
         "description": "\ud83d\udd2c AGENT 7: Autonomous Research Service\n\nConduct autonomous research on a topic using multiple sources",
         "operationId": "run_autonomous_research_api_agents_research_autonomous_post",
@@ -1004,9 +956,7 @@
     },
     "/api/agents/analytics/summary": {
       "get": {
-        "tags": [
-          "agentic-functions"
-        ],
+        "tags": ["agentic-functions"],
         "summary": "Get Analytics Summary",
         "description": "Get comprehensive analytics for all agentic functions\n\nPerformance: Cached for 3 minutes (reduces database load)",
         "operationId": "get_analytics_summary_api_agents_analytics_summary_get",
@@ -1024,9 +974,7 @@
     },
     "/api/autonomous-agents/conversation-trainer/run": {
       "post": {
-        "tags": [
-          "autonomous-tier1"
-        ],
+        "tags": ["autonomous-tier1"],
         "summary": "Run Conversation Trainer",
         "description": "\ud83e\udd16 Run Conversation Quality Trainer Agent\n\nAnalyzes high-rated conversations and generates prompt improvements\n\nArgs:\n    days_back: Number of days to look back for conversations (default: 7)\n\nReturns:\n    Execution status (agent runs in background)",
         "operationId": "run_conversation_trainer_api_autonomous_agents_conversation_trainer_run_post",
@@ -1068,9 +1016,7 @@
     },
     "/api/autonomous-agents/client-value-predictor/run": {
       "post": {
-        "tags": [
-          "autonomous-tier1"
-        ],
+        "tags": ["autonomous-tier1"],
         "summary": "Run Client Value Predictor",
         "description": "\ud83d\udcb0 Run Client LTV Predictor & Nurturing Agent\n\nScores all clients and sends personalized nurturing messages to:\n- VIP clients (LTV > 80)\n- High-risk clients (LTV < 30 and inactive > 30 days)\n\nReturns:\n    Execution status (agent runs in background)",
         "operationId": "run_client_value_predictor_api_autonomous_agents_client_value_predictor_run_post",
@@ -1090,9 +1036,7 @@
     },
     "/api/autonomous-agents/knowledge-graph-builder/run": {
       "post": {
-        "tags": [
-          "autonomous-tier1"
-        ],
+        "tags": ["autonomous-tier1"],
         "summary": "Run Knowledge Graph Builder",
         "description": "\ud83d\udd78\ufe0f Run Knowledge Graph Builder Agent\n\nExtracts entities and relationships from conversations and builds knowledge graph\n\nArgs:\n    days_back: Number of days to look back for conversations (default: 30)\n    init_schema: Initialize database schema (default: False)\n\nReturns:\n    Execution status (agent runs in background)",
         "operationId": "run_knowledge_graph_builder_api_autonomous_agents_knowledge_graph_builder_run_post",
@@ -1144,9 +1088,7 @@
     },
     "/api/autonomous-agents/status": {
       "get": {
-        "tags": [
-          "autonomous-tier1"
-        ],
+        "tags": ["autonomous-tier1"],
         "summary": "Get Autonomous Agents Status",
         "description": "Get status of all Tier 1 autonomous agents\n\nReturns:\n    Agent capabilities and recent executions",
         "operationId": "get_autonomous_agents_status_api_autonomous_agents_status_get",
@@ -1164,9 +1106,7 @@
     },
     "/api/autonomous-agents/executions/{execution_id}": {
       "get": {
-        "tags": [
-          "autonomous-tier1"
-        ],
+        "tags": ["autonomous-tier1"],
         "summary": "Get Execution Status",
         "description": "Get status of a specific agent execution\n\nArgs:\n    execution_id: Execution ID returned by agent run endpoint\n\nReturns:\n    Execution details and result",
         "operationId": "get_execution_status_api_autonomous_agents_executions__execution_id__get",
@@ -1207,9 +1147,7 @@
     },
     "/api/autonomous-agents/executions": {
       "get": {
-        "tags": [
-          "autonomous-tier1"
-        ],
+        "tags": ["autonomous-tier1"],
         "summary": "List Executions",
         "description": "List recent agent executions\n\nArgs:\n    limit: Maximum number of executions to return (default: 20)\n\nReturns:\n    List of recent executions",
         "operationId": "list_executions_api_autonomous_agents_executions_get",
@@ -1249,9 +1187,7 @@
     },
     "/api/bali-zero/conversations/save": {
       "post": {
-        "tags": [
-          "conversations"
-        ],
+        "tags": ["conversations"],
         "summary": "Save Conversation",
         "description": "Save conversation messages to PostgreSQL\n+ Auto-populate CRM with client/practice data\n\nBody:\n{\n    \"user_email\": \"user@example.com\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"...\"}, ...],\n    \"session_id\": \"optional-session-id\",\n    \"metadata\": {\"key\": \"value\"}\n}\n\nReturns:\n{\n    \"success\": true,\n    \"conversation_id\": 123,\n    \"messages_saved\": 10,\n    \"crm\": {\n        \"processed\": true,\n        \"client_id\": 42,\n        \"client_created\": false,\n        \"client_updated\": true,\n        \"practice_id\": 15,\n        \"practice_created\": true,\n        \"interaction_id\": 88\n    }\n}",
         "operationId": "save_conversation_api_bali_zero_conversations_save_post",
@@ -1289,9 +1225,7 @@
     },
     "/api/bali-zero/conversations/history": {
       "get": {
-        "tags": [
-          "conversations"
-        ],
+        "tags": ["conversations"],
         "summary": "Get Conversation History",
         "description": "Get conversation history for a user\n\nQuery params:\n- user_email: User's email address\n- limit: Max number of messages to return (default: 20)\n- session_id: Optional session filter",
         "operationId": "get_conversation_history_api_bali_zero_conversations_history_get",
@@ -1358,9 +1292,7 @@
     },
     "/api/bali-zero/conversations/clear": {
       "delete": {
-        "tags": [
-          "conversations"
-        ],
+        "tags": ["conversations"],
         "summary": "Clear Conversation History",
         "description": "Clear conversation history for a user\n\nQuery params:\n- user_email: User's email address\n- session_id: Optional session filter (if omitted, clears ALL conversations for user)",
         "operationId": "clear_conversation_history_api_bali_zero_conversations_clear_delete",
@@ -1415,9 +1347,7 @@
     },
     "/api/bali-zero/conversations/stats": {
       "get": {
-        "tags": [
-          "conversations"
-        ],
+        "tags": ["conversations"],
         "summary": "Get Conversation Stats",
         "description": "Get conversation statistics for a user\n\nQuery params:\n- user_email: User's email address",
         "operationId": "get_conversation_stats_api_bali_zero_conversations_stats_get",
@@ -1456,9 +1386,7 @@
     },
     "/api/crm/clients/": {
       "post": {
-        "tags": [
-          "crm-clients"
-        ],
+        "tags": ["crm-clients"],
         "summary": "Create Client",
         "description": "Create a new client\n\n- **full_name**: Client's full name (required)\n- **email**: Email address (optional but recommended)\n- **phone**: Phone number\n- **whatsapp**: WhatsApp number (can be same as phone)\n- **nationality**: Client's nationality\n- **passport_number**: Passport number\n- **assigned_to**: Team member email to assign client to\n- **tags**: Array of tags (e.g., ['vip', 'urgent'])",
         "operationId": "create_client_api_crm_clients__post",
@@ -1509,9 +1437,7 @@
         }
       },
       "get": {
-        "tags": [
-          "crm-clients"
-        ],
+        "tags": ["crm-clients"],
         "summary": "List Clients",
         "description": "List all clients with optional filtering\n\n- **status**: Filter by client status\n- **assigned_to**: Filter by assigned team member\n- **search**: Search in name, email, phone fields\n- **limit**: Max results (default: 50, max: 200)\n- **offset**: For pagination",
         "operationId": "list_clients_api_crm_clients__get",
@@ -1626,9 +1552,7 @@
     },
     "/api/crm/clients/{client_id}": {
       "get": {
-        "tags": [
-          "crm-clients"
-        ],
+        "tags": ["crm-clients"],
         "summary": "Get Client",
         "description": "Get client by ID",
         "operationId": "get_client_api_crm_clients__client_id__get",
@@ -1667,9 +1591,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "crm-clients"
-        ],
+        "tags": ["crm-clients"],
         "summary": "Update Client",
         "description": "Update client information\n\nOnly provided fields will be updated. Other fields remain unchanged.",
         "operationId": "update_client_api_crm_clients__client_id__patch",
@@ -1729,9 +1651,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "crm-clients"
-        ],
+        "tags": ["crm-clients"],
         "summary": "Delete Client",
         "description": "Delete a client (soft delete - marks as inactive)\n\nThis doesn't permanently delete the client, just marks them as inactive.\nUse with caution as this will also affect related practices and interactions.",
         "operationId": "delete_client_api_crm_clients__client_id__delete",
@@ -1781,9 +1701,7 @@
     },
     "/api/crm/clients/by-email/{email}": {
       "get": {
-        "tags": [
-          "crm-clients"
-        ],
+        "tags": ["crm-clients"],
         "summary": "Get Client By Email",
         "description": "Get client by email address",
         "operationId": "get_client_by_email_api_crm_clients_by_email__email__get",
@@ -1822,9 +1740,7 @@
     },
     "/api/crm/clients/{client_id}/summary": {
       "get": {
-        "tags": [
-          "crm-clients"
-        ],
+        "tags": ["crm-clients"],
         "summary": "Get Client Summary",
         "description": "Get comprehensive client summary including:\n- Basic client info\n- All practices (active + completed)\n- Recent interactions\n- Documents\n- Upcoming renewals",
         "operationId": "get_client_summary_api_crm_clients__client_id__summary_get",
@@ -1863,9 +1779,7 @@
     },
     "/api/crm/clients/stats/overview": {
       "get": {
-        "tags": [
-          "crm-clients"
-        ],
+        "tags": ["crm-clients"],
         "summary": "Get Clients Stats",
         "description": "Get overall client statistics\n\nReturns counts by status, top assigned team members, etc.",
         "operationId": "get_clients_stats_api_crm_clients_stats_overview_get",
@@ -1883,9 +1797,7 @@
     },
     "/api/crm/interactions/": {
       "post": {
-        "tags": [
-          "crm-interactions"
-        ],
+        "tags": ["crm-interactions"],
         "summary": "Create Interaction",
         "description": "Log a new interaction\n\n**Types:**\n- chat: Web chat conversation\n- email: Email exchange\n- whatsapp: WhatsApp message\n- call: Phone call\n- meeting: In-person or video meeting\n- note: Internal note/comment\n\n**Channels:**\n- web_chat: ZANTARA chat widget\n- gmail: Gmail integration\n- whatsapp: WhatsApp Business\n- phone: Phone call\n- in_person: Face-to-face meeting",
         "operationId": "create_interaction_api_crm_interactions__post",
@@ -1923,9 +1835,7 @@
         }
       },
       "get": {
-        "tags": [
-          "crm-interactions"
-        ],
+        "tags": ["crm-interactions"],
         "summary": "List Interactions",
         "description": "List interactions with optional filtering",
         "operationId": "list_interactions_api_crm_interactions__get",
@@ -2072,9 +1982,7 @@
     },
     "/api/crm/interactions/{interaction_id}": {
       "get": {
-        "tags": [
-          "crm-interactions"
-        ],
+        "tags": ["crm-interactions"],
         "summary": "Get Interaction",
         "description": "Get full interaction details by ID",
         "operationId": "get_interaction_api_crm_interactions__interaction_id__get",
@@ -2113,9 +2021,7 @@
     },
     "/api/crm/interactions/client/{client_id}/timeline": {
       "get": {
-        "tags": [
-          "crm-interactions"
-        ],
+        "tags": ["crm-interactions"],
         "summary": "Get Client Timeline",
         "description": "Get complete interaction timeline for a client\n\nReturns all interactions sorted by date (newest first)",
         "operationId": "get_client_timeline_api_crm_interactions_client__client_id__timeline_get",
@@ -2165,9 +2071,7 @@
     },
     "/api/crm/interactions/practice/{practice_id}/history": {
       "get": {
-        "tags": [
-          "crm-interactions"
-        ],
+        "tags": ["crm-interactions"],
         "summary": "Get Practice History",
         "description": "Get all interactions related to a specific practice\n\nUseful for tracking communication history for a KITAS, PT PMA, etc.",
         "operationId": "get_practice_history_api_crm_interactions_practice__practice_id__history_get",
@@ -2206,9 +2110,7 @@
     },
     "/api/crm/interactions/stats/overview": {
       "get": {
-        "tags": [
-          "crm-interactions"
-        ],
+        "tags": ["crm-interactions"],
         "summary": "Get Interactions Stats",
         "description": "Get interaction statistics\n\n- Total interactions\n- By type (chat, email, call, etc.)\n- By sentiment\n- By team member",
         "operationId": "get_interactions_stats_api_crm_interactions_stats_overview_get",
@@ -2256,9 +2158,7 @@
     },
     "/api/crm/interactions/from-conversation": {
       "post": {
-        "tags": [
-          "crm-interactions"
-        ],
+        "tags": ["crm-interactions"],
         "summary": "Create Interaction From Conversation",
         "description": "Auto-create interaction record from a chat conversation\n\nThis is called automatically when a chat session ends or at intervals",
         "operationId": "create_interaction_from_conversation_api_crm_interactions_from_conversation_post",
@@ -2333,9 +2233,7 @@
     },
     "/api/crm/interactions/sync-gmail": {
       "post": {
-        "tags": [
-          "crm-interactions"
-        ],
+        "tags": ["crm-interactions"],
         "summary": "Sync Gmail Interactions",
         "description": "Manually trigger Gmail sync to Auto-CRM",
         "operationId": "sync_gmail_interactions_api_crm_interactions_sync_gmail_post",
@@ -2389,9 +2287,7 @@
     },
     "/api/crm/practices/": {
       "post": {
-        "tags": [
-          "crm-practices"
-        ],
+        "tags": ["crm-practices"],
         "summary": "Create Practice",
         "description": "Create a new practice for a client\n\n- **client_id**: ID of the client\n- **practice_type_code**: Practice type code (retrieved from database)\n- **status**: Initial status (default: 'inquiry')\n- **quoted_price**: Price quoted to client\n- **assigned_to**: Team member email to handle this",
         "operationId": "create_practice_api_crm_practices__post",
@@ -2442,9 +2338,7 @@
         }
       },
       "get": {
-        "tags": [
-          "crm-practices"
-        ],
+        "tags": ["crm-practices"],
         "summary": "List Practices",
         "description": "List practices with optional filtering\n\nReturns practices with client and practice type information joined",
         "operationId": "list_practices_api_crm_practices__get",
@@ -2591,9 +2485,7 @@
     },
     "/api/crm/practices/active": {
       "get": {
-        "tags": [
-          "crm-practices"
-        ],
+        "tags": ["crm-practices"],
         "summary": "Get Active Practices",
         "description": "Get all active practices (in progress, not completed/cancelled)\n\nOptionally filter by assigned team member",
         "operationId": "get_active_practices_api_crm_practices_active_get",
@@ -2639,9 +2531,7 @@
     },
     "/api/crm/practices/renewals/upcoming": {
       "get": {
-        "tags": [
-          "crm-practices"
-        ],
+        "tags": ["crm-practices"],
         "summary": "Get Upcoming Renewals",
         "description": "Get practices with upcoming renewal dates\n\nDefault: next 90 days",
         "operationId": "get_upcoming_renewals_api_crm_practices_renewals_upcoming_get",
@@ -2683,9 +2573,7 @@
     },
     "/api/crm/practices/{practice_id}": {
       "get": {
-        "tags": [
-          "crm-practices"
-        ],
+        "tags": ["crm-practices"],
         "summary": "Get Practice",
         "description": "Get practice details by ID with full client and type info",
         "operationId": "get_practice_api_crm_practices__practice_id__get",
@@ -2722,9 +2610,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "crm-practices"
-        ],
+        "tags": ["crm-practices"],
         "summary": "Update Practice",
         "description": "Update practice information\n\nCommon status values:\n- inquiry\n- quotation_sent\n- payment_pending\n- in_progress\n- waiting_documents\n- submitted_to_gov\n- approved\n- completed\n- cancelled",
         "operationId": "update_practice_api_crm_practices__practice_id__patch",
@@ -2784,9 +2670,7 @@
     },
     "/api/crm/practices/{practice_id}/documents/add": {
       "post": {
-        "tags": [
-          "crm-practices"
-        ],
+        "tags": ["crm-practices"],
         "summary": "Add Document To Practice",
         "description": "Add a document to a practice\n\n- **document_name**: Name/type of document (e.g., \"Passport Copy\")\n- **drive_file_id**: Google Drive file ID\n- **uploaded_by**: Email of person uploading",
         "operationId": "add_document_to_practice_api_crm_practices__practice_id__documents_add_post",
@@ -2852,9 +2736,7 @@
     },
     "/api/crm/practices/stats/overview": {
       "get": {
-        "tags": [
-          "crm-practices"
-        ],
+        "tags": ["crm-practices"],
         "summary": "Get Practices Stats",
         "description": "Get overall practice statistics\n\n- Counts by status\n- Counts by practice type\n- Revenue metrics",
         "operationId": "get_practices_stats_api_crm_practices_stats_overview_get",
@@ -2872,9 +2754,7 @@
     },
     "/api/crm/shared-memory/search": {
       "get": {
-        "tags": [
-          "crm-shared-memory"
-        ],
+        "tags": ["crm-shared-memory"],
         "summary": "Search Shared Memory",
         "description": "Natural language search across CRM data\n\nExamples:\n- \"clients with KITAS expiring soon\"\n- \"active practices for John Smith\"\n- \"recent interactions with antonello@balizero.com\"\n- \"urgent practices\"\n- \"PT PMA practices in progress\"\n\nReturns relevant results from clients, practices, and interactions",
         "operationId": "search_shared_memory_api_crm_shared_memory_search_get",
@@ -2926,9 +2806,7 @@
     },
     "/api/crm/shared-memory/upcoming-renewals": {
       "get": {
-        "tags": [
-          "crm-shared-memory"
-        ],
+        "tags": ["crm-shared-memory"],
         "summary": "Get Upcoming Renewals",
         "description": "Get all practices with upcoming renewal dates\n\nDefault: next 90 days",
         "operationId": "get_upcoming_renewals_api_crm_shared_memory_upcoming_renewals_get",
@@ -2970,9 +2848,7 @@
     },
     "/api/crm/shared-memory/client/{client_id}/full-context": {
       "get": {
-        "tags": [
-          "crm-shared-memory"
-        ],
+        "tags": ["crm-shared-memory"],
         "summary": "Get Client Full Context",
         "description": "Get complete context for a client\nEverything the AI needs to know about this client\n\nReturns:\n- Client info\n- All practices (active + completed)\n- Recent interactions (last 20)\n- Upcoming renewals\n- Action items",
         "operationId": "get_client_full_context_api_crm_shared_memory_client__client_id__full_context_get",
@@ -3011,9 +2887,7 @@
     },
     "/api/crm/shared-memory/team-overview": {
       "get": {
-        "tags": [
-          "crm-shared-memory"
-        ],
+        "tags": ["crm-shared-memory"],
         "summary": "Get Team Overview",
         "description": "Get team-wide CRM overview\n\nPerfect for dashboard or team queries like:\n- \"How many active practices do we have?\"\n- \"What's our workload distribution?\"\n- \"Recent activity summary\"",
         "operationId": "get_team_overview_api_crm_shared_memory_team_overview_get",
@@ -3031,9 +2905,7 @@
     },
     "/api/ingest/upload": {
       "post": {
-        "tags": [
-          "ingestion"
-        ],
+        "tags": ["ingestion"],
         "summary": "Upload And Ingest",
         "description": "Upload and ingest a single book.\n\n- **file**: PDF or EPUB file\n- **title**: Optional book title (auto-detected if not provided)\n- **author**: Optional author name\n- **tier_override**: Optional manual tier (S/A/B/C/D)",
         "operationId": "upload_and_ingest_api_ingest_upload_post",
@@ -3123,9 +2995,7 @@
     },
     "/api/ingest/file": {
       "post": {
-        "tags": [
-          "ingestion"
-        ],
+        "tags": ["ingestion"],
         "summary": "Ingest Local File",
         "description": "Ingest a book from local file path.\n\n- **file_path**: Path to PDF or EPUB file\n- **title**: Optional book title\n- **author**: Optional author name\n- **tier_override**: Optional manual tier classification",
         "operationId": "ingest_local_file_api_ingest_file_post",
@@ -3165,9 +3035,7 @@
     },
     "/api/ingest/batch": {
       "post": {
-        "tags": [
-          "ingestion"
-        ],
+        "tags": ["ingestion"],
         "summary": "Batch Ingest",
         "description": "Process all books in a directory.\n\n- **directory_path**: Path to directory containing books\n- **file_patterns**: File patterns to match (default: [\"*.pdf\", \"*.epub\"])\n- **skip_existing**: Skip books already in database",
         "operationId": "batch_ingest_api_ingest_batch_post",
@@ -3207,9 +3075,7 @@
     },
     "/api/ingest/stats": {
       "get": {
-        "tags": [
-          "ingestion"
-        ],
+        "tags": ["ingestion"],
         "summary": "Get Ingestion Stats",
         "description": "Get current database statistics.\n\nReturns total documents, tier distribution, and collection info.",
         "operationId": "get_ingestion_stats_api_ingest_stats_get",
@@ -3449,9 +3315,7 @@
     },
     "/api/memory/init": {
       "post": {
-        "tags": [
-          "memory"
-        ],
+        "tags": ["memory"],
         "summary": "Init Memory Collection",
         "description": "Reinitialize the semantic memory collection after deployments or resets.",
         "operationId": "init_memory_collection_api_memory_init_post",
@@ -3491,9 +3355,7 @@
     },
     "/api/memory/embed": {
       "post": {
-        "tags": [
-          "memory"
-        ],
+        "tags": ["memory"],
         "summary": "Generate Embedding",
         "description": "Generate embedding for text.\nUses sentence-transformers (FREE, local) by default.",
         "operationId": "generate_embedding_api_memory_embed_post",
@@ -3533,9 +3395,7 @@
     },
     "/api/memory/store": {
       "post": {
-        "tags": [
-          "memory"
-        ],
+        "tags": ["memory"],
         "summary": "Store Memory Vector",
         "description": "Store memory in Qdrant for semantic search.\n\nMetadata should include:\n- userId: User ID\n- type: Memory type (profile, expertise, event, etc)\n- timestamp: ISO timestamp\n- entities: Comma-separated entities",
         "operationId": "store_memory_vector_api_memory_store_post",
@@ -3573,9 +3433,7 @@
     },
     "/api/memory/search": {
       "post": {
-        "tags": [
-          "memory"
-        ],
+        "tags": ["memory"],
         "summary": "Search Memories Semantic",
         "description": "Semantic search across all memories using vector similarity.\n\nSupports metadata filtering:\n- userId: Filter by specific user\n- entities: Filter by entity (use {\"entities\": {\"$contains\": \"zero\"}})",
         "operationId": "search_memories_semantic_api_memory_search_post",
@@ -3615,9 +3473,7 @@
     },
     "/api/memory/similar": {
       "post": {
-        "tags": [
-          "memory"
-        ],
+        "tags": ["memory"],
         "summary": "Find Similar Memories",
         "description": "Find memories similar to a given memory.\nUses the stored memory's embedding to find neighbors.",
         "operationId": "find_similar_memories_api_memory_similar_post",
@@ -3657,9 +3513,7 @@
     },
     "/api/memory/{memory_id}": {
       "delete": {
-        "tags": [
-          "memory"
-        ],
+        "tags": ["memory"],
         "summary": "Delete Memory Vector",
         "description": "Delete memory from vector store",
         "operationId": "delete_memory_vector_api_memory__memory_id__delete",
@@ -3698,9 +3552,7 @@
     },
     "/api/memory/stats": {
       "get": {
-        "tags": [
-          "memory"
-        ],
+        "tags": ["memory"],
         "summary": "Get Memory Stats",
         "description": "Get memory collection statistics",
         "operationId": "get_memory_stats_api_memory_stats_get",
@@ -3718,9 +3570,7 @@
     },
     "/api/memory/health": {
       "get": {
-        "tags": [
-          "memory"
-        ],
+        "tags": ["memory"],
         "summary": "Memory Vector Health",
         "description": "Health check for memory vector service",
         "operationId": "memory_vector_health_api_memory_health_get",
@@ -3738,9 +3588,7 @@
     },
     "/api/notifications/status": {
       "get": {
-        "tags": [
-          "notifications"
-        ],
+        "tags": ["notifications"],
         "summary": "Get Notification Status",
         "description": "Get notification hub status and available channels",
         "operationId": "get_notification_status_api_notifications_status_get",
@@ -3758,9 +3606,7 @@
     },
     "/api/notifications/templates": {
       "get": {
-        "tags": [
-          "notifications"
-        ],
+        "tags": ["notifications"],
         "summary": "List Notification Templates",
         "description": "List all available notification templates",
         "operationId": "list_notification_templates_api_notifications_templates_get",
@@ -3778,9 +3624,7 @@
     },
     "/api/notifications/send": {
       "post": {
-        "tags": [
-          "notifications"
-        ],
+        "tags": ["notifications"],
         "summary": "Send Notification",
         "description": "Send a custom notification\n\nAuto-selects channels based on priority:\n- low: In-app only\n- normal: Email + In-app\n- high: Email + WhatsApp + In-app\n- urgent: Email + WhatsApp + SMS + In-app\n- critical: All channels",
         "operationId": "send_notification_api_notifications_send_post",
@@ -3818,9 +3662,7 @@
     },
     "/api/notifications/send-template": {
       "post": {
-        "tags": [
-          "notifications"
-        ],
+        "tags": ["notifications"],
         "summary": "Send Template Notification",
         "description": "Send notification using a predefined template\n\nAvailable templates:\n- compliance_60_days: 60-day compliance reminder\n- compliance_30_days: 30-day compliance alert\n- compliance_7_days: 7-day urgent compliance alert\n- journey_step_completed: Journey step completion\n- journey_completed: Journey completion celebration\n- document_request: Document request\n- payment_reminder: Payment reminder",
         "operationId": "send_template_notification_api_notifications_send_template_post",
@@ -3858,9 +3700,7 @@
     },
     "/api/notifications/test": {
       "post": {
-        "tags": [
-          "notifications"
-        ],
+        "tags": ["notifications"],
         "summary": "Test Notification Channels",
         "description": "Test notification channels with a test message\n\nUseful for verifying configuration",
         "operationId": "test_notification_channels_api_notifications_test_post",
@@ -3938,9 +3778,7 @@
     },
     "/api/oracle/ingest": {
       "post": {
-        "tags": [
-          "Oracle INGEST"
-        ],
+        "tags": ["Oracle INGEST"],
         "summary": "Ingest Documents",
         "description": "Bulk ingest documents into Qdrant collection\n\n**Usage:**\n```python\nimport requests\n\nchunks = [\n    {\n        \"content\": \"### PP-28-2025 - Pasal 1\\n\\nContent here...\",\n        \"metadata\": {\n            \"law_id\": \"PP-28-2025\",\n            \"pasal\": \"1\",\n            \"category\": \"business_licensing\",\n            \"type\": \"legal_regulation\"\n        }\n    }\n]\n\nresponse = requests.post(\n    \"https://nuzantara-rag.fly.dev/api/oracle/ingest\",\n    json={\"collection\": \"legal_intelligence\", \"documents\": chunks}\n)\n```\n\n**Rate Limits:**\n- Max 1000 documents per request\n- Batch processing for large uploads",
         "operationId": "ingest_documents_api_oracle_ingest_post",
@@ -3980,9 +3818,7 @@
     },
     "/api/oracle/collections": {
       "get": {
-        "tags": [
-          "Oracle INGEST"
-        ],
+        "tags": ["Oracle INGEST"],
         "summary": "List Collections",
         "description": "List all available collections\n\n**Returns:**\n- List of collection names\n- Document counts for each collection",
         "operationId": "list_collections_api_oracle_collections_get",
@@ -4000,9 +3836,7 @@
     },
     "/api/oracle/query": {
       "post": {
-        "tags": [
-          "Oracle v5.3 - Ultra Hybrid"
-        ],
+        "tags": ["Oracle v5.3 - Ultra Hybrid"],
         "summary": "Hybrid Oracle Query",
         "description": "Ultra Hybrid Oracle Query - v5.3\n\nIntegrates Qdrant search, Google Drive, and Gemini reasoning\nwith full user localization and context awareness",
         "operationId": "hybrid_oracle_query_api_oracle_query_post",
@@ -4042,9 +3876,7 @@
     },
     "/api/oracle/feedback": {
       "post": {
-        "tags": [
-          "Oracle v5.3 - Ultra Hybrid"
-        ],
+        "tags": ["Oracle v5.3 - Ultra Hybrid"],
         "summary": "Submit User Feedback",
         "description": "Submit user feedback for continuous learning and system improvement\nStores feedback for training data and model refinement",
         "operationId": "submit_user_feedback_api_oracle_feedback_post",
@@ -4082,9 +3914,7 @@
     },
     "/api/oracle/health": {
       "get": {
-        "tags": [
-          "Oracle v5.3 - Ultra Hybrid"
-        ],
+        "tags": ["Oracle v5.3 - Ultra Hybrid"],
         "summary": "Oracle Health Check",
         "description": "Health check for Oracle v5.3 services\nVerifies all integrated components are operational",
         "operationId": "oracle_health_check_api_oracle_health_get",
@@ -4102,9 +3932,7 @@
     },
     "/api/oracle/user/profile/{user_email}": {
       "get": {
-        "tags": [
-          "Oracle v5.3 - Ultra Hybrid"
-        ],
+        "tags": ["Oracle v5.3 - Ultra Hybrid"],
         "summary": "Get User Profile Endpoint",
         "description": "Get user profile with localization preferences\nIntegrates with PostgreSQL user management system",
         "operationId": "get_user_profile_endpoint_api_oracle_user_profile__user_email__get",
@@ -4143,9 +3971,7 @@
     },
     "/api/oracle/drive/test": {
       "get": {
-        "tags": [
-          "Oracle v5.3 - Ultra Hybrid"
-        ],
+        "tags": ["Oracle v5.3 - Ultra Hybrid"],
         "summary": "Test Drive Connection",
         "description": "Test Google Drive integration",
         "operationId": "test_drive_connection_api_oracle_drive_test_get",
@@ -4163,9 +3989,7 @@
     },
     "/api/oracle/personalities": {
       "get": {
-        "tags": [
-          "Oracle v5.3 - Ultra Hybrid"
-        ],
+        "tags": ["Oracle v5.3 - Ultra Hybrid"],
         "summary": "Get Personalities",
         "description": "Get available AI personalities",
         "operationId": "get_personalities_api_oracle_personalities_get",
@@ -4183,9 +4007,7 @@
     },
     "/api/oracle/personality/test": {
       "post": {
-        "tags": [
-          "Oracle v5.3 - Ultra Hybrid"
-        ],
+        "tags": ["Oracle v5.3 - Ultra Hybrid"],
         "summary": "Test Personality",
         "description": "Test a specific personality",
         "operationId": "test_personality_api_oracle_personality_test_post",
@@ -4233,9 +4055,7 @@
     },
     "/api/oracle/gemini/test": {
       "get": {
-        "tags": [
-          "Oracle v5.3 - Ultra Hybrid"
-        ],
+        "tags": ["Oracle v5.3 - Ultra Hybrid"],
         "summary": "Test Gemini Integration",
         "description": "Test Google Gemini integration",
         "operationId": "test_gemini_integration_api_oracle_gemini_test_get",
@@ -4253,9 +4073,7 @@
     },
     "/api/productivity/gmail/draft": {
       "post": {
-        "tags": [
-          "productivity"
-        ],
+        "tags": ["productivity"],
         "summary": "Draft Email",
         "description": "Draft an email in Gmail",
         "operationId": "draft_email_api_productivity_gmail_draft_post",
@@ -4293,9 +4111,7 @@
     },
     "/api/productivity/calendar/schedule": {
       "post": {
-        "tags": [
-          "productivity"
-        ],
+        "tags": ["productivity"],
         "summary": "Schedule Meeting",
         "description": "Schedule a meeting in Google Calendar",
         "operationId": "schedule_meeting_api_productivity_calendar_schedule_post",
@@ -4333,9 +4149,7 @@
     },
     "/api/productivity/calendar/events": {
       "get": {
-        "tags": [
-          "productivity"
-        ],
+        "tags": ["productivity"],
         "summary": "List Events",
         "description": "List upcoming calendar events",
         "operationId": "list_events_api_productivity_calendar_events_get",
@@ -4375,9 +4189,7 @@
     },
     "/api/productivity/drive/search": {
       "get": {
-        "tags": [
-          "productivity"
-        ],
+        "tags": ["productivity"],
         "summary": "Search Drive",
         "description": "Search Google Drive files",
         "operationId": "search_drive_api_productivity_drive_search_get",
@@ -4414,11 +4226,155 @@
         }
       }
     },
+    "/webhook/whatsapp": {
+      "get": {
+        "tags": ["whatsapp"],
+        "summary": "Verify Webhook",
+        "description": "Meta Webhook Verification Endpoint",
+        "operationId": "verify_webhook_webhook_whatsapp_get",
+        "parameters": [
+          {
+            "name": "hub.mode",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Hub.Mode"
+            }
+          },
+          {
+            "name": "hub.verify_token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Hub.Verify Token"
+            }
+          },
+          {
+            "name": "hub.challenge",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Hub.Challenge"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["whatsapp"],
+        "summary": "Handle Webhook",
+        "description": "Handle incoming WhatsApp messages",
+        "operationId": "handle_webhook_webhook_whatsapp_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhook/instagram": {
+      "get": {
+        "tags": ["instagram"],
+        "summary": "Verify Webhook",
+        "description": "Meta Webhook Verification Endpoint",
+        "operationId": "verify_webhook_webhook_instagram_get",
+        "parameters": [
+          {
+            "name": "hub.mode",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Hub.Mode"
+            }
+          },
+          {
+            "name": "hub.verify_token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Hub.Verify Token"
+            }
+          },
+          {
+            "name": "hub.challenge",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Hub.Challenge"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["instagram"],
+        "summary": "Handle Webhook",
+        "description": "Handle incoming Instagram messages",
+        "operationId": "handle_webhook_webhook_instagram_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/team/seed-team": {
       "post": {
-        "tags": [
-          "identity"
-        ],
+        "tags": ["identity"],
         "summary": "Seed Team Endpoint",
         "description": "TEMPORARY: Seed team members database\nTODO: Remove this endpoint after seeding",
         "operationId": "seed_team_endpoint_api_auth_team_seed_team_post",
@@ -4439,9 +4395,7 @@
     },
     "/api/auth/team/run-migration-010": {
       "post": {
-        "tags": [
-          "identity"
-        ],
+        "tags": ["identity"],
         "summary": "Run Migration 010",
         "description": "TEMPORARY: Execute migration 010 to fix team_members schema\nTODO: Remove this endpoint after migration is applied",
         "operationId": "run_migration_010_api_auth_team_run_migration_010_post",
@@ -4462,9 +4416,7 @@
     },
     "/api/auth/team/debug-auth": {
       "get": {
-        "tags": [
-          "identity"
-        ],
+        "tags": ["identity"],
         "summary": "Debug Auth",
         "description": "TEMPORARY: Debug authentication - analizza l'hash nel database\nTODO: Remove this endpoint after debugging",
         "operationId": "debug_auth_api_auth_team_debug_auth_get",
@@ -4485,9 +4437,7 @@
     },
     "/api/auth/team/reset-admin": {
       "post": {
-        "tags": [
-          "identity"
-        ],
+        "tags": ["identity"],
         "summary": "Reset Admin User",
         "description": "TEMPORARY: Reset admin user (zero@balizero.com) with PIN 010719\nTODO: Remove this endpoint after admin is set up",
         "operationId": "reset_admin_user_api_auth_team_reset_admin_post",
@@ -4508,9 +4458,7 @@
     },
     "/api/auth/team/login": {
       "post": {
-        "tags": [
-          "identity"
-        ],
+        "tags": ["identity"],
         "summary": "Team Login",
         "description": "Team member login endpoint\n\nReplicates the exact behavior of Node.js /api/auth/team/login endpoint.\n\n- Validates email and PIN format\n- Authenticates user against database\n- Generates JWT token (7 days expiry)\n- Returns user data and permissions\n\nReturns:\n    LoginResponse with JWT token and user data",
         "operationId": "team_login_api_auth_team_login_post",
@@ -4550,9 +4498,7 @@
     },
     "/api/search/": {
       "post": {
-        "tags": [
-          "knowledge"
-        ],
+        "tags": ["knowledge"],
         "summary": "Semantic Search",
         "description": "Semantic search with tier-based access control.\n\n- **query**: Search query text\n- **level**: User access level (0-3)\n- **limit**: Maximum results (1-50, default 5)\n- **tier_filter**: Optional specific tier filter\n\nReturns relevant book chunks filtered by user's access level.",
         "operationId": "semantic_search_api_search__post",
@@ -4592,9 +4538,7 @@
     },
     "/api/search/health": {
       "get": {
-        "tags": [
-          "knowledge"
-        ],
+        "tags": ["knowledge"],
         "summary": "Search Health",
         "description": "Quick health check for search service",
         "operationId": "search_health_api_search_health_get",
@@ -4615,9 +4559,7 @@
     },
     "/api/team/clock-in": {
       "post": {
-        "tags": [
-          "team-activity"
-        ],
+        "tags": ["team-activity"],
         "summary": "Clock In",
         "description": "Clock in for work day\n\nTeam members use this to start their work day.\nOne clock-in per day allowed.",
         "operationId": "clock_in_api_team_clock_in_post",
@@ -4657,9 +4599,7 @@
     },
     "/api/team/clock-out": {
       "post": {
-        "tags": [
-          "team-activity"
-        ],
+        "tags": ["team-activity"],
         "summary": "Clock Out",
         "description": "Clock out for work day\n\nTeam members use this to end their work day.\nMust be clocked in first.",
         "operationId": "clock_out_api_team_clock_out_post",
@@ -4699,9 +4639,7 @@
     },
     "/api/team/my-status": {
       "get": {
-        "tags": [
-          "team-activity"
-        ],
+        "tags": ["team-activity"],
         "summary": "Get My Status",
         "description": "Get my current work status\n\nReturns:\n- Current online/offline status\n- Today's hours worked\n- This week's summary",
         "operationId": "get_my_status_api_team_my_status_get",
@@ -4744,9 +4682,7 @@
     },
     "/api/team/status": {
       "get": {
-        "tags": [
-          "team-activity"
-        ],
+        "tags": ["team-activity"],
         "summary": "Get Team Status",
         "description": "Get current online status of all team members (ADMIN ONLY)\n\nShows who is currently clocked in and who is offline.",
         "operationId": "get_team_status_api_team_status_get",
@@ -4814,9 +4750,7 @@
     },
     "/api/team/hours": {
       "get": {
-        "tags": [
-          "team-activity"
-        ],
+        "tags": ["team-activity"],
         "summary": "Get Daily Hours",
         "description": "Get work hours for a specific date (ADMIN ONLY)\n\nReturns all team members' work hours for the specified date.",
         "operationId": "get_daily_hours_api_team_hours_get",
@@ -4902,9 +4836,7 @@
     },
     "/api/team/activity/weekly": {
       "get": {
-        "tags": [
-          "team-activity"
-        ],
+        "tags": ["team-activity"],
         "summary": "Get Weekly Summary",
         "description": "Get weekly work summary (ADMIN ONLY)\n\nReturns total hours, days worked, and averages for each team member.",
         "operationId": "get_weekly_summary_api_team_activity_weekly_get",
@@ -4990,9 +4922,7 @@
     },
     "/api/team/activity/monthly": {
       "get": {
-        "tags": [
-          "team-activity"
-        ],
+        "tags": ["team-activity"],
         "summary": "Get Monthly Summary",
         "description": "Get monthly work summary (ADMIN ONLY)\n\nReturns total hours, days worked, and averages for each team member.",
         "operationId": "get_monthly_summary_api_team_activity_monthly_get",
@@ -5078,9 +5008,7 @@
     },
     "/api/team/export": {
       "get": {
-        "tags": [
-          "team-activity"
-        ],
+        "tags": ["team-activity"],
         "summary": "Export Timesheet",
         "description": "Export timesheet data (ADMIN ONLY)\n\nReturns CSV file with all work hours in the specified date range.",
         "operationId": "export_timesheet_api_team_export_get",
@@ -5176,9 +5104,7 @@
     },
     "/api/team/health": {
       "get": {
-        "tags": [
-          "team-activity"
-        ],
+        "tags": ["team-activity"],
         "summary": "Health Check",
         "description": "Health check for team activity service",
         "operationId": "health_check_api_team_health_get",
@@ -5196,9 +5122,7 @@
     },
     "/media/generate-image": {
       "post": {
-        "tags": [
-          "media"
-        ],
+        "tags": ["media"],
         "summary": "Generate Image",
         "description": "Generate an image from a text prompt.",
         "operationId": "generate_image_media_generate_image_post",
@@ -5236,9 +5160,7 @@
     },
     "/api/v1/image/generate": {
       "post": {
-        "tags": [
-          "image"
-        ],
+        "tags": ["image"],
         "summary": "Generate Image",
         "description": "Generate images using Google Imagen API\n\nArgs:\n    request: Image generation request with prompt and parameters\n\nReturns:\n    ImageGenerationResponse with generated images or error",
         "operationId": "generate_image_api_v1_image_generate_post",
@@ -5312,9 +5234,7 @@
     },
     "/": {
       "get": {
-        "tags": [
-          "root"
-        ],
+        "tags": ["root"],
         "summary": "Root",
         "operationId": "root__get",
         "responses": {
@@ -5600,13 +5520,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "client_id",
-          "compliance_type",
-          "title",
-          "description",
-          "deadline"
-        ],
+        "required": ["client_id", "compliance_type", "title", "description", "deadline"],
         "title": "AddComplianceItemRequest"
       },
       "AgentExecutionResponse": {
@@ -5666,13 +5580,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "execution_id",
-          "agent_name",
-          "status",
-          "message",
-          "started_at"
-        ],
+        "required": ["execution_id", "agent_name", "status", "message", "started_at"],
         "title": "AgentExecutionResponse"
       },
       "BatchIngestionRequest": {
@@ -5695,9 +5603,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "directory_path"
-        ],
+        "required": ["directory_path"],
         "title": "BatchIngestionRequest",
         "description": "Request to ingest multiple books"
       },
@@ -5728,13 +5634,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "total_books",
-          "successful",
-          "failed",
-          "results",
-          "execution_time_seconds"
-        ],
+        "required": ["total_books", "successful", "failed", "results", "execution_time_seconds"],
         "title": "BatchIngestionResponse",
         "description": "Response from batch ingestion"
       },
@@ -5747,9 +5647,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "file"
-        ],
+        "required": ["file"],
         "title": "Body_upload_and_ingest_api_ingest_upload_post"
       },
       "BookIngestionRequest": {
@@ -5797,9 +5695,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "file_path"
-        ],
+        "required": ["file_path"],
         "title": "BookIngestionRequest",
         "description": "Request to ingest a single book"
       },
@@ -5841,14 +5737,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "success",
-          "book_title",
-          "book_author",
-          "tier",
-          "chunks_created",
-          "message"
-        ],
+        "required": ["success", "book_title", "book_author", "tier", "chunks_created", "message"],
         "title": "BookIngestionResponse",
         "description": "Response from book ingestion"
       },
@@ -5877,10 +5766,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "title",
-          "start_time"
-        ],
+        "required": ["title", "start_time"],
         "title": "CalendarEvent"
       },
       "ChunkMetadata": {
@@ -6066,9 +5952,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "full_name"
-        ],
+        "required": ["full_name"],
         "title": "ClientCreate"
       },
       "ClientResponse": {
@@ -6390,10 +6274,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "user_id",
-          "email"
-        ],
+        "required": ["user_id", "email"],
         "title": "ClockInRequest",
         "description": "Clock-in request"
       },
@@ -6424,10 +6305,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "user_id",
-          "email"
-        ],
+        "required": ["user_id", "email"],
         "title": "ClockOutRequest",
         "description": "Clock-out request"
       },
@@ -6498,10 +6376,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "success",
-          "message"
-        ],
+        "required": ["success", "message"],
         "title": "ClockResponse",
         "description": "Clock-in/out response"
       },
@@ -6537,9 +6412,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "title": "ConversationHistoryResponse"
       },
       "CreateJourneyRequest": {
@@ -6571,10 +6444,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "journey_type",
-          "client_id"
-        ],
+        "required": ["journey_type", "client_id"],
         "title": "CreateJourneyRequest"
       },
       "DailyHours": {
@@ -6605,14 +6475,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "user_id",
-          "email",
-          "date",
-          "clock_in",
-          "clock_out",
-          "hours_worked"
-        ],
+        "required": ["user_id", "email", "date", "clock_in", "clock_out", "hours_worked"],
         "title": "DailyHours",
         "description": "Daily work hours"
       },
@@ -6631,10 +6494,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "content",
-          "metadata"
-        ],
+        "required": ["content", "metadata"],
         "title": "DocumentChunk",
         "description": "Single document chunk to ingest"
       },
@@ -6654,11 +6514,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "recipient",
-          "subject",
-          "body"
-        ],
+        "required": ["recipient", "subject", "body"],
         "title": "EmailDraft"
       },
       "EmbedRequest": {
@@ -6674,9 +6530,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "text"
-        ],
+        "required": ["text"],
         "title": "EmbedRequest"
       },
       "EmbedResponse": {
@@ -6698,11 +6552,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "embedding",
-          "dimensions",
-          "model"
-        ],
+        "required": ["embedding", "dimensions", "model"],
         "title": "EmbedResponse"
       },
       "FeedbackRequest": {
@@ -6767,13 +6617,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "user_email",
-          "query_text",
-          "original_answer",
-          "feedback_type",
-          "rating"
-        ],
+        "required": ["user_email", "query_text", "original_answer", "feedback_type", "rating"],
         "title": "FeedbackRequest",
         "description": "User feedback for continuous learning"
       },
@@ -6810,12 +6654,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "status",
-          "version",
-          "database",
-          "embeddings"
-        ],
+        "required": ["status", "version", "database", "embeddings"],
         "title": "HealthResponse",
         "description": "Health check response"
       },
@@ -6847,9 +6686,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "prompt"
-        ],
+        "required": ["prompt"],
         "title": "ImageGenerationRequest"
       },
       "ImageGenerationResponse": {
@@ -6878,10 +6715,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "images",
-          "success"
-        ],
+        "required": ["images", "success"],
         "title": "ImageGenerationResponse"
       },
       "ImagePrompt": {
@@ -6892,9 +6726,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "prompt"
-        ],
+        "required": ["prompt"],
         "title": "ImagePrompt"
       },
       "IngestRequest": {
@@ -6925,9 +6757,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "documents"
-        ],
+        "required": ["documents"],
         "title": "IngestRequest",
         "description": "Bulk ingest request"
       },
@@ -6966,13 +6796,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "success",
-          "collection",
-          "documents_ingested",
-          "execution_time_ms",
-          "message"
-        ],
+        "required": ["success", "collection", "documents_ingested", "execution_time_ms", "message"],
         "title": "IngestResponse",
         "description": "Ingest response"
       },
@@ -7013,12 +6837,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "status",
-          "collection",
-          "qdrant_url",
-          "total_memories"
-        ],
+        "required": ["status", "collection", "qdrant_url", "total_memories"],
         "title": "InitResponse"
       },
       "IntelSearchRequest": {
@@ -7049,11 +6868,7 @@
             },
             "type": "array",
             "title": "Tier",
-            "default": [
-              "T1",
-              "T2",
-              "T3"
-            ]
+            "default": ["T1", "T2", "T3"]
           },
           "impact_level": {
             "anyOf": [
@@ -7073,9 +6888,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "query"
-        ],
+        "required": ["query"],
         "title": "IntelSearchRequest"
       },
       "IntelStoreRequest": {
@@ -7109,14 +6922,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "collection",
-          "id",
-          "document",
-          "embedding",
-          "metadata",
-          "full_data"
-        ],
+        "required": ["collection", "id", "document", "embedding", "metadata", "full_data"],
         "title": "IntelStoreRequest"
       },
       "InteractionCreate": {
@@ -7248,10 +7054,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "interaction_type",
-          "team_member"
-        ],
+        "required": ["interaction_type", "team_member"],
         "title": "InteractionCreate"
       },
       "InteractionResponse": {
@@ -7399,13 +7202,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "results",
-          "ids",
-          "distances",
-          "total_found",
-          "execution_time_ms"
-        ],
+        "required": ["results", "ids", "distances", "total_found", "execution_time_ms"],
         "title": "MemorySearchResponse"
       },
       "MonthlySummary": {
@@ -7546,9 +7343,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "query"
-        ],
+        "required": ["query"],
         "title": "OracleQueryRequest",
         "description": "Universal Oracle query request with user context"
       },
@@ -7719,11 +7514,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "success",
-          "query",
-          "execution_time_ms"
-        ],
+        "required": ["success", "query", "execution_time_ms"],
         "title": "OracleQueryResponse",
         "description": "Universal Oracle query response with full context"
       },
@@ -7796,10 +7587,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "client_id",
-          "practice_type_code"
-        ],
+        "required": ["client_id", "practice_type_code"],
         "title": "PracticeCreate"
       },
       "PracticeResponse": {
@@ -8141,10 +7929,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "user_email",
-          "messages"
-        ],
+        "required": ["user_email", "messages"],
         "title": "SaveConversationRequest"
       },
       "SearchMemoryRequest": {
@@ -8174,9 +7959,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "query_embedding"
-        ],
+        "required": ["query_embedding"],
         "title": "SearchMemoryRequest"
       },
       "SearchQuery": {
@@ -8232,9 +8015,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "query"
-        ],
+        "required": ["query"],
         "title": "SearchQuery",
         "description": "Search request model"
       },
@@ -8265,13 +8046,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "query",
-          "results",
-          "total_found",
-          "user_level",
-          "execution_time_ms"
-        ],
+        "required": ["query", "results", "total_found", "user_level", "execution_time_ms"],
         "title": "SearchResponse",
         "description": "Search response model"
       },
@@ -8292,11 +8067,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "text",
-          "metadata",
-          "similarity_score"
-        ],
+        "required": ["text", "metadata", "similarity_score"],
         "title": "SearchResult",
         "description": "Single search result"
       },
@@ -8368,11 +8139,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "recipient_id",
-          "title",
-          "message"
-        ],
+        "required": ["recipient_id", "title", "message"],
         "title": "SendNotificationRequest"
       },
       "SimilarMemoryRequest": {
@@ -8388,9 +8155,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "memory_id"
-        ],
+        "required": ["memory_id"],
         "title": "SimilarMemoryRequest"
       },
       "StoreMemoryRequest": {
@@ -8416,12 +8181,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "id",
-          "document",
-          "embedding",
-          "metadata"
-        ],
+        "required": ["id", "document", "embedding", "metadata"],
         "title": "StoreMemoryRequest"
       },
       "TeamMemberStatus": {
@@ -8448,13 +8208,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "user_id",
-          "email",
-          "is_online",
-          "last_action",
-          "last_action_type"
-        ],
+        "required": ["user_id", "email", "is_online", "last_action", "last_action_type"],
         "title": "TeamMemberStatus",
         "description": "Team member status"
       },
@@ -8509,21 +8263,12 @@
           }
         },
         "type": "object",
-        "required": [
-          "template_id",
-          "recipient_id"
-        ],
+        "required": ["template_id", "recipient_id"],
         "title": "TemplateNotificationRequest"
       },
       "TierLevel": {
         "type": "string",
-        "enum": [
-          "S",
-          "A",
-          "B",
-          "C",
-          "D"
-        ],
+        "enum": ["S", "A", "B", "C", "D"],
         "title": "TierLevel",
         "description": "Book tier classifications"
       },
@@ -8611,11 +8356,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError"
       },
       "WeeklySummary": {
@@ -8674,10 +8415,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email",
-          "pin"
-        ],
+        "required": ["email", "pin"],
         "title": "LoginRequest",
         "description": "Login request model"
       },
@@ -8741,10 +8479,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "title": "LoginRequest",
         "description": "Login request model"
       },
@@ -8771,10 +8506,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "success",
-          "message"
-        ],
+        "required": ["success", "message"],
         "title": "LoginResponse",
         "description": "Login response model"
       },
@@ -8824,13 +8556,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "id",
-          "email",
-          "name",
-          "role",
-          "status"
-        ],
+        "required": ["id", "email", "name", "role", "status"],
         "title": "UserProfile",
         "description": "User profile model"
       },
@@ -8888,12 +8614,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "user_id",
-          "email",
-          "name",
-          "role"
-        ],
+        "required": ["user_id", "email", "name", "role"],
         "title": "UserProfile",
         "description": "User profile with localization preferences"
       }

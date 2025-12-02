@@ -46,7 +46,7 @@ def test_init_with_api_key(mock_settings, mock_genai):
         mock_settings_obj.google_api_key = "test-api-key"
         mock_settings_obj.zantara_ai_cost_input = 0.15
         mock_settings_obj.zantara_ai_cost_output = 0.60
-        
+
         with patch("google.generativeai.configure") as mock_configure:
             client = ZantaraAIClient(api_key="test-api-key")
 
@@ -63,7 +63,7 @@ def test_init_without_api_key(mock_genai):
     mock_settings_obj.google_api_key = None
     mock_settings_obj.zantara_ai_cost_input = 0.15
     mock_settings_obj.zantara_ai_cost_output = 0.60
-    
+
     with patch("llm.zantara_ai_client.settings", mock_settings_obj):
         with patch("google.generativeai.configure"):
             client = ZantaraAIClient(api_key=None)
@@ -161,9 +161,7 @@ async def test_chat_async_native_gemini_success(mock_settings):
             # Mock GenerativeModel
             mock_model = MagicMock()
             mock_chat = AsyncMock()
-            mock_chat.send_message_async = AsyncMock(
-                return_value=MagicMock(text="Test response")
-            )
+            mock_chat.send_message_async = AsyncMock(return_value=MagicMock(text="Test response"))
             mock_model.start_chat = MagicMock(return_value=mock_chat)
 
             with patch("google.generativeai.GenerativeModel", return_value=mock_model):
@@ -365,8 +363,6 @@ async def test_conversational_with_memory_context(mock_settings):
 # ============================================================================
 
 
-
-
 @pytest.mark.asyncio
 async def test_conversational_with_tools_with_tools(mock_settings):
     """Test conversational_with_tools with tools (fallback to conversational)"""
@@ -427,7 +423,7 @@ async def test_conversational_with_tools_error_fallback(mock_settings):
             mock_response = MagicMock()
             mock_response.choices = [MagicMock()]
             mock_response.choices[0].message.content = "Fallback response"
-            
+
             async def mock_create(*args, **kwargs):
                 # First call raises error, subsequent calls succeed
                 if not hasattr(mock_create, "call_count"):
@@ -436,7 +432,7 @@ async def test_conversational_with_tools_error_fallback(mock_settings):
                 if mock_create.call_count == 1:
                     raise Exception("API Error")
                 return mock_response
-            
+
             mock_client.chat.completions.create = AsyncMock(side_effect=mock_create)
 
             client = ZantaraAIClient(api_key="test-key")
@@ -691,7 +687,11 @@ async def test_stream_openai_compat_no_client_fallback():
 
             # Should return fallback response
             full_response = "".join(result_chunks)
-            assert "scusi" in full_response.lower() or "problema" in full_response.lower() or "servizio" in full_response.lower()
+            assert (
+                "scusi" in full_response.lower()
+                or "problema" in full_response.lower()
+                or "servizio" in full_response.lower()
+            )
 
 
 @pytest.mark.asyncio
@@ -862,9 +862,6 @@ async def test_conversational_with_tools_with_conversation_history():
             assert "test_tool" in result["tools_called"]
 
 
-
-
-
 @pytest.mark.asyncio
 async def test_stream_native_gemini_no_content_fallback():
     """Test native Gemini streaming when no content received"""
@@ -901,4 +898,3 @@ async def test_stream_native_gemini_no_content_fallback():
                 # Should return fallback after no content
                 full_response = "".join(result_chunks)
                 assert len(full_response) > 0
-

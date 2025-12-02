@@ -214,9 +214,7 @@ async def detailed_health() -> dict[str, Any]:
         services.get(s, {}).get("status") == "healthy" for s in critical_services
     )
 
-    any_degraded = any(
-        services.get(s, {}).get("status") != "healthy" for s in services
-    )
+    any_degraded = any(services.get(s, {}).get("status") != "healthy" for s in services)
 
     if not critical_healthy:
         overall_status = "critical"
