@@ -411,11 +411,12 @@ export default function ChatPage() {
             </button>
           </div>
 
-          <img
+          {/* LOGO TEMPORANEAMENTE RIMOSSO */}
+          {/* <img
             src="/logo-zantara.svg"
             alt="ZANTARA"
             className="h-12 w-auto mx-auto"
-          />
+          /> */}
 
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -535,7 +536,8 @@ export default function ChatPage() {
                     </div>
                   )}
 
-                  {msg.role === "assistant" && (
+                  {/* AVATAR ZANTARA TEMPORANEAMENTE RIMOSSO */}
+                  {/* {msg.role === "assistant" && (
                     <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
                       <img
                         src="/images/zantara_avatar.png"
@@ -543,7 +545,7 @@ export default function ChatPage() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                  )}
+                  )} */}
 
                   <div className="flex flex-col gap-1 max-w-[75%]">
                     {msg.role === "user" ? (
@@ -571,13 +573,14 @@ export default function ChatPage() {
 
           {streamingContent && (
             <div className="flex items-start gap-3 justify-start animate-message-fade-in">
-              <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
+              {/* AVATAR ZANTARA TEMPORANEAMENTE RIMOSSO */}
+              {/* <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
                 <img
                   src="/images/zantara_avatar.png"
                   alt="Zantara AI"
                   className="w-full h-full object-cover"
                 />
-              </div>
+              </div> */}
 
               <div className="flex-1 max-w-[75%]">
                 <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
@@ -591,14 +594,14 @@ export default function ChatPage() {
 
           {isLoading && !streamingContent && (
             <div className="flex items-start gap-3 justify-start">
-              {/* Zantara avatar durante il loading */}
-              <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
+              {/* AVATAR ZANTARA TEMPORANEAMENTE RIMOSSO */}
+              {/* <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
                 <img
                   src="/images/zantara_avatar.png"
                   alt="Zantara AI"
                   className="w-full h-full object-cover"
                 />
-              </div>
+              </div> */}
 
               <div className="flex-1 max-w-[75%]">
                 <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
@@ -658,9 +661,8 @@ export default function ChatPage() {
                       />
                     </div>
 
-                    {/* Action Buttons - Harmonized Layout */}
-                    <div className="flex items-center gap-3">
-                      {/* Image Button */}
+                    {/* BOTTONI TEMPORANEAMENTE RIMOSSI */}
+                    {/* <div className="flex items-center gap-3">
                       <button
                         type="button"
                         onClick={() => setShowImageModal(true)}
@@ -675,7 +677,6 @@ export default function ChatPage() {
                         />
                       </button>
 
-                      {/* File Button */}
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
@@ -690,7 +691,6 @@ export default function ChatPage() {
                         />
                       </button>
 
-                      {/* Send Button */}
                       <button
                         type="submit"
                         disabled={isLoading || !input.trim()}
@@ -703,7 +703,7 @@ export default function ChatPage() {
                           className="h-6 w-6 object-contain brightness-[2.0]"
                         />
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
