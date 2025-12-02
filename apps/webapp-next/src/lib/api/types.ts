@@ -37,7 +37,7 @@ export interface ChatMetadata {
 export interface RAGSource {
   collection: string
   document: string
-  score: number
+  score?: number
   text_preview?: string
 }
 
