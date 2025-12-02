@@ -57,17 +57,11 @@ export const apiClient = {
   setToken: (token: string) => {
     if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
       globalThis.localStorage.setItem(AUTH_TOKEN_KEY, token);
-      // Clean up legacy keys
-      globalThis.localStorage.removeItem('token');
-      globalThis.localStorage.removeItem('zantara_session_token');
     }
   },
   clearToken: () => {
     if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
       globalThis.localStorage.removeItem(AUTH_TOKEN_KEY);
-      // Clean up legacy keys
-      globalThis.localStorage.removeItem('token');
-      globalThis.localStorage.removeItem('zantara_session_token');
     }
   },
 };

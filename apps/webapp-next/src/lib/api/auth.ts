@@ -1,11 +1,12 @@
 import type { LoginRequest, LoginResponse, User } from './types';
 import { apiClient } from '@/lib/api/client';
+import { fetchWithRetry } from '@/lib/api/fetch-utils';
 
 export const authAPI = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     try {
-      // Call Next.js Proxy Route
-      const response = await fetch('/api/auth/login', {
+      // Call Next.js Proxy Route with retry
+      const response = await fetchWithRetry('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -14,6 +15,8 @@ export const authAPI = {
           email: credentials.email,
           pin: credentials.pin, // The proxy expects 'pin', not 'password'
         }),
+        retries: 3,
+        timeout: 10000,
       });
 
       const data = await response.json();

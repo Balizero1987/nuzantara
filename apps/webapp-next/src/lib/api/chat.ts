@@ -2,6 +2,7 @@ import type { ChatMetadata } from './types';
 import { apiClient } from '@/lib/api/client';
 import { AUTH_TOKEN_KEY } from '@/lib/constants';
 import { authAPI } from '@/lib/api/auth';
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
 import { zantaraAPI, type ZantaraContext } from '@/lib/api/zantara-integration';
 
 export interface EnrichedChatRequest {
@@ -9,6 +10,9 @@ export interface EnrichedChatRequest {
   conversationHistory: Array<{ role: string; content: string }>;
   context?: ZantaraContext;
 }
+
+import { fetchWithRetry } from '@/lib/api/fetch-utils';
+ main
 
 export const chatAPI = {
   /**
@@ -29,6 +33,7 @@ export const chatAPI = {
       saveConversation?: boolean;
     }
   ): Promise<void> {
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
     const { enrichContext = true, saveConversation = true } = options || {};
 
     // Try multiple ways to get token
@@ -69,8 +74,12 @@ export const chatAPI = {
     }
     console.log('[ChatClient] Conversation history length:', conversationHistory?.length || 0);
 
+    // Get token from single source of truth
+    const token = apiClient.getToken();
+ main
+
     if (!token) {
-      console.error('[ChatClient] No token found in any storage location');
+      console.error('[ChatClient] No authentication token found');
       onError(new Error('No authentication token found. Please log in.'));
       return;
     }
@@ -93,6 +102,7 @@ export const chatAPI = {
     }
 
     try {
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
       // Add timeout to prevent hanging requests
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 180000); // 180 second timeout
@@ -111,7 +121,6 @@ export const chatAPI = {
         },
       };
 
-      // Add enriched context if available
       if (context) {
         requestBody.zantara_context = {
           session_id: context.session.sessionId,
@@ -127,16 +136,35 @@ export const chatAPI = {
       }
 
       const response = await fetch('/api/chat/stream', {
+
+      
+      const response = await fetchWithRetry('/api/chat/stream', {
+ main
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
         body: JSON.stringify(requestBody),
         signal: controller.signal,
-      });
 
-      clearTimeout(timeoutId);
+        body: JSON.stringify({
+          message: message,
+          user_id: authAPI.getUser()?.email || 'web_user',
+          conversation_history: conversationHistory || [],
+          metadata: {
+            client_locale: typeof navigator !== 'undefined' ? navigator.language : 'en-US',
+            client_timezone:
+              typeof Intl !== 'undefined'
+                ? Intl.DateTimeFormat().resolvedOptions().timeZone
+                : 'UTC',
+          },
+        }),
+        timeout: 180000, // 180 second timeout (3 mins)
+        retries: 2, // Retry connection failures twice
+ main
+      });
 
       if (!response.ok) {
         if (response.status === 401) {

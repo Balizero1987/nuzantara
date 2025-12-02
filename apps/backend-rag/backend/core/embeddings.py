@@ -98,6 +98,10 @@ class EmbeddingsGenerator:
         )
 
         if not self.api_key:
+            if self._settings and getattr(self._settings, "environment", "development") == "production":
+                logger.critical("❌ CRITICAL: No OpenAI API key found in PRODUCTION environment")
+                raise ValueError("OpenAI API key is required for OpenAI provider in production")
+            
             raise ValueError("OpenAI API key is required for OpenAI provider")
 
         self.client = OpenAI(api_key=self.api_key)

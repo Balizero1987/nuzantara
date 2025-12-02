@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { apiClient } from '@/lib/api/client';
+import { fetchWithRetry } from '@/lib/api/fetch-utils';
 
 interface CRMClient {
   id: number;
@@ -32,37 +32,55 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 export const crmAPI = {
   async getClients(): Promise<CRMClient[]> {
     const token = apiClient.getToken();
-    const response = await axios.get(`${BASE_URL}/api/crm/clients`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const response = await fetchWithRetry(`${BASE_URL}/api/crm/clients`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
-    return response.data;
+    return response.json();
   },
 
   async syncGmail(): Promise<GmailSyncResult> {
     const token = apiClient.getToken();
-    const response = await axios.post(
+    const response = await fetchWithRetry(
       `${BASE_URL}/api/crm/interactions/sync-gmail`,
-      {},
       {
-        headers: { Authorization: `Bearer ${token}` },
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
       }
     );
-    return response.data;
+    return response.json();
   },
 
   async createClient(data: Partial<CRMClient>): Promise<CRMClient> {
     const token = apiClient.getToken();
-    const response = await axios.post(`${BASE_URL}/api/crm/clients`, data, {
-      headers: { Authorization: `Bearer ${token}` },
+    const response = await fetchWithRetry(`${BASE_URL}/api/crm/clients`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     });
-    return response.data;
+    return response.json();
   },
 
   async updateClient(id: number, data: Partial<CRMClient>): Promise<CRMClient> {
     const token = apiClient.getToken();
-    const response = await axios.put(`${BASE_URL}/api/crm/clients/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` },
+    const response = await fetchWithRetry(`${BASE_URL}/api/crm/clients/${id}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     });
-    return response.data;
+    return response.json();
   },
 };
