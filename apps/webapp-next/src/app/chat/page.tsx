@@ -411,12 +411,11 @@ export default function ChatPage() {
             </button>
           </div>
 
-          {/* LOGO TEMPORANEAMENTE RIMOSSO */}
-          {/* <img
-            src="/logo-zantara.svg"
+          <img
+            src="/images/logo_zan.svg"
             alt="ZANTARA"
-            className="h-12 w-auto mx-auto"
-          /> */}
+            className="h-14 w-auto mx-auto"
+          />
 
           <div className="flex items-center gap-3">
             <div className="relative">
