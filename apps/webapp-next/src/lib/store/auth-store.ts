@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import { AUTH_TOKEN_KEY } from "../constants"
 
 interface User {
   id: string
@@ -29,8 +30,12 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         set({ user: null, token: null, isAuthenticated: false })
         if (typeof window !== "undefined") {
-          localStorage.removeItem("zantara_token")
+          localStorage.removeItem(AUTH_TOKEN_KEY)
           localStorage.removeItem("zantara_user")
+          // Clean up old token keys
+          localStorage.removeItem("zantara_token")
+          localStorage.removeItem("zantara_session_token")
+          localStorage.removeItem("token")
         }
       },
 

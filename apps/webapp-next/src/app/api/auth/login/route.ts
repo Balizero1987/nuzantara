@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server"
-import { createServerClient, createPublicClient } from "@/lib/api/client";
+import { createPublicClient } from "../../../../lib/api/client";
 
 export async function POST(request: Request) {
   try {
-    const { email, pin } = await request.json()
+    const { email, pin } = (await request.json()) as any
 
     console.log("[AuthAPI] Production login attempt:", { email })
 

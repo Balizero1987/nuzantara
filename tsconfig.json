@@ -2,7 +2,12 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "jsx": "react-jsx",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -28,5 +33,11 @@
     "global.d.ts",
     ".test-hook.ts"
   ],
-  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts", "dist", "build"]
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "dist",
+    "build"
+  ]
 }

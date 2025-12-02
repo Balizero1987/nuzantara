@@ -1,24 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
-import { crmAPI } from '../crm';
-import { fetchWithRetry } from '../fetch-utils';
 
 // Mock fetchWithRetry
-jest.mock('../fetch-utils', () => {
-  return {
-    __esModule: true,
-    fetchWithRetry: jest.fn(),
-  };
-});
-
-// Mock apiClient
-jest.mock('../client', () => ({
-  apiClient: {
-    getToken: jest.fn(() => 'test-token'),
-  },
+const mockFetchWithRetry = jest.fn() as any;
+jest.unstable_mockModule('../fetch-utils', () => ({
+  fetchWithRetry: mockFetchWithRetry,
 }));
 
-describe.skip('crmAPI', () => {
+// Mock apiClient
+const mockApiClient = {
+  getToken: jest.fn(() => 'test-token'),
+};
+jest.unstable_mockModule('../client', () => ({
+  apiClient: mockApiClient,
+}));
+
+// Import module under test dynamically
+const { crmAPI } = await import('../crm');
+
+describe('crmAPI', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -45,13 +45,13 @@ describe.skip('crmAPI', () => {
         },
       ];
 
-      (fetchWithRetry as any).mockResolvedValue({
+      (mockFetchWithRetry as any).mockResolvedValue({
         json: async () => mockClients,
       });
 
       const result = await crmAPI.getClients();
 
-      expect(fetchWithRetry).toHaveBeenCalledWith(
+      expect(mockFetchWithRetry).toHaveBeenCalledWith(
         expect.stringContaining('/api/crm/clients'),
         expect.objectContaining({
           method: 'GET',
@@ -64,7 +64,7 @@ describe.skip('crmAPI', () => {
     });
 
     it('should handle API errors', async () => {
-      (fetchWithRetry as any).mockRejectedValue(new Error('API Error'));
+      (mockFetchWithRetry as any).mockRejectedValue(new Error('API Error'));
 
       await expect(crmAPI.getClients()).rejects.toThrow('API Error');
     });
@@ -80,13 +80,13 @@ describe.skip('crmAPI', () => {
         status: 'success',
       };
 
-      (fetchWithRetry as any).mockResolvedValue({
+      (mockFetchWithRetry as any).mockResolvedValue({
         json: async () => mockResult,
       });
 
       const result = await crmAPI.syncGmail();
 
-      expect(fetchWithRetry).toHaveBeenCalledWith(
+      expect(mockFetchWithRetry).toHaveBeenCalledWith(
         expect.stringContaining('/api/crm/interactions/sync-gmail'),
         expect.objectContaining({
           method: 'POST',
@@ -117,13 +117,13 @@ describe.skip('crmAPI', () => {
         updated_at: '2024-01-20T00:00:00Z',
       };
 
-      (fetchWithRetry as any).mockResolvedValue({
+      (mockFetchWithRetry as any).mockResolvedValue({
         json: async () => mockResponse,
       });
 
       const result = await crmAPI.createClient(newClient);
 
-      expect(fetchWithRetry).toHaveBeenCalledWith(
+      expect(mockFetchWithRetry).toHaveBeenCalledWith(
         expect.stringContaining('/api/crm/clients'),
         expect.objectContaining({
           method: 'POST',
@@ -151,13 +151,13 @@ describe.skip('crmAPI', () => {
         status: 'active',
       };
 
-      (fetchWithRetry as any).mockResolvedValue({
+      (mockFetchWithRetry as any).mockResolvedValue({
         json: async () => mockResponse,
       });
 
       const result = await crmAPI.updateClient(1, updateData);
 
-      expect(fetchWithRetry).toHaveBeenCalledWith(
+      expect(mockFetchWithRetry).toHaveBeenCalledWith(
         expect.stringContaining('/api/crm/clients/1'),
         expect.objectContaining({
           method: 'PUT',

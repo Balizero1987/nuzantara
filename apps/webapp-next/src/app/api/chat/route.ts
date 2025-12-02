@@ -1,8 +1,8 @@
-import { createServerClient } from "@/lib/api/client"
+import { createServerClient } from "../../../lib/api/client"
 
 export async function POST(req: Request) {
   try {
-    const { messages, user_id = "web_user" } = await req.json()
+    const { messages, user_id = "web_user" } = (await req.json()) as any
     const lastMessage = messages[messages.length - 1]?.content || ""
 
     console.log("[ChatAPI] Production request:", { message: lastMessage, user_id })

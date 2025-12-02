@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals'
 import { renderHook, act } from '@testing-library/react'
 import { useIsMobile } from '../use-mobile'
 
@@ -6,7 +10,7 @@ describe('useIsMobile', () => {
   const mockMatchMedia = jest.fn()
 
   beforeEach(() => {
-    window.matchMedia = mockMatchMedia
+    window.matchMedia = mockMatchMedia as any
     // Reset window.innerWidth
     Object.defineProperty(window, 'innerWidth', {
       writable: true,
@@ -62,6 +66,8 @@ describe('useIsMobile', () => {
 
   it('should update when window width changes', () => {
     window.innerWidth = 1024
+    let changeHandler: any = null
+
     const mockMediaQuery = {
       matches: false,
       media: '(max-width: 767px)',
@@ -69,11 +75,9 @@ describe('useIsMobile', () => {
       addListener: jest.fn(),
       removeListener: jest.fn(),
       addEventListener: jest.fn((event, handler) => {
-        // Simulate resize event
-        setTimeout(() => {
-          window.innerWidth = 500
-          handler({ matches: true } as MediaQueryListEvent)
-        }, 100)
+        if (event === 'change') {
+          changeHandler = handler
+        }
       }),
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn(),
@@ -86,13 +90,16 @@ describe('useIsMobile', () => {
     expect(result.current).toBe(false)
 
     act(() => {
-      // Trigger resize
+      // Simulate resize and media query change
       window.innerWidth = 500
-      const event = new Event('resize')
-      window.dispatchEvent(event)
+      if (changeHandler) {
+        changeHandler({ matches: true } as MediaQueryListEvent)
+      }
     })
 
-    expect(mockMediaQuery.addEventListener).toHaveBeenCalled()
+    // Note: useIsMobile implementation might rely on window.innerWidth or just the media query listener.
+    // If it relies on listener, result.current should be true now.
+    expect(result.current).toBe(true)
   })
 
   it('should clean up event listener on unmount', () => {
@@ -119,7 +126,7 @@ describe('useIsMobile', () => {
   it('should handle edge case at breakpoint (768px)', () => {
     window.innerWidth = 768
     const mockMediaQuery = {
-      matches: false, // 768px is not < 768px
+      matches: false, // 768px is not < 768px (assuming breakpoint is 768)
       media: '(max-width: 767px)',
       onchange: null,
       addListener: jest.fn(),

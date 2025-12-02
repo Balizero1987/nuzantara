@@ -215,6 +215,10 @@ class IntelligentRouter:
             # STEP 10: Get cultural context
             cultural_context = await self._get_cultural_context(message, conversation_history)
 
+            # STEP 10.5: Get Synthetic Few-Shot Examples (The "Cheat Sheet")
+            synthetic_examples = await self.rag_manager.retrieve_few_shot_examples(message)
+            synthetic_context = self.context_builder.build_synthetic_context(synthetic_examples)
+
             # STEP 11: Combine all contexts
             include_zantara_identity = is_zantara_query
             combined_context = self.context_builder.combine_contexts(
@@ -223,6 +227,7 @@ class IntelligentRouter:
                 rag_context=rag_result["context"],
                 cultural_context=cultural_context,
                 identity_context=identity_context,
+                synthetic_context=synthetic_context,
                 zantara_identity=include_zantara_identity,
             )
 
@@ -456,6 +461,9 @@ class IntelligentRouter:
                 rag_context=rag_result["context"],
                 cultural_context=None,
                 identity_context=identity_context,
+                synthetic_context=self.context_builder.build_synthetic_context(
+                    await self.rag_manager.retrieve_few_shot_examples(message)
+                ),
                 zantara_identity=include_zantara_identity,
             )
 

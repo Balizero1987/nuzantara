@@ -1,6 +1,6 @@
 import type { ChatMetadata } from './types';
 import { apiClient } from './client';
-import { AUTH_TOKEN_KEY } from '@/lib/constants';
+import { AUTH_TOKEN_KEY } from '../constants';
 import { authAPI } from './auth';
 import { zantaraAPI, type ZantaraContext } from './zantara-integration';
 import { fetchWithRetry } from './fetch-utils';
@@ -61,9 +61,7 @@ export const chatAPI = {
         apiClientValue: apiClient.getToken()
           ? apiClient.getToken()?.substring(0, 20) + '...'
           : 'none',
-        localStorage_token: storage.getItem('token') ? 'found' : 'not found',
-        zantara_token: storage.getItem('zantara_token') ? 'found' : 'not found',
-        zantara_session_token: storage.getItem('zantara_session_token') ? 'found' : 'not found',
+        [AUTH_TOKEN_KEY]: storage.getItem(AUTH_TOKEN_KEY) ? 'found' : 'not found',
         allTokenKeys: tokenKeys,
         tokenValues: tokenValues,
       });
@@ -99,7 +97,7 @@ export const chatAPI = {
     try {
       // Add timeout to prevent hanging requests
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 180000); // 180 second timeout
+      setTimeout(() => controller.abort(), 180000); // 180 second timeout
 
       // Build request body with enriched context
       const requestBody: Record<string, unknown> = {
@@ -193,18 +191,21 @@ export const chatAPI = {
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               const dataStr = line.slice(6);
+              let event;
               try {
-                const event = JSON.parse(dataStr);
-                if (event.type === 'token' && event.data) {
-                  accumulatedContent += event.data;
-                  onChunk(event.data);
-                } else if (event.type === 'metadata') {
-                  onMetadata(event.data);
-                } else if (event.type === 'error') {
-                  throw new Error(event.data);
-                }
+                event = JSON.parse(dataStr);
               } catch {
                 console.warn('Failed to parse SSE line');
+                continue;
+              }
+
+              if (event.type === 'token' && event.data) {
+                accumulatedContent += event.data;
+                onChunk(event.data);
+              } else if (event.type === 'metadata') {
+                onMetadata(event.data);
+              } else if (event.type === 'error') {
+                throw new Error(event.data);
               }
             }
           }

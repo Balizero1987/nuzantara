@@ -1,18 +1,27 @@
-import axios from 'axios';
-import { calendarAPI } from '../calendar';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 // Mock axios
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-// Mock apiClient
-jest.mock('@/lib/api/client', () => ({
-  apiClient: {
-    getToken: jest.fn(() => 'test-token'),
-  },
+const mockAxios = {
+  post: jest.fn(),
+  get: jest.fn(),
+};
+jest.unstable_mockModule('axios', () => ({
+  default: mockAxios,
 }));
 
-describe.skip('calendarAPI', () => {
+// Mock apiClient
+const mockApiClient = {
+  getToken: jest.fn(() => 'test-token'),
+};
+jest.unstable_mockModule('../client', () => ({
+  apiClient: mockApiClient,
+}));
+
+// Import module under test dynamically
+const { calendarAPI } = await import('../calendar');
+
+describe('calendarAPI', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -28,11 +37,11 @@ describe.skip('calendarAPI', () => {
       };
 
       const responseData = { id: '123', ...event };
-      mockedAxios.post.mockResolvedValue({ data: responseData });
+      (mockAxios.post as any).mockResolvedValue({ data: responseData });
 
       const result = await calendarAPI.scheduleEvent(event);
 
-      expect(mockedAxios.post).toHaveBeenCalledWith(
+      expect(mockAxios.post).toHaveBeenCalledWith(
         expect.stringContaining('/api/productivity/calendar/schedule'),
         event,
         { headers: { Authorization: 'Bearer test-token' } }
@@ -48,11 +57,11 @@ describe.skip('calendarAPI', () => {
         attendees: [],
       };
 
-      mockedAxios.post.mockResolvedValue({ data: { id: '456' } });
+      (mockAxios.post as any).mockResolvedValue({ data: { id: '456' } });
 
       await calendarAPI.scheduleEvent(event);
 
-      expect(mockedAxios.post).toHaveBeenCalledWith(
+      expect(mockAxios.post).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(Object),
         expect.objectContaining({
@@ -69,7 +78,7 @@ describe.skip('calendarAPI', () => {
         attendees: [],
       };
 
-      mockedAxios.post.mockRejectedValue(new Error('Network error'));
+      (mockAxios.post as any).mockRejectedValue(new Error('Network error'));
 
       await expect(calendarAPI.scheduleEvent(event)).rejects.toThrow('Network error');
     });
@@ -82,7 +91,7 @@ describe.skip('calendarAPI', () => {
         attendees: ['user@example.com'],
       };
 
-      mockedAxios.post.mockResolvedValue({ data: { id: '789' } });
+      (mockAxios.post as any).mockResolvedValue({ data: { id: '789' } });
 
       const result = await calendarAPI.scheduleEvent(event);
 
@@ -109,11 +118,11 @@ describe.skip('calendarAPI', () => {
         },
       ];
 
-      mockedAxios.get.mockResolvedValue({ data: { events } });
+      (mockAxios.get as any).mockResolvedValue({ data: { events } });
 
       const result = await calendarAPI.listEvents();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect(mockAxios.get).toHaveBeenCalledWith(
         expect.stringContaining('/api/productivity/calendar/events'),
         expect.objectContaining({
           params: { limit: 10 },
@@ -133,11 +142,11 @@ describe.skip('calendarAPI', () => {
           attendees: [],
         },
       ];
-      mockedAxios.get.mockResolvedValue({ data: { events } });
+      (mockAxios.get as any).mockResolvedValue({ data: { events } });
 
       const result = await calendarAPI.listEvents(5);
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect(mockAxios.get).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
           params: { limit: 5 },
@@ -147,7 +156,7 @@ describe.skip('calendarAPI', () => {
     });
 
     it('should return empty array when no events', async () => {
-      mockedAxios.get.mockResolvedValue({ data: {} });
+      (mockAxios.get as any).mockResolvedValue({ data: {} });
 
       const result = await calendarAPI.listEvents();
 
@@ -155,7 +164,7 @@ describe.skip('calendarAPI', () => {
     });
 
     it('should return empty array when events is null', async () => {
-      mockedAxios.get.mockResolvedValue({ data: { events: null } });
+      (mockAxios.get as any).mockResolvedValue({ data: { events: null } });
 
       const result = await calendarAPI.listEvents();
 
@@ -163,17 +172,17 @@ describe.skip('calendarAPI', () => {
     });
 
     it('should handle API errors', async () => {
-      mockedAxios.get.mockRejectedValue(new Error('Unauthorized'));
+      (mockAxios.get as any).mockRejectedValue(new Error('Unauthorized'));
 
       await expect(calendarAPI.listEvents()).rejects.toThrow('Unauthorized');
     });
 
     it('should include authorization header', async () => {
-      mockedAxios.get.mockResolvedValue({ data: { events: [] } });
+      (mockAxios.get as any).mockResolvedValue({ data: { events: [] } });
 
       await calendarAPI.listEvents();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect(mockAxios.get).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
           headers: { Authorization: 'Bearer test-token' },

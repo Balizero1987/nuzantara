@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Backend Compatibility Tests
  *
@@ -9,15 +9,13 @@
  */
 
 import { jest, describe, it, expect } from '@jest/globals';
-import { createServerClient } from '../client';
-import { NuzantaraClient } from '../generated/NuzantaraClient';
 
 // Note: These tests verify compatibility without actually calling the backend
 // They check that the structure matches backend expectations
 
-describe.skip('Backend API Compatibility', () => {
+describe('Backend API Compatibility', () => {
   describe('Client Configuration', () => {
-    it('should use correct base URL from environment', () => {
+    it('should use correct base URL from environment', async () => {
       const originalEnv = process.env.NEXT_PUBLIC_API_URL;
       process.env.NEXT_PUBLIC_API_URL = 'http://backend:8000';
 
@@ -26,16 +24,17 @@ describe.skip('Backend API Compatibility', () => {
       // Note: In ESM, re-importing might not work as expected without cache busting
       // But for unit tests, we can check the logic in the factory functions
 
-      const { createServerClient: createClient } = require('../client');
+      const { createServerClient: createClient } = await import('../client');
       const newClient = createClient('token');
       expect(newClient).toBeDefined();
 
       process.env.NEXT_PUBLIC_API_URL = originalEnv;
     });
 
-    it('should configure server client with API key', () => {
+    it('should configure server client with API key', async () => {
       process.env.NUZANTARA_API_KEY = 'test-api-key';
 
+      const { createServerClient } = await import('../client');
       const serverClient = createServerClient('token');
 
       expect(serverClient).toBeDefined();
@@ -43,7 +42,8 @@ describe.skip('Backend API Compatibility', () => {
   });
 
   describe('Authentication Endpoint Compatibility', () => {
-    it('should have correct backend login endpoint structure', () => {
+    it('should have correct backend login endpoint structure', async () => {
+      const { NuzantaraClient } = await import('../generated/NuzantaraClient');
       const client = new NuzantaraClient({ BASE: 'http://localhost:8000' });
 
       // Verify endpoint matches backend route
@@ -71,7 +71,8 @@ describe.skip('Backend API Compatibility', () => {
   });
 
   describe('Chat Endpoint Compatibility', () => {
-    it('should have correct backend oracle endpoint structure', () => {
+    it('should have correct backend oracle endpoint structure', async () => {
+      const { NuzantaraClient } = await import('../generated/NuzantaraClient');
       const client = new NuzantaraClient({ BASE: 'http://localhost:8000' });
 
       // Backend: POST /api/oracle/query

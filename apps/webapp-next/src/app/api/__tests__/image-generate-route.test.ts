@@ -1,25 +1,85 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @jest-environment node
  */
 
-// Mock environment variable before importing the route
-process.env.NUZANTARA_API_KEY = 'test-api-key';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
-import { POST } from '../image/generate/route';
+// Mock Request for node environment
+class MockRequest {
+  url: string;
+  method: string;
+  headers: Map<string, string>;
+  private _body: string;
+
+  constructor(
+    url: string,
+    options: { method?: string; headers?: Record<string, string>; body?: string } = {}
+  ) {
+    this.url = url;
+    this.method = options.method || 'GET';
+    this.headers = new Map(Object.entries(options.headers || {}));
+    this._body = options.body || '';
+  }
+
+  async json() {
+    return JSON.parse(this._body);
+  }
+}
+
+class MockResponse {
+  status: number;
+  headers: Map<string, string>;
+  body: any;
+  private _body: any;
+
+  constructor(body: any, init?: { status?: number; headers?: Record<string, string> }) {
+    this._body = body;
+    this.body = body;
+    this.status = init?.status || 200;
+    this.headers = new Map(Object.entries(init?.headers || {}));
+  }
+
+  async json() {
+    return typeof this._body === 'string' ? JSON.parse(this._body) : this._body;
+  }
+}
+
+// Mock globals
+(global as any).Request = MockRequest;
+(global as any).Response = MockResponse;
+
+// Mock NextResponse
+jest.unstable_mockModule('next/server', () => ({
+  NextResponse: {
+    json: (body: any, init?: { status?: number }) => new MockResponse(body, init),
+  },
+}));
 
 // Mock global fetch
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
+const mockFetch = jest.fn() as unknown as jest.Mock<(...args: any[]) => Promise<any>>;
+(global as any).fetch = mockFetch;
+
+// Import AFTER mocks
+const { POST } = await import('../image/generate/route');
 
 describe('Image Generate API Route', () => {
+  const originalEnv = process.env;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    process.env = {
+      ...originalEnv,
+      NUZANTARA_API_KEY: 'test-api-key',
+      NUZANTARA_API_URL: 'https://test-backend.example.com',
+    };
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
+    process.env = originalEnv;
   });
 
   it('should return generated image for valid request', async () => {
@@ -30,6 +90,7 @@ describe('Image Generate API Route', () => {
 
     mockFetch.mockResolvedValue({
       ok: true,
+      status: 200,
       json: async () => mockImageData,
     });
 
@@ -46,7 +107,7 @@ describe('Image Generate API Route', () => {
     });
 
     const response = await POST(request);
-    const data = (await response.json()) as { image_url: string; prompt: string };
+    const data: any = await response.json();
 
     expect(response.status).toBe(200);
     expect(data.image_url).toBe('https://example.com/image.png');
@@ -56,6 +117,7 @@ describe('Image Generate API Route', () => {
   it('should forward authorization header to backend', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
+      status: 200,
       json: async () => ({ image_url: 'test.png' }),
     });
 
@@ -94,7 +156,7 @@ describe('Image Generate API Route', () => {
     });
 
     const response = await POST(request);
-    const data = (await response.json()) as { error: string };
+    const data: any = await response.json();
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('Invalid prompt');
@@ -114,7 +176,7 @@ describe('Image Generate API Route', () => {
     });
 
     const response = await POST(request);
-    const data = (await response.json()) as { error: string };
+    const data: any = await response.json();
 
     expect(response.status).toBe(500);
     expect(data.error).toBe('Image generation failed');
@@ -130,7 +192,7 @@ describe('Image Generate API Route', () => {
     });
 
     const response = await POST(request);
-    const data = (await response.json()) as { error: string };
+    const data: any = await response.json();
 
     expect(response.status).toBe(500);
     expect(data.error).toBe('Failed to connect to Image service');
@@ -139,6 +201,7 @@ describe('Image Generate API Route', () => {
   it('should use correct API URL and key', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
+      status: 200,
       json: async () => ({ image_url: 'test.png' }),
     });
 
@@ -165,6 +228,7 @@ describe('Image Generate API Route', () => {
   it('should forward request body to backend', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
+      status: 200,
       json: async () => ({ image_url: 'test.png' }),
     });
 
@@ -193,6 +257,7 @@ describe('Image Generate API Route', () => {
   it('should handle empty authorization header', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
+      status: 200,
       json: async () => ({ image_url: 'test.png' }),
     });
 

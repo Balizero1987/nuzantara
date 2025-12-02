@@ -7,11 +7,12 @@ import { chatAPI } from "@/lib/api/chat"
 import { useAuth } from "@/context/AuthContext"
 import { apiClient } from "@/lib/api/client"
 import { zantaraAPI } from "@/lib/api/zantara-integration"
-import { useChatStore, selectConversationHistory } from "@/lib/store/chat-store"
+import { useChatStore } from "@/lib/store/chat-store"
 import { RAGDrawer } from "@/components/chat/RAGDrawer"
 import { MarkdownRenderer } from "@/components/chat/MarkdownRenderer"
 import { ThinkingIndicator } from "@/components/chat/ThinkingIndicator"
 import type { ChatMessage, ChatMetadata } from "@/lib/api/types"
+import { AUTH_TOKEN_KEY } from "@/lib/constants"
 
 export default function ChatPage() {
   const router = useRouter()
@@ -51,7 +52,7 @@ export default function ChatPage() {
     setSessionInitialized,
   } = useChatStore()
 
-  const conversationHistory = useChatStore(selectConversationHistory)
+  // Removed conversationHistory selector to avoid infinite loop
 
   const [previousChats, setPreviousChats] = useState([
     { id: 1, title: "Tourist visa for Bali", date: "2 hours ago" },
@@ -110,12 +111,25 @@ export default function ChatPage() {
   }, [isInitialized, setSession, replaceMessages, setCRMContext, setSessionInitialized])
 
   useEffect(() => {
-    // Check for token - try multiple possible storage keys with retry mechanism
+    // Check for token using standardized AUTH_TOKEN_KEY, with migration from old keys
     const checkToken = () => {
-      const token = apiClient.getToken() ||
-        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('token') : null) ||
-        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('zantara_token') : null) ||
-        (typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? globalThis.localStorage.getItem('zantara_session_token') : null)
+      let token = apiClient.getToken()
+
+      // Migrate from old token keys if AUTH_TOKEN_KEY not found
+      if (!token && typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+        const oldKeys = ['token', 'zantara_token', 'zantara_session_token']
+        for (const oldKey of oldKeys) {
+          const oldToken = globalThis.localStorage.getItem(oldKey)
+          if (oldToken) {
+            console.log(`[ChatPage] Migrating token from ${oldKey} to ${AUTH_TOKEN_KEY}`)
+            globalThis.localStorage.setItem(AUTH_TOKEN_KEY, oldToken)
+            globalThis.localStorage.removeItem(oldKey)
+            token = oldToken
+            break
+          }
+        }
+      }
+
       return token
     }
 
@@ -126,11 +140,7 @@ export default function ChatPage() {
       setTimeout(() => {
         token = checkToken()
         console.log('[ChatPage] Token check (retry):', {
-          apiClient: apiClient.getToken() ? 'found' : 'not found',
-          localStorage_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('token') ? 'found' : 'not found',
-          zantara_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_token') ? 'found' : 'not found',
-          zantara_session_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_session_token') ? 'found' : 'not found',
-          allKeys: typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage).filter(k => k.toLowerCase().includes('token')) : []
+          [AUTH_TOKEN_KEY]: token ? 'found' : 'not found',
         })
 
         if (!token) {
@@ -145,11 +155,7 @@ export default function ChatPage() {
     }
 
     console.log('[ChatPage] Token check:', {
-      apiClient: apiClient.getToken() ? 'found' : 'not found',
-      localStorage_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('token') ? 'found' : 'not found',
-      zantara_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_token') ? 'found' : 'not found',
-      zantara_session_token: typeof globalThis !== 'undefined' && 'localStorage' in globalThis && globalThis.localStorage.getItem('zantara_session_token') ? 'found' : 'not found',
-      allKeys: typeof globalThis !== 'undefined' && 'localStorage' in globalThis ? Object.keys(globalThis.localStorage).filter(k => k.toLowerCase().includes('token')) : []
+      [AUTH_TOKEN_KEY]: token ? 'found' : 'not found',
     })
 
     if (!token) {
@@ -167,25 +173,8 @@ export default function ChatPage() {
     initializeSession()
   }, [router, initializeSession])
 
-  useEffect(() => {
-    // Load conversation history from localStorage
-    const savedMessages = localStorage.getItem("zantara_conversation")
-    if (savedMessages) {
-      try {
-        const parsed = JSON.parse(savedMessages)
-        setMessages(parsed)
-      } catch (e) {
-        console.error("Failed to load conversation history:", e)
-      }
-    }
-  }, [])
-
-  // Save conversation history to localStorage whenever messages change
-  useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem("zantara_conversation", JSON.stringify(messages))
-    }
-  }, [messages])
+  // Messages are automatically persisted by Zustand middleware
+  // No manual localStorage operations needed
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -227,7 +216,8 @@ export default function ChatPage() {
     // Prepare conversation history from store (max 100 turns = 200 messages)
     // Keep only the last 200 messages to ensure context window management
     // Filter out error messages to avoid confusing the AI
-    const history = conversationHistory
+    const history = messages
+      .map((m) => ({ role: m.role, content: m.content }))
       .filter(msg => msg.content !== "Sorry, I encountered an error. Please try again.")
       .slice(-200)
 
@@ -250,12 +240,13 @@ export default function ChatPage() {
             content: accumulatedContent,
             timestamp: new Date(),
             metadata: metadata ? {
-              model_used: metadata.model_used,
-              rag_sources: metadata.sources?.map((s: { source: string; relevance: number; preview?: string }) => ({
-                source: s.source,
-                relevance: s.relevance,
-                preview: s.preview,
+              memory_used: metadata.memory_used,
+              rag_sources: metadata.rag_sources?.map(source => ({
+                source: source.document || source.collection,
+                relevance: source.score,
+                preview: source.text_preview,
               })),
+              intent: metadata.intent,
             } : undefined,
           }
           addMessage(aiMessage)

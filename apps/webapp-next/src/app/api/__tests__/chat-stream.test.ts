@@ -75,7 +75,7 @@ class MockResponse {
 (global as any).Headers = MockHeaders;
 
 // Mock NextResponse
-jest.mock('next/server', () => ({
+jest.unstable_mockModule('next/server', () => ({
   NextResponse: {
     json: (body: any, init?: { status?: number }) => new MockResponse(body, init),
   },
@@ -86,7 +86,7 @@ const mockFetch = jest.fn() as unknown as jest.Mock<(...args: any[]) => Promise<
 (global as any).fetch = mockFetch;
 
 // Import AFTER mocks
-import { POST } from '../chat/stream/route';
+const { POST } = await import('../chat/stream/route');
 
 describe('POST /api/chat/stream', () => {
   const originalEnv = process.env;
