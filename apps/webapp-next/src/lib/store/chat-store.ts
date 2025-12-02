@@ -11,7 +11,7 @@ export interface Message {
     memory_used?: boolean
     rag_sources?: Array<{
       source: string
-      relevance: number
+      relevance?: number
       preview?: string
     }>
     intent?: string
