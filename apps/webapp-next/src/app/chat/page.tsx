@@ -155,14 +155,14 @@ export default function ChatPage() {
     if (!token) {
       // Don't redirect immediately, wait for retry
       return
+    }
 
     if (!isAuthLoading && !isAuthenticated) {
       router.push("/login")
- main
     }
   }, [isAuthLoading, isAuthenticated, router])
 
- claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
+  useEffect(() => {
     // Initialize ZANTARA session
     initializeSession()
   }, [router, initializeSession])
@@ -186,7 +186,6 @@ export default function ChatPage() {
       localStorage.setItem("zantara_conversation", JSON.stringify(messages))
     }
   }, [messages])
- main
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
