@@ -5,9 +5,6 @@ Unit tests for app.core.config
 
 import sys
 from pathlib import Path
-from pydantic import ValidationInfo
-
-import pytest
 
 # Ensure backend is in path
 backend_path = Path(__file__).parent.parent.parent / "backend"
@@ -40,5 +37,5 @@ def test_settings_creation():
     """Test Settings can be instantiated"""
     settings = Settings()
     assert settings is not None
-    assert hasattr(settings, 'database_url')
-    assert hasattr(settings, 'jwt_secret_key')
+    assert hasattr(settings, "database_url")
+    assert hasattr(settings, "jwt_secret_key")

@@ -4,7 +4,6 @@ Unit tests for Calendar Service
 """
 
 import sys
-from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -25,9 +24,7 @@ from services.calendar_service import CalendarService, get_calendar_service
 @pytest.fixture
 def calendar_service_mock_mode():
     """Create CalendarService in mock mode (no credentials)"""
-    with patch("os.path.exists", return_value=False), patch(
-        "services.calendar_service.logger"
-    ):
+    with patch("os.path.exists", return_value=False), patch("services.calendar_service.logger"):
         service = CalendarService()
         assert service.service is None  # Mock mode
         return service
@@ -139,8 +136,8 @@ def test_list_upcoming_events_empty_result(calendar_service_authenticated):
 
 def test_list_upcoming_events_exception(calendar_service_authenticated):
     """Test listing events with exception"""
-    calendar_service_authenticated.service.events.return_value.list.return_value.execute.side_effect = (
-        Exception("API Error")
+    calendar_service_authenticated.service.events.return_value.list.return_value.execute.side_effect = Exception(
+        "API Error"
     )
 
     events = calendar_service_authenticated.list_upcoming_events()
@@ -226,8 +223,8 @@ def test_create_event_timezone(calendar_service_authenticated):
 
 def test_create_event_exception(calendar_service_authenticated):
     """Test creating event with exception"""
-    calendar_service_authenticated.service.events.return_value.insert.return_value.execute.side_effect = (
-        Exception("API Error")
+    calendar_service_authenticated.service.events.return_value.insert.return_value.execute.side_effect = Exception(
+        "API Error"
     )
 
     result = calendar_service_authenticated.create_event(
@@ -244,9 +241,7 @@ def test_create_event_exception(calendar_service_authenticated):
 
 def test_get_calendar_service_singleton():
     """Test get_calendar_service returns singleton"""
-    with patch("os.path.exists", return_value=False), patch(
-        "services.calendar_service.logger"
-    ):
+    with patch("os.path.exists", return_value=False), patch("services.calendar_service.logger"):
         # Clear singleton
         import services.calendar_service
 
@@ -257,4 +252,3 @@ def test_get_calendar_service_singleton():
 
         assert service1 is service2
         assert isinstance(service1, CalendarService)
-

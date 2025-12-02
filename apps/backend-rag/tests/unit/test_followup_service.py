@@ -5,7 +5,7 @@ Unit tests for Follow-up Service
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -204,9 +204,7 @@ async def test_generate_dynamic_followups_exception(followup_service, mock_zanta
 @pytest.mark.asyncio
 async def test_generate_dynamic_followups_with_context(followup_service, mock_zantara_client):
     """Test generate_dynamic_followups with conversation context"""
-    mock_zantara_client.chat_async.return_value = {
-        "text": "1. First?\n2. Second?\n3. Third?"
-    }
+    mock_zantara_client.chat_async.return_value = {"text": "1. First?\n2. Second?\n3. Third?"}
 
     result = await followup_service.generate_dynamic_followups(
         "test", "response", conversation_context="Previous conversation", language="en"
@@ -236,18 +234,14 @@ def test_build_followup_generation_prompt_en(followup_service):
 
 def test_build_followup_generation_prompt_it(followup_service):
     """Test _build_followup_generation_prompt in Italian"""
-    prompt = followup_service._build_followup_generation_prompt(
-        "test", "response", None, "it"
-    )
+    prompt = followup_service._build_followup_generation_prompt("test", "response", None, "it")
 
     assert "italiano" in prompt.lower()
 
 
 def test_build_followup_generation_prompt_id(followup_service):
     """Test _build_followup_generation_prompt in Indonesian"""
-    prompt = followup_service._build_followup_generation_prompt(
-        "test", "response", None, "id"
-    )
+    prompt = followup_service._build_followup_generation_prompt("test", "response", None, "id")
 
     assert "bahasa Indonesia" in prompt.lower() or "indonesia" in prompt.lower()
 
@@ -341,7 +335,17 @@ def test_detect_topic_from_query_technical(followup_service):
 
 def test_detect_topic_from_query_casual(followup_service):
     """Test detect_topic_from_query detects casual"""
-    topics = ["hello", "hi", "ciao", "halo", "how are", "come stai", "apa kabar", "thanks", "grazie"]
+    topics = [
+        "hello",
+        "hi",
+        "ciao",
+        "halo",
+        "how are",
+        "come stai",
+        "apa kabar",
+        "thanks",
+        "grazie",
+    ]
 
     for topic in topics:
         result = followup_service.detect_topic_from_query(topic)
@@ -402,9 +406,7 @@ def test_detect_language_from_query_english_default(followup_service):
 @pytest.mark.asyncio
 async def test_get_followups_with_ai(followup_service, mock_zantara_client):
     """Test get_followups with AI enabled"""
-    mock_zantara_client.chat_async.return_value = {
-        "text": "1. First?\n2. Second?\n3. Third?"
-    }
+    mock_zantara_client.chat_async.return_value = {"text": "1. First?\n2. Second?\n3. Third?"}
 
     result = await followup_service.get_followups("What is visa?", "A visa is...", use_ai=True)
 
@@ -460,4 +462,3 @@ async def test_health_check_without_ai(followup_service_no_ai):
     assert result["status"] == "healthy"
     assert result["ai_available"] is False
     assert result["features"]["dynamic_generation"] is False
-

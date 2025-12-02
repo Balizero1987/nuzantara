@@ -109,7 +109,7 @@ def test_extract_text_from_pdf_page_error():
 def test_extract_text_from_epub_success():
     """Test successful EPUB extraction"""
     import ebooklib
-    
+
     mock_book = MagicMock()
     mock_item = MagicMock()
     # Use the actual ITEM_DOCUMENT constant value (which is 9)
@@ -274,4 +274,3 @@ def test_get_document_info_handles_errors():
             assert "file_name" in info
         finally:
             Path(tmp_path).unlink(missing_ok=True)
-

@@ -120,6 +120,101 @@ Jaksel AI is a custom personality module for the Zantara AI system that provides
 
 ---
 
+## 3. Qdrant Vector Database Structure
+
+### Overview
+The platform uses **Qdrant Cloud** as the vector database for RAG (Retrieval-Augmented Generation). All collections use **OpenAI text-embedding-3-small** embeddings (1536 dimensions) with **Cosine similarity**.
+
+### Document Structure
+
+Each document in Qdrant follows this structure:
+
+```json
+{
+  "id": "uuid-or-number",
+  "vector": [1536 float values],
+  "payload": {
+    "text": "chunk content...",
+    "metadata": {}
+  }
+}
+```
+
+### Collections Overview
+
+| Collection | Documents | Purpose | Metadata Structure |
+|------------|-----------|---------|-------------------|
+| `bali_zero_pricing` | 29 | Service pricing information | Empty `{}` - data in text |
+| `bali_zero_team` | 43 | Team member profiles | **Rich structured** (26 fields) |
+| `visa_oracle` | 1,612 | Visa and immigration regulations | Empty `{}` - JSON in text |
+| `kbli_unified` | 8,886 | Business classification codes (KBLI) | Empty `{}` - Markdown in text |
+| `tax_genius` | 895 | Indonesian tax regulations | Empty `{}` - Structured text |
+| `legal_unified` | 5,041 | Indonesian laws and regulations | Empty `{}` - Legal text chunks |
+| `knowledge_base` | 8,923 | General knowledge base | Empty `{}` - Mixed content |
+| `property_unified` | 29 | Property and real estate info | Empty `{}` - Property descriptions |
+
+**Total Documents**: ~25,458
+
+### Metadata Structure: `bali_zero_team`
+
+The `bali_zero_team` collection is unique with rich structured metadata:
+
+```json
+{
+  "id": "dewaayu",
+  "name": "Dewa Ayu",
+  "email": "dewa.ayu.tax@balizero.com",
+  "role": "Tax Lead",
+  "department": "tax",
+  "team": "tax",
+  "age": 24,
+  "religion": "Hindu",
+  "languages": ["id", "ban"],
+  "preferred_language": "id",
+  "expertise_level": "advanced",
+  "pin": "259176",
+  "traits": ["sweet", "social"],
+  "notes": "Balinese tax lead who loves TikTok...",
+  "location": "Bali",
+  "emotional_preferences": {
+    "tone": "friendly_helpful",
+    "formality": "medium",
+    "humor": "light"
+  }
+}
+```
+
+### Other Collections: Data in Text
+
+Most collections store structured data **within the text content** rather than metadata:
+
+- **`visa_oracle`**: Contains JSON structures in text (visa types, requirements, fees)
+- **`kbli_unified`**: Markdown-formatted business codes with descriptions
+- **`tax_genius`**: Structured tax tables and regulations in text
+- **`legal_unified`**: Legal text chunks (shortest average: 237 chars)
+
+### Chunk Statistics
+
+- **Average chunk length**: 237-917 characters (varies by collection)
+- **Chunking strategy**: Semantic chunking with overlap (100 chars default)
+- **Embedding model**: OpenAI `text-embedding-3-small` (1536-dim)
+
+### Analysis Tools
+
+A dedicated analysis script is available:
+
+```bash
+python scripts/analyze_qdrant_documents.py
+```
+
+This script:
+- Analyzes all collections structure
+- Extracts metadata patterns
+- Generates JSON and Markdown reports
+- Outputs to `scripts/qdrant_analysis_reports/`
+
+---
+
 ## 6. Observability & Automation
 
 The project employs a "Full-Stack Observability" approach, ensuring health and consistency across Backend, Frontend, and API Contracts.

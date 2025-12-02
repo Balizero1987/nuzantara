@@ -29,7 +29,6 @@ from app.routers.crm_clients import (
     update_client,
 )
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -241,7 +240,9 @@ async def test_update_client_success(mock_db_connection, mock_settings, sample_c
 
     with patch("app.routers.crm_clients.settings", mock_settings):
         with patch("app.routers.crm_clients.get_db_connection", return_value=conn):
-            result = await update_client(client_id=1, updates=update_data, updated_by="admin@example.com")
+            result = await update_client(
+                client_id=1, updates=update_data, updated_by="admin@example.com"
+            )
 
             assert isinstance(result, ClientResponse)
             assert result.status == "active"
@@ -260,7 +261,9 @@ async def test_update_client_not_found(mock_db_connection, mock_settings):
     with patch("app.routers.crm_clients.settings", mock_settings):
         with patch("app.routers.crm_clients.get_db_connection", return_value=conn):
             with pytest.raises(HTTPException) as exc_info:
-                await update_client(client_id=999, updates=update_data, updated_by="admin@example.com")
+                await update_client(
+                    client_id=999, updates=update_data, updated_by="admin@example.com"
+                )
 
             assert exc_info.value.status_code == 404
 
@@ -275,7 +278,9 @@ async def test_update_client_partial(mock_db_connection, mock_settings, sample_c
 
     with patch("app.routers.crm_clients.settings", mock_settings):
         with patch("app.routers.crm_clients.get_db_connection", return_value=conn):
-            result = await update_client(client_id=1, updates=update_data, updated_by="admin@example.com")
+            result = await update_client(
+                client_id=1, updates=update_data, updated_by="admin@example.com"
+            )
 
             assert isinstance(result, ClientResponse)
             assert cursor.execute.call_count >= 1  # Update + optional activity log
@@ -397,7 +402,9 @@ async def test_update_client_invalid_field(mock_db_connection, mock_settings):
     with patch("app.routers.crm_clients.settings", mock_settings):
         with patch("app.routers.crm_clients.get_db_connection", return_value=conn):
             with pytest.raises(HTTPException) as exc_info:
-                await update_client(client_id=1, updates=update_data, updated_by="admin@example.com")
+                await update_client(
+                    client_id=1, updates=update_data, updated_by="admin@example.com"
+                )
 
             assert exc_info.value.status_code == 400
             assert "Invalid field name" in exc_info.value.detail
@@ -414,7 +421,9 @@ async def test_update_client_no_fields(mock_db_connection, mock_settings):
     with patch("app.routers.crm_clients.settings", mock_settings):
         with patch("app.routers.crm_clients.get_db_connection", return_value=conn):
             with pytest.raises(HTTPException) as exc_info:
-                await update_client(client_id=1, updates=update_data, updated_by="admin@example.com")
+                await update_client(
+                    client_id=1, updates=update_data, updated_by="admin@example.com"
+                )
 
             assert exc_info.value.status_code == 400
             assert "No fields to update" in exc_info.value.detail
@@ -431,7 +440,9 @@ async def test_update_client_json_fields(mock_db_connection, mock_settings, samp
 
     with patch("app.routers.crm_clients.settings", mock_settings):
         with patch("app.routers.crm_clients.get_db_connection", return_value=conn):
-            result = await update_client(client_id=1, updates=update_data, updated_by="admin@example.com")
+            result = await update_client(
+                client_id=1, updates=update_data, updated_by="admin@example.com"
+            )
 
             assert isinstance(result, ClientResponse)
             cursor.execute.assert_called()
@@ -448,7 +459,9 @@ async def test_update_client_exception(mock_db_connection, mock_settings):
     with patch("app.routers.crm_clients.settings", mock_settings):
         with patch("app.routers.crm_clients.get_db_connection", return_value=conn):
             with pytest.raises(HTTPException) as exc_info:
-                await update_client(client_id=1, updates=update_data, updated_by="admin@example.com")
+                await update_client(
+                    client_id=1, updates=update_data, updated_by="admin@example.com"
+                )
 
             assert exc_info.value.status_code == 500
 
@@ -614,4 +627,3 @@ async def test_get_clients_stats_exception(mock_db_connection, mock_settings):
                 await get_clients_stats()
 
             assert exc_info.value.status_code == 500
-

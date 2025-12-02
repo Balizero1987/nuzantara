@@ -149,7 +149,9 @@ async def test_dispatch_rate_limit_exceeded():
 
     # Mock rate limiter to return exceeded
     with patch("middleware.rate_limiter.rate_limiter") as mock_limiter:
-        mock_limiter.is_allowed = MagicMock(return_value=(False, {"limit": 10, "remaining": 0, "reset": int(time.time()) + 60}))
+        mock_limiter.is_allowed = MagicMock(
+            return_value=(False, {"limit": 10, "remaining": 0, "reset": int(time.time()) + 60})
+        )
 
         result = await middleware.dispatch(request, AsyncMock())
 
@@ -170,7 +172,9 @@ async def test_dispatch_success_with_headers():
     call_next = AsyncMock(return_value=response)
 
     with patch("middleware.rate_limiter.rate_limiter") as mock_limiter:
-        mock_limiter.is_allowed = MagicMock(return_value=(True, {"limit": 10, "remaining": 9, "reset": int(time.time()) + 60}))
+        mock_limiter.is_allowed = MagicMock(
+            return_value=(True, {"limit": 10, "remaining": 9, "reset": int(time.time()) + 60})
+        )
 
         result = await middleware.dispatch(request, call_next)
 
@@ -217,4 +221,3 @@ def test_get_rate_limit_stats():
     assert "backend" in stats
     assert "connected" in stats
     assert "rate_limits_configured" in stats
-

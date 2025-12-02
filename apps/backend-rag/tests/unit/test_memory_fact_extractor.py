@@ -5,7 +5,7 @@ Unit tests for Memory Fact Extractor Service
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -54,7 +54,10 @@ def test_extract_facts_from_conversation_preference(fact_extractor):
     facts = fact_extractor.extract_facts_from_conversation(user_msg, ai_msg, "user-123")
 
     assert len(facts) > 0
-    assert any("preference" in f.get("type", "") or "espresso" in f.get("content", "").lower() for f in facts)
+    assert any(
+        "preference" in f.get("type", "") or "espresso" in f.get("content", "").lower()
+        for f in facts
+    )
 
 
 def test_extract_facts_from_conversation_business(fact_extractor):
@@ -229,7 +232,12 @@ def test_deduplicate_facts_removes_duplicates(fact_extractor):
 def test_deduplicate_facts_limits_to_three(fact_extractor):
     """Test _deduplicate_facts limits to top 3"""
     facts = [
-        {"content": f"Fact {i}", "type": "preference", "confidence": 0.9 - i * 0.1, "source": "user"}
+        {
+            "content": f"Fact {i}",
+            "type": "preference",
+            "confidence": 0.9 - i * 0.1,
+            "source": "user",
+        }
         for i in range(5)
     ]
 
@@ -331,4 +339,3 @@ def test_extract_quick_facts_max_facts(fact_extractor):
     facts = fact_extractor.extract_quick_facts(text, max_facts=1)
 
     assert len(facts) <= 1
-

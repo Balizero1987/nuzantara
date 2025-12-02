@@ -27,9 +27,7 @@ SAMPLE_PERSON_RECORD = {
     "name": "Test Person",
     "dob": "1980-01-01",
     "pob": "Jakarta",
-    "offices": [
-        {"office": "Mayor", "from": "2020", "to": "2024", "jurisdiction_id": "jakarta"}
-    ],
+    "offices": [{"office": "Mayor", "from": "2020", "to": "2024", "jurisdiction_id": "jakarta"}],
     "party_memberships": [{"party_id": "PDI-P", "from": "2015", "to": "present"}],
 }
 
@@ -320,7 +318,9 @@ def test_ingest_dir_success(politics_ingestion_service):
         ]
 
         with patch.object(
-            politics_ingestion_service, "ingest_jsonl_files", return_value={"success": True, "documents_added": 10}
+            politics_ingestion_service,
+            "ingest_jsonl_files",
+            return_value={"success": True, "documents_added": 10},
         ) as mock_ingest:
             result = politics_ingestion_service.ingest_dir(Path("test_dir"))
 
@@ -337,4 +337,3 @@ def test_ingest_dir_finds_all_subdirs(politics_ingestion_service):
 
         # Should call glob for each subdirectory
         assert mock_glob.call_count == 4  # persons, parties, elections, jurisdictions
-

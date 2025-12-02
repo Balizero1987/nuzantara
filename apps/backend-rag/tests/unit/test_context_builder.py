@@ -196,6 +196,7 @@ def test_build_team_context_anonymous_id(context_builder):
 
 def test_build_team_context_no_id_attribute(context_builder):
     """Test build_team_context with collaborator without id"""
+
     # Use a simple object without id attribute
     class CollaboratorWithoutId:
         name = "Test User"
@@ -501,4 +502,3 @@ def test_build_team_context_emotional_preferences_no_instruction_parts(context_b
     assert len(result) > 0
     # Verify emotional_preferences block was entered but instruction_parts remained empty
     assert "English" in result  # Language should be included
-

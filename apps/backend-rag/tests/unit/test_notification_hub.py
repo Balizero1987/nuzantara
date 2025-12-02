@@ -4,9 +4,8 @@ Unit tests for Notification Hub
 """
 
 import sys
-from datetime import datetime
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -116,7 +115,9 @@ async def test_send_notification_auto_select_channels(
         mock_whatsapp.return_value = {"success": True}
         mock_in_app.return_value = {"success": True}
 
-        result = await notification_hub_instance.send(sample_notification, auto_select_channels=True)
+        result = await notification_hub_instance.send(
+            sample_notification, auto_select_channels=True
+        )
 
         assert len(sample_notification.channels) > 0
         assert NotificationChannel.EMAIL in sample_notification.channels
@@ -127,7 +128,10 @@ async def test_send_notification_auto_select_channels(
 async def test_send_notification_failure(notification_hub_instance, sample_notification):
     """Test sending notification with failure"""
     with patch.object(
-        notification_hub_instance, "_send_email", new_callable=AsyncMock, side_effect=Exception("Error")
+        notification_hub_instance,
+        "_send_email",
+        new_callable=AsyncMock,
+        side_effect=Exception("Error"),
     ):
         result = await notification_hub_instance.send(sample_notification)
 
@@ -175,9 +179,7 @@ def test_select_channels_urgent_priority(notification_hub_instance):
 
 def test_select_channels_critical_priority(notification_hub_instance):
     """Test channel selection for CRITICAL priority"""
-    channels = notification_hub_instance._select_channels_by_priority(
-        NotificationPriority.CRITICAL
-    )
+    channels = notification_hub_instance._select_channels_by_priority(NotificationPriority.CRITICAL)
 
     assert NotificationChannel.EMAIL in channels
     assert NotificationChannel.WHATSAPP in channels
@@ -330,7 +332,7 @@ def test_create_notification_from_template_success():
             "item_title": "NIB",
             "deadline": "2024-12-31",
             "documents_list": "NIB, NPWP, SIUP",
-            "cost": "Rp 2,000,000"
+            "cost": "Rp 2,000,000",
         },
         recipient_email="client@example.com",
     )
@@ -361,7 +363,7 @@ def test_create_notification_from_template_urgent():
             "client_name": "Test",
             "item_title": "NIB",
             "deadline": "2024-12-31",
-            "documents_list": "NIB, NPWP"
+            "documents_list": "NIB, NPWP",
         },
         recipient_email="client@example.com",
         recipient_phone="+1234567890",
@@ -472,7 +474,11 @@ def test_init_providers_with_discord():
 @pytest.mark.asyncio
 async def test_send_notification_multiple_channels(notification_hub_instance, sample_notification):
     """Test sending notification via multiple channels"""
-    sample_notification.channels = [NotificationChannel.EMAIL, NotificationChannel.SMS, NotificationChannel.SLACK]
+    sample_notification.channels = [
+        NotificationChannel.EMAIL,
+        NotificationChannel.SMS,
+        NotificationChannel.SLACK,
+    ]
     sample_notification.recipient_phone = "+1234567890"
 
     notification_hub_instance.channels_config["email"]["enabled"] = True
@@ -504,7 +510,9 @@ async def test_send_notification_partial_failure(notification_hub_instance, samp
         mock_email.return_value = {"success": True}
         mock_sms.return_value = {"success": False, "error": "SMS service down"}
 
-        result = await notification_hub_instance.send(sample_notification, auto_select_channels=False)
+        result = await notification_hub_instance.send(
+            sample_notification, auto_select_channels=False
+        )
 
         # Should be SENT if at least one channel succeeds
         assert result["status"] == NotificationStatus.SENT.value
@@ -632,6 +640,7 @@ def test_create_notification_from_template_critical_priority():
     # journey_completed has HIGH priority, not CRITICAL
     # Let's manually test CRITICAL channel selection
     from services.notification_hub import NotificationHub
+
     hub = NotificationHub()
     channels = hub._select_channels_by_priority(NotificationPriority.CRITICAL)
 
@@ -646,6 +655,7 @@ def test_create_notification_from_template_low_priority():
     """Test creating LOW priority notification with channel selection"""
     # Use direct channel selection test
     from services.notification_hub import NotificationHub
+
     hub = NotificationHub()
     channels = hub._select_channels_by_priority(NotificationPriority.LOW)
 
@@ -817,7 +827,7 @@ def test_create_notification_with_all_recipients():
             "item_title": "NIB",
             "deadline": "2024-12-31",
             "documents_list": "NIB, NPWP",
-            "cost": "Rp 2,000,000"
+            "cost": "Rp 2,000,000",
         },
         recipient_email="client@example.com",
         recipient_phone="+1234567890",
@@ -850,7 +860,9 @@ async def test_send_all_channels_fail(notification_hub_instance, sample_notifica
     ) as mock_email:
         mock_email.return_value = {"success": False, "error": "Email failed"}
 
-        result = await notification_hub_instance.send(sample_notification, auto_select_channels=False)
+        result = await notification_hub_instance.send(
+            sample_notification, auto_select_channels=False
+        )
 
         assert result["status"] == NotificationStatus.FAILED.value
 
@@ -874,7 +886,7 @@ def test_template_with_special_characters():
             "item_title": "NIB/SIUP",
             "deadline": "2024-12-31",
             "documents_list": "NIB, NPWP, SIUP",
-            "cost": "Rp 2,000,000"
+            "cost": "Rp 2,000,000",
         },
         recipient_email="client@example.com",
     )
@@ -891,6 +903,7 @@ def test_notification_timestamps():
     )
 
     import time
+
     time.sleep(0.001)
 
     notif2 = Notification(
@@ -913,5 +926,7 @@ def test_all_priority_levels_in_templates():
 
     # Should have at least some priority levels represented
     assert len(priorities_used) > 0
-    assert NotificationPriority.NORMAL in priorities_used or NotificationPriority.HIGH in priorities_used
-
+    assert (
+        NotificationPriority.NORMAL in priorities_used
+        or NotificationPriority.HIGH in priorities_used
+    )

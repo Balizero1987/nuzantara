@@ -5,7 +5,7 @@ Unit tests for Media Router
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -26,7 +26,7 @@ from app.routers.media import router
 def client():
     """Create FastAPI test client"""
     from fastapi import FastAPI
-    
+
     app = FastAPI()
     app.include_router(router)
     return TestClient(app)
@@ -36,12 +36,14 @@ def client():
 def mock_image_generation_service():
     """Mock ImageGenerationService"""
     service = AsyncMock()
-    service.generate_image = AsyncMock(return_value={
-        "success": True,
-        "url": "https://example.com/image.png",
-        "prompt": "Test prompt",
-        "service": "test_service",
-    })
+    service.generate_image = AsyncMock(
+        return_value={
+            "success": True,
+            "url": "https://example.com/image.png",
+            "prompt": "Test prompt",
+            "service": "test_service",
+        }
+    )
     return service
 
 
@@ -53,11 +55,10 @@ def mock_image_generation_service():
 @pytest.mark.asyncio
 async def test_generate_image_success(client, mock_image_generation_service):
     """Test generate_image successful"""
-    with patch("app.routers.media.ImageGenerationService", return_value=mock_image_generation_service):
-        response = client.post(
-            "/media/generate-image",
-            json={"prompt": "A beautiful sunset"}
-        )
+    with patch(
+        "app.routers.media.ImageGenerationService", return_value=mock_image_generation_service
+    ):
+        response = client.post("/media/generate-image", json={"prompt": "A beautiful sunset"})
 
         assert response.status_code == 200
         data = response.json()
@@ -71,14 +72,13 @@ async def test_generate_image_not_configured(client, mock_image_generation_servi
     """Test generate_image when service not configured"""
     mock_image_generation_service.generate_image.return_value = {
         "success": False,
-        "error": "Service not configured"
+        "error": "Service not configured",
     }
-    
-    with patch("app.routers.media.ImageGenerationService", return_value=mock_image_generation_service):
-        response = client.post(
-            "/media/generate-image",
-            json={"prompt": "Test"}
-        )
+
+    with patch(
+        "app.routers.media.ImageGenerationService", return_value=mock_image_generation_service
+    ):
+        response = client.post("/media/generate-image", json={"prompt": "Test"})
 
         assert response.status_code == 503
 
@@ -88,14 +88,13 @@ async def test_generate_image_invalid_prompt(client, mock_image_generation_servi
     """Test generate_image with invalid prompt"""
     mock_image_generation_service.generate_image.return_value = {
         "success": False,
-        "error": "Invalid prompt"
+        "error": "Invalid prompt",
     }
-    
-    with patch("app.routers.media.ImageGenerationService", return_value=mock_image_generation_service):
-        response = client.post(
-            "/media/generate-image",
-            json={"prompt": ""}
-        )
+
+    with patch(
+        "app.routers.media.ImageGenerationService", return_value=mock_image_generation_service
+    ):
+        response = client.post("/media/generate-image", json={"prompt": ""})
 
         assert response.status_code == 400
 
@@ -105,14 +104,13 @@ async def test_generate_image_generic_error(client, mock_image_generation_servic
     """Test generate_image with generic error"""
     mock_image_generation_service.generate_image.return_value = {
         "success": False,
-        "error": "Generic error"
+        "error": "Generic error",
     }
-    
-    with patch("app.routers.media.ImageGenerationService", return_value=mock_image_generation_service):
-        response = client.post(
-            "/media/generate-image",
-            json={"prompt": "Test"}
-        )
+
+    with patch(
+        "app.routers.media.ImageGenerationService", return_value=mock_image_generation_service
+    ):
+        response = client.post("/media/generate-image", json={"prompt": "Test"})
 
         assert response.status_code == 500
 
@@ -121,12 +119,11 @@ async def test_generate_image_generic_error(client, mock_image_generation_servic
 async def test_generate_image_exception(client, mock_image_generation_service):
     """Test generate_image handles exception"""
     mock_image_generation_service.generate_image.side_effect = Exception("Service error")
-    
-    with patch("app.routers.media.ImageGenerationService", return_value=mock_image_generation_service):
-        response = client.post(
-            "/media/generate-image",
-            json={"prompt": "Test"}
-        )
+
+    with patch(
+        "app.routers.media.ImageGenerationService", return_value=mock_image_generation_service
+    ):
+        response = client.post("/media/generate-image", json={"prompt": "Test"})
 
         assert response.status_code == 500
         data = response.json()
@@ -136,9 +133,6 @@ async def test_generate_image_exception(client, mock_image_generation_service):
 @pytest.mark.asyncio
 async def test_generate_image_missing_prompt(client):
     """Test generate_image with missing prompt"""
-    response = client.post(
-        "/media/generate-image",
-        json={}
-    )
+    response = client.post("/media/generate-image", json={})
 
     assert response.status_code == 422  # Validation error

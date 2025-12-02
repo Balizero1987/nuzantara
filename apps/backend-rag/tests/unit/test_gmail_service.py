@@ -103,9 +103,7 @@ def test_list_messages_authenticated(gmail_service_authenticated):
 
     mock_list = MagicMock()
     mock_list.execute.return_value = mock_messages_result
-    gmail_service_authenticated.service.users.return_value.messages.return_value.list.return_value = (
-        mock_list
-    )
+    gmail_service_authenticated.service.users.return_value.messages.return_value.list.return_value = mock_list
 
     messages = gmail_service_authenticated.list_messages(query="is:unread", max_results=5)
 
@@ -120,9 +118,7 @@ def test_list_messages_empty_result(gmail_service_authenticated):
 
     mock_list = MagicMock()
     mock_list.execute.return_value = mock_messages_result
-    gmail_service_authenticated.service.users.return_value.messages.return_value.list.return_value = (
-        mock_list
-    )
+    gmail_service_authenticated.service.users.return_value.messages.return_value.list.return_value = mock_list
 
     messages = gmail_service_authenticated.list_messages()
 
@@ -131,8 +127,8 @@ def test_list_messages_empty_result(gmail_service_authenticated):
 
 def test_list_messages_exception(gmail_service_authenticated):
     """Test listing messages with exception"""
-    gmail_service_authenticated.service.users.return_value.messages.return_value.list.return_value.execute.side_effect = (
-        Exception("API Error")
+    gmail_service_authenticated.service.users.return_value.messages.return_value.list.return_value.execute.side_effect = Exception(
+        "API Error"
     )
 
     messages = gmail_service_authenticated.list_messages()
@@ -146,9 +142,7 @@ def test_list_messages_max_results(gmail_service_authenticated):
 
     mock_list = MagicMock()
     mock_list.execute.return_value = mock_messages_result
-    gmail_service_authenticated.service.users.return_value.messages.return_value.list.return_value = (
-        mock_list
-    )
+    gmail_service_authenticated.service.users.return_value.messages.return_value.list.return_value = mock_list
 
     messages = gmail_service_authenticated.list_messages(max_results=5)
 
@@ -190,9 +184,7 @@ def test_get_message_details_authenticated(gmail_service_authenticated):
 
     mock_get = MagicMock()
     mock_get.execute.return_value = mock_message
-    gmail_service_authenticated.service.users.return_value.messages.return_value.get.return_value = (
-        mock_get
-    )
+    gmail_service_authenticated.service.users.return_value.messages.return_value.get.return_value = mock_get
 
     details = gmail_service_authenticated.get_message_details("msg123")
 
@@ -226,9 +218,7 @@ def test_get_message_details_with_parts(gmail_service_authenticated):
 
     mock_get = MagicMock()
     mock_get.execute.return_value = mock_message
-    gmail_service_authenticated.service.users.return_value.messages.return_value.get.return_value = (
-        mock_get
-    )
+    gmail_service_authenticated.service.users.return_value.messages.return_value.get.return_value = mock_get
 
     details = gmail_service_authenticated.get_message_details("msg123")
 
@@ -251,9 +241,7 @@ def test_get_message_details_no_body(gmail_service_authenticated):
 
     mock_get = MagicMock()
     mock_get.execute.return_value = mock_message
-    gmail_service_authenticated.service.users.return_value.messages.return_value.get.return_value = (
-        mock_get
-    )
+    gmail_service_authenticated.service.users.return_value.messages.return_value.get.return_value = mock_get
 
     details = gmail_service_authenticated.get_message_details("msg123")
 
@@ -262,8 +250,8 @@ def test_get_message_details_no_body(gmail_service_authenticated):
 
 def test_get_message_details_exception(gmail_service_authenticated):
     """Test getting message details with exception"""
-    gmail_service_authenticated.service.users.return_value.messages.return_value.get.return_value.execute.side_effect = (
-        Exception("API Error")
+    gmail_service_authenticated.service.users.return_value.messages.return_value.get.return_value.execute.side_effect = Exception(
+        "API Error"
     )
 
     details = gmail_service_authenticated.get_message_details("msg123")
@@ -296,9 +284,7 @@ def test_create_draft_authenticated(gmail_service_authenticated):
 
     mock_create = MagicMock()
     mock_create.execute.return_value = mock_draft_result
-    gmail_service_authenticated.service.users.return_value.drafts.return_value.create.return_value = (
-        mock_create
-    )
+    gmail_service_authenticated.service.users.return_value.drafts.return_value.create.return_value = mock_create
 
     result = gmail_service_authenticated.create_draft(
         to="recipient@example.com", subject="Test Subject", body="Test body"
@@ -310,8 +296,8 @@ def test_create_draft_authenticated(gmail_service_authenticated):
 
 def test_create_draft_exception(gmail_service_authenticated):
     """Test creating draft with exception"""
-    gmail_service_authenticated.service.users.return_value.drafts.return_value.create.return_value.execute.side_effect = (
-        Exception("API Error")
+    gmail_service_authenticated.service.users.return_value.drafts.return_value.create.return_value.execute.side_effect = Exception(
+        "API Error"
     )
 
     result = gmail_service_authenticated.create_draft(
@@ -339,4 +325,3 @@ def test_get_gmail_service_singleton():
 
         assert service1 is service2
         assert isinstance(service1, GmailService)
-

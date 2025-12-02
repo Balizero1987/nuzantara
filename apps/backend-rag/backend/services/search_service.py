@@ -175,20 +175,20 @@ class SearchService:
     ) -> dict[str, Any] | None:
         """
         Build search filter with default exclusion of repealed laws.
-        
+
         Args:
             tier_filter: Optional tier filter dictionary (e.g., {"tier": {"$in": ["S", "A"]}})
             exclude_repealed: Whether to exclude repealed laws (default: True)
-            
+
         Returns:
             Combined filter dictionary or None
         """
         filters = {}
-        
+
         # Add tier filter if provided
         if tier_filter:
             filters.update(tier_filter)
-        
+
         # Default: Exclude repealed laws (status_vigensi: "dicabut")
         if exclude_repealed:
             if "status_vigensi" in filters:
@@ -209,7 +209,7 @@ class SearchService:
             else:
                 # No existing status_vigensi filter, add exclusion
                 filters["status_vigensi"] = {"$ne": "dicabut"}
-        
+
         return filters if filters else None
 
     @cached(ttl=300, prefix="rag_search")

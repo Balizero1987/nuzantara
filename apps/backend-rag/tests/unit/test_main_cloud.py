@@ -28,13 +28,15 @@ def test_app():
 ```
 """
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
 from fastapi.testclient import TestClient
 
 # Check if langchain is available (required for main_cloud import)
 try:
     import langchain
+
     LANGCHAIN_AVAILABLE = True
 except ImportError:
     LANGCHAIN_AVAILABLE = False
@@ -43,6 +45,7 @@ except ImportError:
 # ============================================================================
 # INTEGRATION TESTS - Testing the actual app
 # ============================================================================
+
 
 @pytest.fixture(scope="module")
 @pytest.mark.skipif(not LANGCHAIN_AVAILABLE, reason="langchain not installed")
@@ -55,14 +58,15 @@ def app():
     """
     # Suppress the pkg_resources warning
     import warnings
+
     warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 
     # Mock database and external services at their source
-    with patch("asyncpg.create_pool") as mock_pool, \
-         patch("services.search_service.SearchService"), \
-         patch("services.intelligent_router.IntelligentRouter") as mock_router, \
-         patch("llm.zantara_ai_client.ZantaraAIClient"):
-
+    with patch("asyncpg.create_pool") as mock_pool, patch(
+        "services.search_service.SearchService"
+    ), patch("services.intelligent_router.IntelligentRouter") as mock_router, patch(
+        "llm.zantara_ai_client.ZantaraAIClient"
+    ):
         mock_pool.return_value = AsyncMock()
 
         # Mock IntelligentRouter
@@ -86,13 +90,16 @@ def client(app):
     return TestClient(app)
 
 
-@pytest.mark.skipif(not LANGCHAIN_AVAILABLE, reason="langchain not installed - required for main_cloud import")
+@pytest.mark.skipif(
+    not LANGCHAIN_AVAILABLE, reason="langchain not installed - required for main_cloud import"
+)
 class TestMainCloudIntegration:
     """Integration tests for main_cloud.py endpoints"""
 
     def test_app_created(self, app):
         """Test: FastAPI app instance exists"""
         from fastapi import FastAPI
+
         assert isinstance(app, FastAPI)
         assert app.title is not None
 
@@ -125,6 +132,7 @@ class TestMainCloudIntegration:
 # AUTHENTICATION FUNCTION TESTS
 # ============================================================================
 
+
 class TestAuthenticationLogic:
     """Test authentication logic without importing main_cloud
 
@@ -136,6 +144,7 @@ class TestAuthenticationLogic:
     @pytest.mark.asyncio
     async def test_api_key_validation_logic(self):
         """Test: API key validation logic"""
+
         # Recreate the function logic from main_cloud.py
         async def validate_api_key(api_key: str | None, valid_keys: str) -> dict | None:
             if not api_key:
@@ -148,7 +157,7 @@ class TestAuthenticationLogic:
                 "email": "api-service@nuzantara.io",
                 "auth_method": "api_key",
                 "role": "service",
-                "permissions": ["read", "write"]
+                "permissions": ["read", "write"],
             }
 
         # Test valid key
@@ -167,8 +176,9 @@ class TestAuthenticationLogic:
     @pytest.mark.asyncio
     async def test_jwt_validation_logic(self):
         """Test: JWT validation logic"""
-        from jose import jwt
         import time
+
+        from jose import jwt
 
         # Recreate JWT validation logic
         async def validate_jwt(token: str | None, secret: str, algorithm: str) -> dict | None:
@@ -180,18 +190,19 @@ class TestAuthenticationLogic:
                     "id": "dev-user",
                     "email": "dev@balizero.com",
                     "auth_method": "dev_bypass",
-                    "role": "admin"
+                    "role": "admin",
                 }
 
             try:
                 from jose import JWTError
+
                 payload = jwt.decode(token, secret, algorithms=[algorithm])
                 return {
                     "id": payload.get("sub") or payload.get("userId"),
                     "email": payload.get("email"),
                     "auth_method": "jwt_local",
                     "role": payload.get("role", "user"),
-                    "name": payload.get("name")
+                    "name": payload.get("name"),
                 }
             except JWTError:
                 return None
@@ -206,7 +217,7 @@ class TestAuthenticationLogic:
             "sub": "user123",
             "email": "test@example.com",
             "role": "admin",
-            "exp": int(time.time()) + 3600
+            "exp": int(time.time()) + 3600,
         }
         token = jwt.encode(payload, "test_secret", algorithm="HS256")
         result = await validate_jwt(token, "test_secret", "HS256")
@@ -215,10 +226,7 @@ class TestAuthenticationLogic:
         assert result["email"] == "test@example.com"
 
         # Test expired token
-        payload = {
-            "sub": "user123",
-            "exp": int(time.time()) - 3600
-        }
+        payload = {"sub": "user123", "exp": int(time.time()) - 3600}
         token = jwt.encode(payload, "test_secret", algorithm="HS256")
         result = await validate_jwt(token, "test_secret", "HS256")
         assert result is None
@@ -226,8 +234,9 @@ class TestAuthenticationLogic:
     @pytest.mark.asyncio
     async def test_mixed_auth_logic(self):
         """Test: Mixed authentication logic (JWT + API Key)"""
-        from jose import jwt
         import time
+
+        from jose import jwt
 
         async def validate_mixed_auth(
             authorization: str | None = None,
@@ -235,7 +244,7 @@ class TestAuthenticationLogic:
             auth_token: str | None = None,
             valid_api_keys: str = "",
             jwt_secret: str = "secret",
-            jwt_algorithm: str = "HS256"
+            jwt_algorithm: str = "HS256",
         ) -> dict | None:
             # Try Bearer token
             if authorization and authorization.startswith("Bearer "):
@@ -243,11 +252,12 @@ class TestAuthenticationLogic:
                 # Simplified JWT check
                 try:
                     from jose import JWTError
+
                     payload = jwt.decode(token, jwt_secret, algorithms=[jwt_algorithm])
                     return {
                         "id": payload.get("sub") or payload.get("userId"),
                         "email": payload.get("email"),
-                        "auth_method": "jwt"
+                        "auth_method": "jwt",
                     }
                 except JWTError:
                     pass
@@ -256,11 +266,9 @@ class TestAuthenticationLogic:
             if auth_token:
                 try:
                     from jose import JWTError
+
                     payload = jwt.decode(auth_token, jwt_secret, algorithms=[jwt_algorithm])
-                    return {
-                        "id": payload.get("sub") or payload.get("userId"),
-                        "auth_method": "jwt"
-                    }
+                    return {"id": payload.get("sub") or payload.get("userId"), "auth_method": "jwt"}
                 except JWTError:
                     pass
 
@@ -268,10 +276,7 @@ class TestAuthenticationLogic:
             if x_api_key:
                 valid_keys = [k.strip() for k in valid_api_keys.split(",")]
                 if x_api_key in valid_keys:
-                    return {
-                        "id": "api_key_user",
-                        "auth_method": "api_key"
-                    }
+                    return {"id": "api_key_user", "auth_method": "api_key"}
 
             return None
 
@@ -283,7 +288,9 @@ class TestAuthenticationLogic:
         assert result["auth_method"] == "jwt"
 
         # Test with API key
-        result = await validate_mixed_auth(x_api_key="test_key", valid_api_keys="test_key,other_key")
+        result = await validate_mixed_auth(
+            x_api_key="test_key", valid_api_keys="test_key,other_key"
+        )
         assert result is not None
         assert result["auth_method"] == "api_key"
 
@@ -295,6 +302,7 @@ class TestAuthenticationLogic:
 # ============================================================================
 # UTILITY FUNCTION TESTS
 # ============================================================================
+
 
 class TestUtilityFunctions:
     """Test utility function logic"""
@@ -337,10 +345,8 @@ class TestUtilityFunctions:
 
     def test_allowed_origins_logic(self):
         """Test: CORS allowed origins logic"""
-        def get_allowed_origins(
-            zantara_origins: str = "",
-            dev_origins: str = ""
-        ) -> list[str]:
+
+        def get_allowed_origins(zantara_origins: str = "", dev_origins: str = "") -> list[str]:
             """Get allowed CORS origins"""
             origins = set()
 
@@ -365,9 +371,7 @@ class TestUtilityFunctions:
             return list(origins)
 
         # Test with configured origins
-        origins = get_allowed_origins(
-            zantara_origins="https://app1.com,https://app2.com"
-        )
+        origins = get_allowed_origins(zantara_origins="https://app1.com,https://app2.com")
         assert "https://app1.com" in origins
         assert "http://localhost:3000" in origins
 
@@ -383,6 +387,7 @@ class TestUtilityFunctions:
 # ============================================================================
 # ARCHITECTURAL DOCUMENTATION
 # ============================================================================
+
 
 class TestArchitecturalLimitations:
     """Document architectural limitations and solutions"""

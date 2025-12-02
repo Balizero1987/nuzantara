@@ -5,7 +5,7 @@ Unit tests for Specialized Service Router
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -100,7 +100,9 @@ def specialized_router_no_services():
 # ============================================================================
 
 
-def test_specialized_router_init(specialized_router, mock_autonomous_research, mock_cross_oracle, mock_client_journey):
+def test_specialized_router_init(
+    specialized_router, mock_autonomous_research, mock_cross_oracle, mock_client_journey
+):
     """Test SpecializedServiceRouter initialization"""
     assert specialized_router.autonomous_research is mock_autonomous_research
     assert specialized_router.cross_oracle is mock_cross_oracle
@@ -131,9 +133,7 @@ def test_detect_autonomous_research_long_query(specialized_router):
 
 def test_detect_autonomous_research_wrong_category(specialized_router):
     """Test not detecting autonomous research for wrong category"""
-    result = specialized_router.detect_autonomous_research(
-        "crypto business", "greeting"
-    )
+    result = specialized_router.detect_autonomous_research("crypto business", "greeting")
 
     assert result is False
 
@@ -192,7 +192,8 @@ def test_detect_cross_oracle_business_setup(specialized_router):
     """Test detecting cross-oracle with business setup term"""
     # Query needs: business setup term + (comprehensive indicator OR >10 words)
     result = specialized_router.detect_cross_oracle(
-        "I need comprehensive guidance for opening a restaurant business in Indonesia with all requirements", "business_complex"
+        "I need comprehensive guidance for opening a restaurant business in Indonesia with all requirements",
+        "business_complex",
     )
 
     assert result is True
@@ -534,9 +535,22 @@ async def test_route_client_journey_response_contains_required_fields(specialize
 def test_detect_autonomous_research_various_ambiguous_keywords(specialized_router):
     """Test autonomous research detection with various ambiguous keywords"""
     keywords_to_test = [
-        "blockchain", "nft", "web3", "nuovo", "baru", "innovative",
-        "innovativo", "non standard", "uncommon", "rare", "unusual",
-        "multiple", "several", "various", "diversi", "beberapa"
+        "blockchain",
+        "nft",
+        "web3",
+        "nuovo",
+        "baru",
+        "innovative",
+        "innovativo",
+        "non standard",
+        "uncommon",
+        "rare",
+        "unusual",
+        "multiple",
+        "several",
+        "various",
+        "diversi",
+        "beberapa",
     ]
 
     for keyword in keywords_to_test:
@@ -551,21 +565,29 @@ def test_detect_autonomous_research_how_to_patterns(specialized_router):
     patterns = [
         "how to start a business in Indonesia with proper licensing documentation and all the permits needed for foreign investors",
         "come si apre una azienda in Indonesia con tutti i documenti necessari e permessi richiesti per investitori stranieri",
-        "bagaimana cara mendirikan perusahaan di Indonesia dengan dokumen lengkap dan semua izin yang diperlukan untuk investor asing"
+        "bagaimana cara mendirikan perusahaan di Indonesia dengan dokumen lengkap dan semua izin yang diperlukan untuk investor asing",
     ]
 
     for pattern in patterns:
-        result = specialized_router.detect_autonomous_research(
-            pattern, "business_complex"
-        )
+        result = specialized_router.detect_autonomous_research(pattern, "business_complex")
         assert result is True, f"Failed for pattern: {pattern}"
 
 
 def test_detect_cross_oracle_business_setup_keywords(specialized_router):
     """Test cross-oracle detection with various business setup keywords"""
     keywords = [
-        "start", "launch", "setup", "establish", "create", "aprire",
-        "avviare", "lanciare", "creare", "buka", "mulai", "dirikan"
+        "start",
+        "launch",
+        "setup",
+        "establish",
+        "create",
+        "aprire",
+        "avviare",
+        "lanciare",
+        "creare",
+        "buka",
+        "mulai",
+        "dirikan",
     ]
 
     for keyword in keywords:
@@ -577,9 +599,22 @@ def test_detect_cross_oracle_business_setup_keywords(specialized_router):
 def test_detect_cross_oracle_comprehensive_indicators(specialized_router):
     """Test cross-oracle detection with various comprehensive indicators"""
     indicators = [
-        "everything", "tutto", "semua", "complete", "completo", "lengkap",
-        "full", "penuh", "timeline", "cronologia", "investment",
-        "investimento", "investasi", "requirements", "requisiti", "persyaratan"
+        "everything",
+        "tutto",
+        "semua",
+        "complete",
+        "completo",
+        "lengkap",
+        "full",
+        "penuh",
+        "timeline",
+        "cronologia",
+        "investment",
+        "investimento",
+        "investasi",
+        "requirements",
+        "requisiti",
+        "persyaratan",
     ]
 
     for indicator in indicators:
@@ -599,7 +634,7 @@ def test_detect_client_journey_various_keywords(specialized_router):
         ("mulai proses", "visa"),
         ("apply for", "kitas"),
         ("richiedi", "property"),
-        ("ajukan", "land")
+        ("ajukan", "land"),
     ]
 
     for start_kw, journey_type in journey_keywords:
@@ -667,7 +702,7 @@ def test_specialized_router_init_no_services():
     router = SpecializedServiceRouter(
         autonomous_research_service=None,
         cross_oracle_synthesis_service=None,
-        client_journey_orchestrator=None
+        client_journey_orchestrator=None,
     )
 
     assert router.autonomous_research is None
@@ -680,10 +715,9 @@ def test_specialized_router_init_partial_services(mock_autonomous_research):
     router = SpecializedServiceRouter(
         autonomous_research_service=mock_autonomous_research,
         cross_oracle_synthesis_service=None,
-        client_journey_orchestrator=None
+        client_journey_orchestrator=None,
     )
 
     assert router.autonomous_research is mock_autonomous_research
     assert router.cross_oracle is None
     assert router.client_journey is None
-

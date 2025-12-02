@@ -7,7 +7,7 @@ import json
 import sys
 import uuid
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -63,7 +63,9 @@ def test_init(mock_redis):
 
 def test_init_exception():
     """Test initialization with exception"""
-    with patch("services.session_service.redis.from_url", side_effect=Exception("Connection error")):
+    with patch(
+        "services.session_service.redis.from_url", side_effect=Exception("Connection error")
+    ):
         with pytest.raises(Exception):
             SessionService("redis://localhost:6379")
 
@@ -346,10 +348,11 @@ async def test_get_analytics_empty(session_service):
 @pytest.mark.asyncio
 async def test_get_analytics_with_sessions(session_service):
     """Test get_analytics with sessions"""
+
     async def mock_scan_iter(pattern):
         for key in ["session:123", "session:456"]:
             yield key
-    
+
     session_service.redis.scan_iter = mock_scan_iter
     session_service.redis.get.side_effect = [
         json.dumps([{"role": "user", "content": "Hello"}]),
@@ -568,13 +571,14 @@ async def test_update_history_with_ttl_exception(session_service):
 @pytest.mark.asyncio
 async def test_get_analytics_with_message_ranges(session_service):
     """Test get_analytics with various message count ranges"""
+
     async def mock_scan_iter(pattern):
         for key in ["session:1", "session:2", "session:3", "session:4"]:
             yield key
 
     session_service.redis.scan_iter = mock_scan_iter
     session_service.redis.get.side_effect = [
-        json.dumps([{"role": "user"}] * 5),   # 0-10 range
+        json.dumps([{"role": "user"}] * 5),  # 0-10 range
         json.dumps([{"role": "user"}] * 15),  # 11-20 range
         json.dumps([{"role": "user"}] * 30),  # 21-50 range
         json.dumps([{"role": "user"}] * 60),  # 51+ range
@@ -593,6 +597,7 @@ async def test_get_analytics_with_message_ranges(session_service):
 @pytest.mark.asyncio
 async def test_get_analytics_with_json_error(session_service):
     """Test get_analytics with JSON decode error in session data"""
+
     async def mock_scan_iter(pattern):
         for key in ["session:1", "session:2"]:
             yield key
@@ -613,6 +618,7 @@ async def test_get_analytics_with_json_error(session_service):
 @pytest.mark.asyncio
 async def test_get_analytics_no_active_sessions(session_service):
     """Test get_analytics with sessions but no messages"""
+
     async def mock_scan_iter(pattern):
         for key in ["session:1", "session:2"]:
             yield key
@@ -771,6 +777,7 @@ async def test_get_session_info_with_ttl_hours(session_service):
 @pytest.mark.asyncio
 async def test_get_analytics_top_session_calculation(session_service):
     """Test get_analytics correctly identifies top session"""
+
     async def mock_scan_iter(pattern):
         for key in ["session:low", "session:high", "session:medium"]:
             yield key
@@ -791,6 +798,7 @@ async def test_get_analytics_top_session_calculation(session_service):
 @pytest.mark.asyncio
 async def test_get_analytics_avg_messages_calculation(session_service):
     """Test get_analytics calculates average messages correctly"""
+
     async def mock_scan_iter(pattern):
         for key in ["session:1", "session:2", "session:3"]:
             yield key
@@ -825,4 +833,3 @@ async def test_update_history_with_ttl_with_dict(session_service):
     result = await session_service.update_history_with_ttl(session_id, {"not": "a list"})
 
     assert result is False
-

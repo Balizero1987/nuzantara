@@ -5,7 +5,7 @@ Unit tests for Cultural RAG Service
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -127,7 +127,9 @@ async def test_get_cultural_context_business_intent(cultural_rag_service, mock_s
 
 
 @pytest.mark.asyncio
-async def test_get_cultural_context_first_contact_override(cultural_rag_service, mock_search_service):
+async def test_get_cultural_context_first_contact_override(
+    cultural_rag_service, mock_search_service
+):
     """Test get_cultural_context first_contact overrides intent"""
     mock_search_service.query_cultural_insights.return_value = []
 
@@ -281,7 +283,9 @@ async def test_get_cultural_topics_coverage_exception(cultural_rag_service):
 
 
 @pytest.mark.asyncio
-async def test_get_cultural_context_emotional_support_intent(cultural_rag_service, mock_search_service):
+async def test_get_cultural_context_emotional_support_intent(
+    cultural_rag_service, mock_search_service
+):
     """Test get_cultural_context with emotional_support intent"""
     mock_search_service.query_cultural_insights.return_value = []
 
@@ -298,7 +302,9 @@ async def test_get_cultural_context_emotional_support_intent(cultural_rag_servic
 
 
 @pytest.mark.asyncio
-async def test_get_cultural_context_business_complex_intent(cultural_rag_service, mock_search_service):
+async def test_get_cultural_context_business_complex_intent(
+    cultural_rag_service, mock_search_service
+):
     """Test get_cultural_context with business_complex intent"""
     mock_search_service.query_cultural_insights.return_value = []
 
@@ -344,4 +350,3 @@ def test_build_cultural_prompt_injection_exact_threshold(cultural_rag_service):
 
     # Should include chunk with score >= 0.3
     assert "Threshold insight" in result
-

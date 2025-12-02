@@ -3,10 +3,9 @@ Unit tests for Tool Executor Service
 100% coverage target with comprehensive mocking
 """
 
-import json
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -240,7 +239,9 @@ async def test_execute_tool_calls_typescript_handler_list_result(tool_executor, 
 
 
 @pytest.mark.asyncio
-async def test_execute_tool_calls_typescript_handler_string_result(tool_executor, mock_handler_proxy):
+async def test_execute_tool_calls_typescript_handler_string_result(
+    tool_executor, mock_handler_proxy
+):
     """Test execute_tool_calls with TypeScript handler returning string"""
     mock_handler_proxy.execute_handler.return_value = {"result": "string result"}
 
@@ -279,7 +280,9 @@ async def test_execute_tool_calls_exception(tool_executor, mock_zantara_tools):
 
 
 @pytest.mark.asyncio
-async def test_execute_tool_calls_multiple_tools(tool_executor, mock_zantara_tools, mock_handler_proxy):
+async def test_execute_tool_calls_multiple_tools(
+    tool_executor, mock_zantara_tools, mock_handler_proxy
+):
     """Test execute_tool_calls with multiple tools"""
     mock_zantara_tools.execute_tool.return_value = {"success": True, "data": "result1"}
     mock_handler_proxy.execute_handler.return_value = {"result": "result2"}
@@ -314,7 +317,9 @@ async def test_execute_tool_calls_pydantic_object(tool_executor, mock_zantara_to
 
 
 @pytest.mark.asyncio
-async def test_execute_tool_calls_zantara_tool_no_zantara_tools(tool_executor_no_zantara, mock_handler_proxy):
+async def test_execute_tool_calls_zantara_tool_no_zantara_tools(
+    tool_executor_no_zantara, mock_handler_proxy
+):
     """Test execute_tool_calls with ZantaraTool name but no ZantaraTools instance"""
     mock_handler_proxy.execute_handler.return_value = {"result": "fallback"}
 
@@ -407,14 +412,18 @@ async def test_execute_tool_exception(tool_executor, mock_zantara_tools):
 
 
 @pytest.mark.asyncio
-async def test_get_available_tools_with_zantara(tool_executor, mock_zantara_tools, mock_handler_proxy):
+async def test_get_available_tools_with_zantara(
+    tool_executor, mock_zantara_tools, mock_handler_proxy
+):
     """Test get_available_tools with ZantaraTools"""
     mock_zantara_tools.get_tool_definitions.return_value = [
         {"name": "get_pricing", "description": "Get pricing"}
     ]
+
     # get_anthropic_tools is called with internal_key argument
     async def mock_get_anthropic_tools(internal_key=None):
         return [{"name": "gmail_send", "description": "Send email"}]
+
     mock_handler_proxy.get_anthropic_tools = mock_get_anthropic_tools
 
     tools = await tool_executor.get_available_tools()
@@ -425,7 +434,9 @@ async def test_get_available_tools_with_zantara(tool_executor, mock_zantara_tool
 
 
 @pytest.mark.asyncio
-async def test_get_available_tools_zantara_exception(tool_executor, mock_zantara_tools, mock_handler_proxy):
+async def test_get_available_tools_zantara_exception(
+    tool_executor, mock_zantara_tools, mock_handler_proxy
+):
     """Test get_available_tools handles ZantaraTools exception"""
     mock_zantara_tools.get_tool_definitions.side_effect = Exception("ZantaraTools error")
     mock_handler_proxy.get_anthropic_tools.return_value = [
@@ -440,13 +451,17 @@ async def test_get_available_tools_zantara_exception(tool_executor, mock_zantara
 
 
 @pytest.mark.asyncio
-async def test_get_available_tools_typescript_exception(tool_executor, mock_zantara_tools, mock_handler_proxy):
+async def test_get_available_tools_typescript_exception(
+    tool_executor, mock_zantara_tools, mock_handler_proxy
+):
     """Test get_available_tools handles TypeScript tools exception"""
     mock_zantara_tools.get_tool_definitions.return_value = [
         {"name": "get_pricing", "description": "Get pricing"}
     ]
+
     async def mock_get_anthropic_tools(internal_key=None):
         raise Exception("TypeScript error")
+
     mock_handler_proxy.get_anthropic_tools = mock_get_anthropic_tools
 
     tools = await tool_executor.get_available_tools()
@@ -459,8 +474,10 @@ async def test_get_available_tools_typescript_exception(tool_executor, mock_zant
 @pytest.mark.asyncio
 async def test_get_available_tools_no_zantara(tool_executor_no_zantara, mock_handler_proxy):
     """Test get_available_tools without ZantaraTools"""
+
     async def mock_get_anthropic_tools(internal_key=None):
         return [{"name": "gmail_send", "description": "Send email"}]
+
     mock_handler_proxy.get_anthropic_tools = mock_get_anthropic_tools
 
     tools = await tool_executor_no_zantara.get_available_tools()
@@ -472,12 +489,13 @@ async def test_get_available_tools_no_zantara(tool_executor_no_zantara, mock_han
 @pytest.mark.asyncio
 async def test_get_available_tools_empty(tool_executor_no_zantara, mock_handler_proxy):
     """Test get_available_tools returns empty list when no tools available"""
+
     async def mock_get_anthropic_tools(internal_key=None):
         return []
+
     mock_handler_proxy.get_anthropic_tools = mock_get_anthropic_tools
 
     tools = await tool_executor_no_zantara.get_available_tools()
 
     assert isinstance(tools, list)
     assert len(tools) == 0
-

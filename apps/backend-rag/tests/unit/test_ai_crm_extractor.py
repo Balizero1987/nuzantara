@@ -80,33 +80,35 @@ async def test_extract_from_conversation_success(extractor, mock_ai_client):
     ]
 
     mock_response = {
-        "text": json.dumps({
-            "client": {
-                "full_name": "John Doe",
-                "email": "john@example.com",
-                "phone": None,
-                "whatsapp": None,
-                "nationality": None,
-                "confidence": 0.9,
-            },
-            "practice_intent": {
-                "detected": True,
-                "practice_type_code": "KITAS",
-                "confidence": 0.8,
-                "details": "Wants KITAS",
-            },
-            "sentiment": "positive",
-            "urgency": "normal",
-            "summary": "Client wants KITAS",
-            "action_items": ["Follow up"],
-            "topics_discussed": ["KITAS"],
-            "extracted_entities": {
-                "dates": [],
-                "amounts": [],
-                "locations": [],
-                "documents_mentioned": [],
-            },
-        })
+        "text": json.dumps(
+            {
+                "client": {
+                    "full_name": "John Doe",
+                    "email": "john@example.com",
+                    "phone": None,
+                    "whatsapp": None,
+                    "nationality": None,
+                    "confidence": 0.9,
+                },
+                "practice_intent": {
+                    "detected": True,
+                    "practice_type_code": "KITAS",
+                    "confidence": 0.8,
+                    "details": "Wants KITAS",
+                },
+                "sentiment": "positive",
+                "urgency": "normal",
+                "summary": "Client wants KITAS",
+                "action_items": ["Follow up"],
+                "topics_discussed": ["KITAS"],
+                "extracted_entities": {
+                    "dates": [],
+                    "amounts": [],
+                    "locations": [],
+                    "documents_mentioned": [],
+                },
+            }
+        )
     }
     mock_ai_client.conversational.return_value = mock_response
 
@@ -125,23 +127,35 @@ async def test_extract_from_conversation_with_existing_data(extractor, mock_ai_c
     existing_data = {"email": "existing@example.com", "phone": "+1234567890"}
 
     mock_response = {
-        "text": json.dumps({
-            "client": {
-                "full_name": "John Doe",
-                "email": "john@example.com",
-                "phone": None,
-                "whatsapp": None,
-                "nationality": None,
-                "confidence": 0.9,
-            },
-            "practice_intent": {"detected": False, "practice_type_code": None, "confidence": 0.0, "details": ""},
-            "sentiment": "neutral",
-            "urgency": "normal",
-            "summary": "",
-            "action_items": [],
-            "topics_discussed": [],
-            "extracted_entities": {"dates": [], "amounts": [], "locations": [], "documents_mentioned": []},
-        })
+        "text": json.dumps(
+            {
+                "client": {
+                    "full_name": "John Doe",
+                    "email": "john@example.com",
+                    "phone": None,
+                    "whatsapp": None,
+                    "nationality": None,
+                    "confidence": 0.9,
+                },
+                "practice_intent": {
+                    "detected": False,
+                    "practice_type_code": None,
+                    "confidence": 0.0,
+                    "details": "",
+                },
+                "sentiment": "neutral",
+                "urgency": "normal",
+                "summary": "",
+                "action_items": [],
+                "topics_discussed": [],
+                "extracted_entities": {
+                    "dates": [],
+                    "amounts": [],
+                    "locations": [],
+                    "documents_mentioned": [],
+                },
+            }
+        )
     }
     mock_ai_client.conversational.return_value = mock_response
 
@@ -158,16 +172,37 @@ async def test_extract_from_conversation_markdown_code_block(extractor, mock_ai_
     messages = [{"role": "user", "content": "Hello"}]
 
     mock_response = {
-        "text": "```json\n" + json.dumps({
-            "client": {"full_name": None, "email": None, "phone": None, "whatsapp": None, "nationality": None, "confidence": 0.0},
-            "practice_intent": {"detected": False, "practice_type_code": None, "confidence": 0.0, "details": ""},
-            "sentiment": "neutral",
-            "urgency": "normal",
-            "summary": "",
-            "action_items": [],
-            "topics_discussed": [],
-            "extracted_entities": {"dates": [], "amounts": [], "locations": [], "documents_mentioned": []},
-        }) + "\n```"
+        "text": "```json\n"
+        + json.dumps(
+            {
+                "client": {
+                    "full_name": None,
+                    "email": None,
+                    "phone": None,
+                    "whatsapp": None,
+                    "nationality": None,
+                    "confidence": 0.0,
+                },
+                "practice_intent": {
+                    "detected": False,
+                    "practice_type_code": None,
+                    "confidence": 0.0,
+                    "details": "",
+                },
+                "sentiment": "neutral",
+                "urgency": "normal",
+                "summary": "",
+                "action_items": [],
+                "topics_discussed": [],
+                "extracted_entities": {
+                    "dates": [],
+                    "amounts": [],
+                    "locations": [],
+                    "documents_mentioned": [],
+                },
+            }
+        )
+        + "\n```"
     }
     mock_ai_client.conversational.return_value = mock_response
 
@@ -381,4 +416,3 @@ def test_get_extractor_exception():
         with patch("services.ai_crm_extractor.AICRMExtractor", side_effect=Exception("Init error")):
             with pytest.raises(Exception):
                 get_extractor()
-

@@ -28,7 +28,7 @@ class EmbeddingsGenerator:
     """
     Generate embeddings using configured provider (OpenAI or Sentence Transformers).
     Automatically chooses provider based on settings.
-    
+
     Singleton pattern: Only initializes once per process.
     For testing, use reset_instance() to reset the singleton.
     """
@@ -87,9 +87,11 @@ class EmbeddingsGenerator:
         from openai import OpenAI
 
         self.provider = "openai"  # Ensure provider is set to openai
-        self.model = model or (
-            getattr(self._settings, "embedding_model", None) if self._settings else None
-        ) or "text-embedding-3-small"
+        self.model = (
+            model
+            or (getattr(self._settings, "embedding_model", None) if self._settings else None)
+            or "text-embedding-3-small"
+        )
         self.dimensions = 1536  # OpenAI text-embedding-3-small is always 1536
         self.api_key = api_key or (
             getattr(self._settings, "openai_api_key", None) if self._settings else None
@@ -105,9 +107,11 @@ class EmbeddingsGenerator:
 
     def _init_sentence_transformers(self, model: Optional[str] = None):
         """Initialize Sentence Transformers local embeddings provider"""
-        self.model = model or (
-            getattr(self._settings, "embedding_model", None) if self._settings else None
-        ) or "sentence-transformers/all-MiniLM-L6-v2"
+        self.model = (
+            model
+            or (getattr(self._settings, "embedding_model", None) if self._settings else None)
+            or "sentence-transformers/all-MiniLM-L6-v2"
+        )
 
         logger.info(
             f"🔌 [EmbeddingsGenerator] Attempting to load Sentence Transformers: {self.model}"
@@ -233,7 +237,7 @@ class EmbeddingsGenerator:
     def generate_batch_embeddings(self, texts: list[str]) -> list[list[float]]:
         """
         Generate embeddings for a batch of texts.
-        
+
         Alias for generate_embeddings() for backward compatibility.
 
         Args:
@@ -263,7 +267,7 @@ class EmbeddingsGenerator:
     def reset_instance(cls):
         """
         Reset the singleton instance.
-        
+
         WARNING: This method is primarily for testing purposes.
         Resetting the singleton in production code can cause unexpected behavior.
         """

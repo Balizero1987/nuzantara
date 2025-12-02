@@ -917,11 +917,16 @@ async def hybrid_oracle_query(
 
         # 6. Apply Jaksel personality if user email is provided (moved outside use_ai condition)
         # DISABLED: Using only Gemini 2.5 for now
-        if False and request.user_email and request.user_email in [
-            "anton@balizero.com",
-            "amanda@balizero.com",
-            "krisna@balizero.com",
-        ]:
+        if (
+            False
+            and request.user_email
+            and request.user_email
+            in [
+                "anton@balizero.com",
+                "amanda@balizero.com",
+                "krisna@balizero.com",
+            ]
+        ):
             logger.info(f"🚨 ABOUT TO CALL JAKSEL for {request.user_email}")
             logger.info(f"🔍 DEBUG: Answer exists: {bool(answer)}")
             logger.info(f"🔍 DEBUG: Answer length: {len(answer) if answer else 0}")
@@ -955,7 +960,9 @@ async def hybrid_oracle_query(
         # 7. If no answer from AI processing, provide default response
         # DISABLED: Jaksel processing - using only Gemini 2.5 for more natural responses
         if not answer:
-            user_name = request.user_email.split('@')[0].capitalize() if request.user_email else 'there'
+            user_name = (
+                request.user_email.split("@")[0].capitalize() if request.user_email else "there"
+            )
             answer = f"Ciao {user_name}! Non ho trovato informazioni specifiche su questo nella nostra knowledge base. Puoi riformulare la domanda o chiedermi qualcos'altro? Sono qui per aiutarti!"
             model_used = "default_response"
             reasoning_time = 0

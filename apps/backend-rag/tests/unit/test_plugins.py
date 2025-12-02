@@ -4,7 +4,7 @@ Unit tests for Plugin System
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -13,6 +13,7 @@ backend_path = Path(__file__).parent.parent.parent / "backend"
 if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
+from core.plugins.executor import PluginExecutor
 from core.plugins.plugin import (
     Plugin,
     PluginCategory,
@@ -20,9 +21,7 @@ from core.plugins.plugin import (
     PluginMetadata,
     PluginOutput,
 )
-from core.plugins.executor import PluginExecutor
 from core.plugins.registry import PluginRegistry
-
 
 # ============================================================================
 # Test Plugin Implementation
@@ -254,4 +253,3 @@ async def test_executor_execute_with_cache():
 
         assert result1.success is True
         assert result2.success is True
-

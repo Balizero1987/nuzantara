@@ -17,31 +17,44 @@ export async function POST(request: Request) {
     const body = await request.json();
     const message = body.message;
     const conversationHistory = body.conversation_history || [];
+    const metadata = body.metadata || {};
 
     const authHeader = request.headers.get('Authorization');
     console.log(
       '[ChatAPI] Stream request. Auth Header:',
       authHeader ? `${authHeader.substring(0, 15)}...` : 'Missing'
     );
+    console.log('[ChatAPI] Full auth header:', authHeader);
     console.log('[ChatAPI] Conversation history length:', conversationHistory.length);
+    console.log('[ChatAPI] Client metadata:', metadata);
 
     // Call the real backend API (Backend expects GET for streaming)
     const params = new URLSearchParams({
       query: message,
       stream: 'true',
       conversation_history: JSON.stringify(conversationHistory),
+      client_locale: metadata.client_locale || 'en-US',
+      client_timezone: metadata.client_timezone || 'UTC',
     });
 
     // Add timeout to prevent hanging requests
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout for streaming
 
+    // Extract token from Authorization header
+    const authValue = request.headers.get('Authorization');
+    const token = authValue?.startsWith('Bearer ')
+      ? authValue.substring(7) // Remove 'Bearer ' prefix
+      : authValue || '';
+
+    console.log('[ChatAPI] Extracted token:', token ? `${token.substring(0, 20)}...` : 'EMPTY');
+
     const response = await fetch(`${API_URL}/bali-zero/chat-stream?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'X-API-Key': API_KEY,
-        Authorization: `Bearer ${request.headers.get('Authorization')?.replace('Bearer ', '') || ''}`,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}), // Only include if token exists
       },
       signal: controller.signal,
     });
@@ -49,9 +62,23 @@ export async function POST(request: Request) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error('[ChatAPI] Backend error:', response.status, response.statusText);
+      // Try to get detailed error message from backend
+      const errorText = await response.text().catch(() => 'No error details');
+      console.error('[ChatAPI] Backend error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+        url: `${API_URL}/bali-zero/chat-stream`,
+      });
+
+      // Return more specific error message
+      const errorMessage =
+        response.status === 401
+          ? 'Authentication failed. Please check your credentials.'
+          : `Backend error: ${response.statusText || 'Service unavailable'}`;
+
       return NextResponse.json(
-        { error: 'Backend service unavailable' },
+        { error: errorMessage, details: errorText },
         { status: response.status }
       );
     }

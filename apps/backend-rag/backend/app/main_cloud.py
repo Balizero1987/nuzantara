@@ -70,6 +70,7 @@ from app.routers import (
     ingest,
     instagram,
     intel,
+    legal_ingest,
     media,
     memory_vector,
     notifications,
@@ -128,7 +129,7 @@ trace.set_tracer_provider(TracerProvider(resource=resource))
 # Use insecure only in development, configure TLS for production
 otlp_exporter = OTLPSpanExporter(
     endpoint="http://jaeger:4317",
-    insecure=settings.log_level == "DEBUG"  # Only insecure in debug mode
+    insecure=settings.log_level == "DEBUG",  # Only insecure in debug mode
 )
 trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
 
@@ -215,6 +216,7 @@ def include_routers(api: FastAPI) -> None:
     api.include_router(crm_practices.router)
     api.include_router(crm_shared_memory.router)
     api.include_router(ingest.router)
+    api.include_router(legal_ingest.router)  # Legal document ingestion pipeline
     api.include_router(intel.router)
     api.include_router(memory_vector.router)
     api.include_router(notifications.router)

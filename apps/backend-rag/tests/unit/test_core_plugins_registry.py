@@ -6,7 +6,7 @@ Tests registration, discovery, lifecycle, search, and statistics
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -501,9 +501,7 @@ async def test_list_multiple_filters(registry):
     await registry.register(ToolsPlugin)
 
     results = registry.list_plugins(
-        category=PluginCategory.ANALYTICS,
-        tags=["tools"],
-        allowed_models=["haiku"]
+        category=PluginCategory.ANALYTICS, tags=["tools"], allowed_models=["haiku"]
     )
 
     assert len(results) == 1
@@ -803,9 +801,7 @@ async def test_concurrent_registration(registry):
 
     # Register multiple plugins concurrently
     results = await asyncio.gather(
-        register_plugin(MockPlugin),
-        register_plugin(ToolsPlugin),
-        register_plugin(LegacyPlugin)
+        register_plugin(MockPlugin), register_plugin(ToolsPlugin), register_plugin(LegacyPlugin)
     )
 
     assert len(results) == 3

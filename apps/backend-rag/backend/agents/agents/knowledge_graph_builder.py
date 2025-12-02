@@ -3,16 +3,19 @@
 Automatically builds and maintains a knowledge graph from all data sources
 """
 
+
 import psycopg2
-from typing import List, Dict, Set, Tuple
+
 try:
     from llm.zantara_ai_client import ZantaraAIClient
+
     ZANTARA_AVAILABLE = True
 except ImportError:
     ZantaraAIClient = None
     ZANTARA_AVAILABLE = False
 import json
 from datetime import datetime
+
 
 class KnowledgeGraphBuilder:
     """
@@ -26,6 +29,7 @@ class KnowledgeGraphBuilder:
 
     def __init__(self):
         from app.core.config import settings
+
         self.db_url = settings.database_url
         self.zantara_client = ZantaraAIClient() if ZANTARA_AVAILABLE else None
 
@@ -35,7 +39,8 @@ class KnowledgeGraphBuilder:
         cursor = conn.cursor()
 
         # Entities table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS kg_entities (
                 id SERIAL PRIMARY KEY,
                 type VARCHAR(50) NOT NULL,  -- 'law', 'topic', 'company', 'person', 'location', 'practice_type'
@@ -51,10 +56,12 @@ class KnowledgeGraphBuilder:
 
             CREATE INDEX IF NOT EXISTS idx_kg_entities_type ON kg_entities(type);
             CREATE INDEX IF NOT EXISTS idx_kg_entities_canonical ON kg_entities(canonical_name);
-        """)
+        """
+        )
 
         # Relationships table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS kg_relationships (
                 id SERIAL PRIMARY KEY,
                 source_entity_id INTEGER REFERENCES kg_entities(id),
@@ -70,10 +77,12 @@ class KnowledgeGraphBuilder:
 
             CREATE INDEX IF NOT EXISTS idx_kg_rel_source ON kg_relationships(source_entity_id);
             CREATE INDEX IF NOT EXISTS idx_kg_rel_target ON kg_relationships(target_entity_id);
-        """)
+        """
+        )
 
         # Entity mentions (link back to source data)
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS kg_entity_mentions (
                 id SERIAL PRIMARY KEY,
                 entity_id INTEGER REFERENCES kg_entities(id),
@@ -85,7 +94,8 @@ class KnowledgeGraphBuilder:
 
             CREATE INDEX IF NOT EXISTS idx_kg_mentions_entity ON kg_entity_mentions(entity_id);
             CREATE INDEX IF NOT EXISTS idx_kg_mentions_source ON kg_entity_mentions(source_type, source_id);
-        """)
+        """
+        )
 
         conn.commit()
         cursor.close()
@@ -93,7 +103,7 @@ class KnowledgeGraphBuilder:
 
         print("✅ Knowledge graph schema initialized")
 
-    async def extract_entities_from_text(self, text: str) -> List[Dict]:
+    async def extract_entities_from_text(self, text: str) -> list[dict]:
         """Extract entities using Claude"""
 
         prompt = f"""Extract structured entities from this legal/business conversation:
@@ -122,15 +132,13 @@ Return JSON array:
 Be precise. Only extract clear entities."""
 
         text = await self.zantara_client.generate_text(
-            prompt=prompt,
-            max_tokens=2048,
-            temperature=0.2
+            prompt=prompt, max_tokens=2048, temperature=0.2
         )
 
         try:
             # Extract JSON from response
-            json_start = text.find('[')
-            json_end = text.rfind(']') + 1
+            json_start = text.find("[")
+            json_end = text.rfind("]") + 1
             if json_start >= 0 and json_end > json_start:
                 return json.loads(text[json_start:json_end])
             return []
@@ -138,13 +146,13 @@ Be precise. Only extract clear entities."""
             print(f"Error parsing entities: {e}")
             return []
 
-    async def extract_relationships(self, entities: List[Dict], text: str) -> List[Dict]:
+    async def extract_relationships(self, entities: list[dict], text: str) -> list[dict]:
         """Extract relationships between entities"""
 
         if len(entities) < 2:
             return []
 
-        entity_names = [e['name'] for e in entities]
+        entity_names = [e["name"] for e in entities]
 
         prompt = f"""Given these entities from a legal conversation:
 {json.dumps(entity_names, indent=2)}
@@ -168,14 +176,12 @@ Return JSON array:
 Only include clear, meaningful relationships."""
 
         text = await self.zantara_client.generate_text(
-            prompt=prompt,
-            max_tokens=2048,
-            temperature=0.2
+            prompt=prompt, max_tokens=2048, temperature=0.2
         )
 
         try:
-            json_start = text.find('[')
-            json_end = text.rfind(']') + 1
+            json_start = text.find("[")
+            json_end = text.rfind("]") + 1
             if json_start >= 0 and json_end > json_start:
                 return json.loads(text[json_start:json_end])
             return []
@@ -183,10 +189,13 @@ Only include clear, meaningful relationships."""
             print(f"Error parsing relationships: {e}")
             return []
 
-    async def upsert_entity(self, entity_type: str, name: str, canonical_name: str, metadata: Dict, cursor) -> int:
+    async def upsert_entity(
+        self, entity_type: str, name: str, canonical_name: str, metadata: dict, cursor
+    ) -> int:
         """Insert or update entity, return entity_id"""
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO kg_entities (type, name, canonical_name, metadata, mention_count, last_seen_at)
             VALUES (%s, %s, %s, %s, 1, NOW())
             ON CONFLICT (type, canonical_name)
@@ -195,15 +204,26 @@ Only include clear, meaningful relationships."""
                 last_seen_at = NOW(),
                 metadata = kg_entities.metadata || EXCLUDED.metadata
             RETURNING id
-        """, (entity_type, name, canonical_name, json.dumps(metadata)))
+        """,
+            (entity_type, name, canonical_name, json.dumps(metadata)),
+        )
 
         return cursor.fetchone()[0]
 
-    async def upsert_relationship(self, source_id: int, target_id: int, rel_type: str,
-                                  strength: float, evidence: str, source_ref: Dict, cursor):
+    async def upsert_relationship(
+        self,
+        source_id: int,
+        target_id: int,
+        rel_type: str,
+        strength: float,
+        evidence: str,
+        source_ref: dict,
+        cursor,
+    ):
         """Insert or update relationship"""
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO kg_relationships (
                 source_entity_id, target_entity_id, relationship_type,
                 strength, evidence, source_references
@@ -215,7 +235,9 @@ Only include clear, meaningful relationships."""
                 evidence = array_append(kg_relationships.evidence, EXCLUDED.evidence[1]),
                 source_references = kg_relationships.source_references || EXCLUDED.source_references,
                 updated_at = NOW()
-        """, (source_id, target_id, rel_type, strength, evidence, json.dumps([source_ref])))
+        """,
+            (source_id, target_id, rel_type, strength, evidence, json.dumps([source_ref])),
+        )
 
     async def process_conversation(self, conversation_id: str):
         """Extract entities and relationships from a conversation"""
@@ -224,11 +246,14 @@ Only include clear, meaningful relationships."""
         cursor = conn.cursor()
 
         # Get conversation
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT messages, client_id, created_at
             FROM conversations
             WHERE conversation_id = %s
-        """, (conversation_id,))
+        """,
+            (conversation_id,),
+        )
 
         row = cursor.fetchone()
         if not row:
@@ -240,11 +265,12 @@ Only include clear, meaningful relationships."""
 
         # Combine all messages into text
         try:
-            messages = json.loads(messages_json) if isinstance(messages_json, str) else messages_json
-            full_text = "\n".join([
-                f"{msg.get('role', 'user')}: {msg.get('content', '')}"
-                for msg in messages
-            ])
+            messages = (
+                json.loads(messages_json) if isinstance(messages_json, str) else messages_json
+            )
+            full_text = "\n".join(
+                [f"{msg.get('role', 'user')}: {msg.get('content', '')}" for msg in messages]
+            )
         except:
             full_text = str(messages_json)
 
@@ -255,28 +281,35 @@ Only include clear, meaningful relationships."""
 
         for entity in entities:
             entity_id = await self.upsert_entity(
-                entity_type=entity['type'],
-                name=entity['name'],
-                canonical_name=entity['canonical_name'],
-                metadata={'context': entity.get('context', '')},
-                cursor=cursor
+                entity_type=entity["type"],
+                name=entity["name"],
+                canonical_name=entity["canonical_name"],
+                metadata={"context": entity.get("context", "")},
+                cursor=cursor,
             )
 
-            entity_map[entity['canonical_name']] = entity_id
+            entity_map[entity["canonical_name"]] = entity_id
 
             # Add mention
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO kg_entity_mentions (entity_id, source_type, source_id, context)
                 VALUES (%s, 'conversation', %s, %s)
-            """, (entity_id, conversation_id, entity.get('context', '')[:500]))
+            """,
+                (entity_id, conversation_id, entity.get("context", "")[:500]),
+            )
 
         # 2. Extract relationships
         if len(entities) >= 2:
             relationships = await self.extract_relationships(entities, full_text)
 
             for rel in relationships:
-                source_canonical = next((e['canonical_name'] for e in entities if e['name'] == rel['source']), None)
-                target_canonical = next((e['canonical_name'] for e in entities if e['name'] == rel['target']), None)
+                source_canonical = next(
+                    (e["canonical_name"] for e in entities if e["name"] == rel["source"]), None
+                )
+                target_canonical = next(
+                    (e["canonical_name"] for e in entities if e["name"] == rel["target"]), None
+                )
 
                 if source_canonical and target_canonical:
                     source_id = entity_map.get(source_canonical)
@@ -286,18 +319,20 @@ Only include clear, meaningful relationships."""
                         await self.upsert_relationship(
                             source_id=source_id,
                             target_id=target_id,
-                            rel_type=rel['relationship'],
-                            strength=rel.get('strength', 0.7),
-                            evidence=rel.get('evidence', ''),
-                            source_ref={'type': 'conversation', 'id': conversation_id},
-                            cursor=cursor
+                            rel_type=rel["relationship"],
+                            strength=rel.get("strength", 0.7),
+                            evidence=rel.get("evidence", ""),
+                            source_ref={"type": "conversation", "id": conversation_id},
+                            cursor=cursor,
                         )
 
         conn.commit()
         cursor.close()
         conn.close()
 
-        print(f"✅ Processed conversation {conversation_id}: {len(entities)} entities, {len(relationships) if len(entities) >= 2 else 0} relationships")
+        print(
+            f"✅ Processed conversation {conversation_id}: {len(entities)} entities, {len(relationships) if len(entities) >= 2 else 0} relationships"
+        )
 
     async def build_graph_from_all_conversations(self, days_back: int = 30):
         """Process all recent conversations"""
@@ -305,12 +340,15 @@ Only include clear, meaningful relationships."""
         conn = psycopg2.connect(self.db_url)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT conversation_id
             FROM conversations
             WHERE created_at >= NOW() - INTERVAL '%s days'
             ORDER BY created_at DESC
-        """, (days_back,))
+        """,
+            (days_back,),
+        )
 
         conversation_ids = [row[0] for row in cursor.fetchall()]
         cursor.close()
@@ -326,24 +364,30 @@ Only include clear, meaningful relationships."""
 
         print(f"✅ Knowledge graph built from {len(conversation_ids)} conversations")
 
-    async def get_entity_insights(self, top_n: int = 20) -> Dict:
+    async def get_entity_insights(self, top_n: int = 20) -> dict:
         """Get insights from knowledge graph"""
 
         conn = psycopg2.connect(self.db_url)
         cursor = conn.cursor()
 
         # Top entities by type
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT type, name, mention_count
             FROM kg_entities
             ORDER BY mention_count DESC
             LIMIT %s
-        """, (top_n,))
+        """,
+            (top_n,),
+        )
 
-        top_entities = [{"type": row[0], "name": row[1], "mentions": row[2]} for row in cursor.fetchall()]
+        top_entities = [
+            {"type": row[0], "name": row[1], "mentions": row[2]} for row in cursor.fetchall()
+        ]
 
         # Most connected entities (hub analysis)
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 e.type,
                 e.name,
@@ -353,17 +397,23 @@ Only include clear, meaningful relationships."""
             GROUP BY e.id, e.type, e.name
             ORDER BY connection_count DESC
             LIMIT %s
-        """, (top_n,))
+        """,
+            (top_n,),
+        )
 
-        hubs = [{"type": row[0], "name": row[1], "connections": row[2]} for row in cursor.fetchall()]
+        hubs = [
+            {"type": row[0], "name": row[1], "connections": row[2]} for row in cursor.fetchall()
+        ]
 
         # Relationship insights
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT relationship_type, COUNT(*) as count
             FROM kg_relationships
             GROUP BY relationship_type
             ORDER BY count DESC
-        """)
+        """
+        )
 
         rel_types = {row[0]: row[1] for row in cursor.fetchall()}
 
@@ -374,17 +424,18 @@ Only include clear, meaningful relationships."""
             "top_entities": top_entities,
             "hubs": hubs,
             "relationship_types": rel_types,
-            "generated_at": datetime.now().isoformat()
+            "generated_at": datetime.now().isoformat(),
         }
 
-    async def semantic_search_entities(self, query: str, top_k: int = 10) -> List[Dict]:
+    async def semantic_search_entities(self, query: str, top_k: int = 10) -> list[dict]:
         """Search entities semantically"""
 
         conn = psycopg2.connect(self.db_url)
         cursor = conn.cursor()
 
         # Simple text search for now (can be enhanced with embeddings)
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 e.id,
                 e.type,
@@ -401,21 +452,27 @@ Only include clear, meaningful relationships."""
             GROUP BY e.id, e.type, e.name, e.mention_count, e.metadata
             ORDER BY mention_count_in_sources DESC
             LIMIT %s
-        """, (f'%{query}%', f'%{query}%', f'%{query}%', top_k))
+        """,
+            (f"%{query}%", f"%{query}%", f"%{query}%", top_k),
+        )
 
-        results = [{
-            "entity_id": row[0],
-            "type": row[1],
-            "name": row[2],
-            "mentions": row[3],
-            "metadata": row[4],
-            "source_mentions": row[5]
-        } for row in cursor.fetchall()]
+        results = [
+            {
+                "entity_id": row[0],
+                "type": row[1],
+                "name": row[2],
+                "mentions": row[3],
+                "metadata": row[4],
+                "source_mentions": row[5],
+            }
+            for row in cursor.fetchall()
+        ]
 
         cursor.close()
         conn.close()
 
         return results
+
 
 # Cron entry
 # CRON_BUILD_KNOWLEDGE_GRAPH="0 4 * * *"  # Daily at 4 AM

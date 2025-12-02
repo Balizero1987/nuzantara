@@ -13,8 +13,9 @@ backend_path = Path(__file__).parent.parent.parent / "backend"
 if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
 
 
 class TestRunConversationTrainer:
@@ -23,13 +24,15 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_success(self):
         """Test: Main executes successfully"""
-        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
-             patch("sys.argv", ["run_conversation_trainer.py"]):
-
+        with patch(
+            "agents.run_conversation_trainer.ConversationTrainer"
+        ) as mock_trainer_class, patch("sys.argv", ["run_conversation_trainer.py"]):
             mock_trainer = MagicMock()
             mock_trainer.analyze_winning_patterns = AsyncMock(return_value=["insight1", "insight2"])
             mock_trainer.generate_prompt_update = AsyncMock(return_value="Improved prompt text")
-            mock_trainer.create_improvement_pr = AsyncMock(return_value="feature/improve-prompts-123")
+            mock_trainer.create_improvement_pr = AsyncMock(
+                return_value="feature/improve-prompts-123"
+            )
             mock_trainer_class.return_value = mock_trainer
 
             from agents.run_conversation_trainer import main
@@ -44,9 +47,9 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_no_analysis_results(self):
         """Test: Main handles no high-rated conversations found"""
-        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
-             patch("sys.argv", ["run_conversation_trainer.py"]):
-
+        with patch(
+            "agents.run_conversation_trainer.ConversationTrainer"
+        ) as mock_trainer_class, patch("sys.argv", ["run_conversation_trainer.py"]):
             mock_trainer = MagicMock()
             mock_trainer.analyze_winning_patterns = AsyncMock(return_value=None)
             mock_trainer_class.return_value = mock_trainer
@@ -61,9 +64,9 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_with_custom_days(self):
         """Test: Main accepts --days argument"""
-        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
-             patch("sys.argv", ["run_conversation_trainer.py", "--days", "14"]):
-
+        with patch(
+            "agents.run_conversation_trainer.ConversationTrainer"
+        ) as mock_trainer_class, patch("sys.argv", ["run_conversation_trainer.py", "--days", "14"]):
             mock_trainer = MagicMock()
             mock_trainer.analyze_winning_patterns = AsyncMock(return_value=None)
             mock_trainer_class.return_value = mock_trainer
@@ -78,11 +81,12 @@ class TestRunConversationTrainer:
     async def test_main_exception_handling(self):
         """Test: Main handles exceptions and returns error code"""
         import importlib
+
         import agents.run_conversation_trainer
 
-        with patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class, \
-             patch("sys.argv", ["run_conversation_trainer.py"]):
-
+        with patch(
+            "agents.run_conversation_trainer.ConversationTrainer"
+        ) as mock_trainer_class, patch("sys.argv", ["run_conversation_trainer.py"]):
             mock_trainer_class.side_effect = Exception("Trainer initialization failed")
 
             # Reload module to ensure patch is applied

@@ -7,8 +7,9 @@ File: backend/agents/run_client_predictor.py (27 lines)
 
 import sys
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock, patch, Mock
 
 # Ensure backend is in path
 backend_path = Path(__file__).parent.parent.parent / "backend"
@@ -23,12 +24,14 @@ class TestRunClientPredictor:
     async def test_main_success(self):
         """Test: Main executes successfully"""
         mock_predictor = MagicMock()
-        mock_predictor.run_daily_nurturing = AsyncMock(return_value={
-            "vip_nurtured": 3,
-            "high_risk_contacted": 5,
-            "total_messages_sent": 8,
-            "errors": []
-        })
+        mock_predictor.run_daily_nurturing = AsyncMock(
+            return_value={
+                "vip_nurtured": 3,
+                "high_risk_contacted": 5,
+                "total_messages_sent": 8,
+                "errors": [],
+            }
+        )
 
         with patch("agents.run_client_predictor.ClientValuePredictor", return_value=mock_predictor):
             # Import inside patch to ensure mock is applied
@@ -43,12 +46,14 @@ class TestRunClientPredictor:
     async def test_main_with_errors(self):
         """Test: Main handles errors in results"""
         mock_predictor = MagicMock()
-        mock_predictor.run_daily_nurturing = AsyncMock(return_value={
-            "vip_nurtured": 1,
-            "high_risk_contacted": 2,
-            "total_messages_sent": 3,
-            "errors": ["Error 1", "Error 2", "Error 3", "Error 4", "Error 5", "Error 6"]
-        })
+        mock_predictor.run_daily_nurturing = AsyncMock(
+            return_value={
+                "vip_nurtured": 1,
+                "high_risk_contacted": 2,
+                "total_messages_sent": 3,
+                "errors": ["Error 1", "Error 2", "Error 3", "Error 4", "Error 5", "Error 6"],
+            }
+        )
 
         with patch("agents.run_client_predictor.ClientValuePredictor", return_value=mock_predictor):
             from agents.run_client_predictor import main

@@ -4,7 +4,7 @@ Unit tests for Knowledge Service
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -13,8 +13,8 @@ backend_path = Path(__file__).parent.parent.parent / "backend"
 if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
-from app.modules.knowledge.service import KnowledgeService
 from app.models import TierLevel
+from app.modules.knowledge.service import KnowledgeService
 
 
 @pytest.fixture
@@ -154,7 +154,7 @@ async def test_search_unknown_collection_defaults(knowledge_service, mock_qdrant
     """Test search with unknown collection defaults to visa_oracle"""
     # Mock router to return unknown collection
     knowledge_service.router.route = MagicMock(return_value="unknown_collection")
-    
+
     result = await knowledge_service.search(
         query="test",
         user_level=0,
@@ -190,7 +190,7 @@ async def test_search_empty_results(knowledge_service, mock_qdrant_client):
             "metadatas": [],
         }
     )
-    
+
     # Replace the collection client
     knowledge_service.collections["visa_oracle"] = empty_client
 
@@ -234,4 +234,3 @@ async def test_search_pricing_priority_bias(knowledge_service, mock_qdrant_clien
     # Check that results have pricing_priority metadata
     if result["results"]:
         assert result["results"][0]["metadata"].get("pricing_priority") == "high"
-

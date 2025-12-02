@@ -5,7 +5,7 @@ Unit tests for Zantara Tools Service
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -44,9 +44,9 @@ def mock_collaborator_service():
 @pytest.fixture
 def zantara_tools(mock_pricing_service, mock_collaborator_service):
     """Create ZantaraTools instance"""
-    with patch("services.zantara_tools.get_pricing_service", return_value=mock_pricing_service), patch(
-        "services.zantara_tools.CollaboratorService", return_value=mock_collaborator_service
-    ):
+    with patch(
+        "services.zantara_tools.get_pricing_service", return_value=mock_pricing_service
+    ), patch("services.zantara_tools.CollaboratorService", return_value=mock_collaborator_service):
         return ZantaraTools()
 
 
@@ -184,7 +184,9 @@ async def test_execute_tool_get_team_members_list_all(zantara_tools, mock_collab
 
 
 @pytest.mark.asyncio
-async def test_execute_tool_get_team_members_list_by_department(zantara_tools, mock_collaborator_service):
+async def test_execute_tool_get_team_members_list_by_department(
+    zantara_tools, mock_collaborator_service
+):
     """Test execute_tool with get_team_members_list filtered by department"""
     mock_profile = MagicMock()
     mock_profile.name = "John Doe"
@@ -198,16 +200,16 @@ async def test_execute_tool_get_team_members_list_by_department(zantara_tools, m
 
     mock_collaborator_service.list_members.return_value = [mock_profile]
 
-    result = await zantara_tools.execute_tool(
-        "get_team_members_list", {"department": "Tech"}
-    )
+    result = await zantara_tools.execute_tool("get_team_members_list", {"department": "Tech"})
 
     assert result["success"] is True
     mock_collaborator_service.list_members.assert_called_once_with("tech")
 
 
 @pytest.mark.asyncio
-async def test_execute_tool_get_team_members_list_empty_department(zantara_tools, mock_collaborator_service):
+async def test_execute_tool_get_team_members_list_empty_department(
+    zantara_tools, mock_collaborator_service
+):
     """Test execute_tool with get_team_members_list empty department"""
     mock_collaborator_service.list_members.return_value = []
 
@@ -317,4 +319,3 @@ def test_get_zantara_tools_singleton():
         assert result1 == mock_instance
         # Should only be called once (singleton)
         assert mock_zantara_tools_class.call_count == 1
-

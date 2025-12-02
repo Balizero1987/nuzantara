@@ -5,7 +5,6 @@ Unit tests for Citation Service
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -454,4 +453,3 @@ async def test_health_check(citation_service):
     assert "features" in result
     assert result["features"]["inline_citations"] is True
     assert result["features"]["citation_validation"] is True
-

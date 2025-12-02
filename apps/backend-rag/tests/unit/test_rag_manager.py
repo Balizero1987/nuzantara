@@ -171,7 +171,9 @@ async def test_retrieve_context_empty_results(rag_manager):
     limit = 5
 
     # Mock empty results
-    rag_manager.search.search_with_conflict_resolution = AsyncMock(return_value={"query": query, "results": []})
+    rag_manager.search.search_with_conflict_resolution = AsyncMock(
+        return_value={"query": query, "results": []}
+    )
 
     result = await rag_manager.retrieve_context(query, query_type, user_level, limit)
 
@@ -218,7 +220,9 @@ async def test_retrieve_context_truncates_document_text(rag_manager):
     rag_manager.search.search_with_conflict_resolution = AsyncMock(
         return_value={
             "query": query,
-            "results": [{"text": long_text, "metadata": {"title": "Long Doc", "source_collection": "test"}}],
+            "results": [
+                {"text": long_text, "metadata": {"title": "Long Doc", "source_collection": "test"}}
+            ],
         }
     )
 
@@ -276,7 +280,9 @@ async def test_retrieve_context_exception_handling(rag_manager):
     user_level = 2
     limit = 5
 
-    rag_manager.search.search_with_conflict_resolution = AsyncMock(side_effect=Exception("Search error"))
+    rag_manager.search.search_with_conflict_resolution = AsyncMock(
+        side_effect=Exception("Search error")
+    )
 
     result = await rag_manager.retrieve_context(query, query_type, user_level, limit)
 
@@ -317,4 +323,3 @@ async def test_retrieve_context_separates_documents(rag_manager):
     # Should have double newlines between documents
     if result["document_count"] > 1:
         assert "\n\n" in result["context"]
-

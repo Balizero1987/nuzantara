@@ -4,9 +4,7 @@ Unit tests for Conversation Service
 """
 
 import sys
-from datetime import datetime
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -145,9 +143,7 @@ async def test_get_recent_conversations_limit(conversation_service, sample_messa
     """Test getting recent conversations with limit"""
     # Save 5 conversations
     for i in range(5):
-        await conversation_service.save_conversation(
-            user_id="user123", messages=sample_messages
-        )
+        await conversation_service.save_conversation(user_id="user123", messages=sample_messages)
 
     conversations = await conversation_service.get_recent_conversations(user_id="user123", limit=3)
 
@@ -212,4 +208,3 @@ async def test_get_stats_with_conversations(conversation_service, sample_message
     assert stats["total_conversations"] == 2
     assert stats["cached_conversations"] == 2
     assert stats["postgresql_enabled"] is False
-

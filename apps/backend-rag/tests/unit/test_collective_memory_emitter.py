@@ -359,9 +359,7 @@ async def test_emit_memory_stored_sse_exception(emitter, mock_event_source):
 async def test_emit_preference_detected_sse_exception(emitter, mock_event_source):
     """Test emit_preference_detected when _send_sse_event fails"""
     with patch.object(emitter, "_send_sse_event", side_effect=Exception("SSE error")):
-        await emitter.emit_preference_detected(
-            mock_event_source, "user1", "coffee", "food"
-        )
+        await emitter.emit_preference_detected(mock_event_source, "user1", "coffee", "food")
 
 
 @pytest.mark.asyncio
@@ -389,4 +387,3 @@ async def test_emit_memory_consolidated_sse_exception(emitter, mock_event_source
         await emitter.emit_memory_consolidated(
             mock_event_source, "merge", [{"id": "mem1"}], "New memory", "Test reason"
         )
-

@@ -124,6 +124,28 @@ python3 apps/core/scribe_frontend.py
 
 - **Sentinel**: Quality Control (`./sentinel`)
 - **Scribe**: Documentation Generator
+- **Qdrant Analyzer**: Document structure analysis (`python scripts/analyze_qdrant_documents.py`)
+- **Document Structure Extractor**: Extract data patterns from text (`python scripts/extract_document_structure.py`)
+- **Quality Validator**: Validate document quality (`python scripts/validate_qdrant_quality.py`)
+- **Metadata Schema Generator**: Generate standardized metadata schemas (`python scripts/create_metadata_schema.py`)
+- **Metadata Extractor**: Extract structured metadata from text (`python scripts/extract_and_update_metadata.py`)
+- **Metadata Updater**: Apply metadata updates to Qdrant (`python scripts/apply_metadata_updates.py`)
+- **Final Report Generator**: Generate comprehensive analysis reports (`python scripts/generate_final_report.py`)
+
+## 📊 Knowledge Base
+
+The platform uses **Qdrant Vector Database** with **25,458+ documents** across 8 collections:
+
+- **Visa & Immigration**: 1,612 documents (`visa_oracle`)
+- **Business Codes (KBLI)**: 8,886 documents (`kbli_unified`)
+- **Tax Regulations**: 895 documents (`tax_genius`)
+- **Legal Framework**: 5,041 documents (`legal_unified`)
+- **General Knowledge**: 8,923 documents (`knowledge_base`)
+- **Team Profiles**: 43 documents (`bali_zero_team`)
+- **Pricing**: 29 documents (`bali_zero_pricing`)
+- **Property**: 29 documents (`property_unified`)
+
+All documents use **OpenAI embeddings** (1536-dim) for semantic search. See [ARCHITECTURE.md](./docs/ARCHITECTURE.md#3-qdrant-vector-database-structure) for detailed structure.
 
 ## 👥 Team
 

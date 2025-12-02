@@ -3,11 +3,10 @@ Unit tests for Smart Oracle Service
 100% coverage target with comprehensive mocking
 """
 
-import io
 import json
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -71,7 +70,9 @@ def test_get_drive_service_success(mock_settings):
                 "project_id": "test-project",
             }
         )
-        with patch("services.smart_oracle.service_account.Credentials.from_service_account_info") as mock_creds:
+        with patch(
+            "services.smart_oracle.service_account.Credentials.from_service_account_info"
+        ) as mock_creds:
             with patch("services.smart_oracle.build") as mock_build:
                 mock_cred_instance = MagicMock()
                 mock_creds.return_value = mock_cred_instance
@@ -108,7 +109,10 @@ def test_get_drive_service_invalid_json(mock_settings):
 
 def test_get_drive_service_exception(mock_settings):
     """Test get_drive_service with exception"""
-    with patch("services.smart_oracle.service_account.Credentials.from_service_account_info", side_effect=Exception("Test error")):
+    with patch(
+        "services.smart_oracle.service_account.Credentials.from_service_account_info",
+        side_effect=Exception("Test error"),
+    ):
         service = get_drive_service()
 
         assert service is None
@@ -124,9 +128,7 @@ def test_download_pdf_from_drive_success(mock_settings, mock_drive_service):
     with patch("services.smart_oracle.get_drive_service", return_value=mock_drive_service):
         # Mock file list response
         list_mock = MagicMock()
-        list_mock.execute.return_value = {
-            "files": [{"id": "file123", "name": "test_file.pdf"}]
-        }
+        list_mock.execute.return_value = {"files": [{"id": "file123", "name": "test_file.pdf"}]}
         mock_drive_service.files.return_value.list.return_value = list_mock
 
         # Mock file download
@@ -222,9 +224,7 @@ def test_download_pdf_from_drive_clean_name(mock_settings, mock_drive_service):
     """Test download_pdf_from_drive with path in filename"""
     with patch("services.smart_oracle.get_drive_service", return_value=mock_drive_service):
         list_mock = MagicMock()
-        list_mock.execute.return_value = {
-            "files": [{"id": "file123", "name": "test_file.pdf"}]
-        }
+        list_mock.execute.return_value = {"files": [{"id": "file123", "name": "test_file.pdf"}]}
         mock_drive_service.files.return_value.list.return_value = list_mock
 
         get_media_mock = MagicMock()
@@ -310,7 +310,9 @@ async def test_smart_oracle_ai_error(mock_settings):
 async def test_smart_oracle_upload_error(mock_settings):
     """Test smart_oracle with upload error"""
     with patch("services.smart_oracle.download_pdf_from_drive", return_value="/tmp/test.pdf"):
-        with patch("services.smart_oracle.genai.upload_file", side_effect=Exception("Upload error")):
+        with patch(
+            "services.smart_oracle.genai.upload_file", side_effect=Exception("Upload error")
+        ):
             with patch("builtins.open", create=True):
                 result = await smart_oracle("What is this document about?", "test.pdf")
 
@@ -372,7 +374,9 @@ def test_genai_configure_on_module_import():
 
             # Trigger the module-level code by importing
             import importlib
+
             import services.smart_oracle
+
             importlib.reload(services.smart_oracle)
 
             # Verify configure was called with the API key
@@ -397,7 +401,9 @@ def test_get_drive_service_credential_creation_error():
     with patch("services.smart_oracle.logger") as mock_logger:
         with patch("app.core.config.settings") as mock_settings_obj:
             mock_settings_obj.google_credentials_json = json.dumps({"type": "service_account"})
-            with patch("services.smart_oracle.service_account.Credentials.from_service_account_info") as mock_creds:
+            with patch(
+                "services.smart_oracle.service_account.Credentials.from_service_account_info"
+            ) as mock_creds:
                 mock_creds.side_effect = ValueError("Missing required fields")
 
                 service = get_drive_service()
@@ -422,7 +428,9 @@ def test_get_drive_service_with_actual_credentials(mock_settings):
                 "client_id": "123456789",
             }
         )
-        with patch("services.smart_oracle.service_account.Credentials.from_service_account_info") as mock_creds:
+        with patch(
+            "services.smart_oracle.service_account.Credentials.from_service_account_info"
+        ) as mock_creds:
             with patch("services.smart_oracle.build") as mock_build:
                 mock_cred_instance = MagicMock()
                 mock_creds.return_value = mock_cred_instance
@@ -442,9 +450,7 @@ def test_download_pdf_multi_chunk(mock_settings, mock_drive_service):
     """Test download_pdf_from_drive with multi-chunk download"""
     with patch("services.smart_oracle.get_drive_service", return_value=mock_drive_service):
         list_mock = MagicMock()
-        list_mock.execute.return_value = {
-            "files": [{"id": "file123", "name": "large_file.pdf"}]
-        }
+        list_mock.execute.return_value = {"files": [{"id": "file123", "name": "large_file.pdf"}]}
         mock_drive_service.files.return_value.list.return_value = list_mock
 
         get_media_mock = MagicMock()
@@ -478,16 +484,14 @@ def test_download_pdf_file_write_error(mock_settings, mock_drive_service):
     """Test download_pdf_from_drive when file write fails"""
     with patch("services.smart_oracle.get_drive_service", return_value=mock_drive_service):
         list_mock = MagicMock()
-        list_mock.execute.return_value = {
-            "files": [{"id": "file123", "name": "test.pdf"}]
-        }
+        list_mock.execute.return_value = {"files": [{"id": "file123", "name": "test.pdf"}]}
         mock_drive_service.files.return_value.list.return_value = list_mock
 
         get_media_mock = MagicMock()
         mock_drive_service.files.return_value.get_media.return_value = get_media_mock
 
         with patch("services.smart_oracle.MediaIoBaseDownload") as mock_downloader:
-            with patch("builtins.open", side_effect=IOError("Disk full")):
+            with patch("builtins.open", side_effect=OSError("Disk full")):
                 mock_downloader_instance = MagicMock()
                 mock_downloader_instance.next_chunk.return_value = (None, True)
                 mock_downloader.return_value = mock_downloader_instance
@@ -514,9 +518,7 @@ def test_download_pdf_with_extension_variations(mock_settings, mock_drive_servic
     """Test download_pdf_from_drive handles files with and without .pdf extension"""
     with patch("services.smart_oracle.get_drive_service", return_value=mock_drive_service):
         list_mock = MagicMock()
-        list_mock.execute.return_value = {
-            "files": [{"id": "file123", "name": "document.pdf"}]
-        }
+        list_mock.execute.return_value = {"files": [{"id": "file123", "name": "document.pdf"}]}
         mock_drive_service.files.return_value.list.return_value = list_mock
 
         get_media_mock = MagicMock()
@@ -542,9 +544,7 @@ def test_download_pdf_search_query_construction(mock_settings, mock_drive_servic
     """Test download_pdf_from_drive constructs correct Drive API query"""
     with patch("services.smart_oracle.get_drive_service", return_value=mock_drive_service):
         list_mock = MagicMock()
-        list_mock.execute.return_value = {
-            "files": [{"id": "file123", "name": "my_document.pdf"}]
-        }
+        list_mock.execute.return_value = {"files": [{"id": "file123", "name": "my_document.pdf"}]}
         mock_drive_service.files.return_value.list.return_value = list_mock
 
         get_media_mock = MagicMock()
@@ -579,7 +579,9 @@ async def test_smart_oracle_with_genai_config(mock_settings):
         mock_settings_obj.google_api_key = "test-api-key-123"
 
         with patch("services.smart_oracle.genai.configure") as mock_configure:
-            with patch("services.smart_oracle.download_pdf_from_drive", return_value="/tmp/test.pdf"):
+            with patch(
+                "services.smart_oracle.download_pdf_from_drive", return_value="/tmp/test.pdf"
+            ):
                 with patch("services.smart_oracle.genai.upload_file") as mock_upload:
                     with patch("services.smart_oracle.genai.GenerativeModel") as mock_model:
                         with patch("builtins.open", create=True):
@@ -627,7 +629,9 @@ async def test_smart_oracle_file_cleanup_on_success(mock_settings):
 async def test_smart_oracle_no_file_cleanup_on_error(mock_settings):
     """Test smart_oracle doesn't try to remove file when processing fails"""
     with patch("services.smart_oracle.download_pdf_from_drive", return_value="/tmp/test.pdf"):
-        with patch("services.smart_oracle.genai.upload_file", side_effect=Exception("Upload failed")):
+        with patch(
+            "services.smart_oracle.genai.upload_file", side_effect=Exception("Upload failed")
+        ):
             with patch("builtins.open", create=True):
                 with patch("os.remove") as mock_remove:
                     result = await smart_oracle("Query", "test.pdf")
@@ -693,9 +697,7 @@ def test_download_pdf_logging_on_success(mock_settings, mock_drive_service):
     with patch("services.smart_oracle.get_drive_service", return_value=mock_drive_service):
         with patch("services.smart_oracle.logger") as mock_logger:
             list_mock = MagicMock()
-            list_mock.execute.return_value = {
-                "files": [{"id": "file123", "name": "found_doc.pdf"}]
-            }
+            list_mock.execute.return_value = {"files": [{"id": "file123", "name": "found_doc.pdf"}]}
             mock_drive_service.files.return_value.list.return_value = list_mock
 
             get_media_mock = MagicMock()
@@ -774,7 +776,9 @@ async def test_smart_oracle_logging_on_error(mock_settings):
     """Test smart_oracle logs error on AI processing failure"""
     with patch("services.smart_oracle.logger") as mock_logger:
         with patch("services.smart_oracle.download_pdf_from_drive", return_value="/tmp/test.pdf"):
-            with patch("services.smart_oracle.genai.upload_file", side_effect=Exception("AI Error")):
+            with patch(
+                "services.smart_oracle.genai.upload_file", side_effect=Exception("AI Error")
+            ):
                 with patch("builtins.open", create=True):
                     result = await smart_oracle("Question", "doc.pdf")
 
@@ -832,8 +836,10 @@ def test_get_drive_service_logs_error_on_exception(mock_settings):
     with patch("services.smart_oracle.logger") as mock_logger:
         with patch("services.smart_oracle.settings") as mock_settings_obj:
             mock_settings_obj.google_credentials_json = json.dumps({"invalid": "creds"})
-            with patch("services.smart_oracle.service_account.Credentials.from_service_account_info",
-                      side_effect=Exception("Invalid credentials")):
+            with patch(
+                "services.smart_oracle.service_account.Credentials.from_service_account_info",
+                side_effect=Exception("Invalid credentials"),
+            ):
                 service = get_drive_service()
 
                 assert service is None
@@ -844,9 +850,7 @@ def test_download_pdf_basename_extraction(mock_settings, mock_drive_service):
     """Test download_pdf_from_drive correctly extracts basename from path"""
     with patch("services.smart_oracle.get_drive_service", return_value=mock_drive_service):
         list_mock = MagicMock()
-        list_mock.execute.return_value = {
-            "files": [{"id": "file123", "name": "doc.pdf"}]
-        }
+        list_mock.execute.return_value = {"files": [{"id": "file123", "name": "doc.pdf"}]}
         mock_drive_service.files.return_value.list.return_value = list_mock
 
         get_media_mock = MagicMock()
@@ -873,4 +877,3 @@ def test_download_pdf_basename_extraction(mock_settings, mock_drive_service):
                     assert "name contains 'doc'" in query
                     assert "folder" not in query
                     assert "subfolder" not in query
-

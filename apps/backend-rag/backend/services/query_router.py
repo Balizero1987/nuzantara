@@ -442,7 +442,7 @@ class QueryRouter:
             "chi sono io",
         ]
         if any(pattern in query_lower for pattern in identity_patterns):
-            logger.info(f"🧭 Route: bali_zero_team (IDENTITY QUERY OVERRIDE)")
+            logger.info("🧭 Route: bali_zero_team (IDENTITY QUERY OVERRIDE)")
             return "bali_zero_team"
 
         # PRIORITY OVERRIDE: Team enumeration queries
@@ -461,12 +461,12 @@ class QueryRouter:
             "department",
         ]
         if any(pattern in query_lower for pattern in team_patterns):
-            logger.info(f"🧭 Route: bali_zero_team (TEAM ENUMERATION OVERRIDE)")
+            logger.info("🧭 Route: bali_zero_team (TEAM ENUMERATION OVERRIDE)")
             return "bali_zero_team"
 
         # EXPLICIT OVERRIDE: Force team routing for founder queries
         if "fondatore" in query_lower or "founder" in query_lower:
-            logger.info(f"🧭 Route: bali_zero_team (EXPLICIT OVERRIDE: founder query detected)")
+            logger.info("🧭 Route: bali_zero_team (EXPLICIT OVERRIDE: founder query detected)")
             return "bali_zero_team"
 
         # Calculate domain scores
@@ -495,7 +495,9 @@ class QueryRouter:
         }
 
         # DEBUG: Log team score calculation
-        logger.info(f"🔍 DEBUG Query: '{query}' | team_score={team_score} | team_enum={team_enum_score} | total_team={team_score + team_enum_score}")
+        logger.info(
+            f"🔍 DEBUG Query: '{query}' | team_score={team_score} | team_enum={team_enum_score} | total_team={team_score + team_enum_score}"
+        )
         logger.info(f"🔍 DEBUG Domain scores: {domain_scores}")
 
         primary_domain = max(domain_scores, key=domain_scores.get)
@@ -690,7 +692,9 @@ class QueryRouter:
 
         # EXPLICIT OVERRIDE: Force team routing for founder queries
         if "fondatore" in query_lower or "founder" in query_lower:
-            logger.info(f"🧭 Route: bali_zero_team (EXPLICIT OVERRIDE: founder query in route_with_confidence)")
+            logger.info(
+                "🧭 Route: bali_zero_team (EXPLICIT OVERRIDE: founder query in route_with_confidence)"
+            )
             return ("bali_zero_team", 1.0, ["bali_zero_team"])
 
         # Calculate domain scores (same as route())

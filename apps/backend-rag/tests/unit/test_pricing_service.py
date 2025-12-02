@@ -7,7 +7,7 @@ Tests all pricing methods, search functionality, and LLM context formatting
 import json
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import mock_open, patch
 
 import pytest
 
@@ -27,7 +27,6 @@ from services.pricing_service import (
     get_visa_prices,
     search_service,
 )
-
 
 # ============================================================================
 # Fixtures

@@ -45,7 +45,11 @@ def mock_zantara_client():
 def cross_oracle_service(mock_search_service, mock_zantara_client):
     """Create CrossOracleSynthesisService instance"""
     with patch("llm.zantara_ai_client.ZantaraAIClient", return_value=mock_zantara_client):
-        return CrossOracleSynthesisService(mock_search_service, mock_zantara_client), mock_search_service, mock_zantara_client
+        return (
+            CrossOracleSynthesisService(mock_search_service, mock_zantara_client),
+            mock_search_service,
+            mock_zantara_client,
+        )
 
 
 @pytest.fixture
@@ -83,11 +87,9 @@ def test_init_without_ai(mock_search_service):
 def test_init_with_golden_answers(mock_search_service, mock_zantara_client):
     """Test initialization with golden answer service"""
     mock_golden = MagicMock()
-    
+
     with patch("llm.zantara_ai_client.ZantaraAIClient", return_value=mock_zantara_client):
-        service = CrossOracleSynthesisService(
-            mock_search_service, mock_zantara_client, mock_golden
-        )
+        service = CrossOracleSynthesisService(mock_search_service, mock_zantara_client, mock_golden)
 
         assert service.golden_answers == mock_golden
 
@@ -219,14 +221,14 @@ def test_determine_oracles_general(cross_oracle_service):
 async def test_query_oracle_success(cross_oracle_service):
     """Test query_oracle successful"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     mock_search.search.return_value = {
         "results": [
             {"text": "Result 1", "score": 0.9},
             {"text": "Result 2", "score": 0.8},
         ]
     }
-    
+
     oracle_query = OracleQuery(
         collection="visa_oracle",
         query="How to get visa?",
@@ -246,9 +248,9 @@ async def test_query_oracle_success(cross_oracle_service):
 async def test_query_oracle_no_results(cross_oracle_service):
     """Test query_oracle with no results"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     mock_search.search.return_value = {"results": []}
-    
+
     oracle_query = OracleQuery(
         collection="visa_oracle",
         query="Test",
@@ -265,9 +267,9 @@ async def test_query_oracle_no_results(cross_oracle_service):
 async def test_query_oracle_exception(cross_oracle_service):
     """Test query_oracle handles exception"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     mock_search.search.side_effect = Exception("Search error")
-    
+
     oracle_query = OracleQuery(
         collection="visa_oracle",
         query="Test",
@@ -289,11 +291,9 @@ async def test_query_oracle_exception(cross_oracle_service):
 async def test_query_all_oracles_success(cross_oracle_service):
     """Test query_all_oracles successful"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
-    mock_search.search.return_value = {
-        "results": [{"text": "Result", "score": 0.9}]
-    }
-    
+
+    mock_search.search.return_value = {"results": [{"text": "Result", "score": 0.9}]}
+
     oracle_queries = [
         OracleQuery(collection="visa_oracle", query="Test", priority=1),
         OracleQuery(collection="tax_genius", query="Test", priority=2),
@@ -311,8 +311,9 @@ async def test_query_all_oracles_success(cross_oracle_service):
 async def test_query_all_oracles_mixed_results(cross_oracle_service):
     """Test query_all_oracles with mixed success/failure"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     call_count = 0
+
     def mock_search_side_effect(*args, **kwargs):
         nonlocal call_count
         call_count += 1
@@ -320,9 +321,9 @@ async def test_query_all_oracles_mixed_results(cross_oracle_service):
             return {"results": [{"text": "Result", "score": 0.9}]}
         else:
             return {"results": []}
-    
+
     mock_search.search.side_effect = mock_search_side_effect
-    
+
     oracle_queries = [
         OracleQuery(collection="visa_oracle", query="Test", priority=1),
         OracleQuery(collection="tax_genius", query="Test", priority=2),
@@ -343,9 +344,9 @@ async def test_query_all_oracles_mixed_results(cross_oracle_service):
 async def test_synthesize_with_zantara_success(cross_oracle_service):
     """Test synthesize_with_zantara successful"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     mock_zantara.generate_text.return_value = {"text": "Synthesized answer"}
-    
+
     oracle_results = {
         "visa_oracle": {
             "success": True,
@@ -365,9 +366,9 @@ async def test_synthesize_with_zantara_success(cross_oracle_service):
 async def test_synthesize_with_zantara_exception(cross_oracle_service):
     """Test synthesize_with_zantara handles exception"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     mock_zantara.generate_text.side_effect = Exception("AI error")
-    
+
     oracle_results = {
         "visa_oracle": {
             "success": True,
@@ -388,7 +389,7 @@ async def test_synthesize_with_zantara_exception(cross_oracle_service):
 async def test_synthesize_with_zantara_no_results(cross_oracle_service):
     """Test synthesize_with_zantara with no successful results"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     oracle_results = {
         "visa_oracle": {
             "success": False,
@@ -412,7 +413,7 @@ async def test_synthesize_with_zantara_no_results(cross_oracle_service):
 def test_simple_synthesis_success(cross_oracle_service):
     """Test _simple_synthesis successful"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     oracle_results = {
         "visa_oracle": {
             "success": True,
@@ -434,7 +435,7 @@ def test_simple_synthesis_success(cross_oracle_service):
 def test_simple_synthesis_no_results(cross_oracle_service):
     """Test _simple_synthesis with no results"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     oracle_results = {
         "visa_oracle": {
             "success": False,
@@ -456,7 +457,7 @@ def test_simple_synthesis_no_results(cross_oracle_service):
 def test_parse_synthesis_success(cross_oracle_service):
     """Test _parse_synthesis successful"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     synthesis_text = """
 ## Integrated Recommendation
 This is the recommendation.
@@ -487,7 +488,7 @@ $10,000 - $15,000
 def test_parse_synthesis_partial(cross_oracle_service):
     """Test _parse_synthesis with partial data"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     synthesis_text = """
 ## Integrated Recommendation
 This is the recommendation.
@@ -524,10 +525,8 @@ def test_parse_synthesis_empty(cross_oracle_service):
 async def test_synthesize_success(cross_oracle_service):
     """Test synthesize successful"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
-    mock_search.search.return_value = {
-        "results": [{"text": "Result", "score": 0.9}]
-    }
+
+    mock_search.search.return_value = {"results": [{"text": "Result", "score": 0.9}]}
     mock_zantara.generate_text.return_value = {
         "text": "## Integrated Recommendation\nAnswer\n## Timeline\n2 months"
     }
@@ -545,10 +544,10 @@ async def test_synthesize_success(cross_oracle_service):
 async def test_synthesize_updates_stats(cross_oracle_service):
     """Test synthesize updates statistics"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     mock_search.search.return_value = {"results": [{"text": "Result", "score": 0.9}]}
     mock_zantara.generate_text.return_value = {"text": "Answer"}
-    
+
     initial_count = service.synthesis_stats["total_syntheses"]
 
     await service.synthesize("Test query", user_level=3)
@@ -560,10 +559,10 @@ async def test_synthesize_updates_stats(cross_oracle_service):
 async def test_synthesize_with_cache(cross_oracle_service):
     """Test synthesize with cache enabled"""
     service, mock_search, mock_zantara = cross_oracle_service
-    
+
     mock_golden = MagicMock()
     service.golden_answers = mock_golden
-    
+
     mock_search.search.return_value = {"results": [{"text": "Result", "score": 0.9}]}
     mock_zantara.generate_text.return_value = {"text": "Answer"}
 
@@ -587,4 +586,3 @@ def test_get_synthesis_stats(cross_oracle_service):
     assert "cache_hits" in stats
     assert "avg_oracles_consulted" in stats
     assert "scenario_distribution" in stats
-

@@ -134,4 +134,3 @@ async def test_generate_image_exception(image_service_with_key):
 
         # Should handle exception gracefully
         assert result["success"] is False or "error" in result
-

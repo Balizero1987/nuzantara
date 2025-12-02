@@ -5,7 +5,7 @@ Unit tests for Auto Ingestion Orchestrator
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -23,7 +23,6 @@ from services.auto_ingestion_orchestrator import (
     SourceType,
     UpdateType,
 )
-
 
 # ============================================================================
 # Fixtures
@@ -178,9 +177,9 @@ def test_add_source(orchestrator):
         url="https://example.com/rss",
         target_collection="custom_collection",
     )
-    
+
     orchestrator.add_source(new_source)
-    
+
     assert "custom_source" in orchestrator.sources
     assert orchestrator.sources["custom_source"].name == "Custom RSS Feed"
 
@@ -195,9 +194,9 @@ def test_get_due_sources_no_last_scraped(orchestrator):
     # Reset last_scraped for a source
     source = orchestrator.sources["oss_kbli"]
     source.last_scraped = None
-    
+
     due_sources = orchestrator.get_due_sources()
-    
+
     assert len(due_sources) > 0
     assert source in due_sources
 
@@ -207,9 +206,9 @@ def test_get_due_sources_due(orchestrator):
     source = orchestrator.sources["oss_kbli"]
     # Set last_scraped to 200 hours ago (more than scrape_frequency_hours=168)
     source.last_scraped = (datetime.now() - timedelta(hours=200)).isoformat()
-    
+
     due_sources = orchestrator.get_due_sources()
-    
+
     assert source in due_sources
 
 
@@ -218,9 +217,9 @@ def test_get_due_sources_not_due(orchestrator):
     source = orchestrator.sources["oss_kbli"]
     # Set last_scraped to 1 hour ago (less than scrape_frequency_hours=168)
     source.last_scraped = (datetime.now() - timedelta(hours=1)).isoformat()
-    
+
     due_sources = orchestrator.get_due_sources()
-    
+
     assert source not in due_sources
 
 
@@ -229,9 +228,9 @@ def test_get_due_sources_disabled(orchestrator):
     source = orchestrator.sources["oss_kbli"]
     source.enabled = False
     source.last_scraped = None
-    
+
     due_sources = orchestrator.get_due_sources()
-    
+
     assert source not in due_sources
 
 
@@ -244,9 +243,9 @@ def test_get_due_sources_disabled(orchestrator):
 async def test_scrape_source_with_scraper(orchestrator, mock_scraper_service):
     """Test scraping source with scraper service"""
     source = orchestrator.sources["oss_kbli"]
-    
+
     scraped_items = await orchestrator.scrape_source(source)
-    
+
     assert len(scraped_items) > 0
     assert isinstance(scraped_items[0], ScrapedContent)
     assert scraped_items[0].source_id == source.source_id
@@ -259,9 +258,9 @@ async def test_scrape_source_without_scraper(orchestrator):
     """Test scraping source without scraper service (demo mode)"""
     orchestrator.scraper = None
     source = orchestrator.sources["oss_kbli"]
-    
+
     scraped_items = await orchestrator.scrape_source(source)
-    
+
     assert len(scraped_items) > 0
     assert isinstance(scraped_items[0], ScrapedContent)
     assert "demo" in scraped_items[0].content_id.lower() or "demo" in scraped_items[0].title.lower()
@@ -272,9 +271,9 @@ async def test_scrape_source_scraper_error(orchestrator, mock_scraper_service):
     """Test scraping source when scraper raises error"""
     mock_scraper_service.scrape.side_effect = Exception("Scraping failed")
     source = orchestrator.sources["oss_kbli"]
-    
+
     scraped_items = await orchestrator.scrape_source(source)
-    
+
     assert len(scraped_items) == 0
 
 
@@ -304,11 +303,13 @@ async def test_filter_content_tier1_keyword_match(orchestrator):
             scraped_at=datetime.now().isoformat(),
         ),
     ]
-    
+
     filtered = await orchestrator.filter_content(content_list)
-    
+
     assert len(filtered) >= 1
-    assert any("regulation" in c.title.lower() or "peraturan" in c.content.lower() for c in filtered)
+    assert any(
+        "regulation" in c.title.lower() or "peraturan" in c.content.lower() for c in filtered
+    )
 
 
 @pytest.mark.asyncio
@@ -324,9 +325,9 @@ async def test_filter_content_tier2_with_claude(orchestrator, mock_claude_servic
             scraped_at=datetime.now().isoformat(),
         ),
     ]
-    
+
     filtered = await orchestrator.filter_content(content_list)
-    
+
     assert len(filtered) > 0
     assert mock_claude_service.conversational.called
     assert filtered[0].relevance_score > 0
@@ -347,9 +348,9 @@ async def test_filter_content_no_claude_service(orchestrator):
             scraped_at=datetime.now().isoformat(),
         ),
     ]
-    
+
     filtered = await orchestrator.filter_content(content_list)
-    
+
     assert len(filtered) > 0
     # Should only use Tier 1 filtering
 
@@ -373,9 +374,9 @@ async def test_ingest_content_success(orchestrator):
             scraped_at=datetime.now().isoformat(),
         ),
     ]
-    
+
     ingested_count = await orchestrator.ingest_content(content_list)
-    
+
     assert ingested_count == 1
     assert "content1" in orchestrator.content_hashes
     assert orchestrator.orchestrator_stats["items_by_collection"]["kbli_comprehensive"] == 1
@@ -392,12 +393,12 @@ async def test_ingest_content_duplicate(orchestrator):
         url="https://example.com",
         scraped_at=datetime.now().isoformat(),
     )
-    
+
     # Add to hashes first
     orchestrator.content_hashes.add("content1")
-    
+
     ingested_count = await orchestrator.ingest_content([content])
-    
+
     assert ingested_count == 0
 
 
@@ -415,9 +416,9 @@ async def test_ingest_content_no_search_service(orchestrator):
             scraped_at=datetime.now().isoformat(),
         ),
     ]
-    
+
     ingested_count = await orchestrator.ingest_content(content_list)
-    
+
     assert ingested_count == 0
 
 
@@ -434,9 +435,9 @@ async def test_ingest_content_unknown_source(orchestrator):
             scraped_at=datetime.now().isoformat(),
         ),
     ]
-    
+
     ingested_count = await orchestrator.ingest_content(content_list)
-    
+
     assert ingested_count == 0
 
 
@@ -449,7 +450,7 @@ async def test_ingest_content_unknown_source(orchestrator):
 async def test_run_ingestion_job_success(orchestrator, mock_scraper_service, mock_claude_service):
     """Test running ingestion job successfully"""
     job = await orchestrator.run_ingestion_job("oss_kbli")
-    
+
     assert isinstance(job, IngestionJob)
     assert job.status == IngestionStatus.COMPLETED
     assert job.items_scraped > 0
@@ -461,14 +462,15 @@ async def test_run_ingestion_job_success(orchestrator, mock_scraper_service, moc
 @pytest.mark.asyncio
 async def test_run_ingestion_job_failure(orchestrator, mock_scraper_service):
     """Test running ingestion job with failure"""
+
     # Make filter_content raise an exception to trigger failure
     async def failing_filter(*args):
         raise Exception("Filtering failed")
-    
+
     orchestrator.filter_content = failing_filter
-    
+
     job = await orchestrator.run_ingestion_job("oss_kbli")
-    
+
     assert job.status == IngestionStatus.FAILED
     assert job.error is not None
     assert orchestrator.orchestrator_stats["failed_jobs"] == 1
@@ -482,12 +484,14 @@ async def test_run_ingestion_job_unknown_source(orchestrator):
 
 
 @pytest.mark.asyncio
-async def test_run_ingestion_job_updates_stats(orchestrator, mock_scraper_service, mock_claude_service):
+async def test_run_ingestion_job_updates_stats(
+    orchestrator, mock_scraper_service, mock_claude_service
+):
     """Test that running job updates statistics"""
     initial_total = orchestrator.orchestrator_stats["total_jobs"]
-    
+
     await orchestrator.run_ingestion_job("oss_kbli")
-    
+
     assert orchestrator.orchestrator_stats["total_jobs"] == initial_total + 1
     assert orchestrator.orchestrator_stats["last_run"] is not None
 
@@ -498,14 +502,16 @@ async def test_run_ingestion_job_updates_stats(orchestrator, mock_scraper_servic
 
 
 @pytest.mark.asyncio
-async def test_run_scheduled_ingestion_with_due_sources(orchestrator, mock_scraper_service, mock_claude_service):
+async def test_run_scheduled_ingestion_with_due_sources(
+    orchestrator, mock_scraper_service, mock_claude_service
+):
     """Test running scheduled ingestion with due sources"""
     # Make a source due
     source = orchestrator.sources["oss_kbli"]
     source.last_scraped = None
-    
+
     jobs = await orchestrator.run_scheduled_ingestion()
-    
+
     assert len(jobs) > 0
     assert all(isinstance(job, IngestionJob) for job in jobs)
 
@@ -516,9 +522,9 @@ async def test_run_scheduled_ingestion_no_due_sources(orchestrator):
     # Set all sources as recently scraped
     for source in orchestrator.sources.values():
         source.last_scraped = datetime.now().isoformat()
-    
+
     jobs = await orchestrator.run_scheduled_ingestion()
-    
+
     assert len(jobs) == 0
 
 
@@ -536,9 +542,9 @@ def test_get_job_status_exists(orchestrator):
         started_at=datetime.now().isoformat(),
     )
     orchestrator.jobs["test_job"] = job
-    
+
     retrieved_job = orchestrator.get_job_status("test_job")
-    
+
     assert retrieved_job is not None
     assert retrieved_job.job_id == "test_job"
 
@@ -546,7 +552,7 @@ def test_get_job_status_exists(orchestrator):
 def test_get_job_status_not_exists(orchestrator):
     """Test getting job status for non-existent job"""
     job = orchestrator.get_job_status("nonexistent")
-    
+
     assert job is None
 
 
@@ -558,7 +564,7 @@ def test_get_job_status_not_exists(orchestrator):
 def test_get_orchestrator_stats(orchestrator):
     """Test getting orchestrator statistics"""
     stats = orchestrator.get_orchestrator_stats()
-    
+
     assert "total_jobs" in stats
     assert "successful_jobs" in stats
     assert "failed_jobs" in stats
@@ -572,9 +578,9 @@ def test_get_orchestrator_stats_success_rate(orchestrator):
     # Add some jobs
     orchestrator.orchestrator_stats["total_jobs"] = 10
     orchestrator.orchestrator_stats["successful_jobs"] = 8
-    
+
     stats = orchestrator.get_orchestrator_stats()
-    
+
     assert stats["success_rate"] == "80.0%"
 
 
@@ -587,9 +593,8 @@ def test_generate_content_id(orchestrator):
     """Test generating content ID from hash"""
     content = "Test content"
     content_id = orchestrator._generate_content_id(content)
-    
+
     assert isinstance(content_id, str)
     assert len(content_id) == 32  # MD5 hash length
     # Same content should generate same ID
     assert orchestrator._generate_content_id(content) == content_id
-

@@ -4,7 +4,7 @@ Unit tests for Error Monitoring Middleware
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi import Request, Response
@@ -14,7 +14,10 @@ backend_path = Path(__file__).parent.parent.parent / "backend"
 if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
-from middleware.error_monitoring import ErrorMonitoringMiddleware, create_error_monitoring_middleware
+from middleware.error_monitoring import (
+    ErrorMonitoringMiddleware,
+    create_error_monitoring_middleware,
+)
 
 
 @pytest.fixture
@@ -195,4 +198,3 @@ def test_create_error_monitoring_middleware(mock_alert_service):
 
     assert isinstance(middleware, ErrorMonitoringMiddleware)
     assert middleware.enabled is True
-

@@ -5,7 +5,6 @@ Unit tests for Query Router Service
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import pytest
 
@@ -125,7 +124,7 @@ def test_route_pricing_keywords(query_router):
     # Note: Pricing routing is primarily handled by search_service.py, not query_router
     # Query router routes based on domain keywords (tax, visa, etc.)
     # When no domain keywords match, it defaults to visa_oracle
-    
+
     # Generic pricing queries without domain keywords default to visa_oracle
     pricing_queries = [
         "What is the price?",
@@ -133,18 +132,18 @@ def test_route_pricing_keywords(query_router):
         "pricing information",
         "service fees",
     ]
-    
+
     for query in pricing_queries:
         result = query_router.route(query)
         # Default fallback when no domain keywords match
         assert result == "visa_oracle"
-    
+
     # Pricing queries with tax keywords route to tax collections
     tax_pricing_queries = [
         "tax calculation price",
         "tax service pricelist",
     ]
-    
+
     for query in tax_pricing_queries:
         result = query_router.route(query)
         # Should route to tax collection because of "tax" keyword
@@ -569,14 +568,18 @@ def test_route_with_confidence_tax_knowledge(query_router):
 def test_route_with_confidence_legal_updates(query_router):
     """Test route_with_confidence() routes to legal_updates"""
     # Use strong legal keywords + update keywords to ensure legal wins
-    collection, confidence, fallbacks = query_router.route_with_confidence("company formation incorporation limited liability updates pembaruan")
+    collection, confidence, fallbacks = query_router.route_with_confidence(
+        "company formation incorporation limited liability updates pembaruan"
+    )
     assert collection == "legal_updates"
     assert 0.0 < confidence <= 1.0
 
 
 def test_route_with_confidence_legal_architect(query_router):
     """Test route_with_confidence() routes to legal_architect"""
-    collection, confidence, fallbacks = query_router.route_with_confidence("company formation legal")
+    collection, confidence, fallbacks = query_router.route_with_confidence(
+        "company formation legal"
+    )
     assert collection == "legal_architect"
     assert 0.0 < confidence <= 1.0
 
@@ -590,7 +593,9 @@ def test_route_with_confidence_property_listings(query_router):
 
 def test_route_with_confidence_property_knowledge(query_router):
     """Test route_with_confidence() routes to property_knowledge"""
-    collection, confidence, fallbacks = query_router.route_with_confidence("property investment info")
+    collection, confidence, fallbacks = query_router.route_with_confidence(
+        "property investment info"
+    )
     assert collection == "property_knowledge"
     assert 0.0 < confidence <= 1.0
 
@@ -618,7 +623,9 @@ def test_route_with_confidence_books(query_router):
 
 def test_route_with_confidence_no_fallbacks(query_router):
     """Test route_with_confidence() with return_fallbacks=False"""
-    collection, confidence, fallbacks = query_router.route_with_confidence("visa question", return_fallbacks=False)
+    collection, confidence, fallbacks = query_router.route_with_confidence(
+        "visa question", return_fallbacks=False
+    )
     assert collection == "visa_oracle"
     assert fallbacks == ["visa_oracle"]
 
@@ -743,4 +750,3 @@ def test_get_fallback_stats_confidence_distribution(query_router):
     assert "high" in stats["confidence_distribution"]
     assert "medium" in stats["confidence_distribution"]
     assert "low" in stats["confidence_distribution"]
-

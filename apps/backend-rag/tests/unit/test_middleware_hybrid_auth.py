@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastapi import Request, status
+from fastapi import Request
 from starlette.responses import Response
 
 # Ensure backend is in path
@@ -227,7 +227,7 @@ async def test_authenticate_request_jwt_success(mock_app, mock_settings, mock_ap
         "role": "user",
         "name": "Test User",
         "auth_method": "jwt_stateless",
-        "status": "active"
+        "status": "active",
     }
 
     with patch("middleware.hybrid_auth.APIKeyAuth", return_value=mock_api_key_auth):
@@ -274,4 +274,3 @@ def test_create_default_user_context():
     assert context["role"] == "public"
     assert context["auth_method"] == "public"
     assert "permissions" in context
-

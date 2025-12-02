@@ -905,8 +905,7 @@ async def test_stop_auto_logout_monitor_when_not_running(timesheet_service):
 
 def test_bali_tz_constant():
     """Test BALI_TZ is correctly defined"""
-    assert BALI_TZ == ZoneInfo("Asia/Makassar")
+    assert ZoneInfo("Asia/Makassar") == BALI_TZ
     # Verify it's the correct timezone
     now = datetime.now(BALI_TZ)
     assert now.tzinfo is not None
-

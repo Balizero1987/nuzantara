@@ -5,7 +5,7 @@ Provides centralized tracking of service health status for fail-fast behavior
 and health-based degradation in production environments.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
@@ -13,6 +13,7 @@ from typing import Optional
 
 class ServiceStatus(Enum):
     """Service health status levels."""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNAVAILABLE = "unavailable"
@@ -21,6 +22,7 @@ class ServiceStatus(Enum):
 @dataclass
 class ServiceHealth:
     """Health information for a single service."""
+
     name: str
     status: ServiceStatus
     error: Optional[str] = None
@@ -62,7 +64,7 @@ class ServiceRegistry:
         name: str,
         status: ServiceStatus,
         error: Optional[str] = None,
-        critical: Optional[bool] = None
+        critical: Optional[bool] = None,
     ) -> None:
         """
         Register or update a service's health status.
@@ -91,7 +93,8 @@ class ServiceRegistry:
     def get_critical_failures(self) -> list[ServiceHealth]:
         """Get list of critical services that are unavailable."""
         return [
-            s for s in self._services.values()
+            s
+            for s in self._services.values()
             if s.is_critical and s.status == ServiceStatus.UNAVAILABLE
         ]
 
@@ -113,17 +116,13 @@ class ServiceRegistry:
 
         # Check for critical failures first
         critical_down = any(
-            s.status == ServiceStatus.UNAVAILABLE and s.is_critical
-            for s in self._services.values()
+            s.status == ServiceStatus.UNAVAILABLE and s.is_critical for s in self._services.values()
         )
         if critical_down:
             return "critical"
 
         # Check for any degradation
-        any_degraded = any(
-            s.status != ServiceStatus.HEALTHY
-            for s in self._services.values()
-        )
+        any_degraded = any(s.status != ServiceStatus.HEALTHY for s in self._services.values())
         return "degraded" if any_degraded else "healthy"
 
     def get_status(self) -> dict:

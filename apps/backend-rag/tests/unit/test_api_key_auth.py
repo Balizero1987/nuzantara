@@ -678,7 +678,16 @@ def test_validate_returns_complete_user_context(api_key_auth):
     """Test that validate returns complete user context"""
     result = api_key_auth.validate_api_key("zantara-secret-2024")
 
-    required_fields = ["id", "email", "name", "role", "status", "auth_method", "permissions", "metadata"]
+    required_fields = [
+        "id",
+        "email",
+        "name",
+        "role",
+        "status",
+        "auth_method",
+        "permissions",
+        "metadata",
+    ]
     for field in required_fields:
         assert field in result
 

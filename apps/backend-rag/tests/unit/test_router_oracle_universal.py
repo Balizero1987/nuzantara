@@ -14,11 +14,8 @@ Covers:
 - Error handling
 """
 
-import hashlib
 import json
-from datetime import datetime
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import HTTPException, status
@@ -507,7 +504,7 @@ class TestPydanticModels:
 
     def test_oracle_query_response_model(self):
         """Test OracleQueryResponse model"""
-        from app.routers.oracle_universal import OracleQueryResponse, UserProfile
+        from app.routers.oracle_universal import OracleQueryResponse
 
         response = OracleQueryResponse(
             success=True,
@@ -614,7 +611,7 @@ class TestUtilityFunctions:
 
         # Should respond in English (override) - v8.3 uses "RISPONDI SOLO in English"
         # Accept both old and new format for backwards compatibility
-        assert ("ANSWER ONLY in English" in prompt or "RISPONDI SOLO in English" in prompt)
+        assert "ANSWER ONLY in English" in prompt or "RISPONDI SOLO in English" in prompt
         # Language must be mentioned somewhere
         assert "English" in prompt
         # Should still mention source documents are in Bahasa Indonesia
@@ -713,7 +710,9 @@ class TestUtilityFunctions:
         mock_downloader = MagicMock()
         mock_downloader.next_chunk.return_value = (None, True)
 
-        with patch("app.routers.oracle_universal.MediaIoBaseDownload", return_value=mock_downloader):
+        with patch(
+            "app.routers.oracle_universal.MediaIoBaseDownload", return_value=mock_downloader
+        ):
             with patch("app.routers.oracle_universal.io.BytesIO"):
                 result = download_pdf_from_drive("test.pdf")
 
@@ -821,12 +820,11 @@ class TestAPIEndpoints:
         """Mock all external dependencies"""
         with patch("app.routers.oracle_universal.db_manager") as mock_db, patch(
             "app.routers.oracle_universal.google_services"
-        ) as mock_google, patch("app.routers.oracle_universal.EmbeddingsGenerator") as mock_embedder, patch(
+        ) as mock_google, patch(
+            "app.routers.oracle_universal.EmbeddingsGenerator"
+        ) as mock_embedder, patch(
             "app.routers.oracle_universal.smart_oracle"
-        ) as mock_smart_oracle, patch(
-            "app.routers.oracle_universal.jaksel_caller"
-        ) as mock_jaksel:
-
+        ) as mock_smart_oracle, patch("app.routers.oracle_universal.jaksel_caller") as mock_jaksel:
             # Setup mock returns
             mock_db.get_user_profile = AsyncMock(return_value=None)
             mock_db.store_query_analytics = AsyncMock()
@@ -946,9 +944,9 @@ class TestAPIEndpoints:
         """Test oracle query when embedding generation fails"""
         from app.routers.oracle_universal import OracleQueryRequest, hybrid_oracle_query
 
-        mock_dependencies["embedder"].return_value.generate_single_embedding.side_effect = Exception(
-            "Embedding error"
-        )
+        mock_dependencies[
+            "embedder"
+        ].return_value.generate_single_embedding.side_effect = Exception("Embedding error")
 
         mock_service = MagicMock()
         mock_router = MagicMock()
@@ -1013,7 +1011,9 @@ class TestAPIEndpoints:
             )
         }
 
-        request = OracleQueryRequest(query="Test query", user_email="anton@balizero.com", use_ai=False)
+        request = OracleQueryRequest(
+            query="Test query", user_email="anton@balizero.com", use_ai=False
+        )
 
         response = await hybrid_oracle_query(request, mock_service)
 
@@ -1349,7 +1349,6 @@ class TestEdgeCases:
         with patch("app.routers.oracle_universal.db_manager") as mock_db, patch(
             "app.routers.oracle_universal.EmbeddingsGenerator"
         ) as mock_embedder_class:
-
             mock_db.get_user_profile = AsyncMock(return_value=None)
             mock_db.store_query_analytics = AsyncMock()
 
@@ -1392,7 +1391,6 @@ class TestEdgeCases:
         ) as mock_smart_oracle, patch(
             "app.routers.oracle_universal.reason_with_gemini"
         ) as mock_reason:
-
             mock_db.get_user_profile = AsyncMock(return_value=None)
             mock_db.store_query_analytics = AsyncMock()
 

@@ -20,7 +20,6 @@ from app.routers.agents import (
     CreateJourneyRequest,
     add_compliance_tracking,
     calculate_dynamic_pricing,
-    compliance_monitor,
     complete_journey_step,
     create_client_journey,
     cross_oracle_synthesis,
@@ -28,16 +27,13 @@ from app.routers.agents import (
     extract_knowledge_graph,
     get_agents_status,
     get_analytics_summary,
-    get_client_compliance,
     get_compliance_alerts,
     get_ingestion_status,
     get_journey,
     get_next_steps,
-    journey_orchestrator,
     run_auto_ingestion,
     run_autonomous_research,
 )
-
 
 # ============================================================================
 # Fixtures
@@ -132,10 +128,7 @@ async def test_get_agents_status():
 @pytest.mark.asyncio
 async def test_create_client_journey_success(mock_journey):
     """Test successful journey creation"""
-    request = CreateJourneyRequest(
-        journey_type="pt_pma_setup",
-        client_id="client-123"
-    )
+    request = CreateJourneyRequest(journey_type="pt_pma_setup", client_id="client-123")
 
     with patch("app.routers.agents.journey_orchestrator.create_journey", return_value=mock_journey):
         result = await create_client_journey(request)
@@ -149,12 +142,12 @@ async def test_create_client_journey_success(mock_journey):
 @pytest.mark.asyncio
 async def test_create_client_journey_error():
     """Test journey creation error"""
-    request = CreateJourneyRequest(
-        journey_type="invalid_type",
-        client_id="client-123"
-    )
+    request = CreateJourneyRequest(journey_type="invalid_type", client_id="client-123")
 
-    with patch("app.routers.agents.journey_orchestrator.create_journey", side_effect=ValueError("Invalid journey type")):
+    with patch(
+        "app.routers.agents.journey_orchestrator.create_journey",
+        side_effect=ValueError("Invalid journey type"),
+    ):
         with pytest.raises(HTTPException) as exc_info:
             await create_client_journey(request)
 
@@ -164,6 +157,7 @@ async def test_create_client_journey_error():
 @pytest.mark.asyncio
 async def test_get_journey_success():
     """Test successful journey retrieval"""
+
     # Create simple object instead of MagicMock to avoid boolean evaluation issues
     class MockJourney:
         def __init__(self):
@@ -183,7 +177,9 @@ async def test_get_journey_success():
     mock_progress = {"completed": 2, "total": 5, "percentage": 40.0}
 
     with patch("app.routers.agents.journey_orchestrator.get_journey", return_value=mock_journey):
-        with patch("app.routers.agents.journey_orchestrator.get_progress", return_value=mock_progress):
+        with patch(
+            "app.routers.agents.journey_orchestrator.get_progress", return_value=mock_progress
+        ):
             result = await get_journey("journey-123")
 
             assert result["success"] is True
@@ -207,7 +203,9 @@ async def test_get_journey_not_found():
 async def test_complete_journey_step_success(mock_journey):
     """Test successful step completion"""
     with patch("app.routers.agents.journey_orchestrator.complete_step") as mock_complete:
-        with patch("app.routers.agents.journey_orchestrator.get_journey", return_value=mock_journey):
+        with patch(
+            "app.routers.agents.journey_orchestrator.get_journey", return_value=mock_journey
+        ):
             result = await complete_journey_step("journey-123", "step-1", "Notes")
 
             assert result["success"] is True
@@ -218,7 +216,10 @@ async def test_complete_journey_step_success(mock_journey):
 @pytest.mark.asyncio
 async def test_complete_journey_step_error():
     """Test step completion error"""
-    with patch("app.routers.agents.journey_orchestrator.complete_step", side_effect=ValueError("Step not found")):
+    with patch(
+        "app.routers.agents.journey_orchestrator.complete_step",
+        side_effect=ValueError("Step not found"),
+    ):
         with pytest.raises(HTTPException) as exc_info:
             await complete_journey_step("journey-123", "invalid-step")
 
@@ -254,10 +255,13 @@ async def test_add_compliance_tracking_success(mock_compliance_item):
         description="KITAS expiring soon",
         deadline="2024-12-31",
         estimated_cost=5000000,
-        required_documents=["passport", "visa"]
+        required_documents=["passport", "visa"],
     )
 
-    with patch("app.routers.agents.compliance_monitor.add_compliance_item", return_value=mock_compliance_item):
+    with patch(
+        "app.routers.agents.compliance_monitor.add_compliance_item",
+        return_value=mock_compliance_item,
+    ):
         result = await add_compliance_tracking(request)
 
         assert result["success"] is True
@@ -273,10 +277,13 @@ async def test_add_compliance_tracking_error():
         compliance_type="invalid_type",
         title="Test",
         description="Test",
-        deadline="2024-12-31"
+        deadline="2024-12-31",
     )
 
-    with patch("app.routers.agents.compliance_monitor.add_compliance_item", side_effect=ValueError("Invalid compliance type")):
+    with patch(
+        "app.routers.agents.compliance_monitor.add_compliance_item",
+        side_effect=ValueError("Invalid compliance type"),
+    ):
         with pytest.raises(HTTPException) as exc_info:
             await add_compliance_tracking(request)
 
@@ -286,7 +293,9 @@ async def test_add_compliance_tracking_error():
 @pytest.mark.asyncio
 async def test_get_compliance_alerts_no_filters(mock_alert):
     """Test get compliance alerts without filters"""
-    with patch("app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]):
+    with patch(
+        "app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]
+    ):
         result = await get_compliance_alerts()
 
         assert result["success"] is True
@@ -298,7 +307,9 @@ async def test_get_compliance_alerts_no_filters(mock_alert):
 @pytest.mark.asyncio
 async def test_get_compliance_alerts_with_client_filter(mock_alert):
     """Test get compliance alerts with client filter"""
-    with patch("app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]):
+    with patch(
+        "app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]
+    ):
         result = await get_compliance_alerts(client_id="client-123")
 
         assert result["success"] is True
@@ -308,7 +319,9 @@ async def test_get_compliance_alerts_with_client_filter(mock_alert):
 @pytest.mark.asyncio
 async def test_get_compliance_alerts_with_severity_filter(mock_alert):
     """Test get compliance alerts with severity filter"""
-    with patch("app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]):
+    with patch(
+        "app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]
+    ):
         result = await get_compliance_alerts(severity="critical")
 
         assert result["success"] is True
@@ -319,9 +332,13 @@ async def test_get_compliance_alerts_with_severity_filter(mock_alert):
 async def test_get_compliance_alerts_with_auto_notify(mock_alert):
     """Test get compliance alerts with auto_notify enabled"""
     mock_notification_hub = AsyncMock()
-    mock_notification_hub.send = AsyncMock(return_value={"notification_id": "notif-123", "status": "sent"})
+    mock_notification_hub.send = AsyncMock(
+        return_value={"notification_id": "notif-123", "status": "sent"}
+    )
 
-    with patch("app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]):
+    with patch(
+        "app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]
+    ):
         with patch("services.notification_hub.create_notification_from_template") as mock_create:
             with patch("services.notification_hub.notification_hub", mock_notification_hub):
                 mock_notification = MagicMock()
@@ -344,7 +361,9 @@ async def test_get_compliance_alerts_auto_notify_error(mock_alert):
     mock_notification_hub = AsyncMock()
     mock_notification_hub.send = AsyncMock(side_effect=Exception("Notification failed"))
 
-    with patch("app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]):
+    with patch(
+        "app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]
+    ):
         with patch("services.notification_hub.create_notification_from_template") as mock_create:
             with patch("services.notification_hub.notification_hub", mock_notification_hub):
                 mock_notification = MagicMock()
@@ -372,7 +391,9 @@ async def test_get_compliance_alerts_with_dict_alert():
         "severity": AlertSeverity.URGENT.value,
     }
 
-    with patch("app.routers.agents.compliance_monitor.check_compliance_items", return_value=[dict_alert]):
+    with patch(
+        "app.routers.agents.compliance_monitor.check_compliance_items", return_value=[dict_alert]
+    ):
         result = await get_compliance_alerts(client_id="client-456")
 
         assert result["success"] is True
@@ -393,7 +414,9 @@ async def test_get_compliance_alerts_with_dict_alert():
 async def test_extract_knowledge_graph():
     """Test knowledge graph extraction"""
     mock_request = MagicMock()
-    result = await extract_knowledge_graph(request=mock_request, text="John works for PT ABC in Jakarta")
+    result = await extract_knowledge_graph(
+        request=mock_request, text="John works for PT ABC in Jakarta"
+    )
 
     assert result["success"] is True
     assert result["text_length"] == len("John works for PT ABC in Jakarta")
@@ -447,14 +470,12 @@ async def test_cross_oracle_synthesis():
     # Mock the app.state to return None for services (missing dependencies)
     # Use configure_mock to ensure getattr returns None, not MagicMock
     mock_state = MagicMock()
-    mock_state.configure_mock(
-        intelligent_router=None,
-        search_service=None,
-        ai_client=None
-    )
+    mock_state.configure_mock(intelligent_router=None, search_service=None, ai_client=None)
     mock_request.app.state = mock_state
 
-    result = await cross_oracle_synthesis(request=mock_request, query="Tax regulations", domains=["tax", "legal"])
+    result = await cross_oracle_synthesis(
+        request=mock_request, query="Tax regulations", domains=["tax", "legal"]
+    )
 
     # Expect failure response when dependencies are missing
     assert result["success"] is False
@@ -467,9 +488,7 @@ async def test_cross_oracle_synthesis():
 async def test_calculate_dynamic_pricing():
     """Test dynamic pricing calculation"""
     result = await calculate_dynamic_pricing(
-        service_type="pt_pma",
-        complexity="complex",
-        urgency="urgent"
+        service_type="pt_pma", complexity="complex", urgency="urgent"
     )
 
     assert result["success"] is True
@@ -485,18 +504,14 @@ async def test_run_autonomous_research():
     # Mock the app.state to return None for services (missing dependencies)
     # Use configure_mock to ensure getattr returns None, not MagicMock
     mock_state = MagicMock()
-    mock_state.configure_mock(
-        search_service=None,
-        ai_client=None,
-        query_router=None
-    )
+    mock_state.configure_mock(search_service=None, ai_client=None, query_router=None)
     mock_request.app.state = mock_state
 
     result = await run_autonomous_research(
         request=mock_request,
         topic="Indonesian tax law",
         depth="deep",
-        sources=["oracle_collections"]
+        sources=["oracle_collections"],
     )
 
     # Expect failure response when dependencies are missing
@@ -514,13 +529,11 @@ async def test_run_autonomous_research():
 @pytest.mark.asyncio
 async def test_get_analytics_summary():
     """Test get analytics summary"""
-    mock_stats = {
-        "total_journeys": 10,
-        "active_journeys": 5,
-        "completed_journeys": 5
-    }
+    mock_stats = {"total_journeys": 10, "active_journeys": 5, "completed_journeys": 5}
 
-    with patch("app.routers.agents.journey_orchestrator.get_orchestrator_stats", return_value=mock_stats):
+    with patch(
+        "app.routers.agents.journey_orchestrator.get_orchestrator_stats", return_value=mock_stats
+    ):
         result = await get_analytics_summary()
 
         assert result["success"] is True

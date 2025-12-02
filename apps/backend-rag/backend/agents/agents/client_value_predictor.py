@@ -3,17 +3,19 @@
 Predicts high-value clients and automatically nurtures them
 """
 
-import psycopg2
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 import json
-from typing import Dict, List, Optional
+from datetime import datetime
+
+import psycopg2
+
 try:
     from llm.zantara_ai_client import ZantaraAIClient
+
     ZANTARA_AVAILABLE = True
 except ImportError:
     ZantaraAIClient = None
     ZANTARA_AVAILABLE = False
+
 
 class ClientValuePredictor:
     """
@@ -27,20 +29,22 @@ class ClientValuePredictor:
 
     def __init__(self):
         from app.core.config import settings
+
         self.db_url = settings.database_url
         self.zantara_client = ZantaraAIClient() if ZANTARA_AVAILABLE else None
         self.twilio_sid = settings.twilio_account_sid
         self.twilio_token = settings.twilio_auth_token
         self.whatsapp_number = settings.twilio_whatsapp_number
 
-    async def calculate_client_score(self, client_id: str) -> Dict:
+    async def calculate_client_score(self, client_id: str) -> dict:
         """Calculate comprehensive client value score"""
 
         conn = psycopg2.connect(self.db_url)
         cursor = conn.cursor()
 
         # Get client data
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 c.name,
                 c.email,
@@ -60,7 +64,9 @@ class ClientValuePredictor:
             LEFT JOIN crm_practices p ON c.id = p.client_id
             WHERE c.id = %s
             GROUP BY c.id, c.name, c.email, c.phone, c.created_at
-        """, (client_id,))
+        """,
+            (client_id,),
+        )
 
         data = cursor.fetchone()
         cursor.close()
@@ -81,11 +87,11 @@ class ClientValuePredictor:
 
         # Weighted LTV prediction
         ltv_score = (
-            engagement_score * 0.3 +
-            sentiment_score * 0.2 +
-            recency_score * 0.2 +
-            quality_score * 0.2 +
-            practice_score * 0.1
+            engagement_score * 0.3
+            + sentiment_score * 0.2
+            + recency_score * 0.2
+            + quality_score * 0.2
+            + practice_score * 0.1
         )
 
         return {
@@ -104,7 +110,7 @@ class ClientValuePredictor:
             "total_conversations": data[8],
             "practice_statuses": data[10] or [],
             "risk_level": self._calculate_risk(ltv_score, days_since_last),
-            "segment": self._get_segment(ltv_score)
+            "segment": self._get_segment(ltv_score),
         }
 
     def _calculate_risk(self, ltv_score: float, days_since_last: int) -> str:
@@ -129,18 +135,20 @@ class ClientValuePredictor:
         else:
             return "LOW_VALUE"
 
-    async def generate_nurturing_message(self, client_data: Dict) -> str:
+    async def generate_nurturing_message(self, client_data: dict) -> str:
         """Generate personalized nurturing message with Claude"""
 
         if not self.zantara_client:
             # Fallback message when AI is not available
-            name = client_data.get('name', 'Cliente')
-            days = client_data.get('days_since_last_interaction', 0)
+            name = client_data.get("name", "Cliente")
+            days = client_data.get("days_since_last_interaction", 0)
 
-            if client_data.get('segment') == 'VIP':
+            if client_data.get("segment") == "VIP":
                 return f"Ciao {name}, come stai? È un po' che non ci sentiamo. C'è qualcosa di cui posso occuparmi per te?"
-            elif client_data.get('risk_level') == 'HIGH_RISK':
-                return f"Ciao {name}, spero tutto bene. Volevo solo sapere se hai bisogno di qualcosa."
+            elif client_data.get("risk_level") == "HIGH_RISK":
+                return (
+                    f"Ciao {name}, spero tutto bene. Volevo solo sapere se hai bisogno di qualcosa."
+                )
             else:
                 return f"Ciao {name}, ti mando un saluto! Se hai bisogno di supporto, sono qui."
 
@@ -167,9 +175,7 @@ Guidelines:
 Output ONLY the message text, no explanations."""
 
         message = await self.zantara_client.generate_text(
-            prompt=prompt,
-            max_tokens=300,
-            temperature=0.7
+            prompt=prompt, max_tokens=300, temperature=0.7
         )
 
         return message.strip()
@@ -181,14 +187,12 @@ Output ONLY the message text, no explanations."""
         client = Client(self.twilio_sid, self.twilio_token)
 
         # Format phone number
-        if not phone.startswith('+'):
-            phone = '+' + phone
+        if not phone.startswith("+"):
+            phone = "+" + phone
 
         try:
             message = client.messages.create(
-                from_=f'whatsapp:{self.whatsapp_number}',
-                body=message,
-                to=f'whatsapp:{phone}'
+                from_=f"whatsapp:{self.whatsapp_number}", body=message, to=f"whatsapp:{phone}"
             )
             return message.sid
         except Exception as e:
@@ -209,7 +213,7 @@ Output ONLY the message text, no explanations."""
             "vip_nurtured": 0,
             "high_risk_contacted": 0,
             "total_messages_sent": 0,
-            "errors": []
+            "errors": [],
         }
 
         for client_id in client_ids:
@@ -221,30 +225,44 @@ Output ONLY the message text, no explanations."""
                     continue
 
                 # Update client score in DB
-                cursor.execute("""
+                cursor.execute(
+                    """
                     UPDATE crm_clients
                     SET
                         metadata = metadata || %s::jsonb,
                         updated_at = NOW()
                     WHERE id = %s
-                """, (json.dumps({
-                    "ltv_score": client_data["ltv_score"],
-                    "segment": client_data["segment"],
-                    "risk_level": client_data["risk_level"],
-                    "last_score_update": datetime.now().isoformat()
-                }), client_id))
+                """,
+                    (
+                        json.dumps(
+                            {
+                                "ltv_score": client_data["ltv_score"],
+                                "segment": client_data["segment"],
+                                "risk_level": client_data["risk_level"],
+                                "last_score_update": datetime.now().isoformat(),
+                            }
+                        ),
+                        client_id,
+                    ),
+                )
 
                 # Decide if we should reach out
                 should_nurture = False
                 reason = ""
 
-                if client_data["segment"] == "VIP" and client_data["days_since_last_interaction"] > 14:
+                if (
+                    client_data["segment"] == "VIP"
+                    and client_data["days_since_last_interaction"] > 14
+                ):
                     should_nurture = True
                     reason = "VIP inactive for 14+ days"
                 elif client_data["risk_level"] == "HIGH_RISK":
                     should_nurture = True
                     reason = "High-value client at risk of churn"
-                elif client_data["segment"] in ["HIGH_VALUE", "VIP"] and client_data["days_since_last_interaction"] > 30:
+                elif (
+                    client_data["segment"] in ["HIGH_VALUE", "VIP"]
+                    and client_data["days_since_last_interaction"] > 30
+                ):
                     should_nurture = True
                     reason = "High-value client inactive for 30+ days"
 
@@ -257,10 +275,13 @@ Output ONLY the message text, no explanations."""
 
                     if message_sid:
                         # Log interaction
-                        cursor.execute("""
+                        cursor.execute(
+                            """
                             INSERT INTO crm_interactions (client_id, type, notes, created_at)
                             VALUES (%s, 'whatsapp_nurture', %s, NOW())
-                        """, (client_id, f"Auto-nurture: {reason}\nMessage: {message}"))
+                        """,
+                            (client_id, f"Auto-nurture: {reason}\nMessage: {message}"),
+                        )
 
                         results["total_messages_sent"] += 1
 
@@ -281,10 +302,14 @@ Output ONLY the message text, no explanations."""
 
         # Send summary to team
         from app.core.config import settings
+
         if settings.slack_webhook_url:
             import requests
-            requests.post(settings.slack_webhook_url, json={
-                "text": f"""💰 Daily Client Nurturing Report
+
+            requests.post(
+                settings.slack_webhook_url,
+                json={
+                    "text": f"""💰 Daily Client Nurturing Report
 
 VIP Clients Nurtured: {results['vip_nurtured']}
 High-Risk Contacted: {results['high_risk_contacted']}
@@ -293,9 +318,11 @@ Errors: {len(results['errors'])}
 
 All clients scored and segmented automatically!
 """
-            })
+                },
+            )
 
         return results
+
 
 # Cron entry (add to backend-ts)
 # CRON_CLIENT_NURTURING="0 10 * * *"  # Daily at 10 AM

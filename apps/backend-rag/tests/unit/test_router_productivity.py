@@ -4,17 +4,17 @@ Unit tests for Productivity Router
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
-import pytest
 from fastapi.testclient import TestClient
 
 backend_path = Path(__file__).parent.parent.parent / "backend"
 if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
-from app.routers.productivity import router
 from fastapi import FastAPI
+
+from app.routers.productivity import router
 
 app = FastAPI()
 app.include_router(router)
@@ -28,9 +28,9 @@ def test_draft_email():
         "subject": "Test Subject",
         "body": "Test body",
     }
-    
+
     response = client.post("/api/productivity/gmail/draft", json=request_data)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "status" in data
@@ -43,16 +43,16 @@ def test_schedule_meeting(mock_service):
     mock_calendar.create_event.return_value = {"id": "event123"}
     # get_calendar_service is imported inside the function
     mock_service.return_value = mock_calendar
-    
+
     request_data = {
         "title": "Test Meeting",
         "start_time": "2024-12-31T10:00:00Z",
         "duration_minutes": 60,
         "attendees": ["test@example.com"],
     }
-    
+
     response = client.post("/api/productivity/calendar/schedule", json=request_data)
-    
+
     # May fail if calendar service is not properly initialized
     assert response.status_code in [200, 500]
     if response.status_code == 200:
@@ -66,9 +66,9 @@ def test_list_events(mock_service):
     mock_calendar = MagicMock()
     mock_calendar.list_upcoming_events.return_value = []
     mock_service.return_value = mock_calendar
-    
+
     response = client.get("/api/productivity/calendar/events?limit=10")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "events" in data
@@ -160,4 +160,3 @@ def test_list_events_with_results(mock_service):
     assert "events" in data
     assert len(data["events"]) == 2
     assert data["events"][0]["summary"] == "Event 1"
-

@@ -401,4 +401,3 @@ def test_init_handler_proxy(mock_httpx_client):
 
         assert isinstance(result, HandlerProxyService)
         assert result.backend_url == "https://test-backend.com"
-

@@ -1144,7 +1144,7 @@ async def test_authenticate_user_with_all_none_fields(
         "id": "test-user-id-123",
         "name": "Test User",
         "email": "test@example.com",
-        "pin_hash": bcrypt.hashpw("1234".encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+        "pin_hash": bcrypt.hashpw(b"1234", bcrypt.gensalt()).decode("utf-8"),
         "role": None,
         "department": None,
         "language": None,
@@ -1218,7 +1218,7 @@ async def test_authenticate_user_pin_hash_logging_with_none(
             # This is caught by the exception handler
             with patch.object(identity_service, "verify_password", return_value=False):
                 user = await identity_service.authenticate_user("test@example.com", "1234")
-                
+
                 # Should return None due to exception in logging or verification
                 assert user is None
                 # Exception should be logged

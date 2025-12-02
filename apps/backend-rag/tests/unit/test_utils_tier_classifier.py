@@ -6,16 +6,14 @@ Target: 100% coverage for backend/utils/tier_classifier.py
 import sys
 from pathlib import Path
 
-import pytest
-
 # Ensure backend is in path
 backend_path = Path(__file__).parent.parent.parent / "backend"
 if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
-from app.models import TierLevel
 from utils.tier_classifier import TierClassifier, classify_book_tier
 
+from app.models import TierLevel
 
 # ============================================================================
 # Tests for TierClassifier.__init__
@@ -27,7 +25,7 @@ def test_tier_classifier_initialization():
     classifier = TierClassifier()
 
     # Verify patterns are compiled
-    assert hasattr(classifier, 'tier_patterns_compiled')
+    assert hasattr(classifier, "tier_patterns_compiled")
     assert len(classifier.tier_patterns_compiled) == 5  # S, A, B, C, D
 
     # Verify all tiers have compiled patterns
@@ -46,8 +44,7 @@ def test_classify_tier_s_by_author_david_bohm():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="Wholeness and the Implicate Order",
-        book_author="David Bohm"
+        book_title="Wholeness and the Implicate Order", book_author="David Bohm"
     )
 
     assert tier == TierLevel.S
@@ -57,10 +54,7 @@ def test_classify_tier_s_by_author_ramana_maharshi():
     """Test Tier S classification by author - Ramana Maharshi"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="Who Am I?",
-        book_author="Ramana Maharshi"
-    )
+    tier = classifier.classify_book_tier(book_title="Who Am I?", book_author="Ramana Maharshi")
 
     assert tier == TierLevel.S
 
@@ -69,10 +63,7 @@ def test_classify_tier_s_by_author_nisargadatta():
     """Test Tier S classification by author - Nisargadatta"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="I Am That",
-        book_author="Nisargadatta Maharaj"
-    )
+    tier = classifier.classify_book_tier(book_title="I Am That", book_author="Nisargadatta Maharaj")
 
     assert tier == TierLevel.S
 
@@ -82,8 +73,7 @@ def test_classify_tier_s_by_author_jiddu_krishnamurti():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="Freedom from the Known",
-        book_author="Jiddu Krishnamurti"
+        book_title="Freedom from the Known", book_author="Jiddu Krishnamurti"
     )
 
     assert tier == TierLevel.S
@@ -93,10 +83,7 @@ def test_classify_tier_a_by_author_carl_jung():
     """Test Tier A classification by author - Carl Jung"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="Man and His Symbols",
-        book_author="Carl Jung"
-    )
+    tier = classifier.classify_book_tier(book_title="Man and His Symbols", book_author="Carl Jung")
 
     assert tier == TierLevel.A
 
@@ -105,10 +92,7 @@ def test_classify_tier_a_by_author_alan_watts():
     """Test Tier A classification by author - Alan Watts"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="The Way of Zen",
-        book_author="Alan Watts"
-    )
+    tier = classifier.classify_book_tier(book_title="The Way of Zen", book_author="Alan Watts")
 
     assert tier == TierLevel.A
 
@@ -118,8 +102,7 @@ def test_classify_tier_a_by_author_joseph_campbell():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="The Hero with a Thousand Faces",
-        book_author="Joseph Campbell"
+        book_title="The Hero with a Thousand Faces", book_author="Joseph Campbell"
     )
 
     assert tier == TierLevel.A
@@ -129,10 +112,7 @@ def test_classify_tier_a_by_author_ram_dass():
     """Test Tier A classification by author - Ram Dass"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="Be Here Now",
-        book_author="Ram Dass"
-    )
+    tier = classifier.classify_book_tier(book_title="Be Here Now", book_author="Ram Dass")
 
     assert tier == TierLevel.A
 
@@ -147,8 +127,7 @@ def test_classify_tier_s_by_keyword_quantum():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="Introduction to Quantum Mechanics",
-        book_author="Unknown Author"
+        book_title="Introduction to Quantum Mechanics", book_author="Unknown Author"
     )
 
     assert tier == TierLevel.S
@@ -159,8 +138,7 @@ def test_classify_tier_s_by_keyword_consciousness():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="The Nature of Consciousness",
-        book_author="John Doe"
+        book_title="The Nature of Consciousness", book_author="John Doe"
     )
 
     assert tier == TierLevel.S
@@ -171,8 +149,7 @@ def test_classify_tier_s_by_keyword_enlightenment():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="The Path to Enlightenment",
-        book_author="Unknown"
+        book_title="The Path to Enlightenment", book_author="Unknown"
     )
 
     assert tier == TierLevel.S
@@ -185,7 +162,7 @@ def test_classify_tier_s_by_content_sample():
     tier = classifier.classify_book_tier(
         book_title="Spiritual Teachings",
         book_author="Unknown",
-        book_content_sample="This book explores nonduality and the nature of awareness"
+        book_content_sample="This book explores nonduality and the nature of awareness",
     )
 
     assert tier == TierLevel.S
@@ -196,8 +173,7 @@ def test_classify_tier_a_by_keyword_philosophy():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="Introduction to Philosophy",
-        book_author="Jane Smith"
+        book_title="Introduction to Philosophy", book_author="Jane Smith"
     )
 
     assert tier == TierLevel.A
@@ -207,10 +183,7 @@ def test_classify_tier_a_by_keyword_psychology():
     """Test Tier A classification by keyword - psychology"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="Modern Psychology",
-        book_author="Dr. Smith"
-    )
+    tier = classifier.classify_book_tier(book_title="Modern Psychology", book_author="Dr. Smith")
 
     assert tier == TierLevel.A
 
@@ -219,10 +192,7 @@ def test_classify_tier_a_by_keyword_buddhism():
     """Test Tier A classification by keyword - buddhism"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="Teachings of Buddhism",
-        book_author="Unknown"
-    )
+    tier = classifier.classify_book_tier(book_title="Teachings of Buddhism", book_author="Unknown")
 
     assert tier == TierLevel.A
 
@@ -231,10 +201,7 @@ def test_classify_tier_b_by_keyword_history():
     """Test Tier B classification by keyword - history"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="World History",
-        book_author="Historian"
-    )
+    tier = classifier.classify_book_tier(book_title="World History", book_author="Historian")
 
     assert tier == TierLevel.B
 
@@ -243,10 +210,7 @@ def test_classify_tier_b_by_keyword_mythology():
     """Test Tier B classification by keyword - mythology"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="Greek Mythology",
-        book_author="Unknown"
-    )
+    tier = classifier.classify_book_tier(book_title="Greek Mythology", book_author="Unknown")
 
     assert tier == TierLevel.B
 
@@ -255,10 +219,7 @@ def test_classify_tier_b_by_keyword_meditation():
     """Test Tier B classification by keyword - meditation"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="The Art of Meditation",
-        book_author="Unknown"
-    )
+    tier = classifier.classify_book_tier(book_title="The Art of Meditation", book_author="Unknown")
 
     assert tier == TierLevel.B
 
@@ -268,8 +229,7 @@ def test_classify_tier_c_by_keyword_business():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="Business Management",
-        book_author="MBA Professor"
+        book_title="Business Management", book_author="MBA Professor"
     )
 
     assert tier == TierLevel.C
@@ -280,8 +240,7 @@ def test_classify_tier_c_by_keyword_leadership():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="Leadership Principles",
-        book_author="Executive Coach"
+        book_title="Leadership Principles", book_author="Executive Coach"
     )
 
     assert tier == TierLevel.C
@@ -291,10 +250,7 @@ def test_classify_tier_c_by_keyword_self_help():
     """Test Tier C classification by keyword - self-help"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="Self-Help Guide",
-        book_author="Life Coach"
-    )
+    tier = classifier.classify_book_tier(book_title="Self-Help Guide", book_author="Life Coach")
 
     assert tier == TierLevel.C
 
@@ -304,8 +260,7 @@ def test_classify_tier_d_by_keyword_introduction():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="Introduction to Programming",
-        book_author="Tech Writer"
+        book_title="Introduction to Programming", book_author="Tech Writer"
     )
 
     assert tier == TierLevel.D
@@ -315,10 +270,7 @@ def test_classify_tier_d_by_keyword_for_dummies():
     """Test Tier D classification by keyword - for dummies"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="Python for Dummies",
-        book_author="Tech Author"
-    )
+    tier = classifier.classify_book_tier(book_title="Python for Dummies", book_author="Tech Author")
 
     assert tier == TierLevel.D
 
@@ -328,8 +280,7 @@ def test_classify_tier_d_by_keyword_beginners():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="Beginners Guide to Coding",
-        book_author="Unknown"
+        book_title="Beginners Guide to Coding", book_author="Unknown"
     )
 
     assert tier == TierLevel.D
@@ -340,8 +291,7 @@ def test_classify_tier_d_by_keyword_basics():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="JavaScript Basics",
-        book_author="Web Developer"
+        book_title="JavaScript Basics", book_author="Web Developer"
     )
 
     assert tier == TierLevel.D
@@ -357,8 +307,7 @@ def test_classify_default_to_tier_c_no_matches():
     classifier = TierClassifier()
 
     tier = classifier.classify_book_tier(
-        book_title="Random Book Title",
-        book_author="Unknown Author"
+        book_title="Random Book Title", book_author="Unknown Author"
     )
 
     assert tier == TierLevel.C
@@ -368,11 +317,7 @@ def test_classify_with_empty_strings():
     """Test classification with empty strings defaults to Tier C"""
     classifier = TierClassifier()
 
-    tier = classifier.classify_book_tier(
-        book_title="",
-        book_author="",
-        book_content_sample=""
-    )
+    tier = classifier.classify_book_tier(book_title="", book_author="", book_content_sample="")
 
     assert tier == TierLevel.C
 
@@ -383,20 +328,17 @@ def test_classify_case_insensitive():
 
     # Test uppercase
     tier_upper = classifier.classify_book_tier(
-        book_title="QUANTUM PHYSICS",
-        book_author="SCIENTIST"
+        book_title="QUANTUM PHYSICS", book_author="SCIENTIST"
     )
 
     # Test lowercase
     tier_lower = classifier.classify_book_tier(
-        book_title="quantum physics",
-        book_author="scientist"
+        book_title="quantum physics", book_author="scientist"
     )
 
     # Test mixed case
     tier_mixed = classifier.classify_book_tier(
-        book_title="QuAnTuM PhYsIcS",
-        book_author="ScIeNtIsT"
+        book_title="QuAnTuM PhYsIcS", book_author="ScIeNtIsT"
     )
 
     assert tier_upper == TierLevel.S
@@ -464,7 +406,7 @@ def test_convenience_function_classify_book_tier():
     tier = classify_book_tier(
         book_title="Introduction to Quantum Mechanics",
         book_author="Physicist",
-        content_sample="This book covers quantum theory"
+        content_sample="This book covers quantum theory",
     )
 
     assert tier == "S"
@@ -472,50 +414,35 @@ def test_convenience_function_classify_book_tier():
 
 def test_convenience_function_tier_a():
     """Test convenience function returns Tier A"""
-    tier = classify_book_tier(
-        book_title="Philosophy of Mind",
-        book_author="Philosopher"
-    )
+    tier = classify_book_tier(book_title="Philosophy of Mind", book_author="Philosopher")
 
     assert tier == "A"
 
 
 def test_convenience_function_tier_b():
     """Test convenience function returns Tier B"""
-    tier = classify_book_tier(
-        book_title="World History",
-        book_author="Historian"
-    )
+    tier = classify_book_tier(book_title="World History", book_author="Historian")
 
     assert tier == "B"
 
 
 def test_convenience_function_tier_c():
     """Test convenience function returns Tier C"""
-    tier = classify_book_tier(
-        book_title="Business Leadership",
-        book_author="CEO"
-    )
+    tier = classify_book_tier(book_title="Business Leadership", book_author="CEO")
 
     assert tier == "C"
 
 
 def test_convenience_function_tier_d():
     """Test convenience function returns Tier D"""
-    tier = classify_book_tier(
-        book_title="Introduction to Coding",
-        book_author="Teacher"
-    )
+    tier = classify_book_tier(book_title="Introduction to Coding", book_author="Teacher")
 
     assert tier == "D"
 
 
 def test_convenience_function_default():
     """Test convenience function defaults to Tier C"""
-    tier = classify_book_tier(
-        book_title="Some Random Book",
-        book_author=""
-    )
+    tier = classify_book_tier(book_title="Some Random Book", book_author="")
 
     assert tier == "C"
 
@@ -531,8 +458,7 @@ def test_multiple_tier_keywords_highest_wins():
 
     # Book with both Tier S and Tier D keywords - Tier S should win if more matches
     tier = classifier.classify_book_tier(
-        book_title="Introduction to Quantum Consciousness and Awakening",
-        book_author="Unknown"
+        book_title="Introduction to Quantum Consciousness and Awakening", book_author="Unknown"
     )
 
     # Should be Tier S because "quantum", "consciousness", "awakening" are Tier S keywords
@@ -546,8 +472,7 @@ def test_author_overrides_keywords():
 
     # Book by Tier S author with Tier D keyword in title
     tier = classifier.classify_book_tier(
-        book_title="Introduction to Something",
-        book_author="David Bohm"
+        book_title="Introduction to Something", book_author="David Bohm"
     )
 
     # Should be Tier S because author is Tier S, despite "introduction" keyword
@@ -560,8 +485,7 @@ def test_tier_a_author_overrides_lower_tier_keywords():
 
     # Book by Tier A author with Tier C and D keywords
     tier = classifier.classify_book_tier(
-        book_title="Business Guide for Beginners",
-        book_author="Carl Jung"
+        book_title="Business Guide for Beginners", book_author="Carl Jung"
     )
 
     # Should be Tier A because author is Tier A
@@ -576,7 +500,7 @@ def test_content_sample_contributes_to_classification():
     tier = classifier.classify_book_tier(
         book_title="Advanced Topics",
         book_author="Unknown",
-        book_content_sample="This book explores the nature of consciousness and quantum mechanics"
+        book_content_sample="This book explores the nature of consciousness and quantum mechanics",
     )
 
     assert tier == TierLevel.S

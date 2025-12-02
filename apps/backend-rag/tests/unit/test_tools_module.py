@@ -5,7 +5,6 @@ Tests module structure, imports, and public API
 
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 import pytest
 
@@ -48,6 +47,7 @@ class TestToolsModuleStructure:
         """Test that the tools module can be imported successfully"""
         try:
             import services.tools
+
             assert services.tools is not None
         except ImportError as e:
             pytest.fail(f"Failed to import services.tools: {e}")
@@ -135,9 +135,12 @@ class TestToolsModulePublicAPI:
         # Should be empty since __all__ is empty
         # However, Python still provides some built-in attributes
         # We just verify no custom public APIs are exposed
-        custom_public = [attr for attr in public_attrs
-                        if not attr.startswith("__")
-                        and attr not in ["__doc__", "__loader__", "__spec__", "__builtins__", "__cached__"]]
+        custom_public = [
+            attr
+            for attr in public_attrs
+            if not attr.startswith("__")
+            and attr not in ["__doc__", "__loader__", "__spec__", "__builtins__", "__cached__"]
+        ]
 
         # Should have no custom public attributes
         # (The standard module attributes are handled by Python)
@@ -162,9 +165,11 @@ class TestToolsModuleDocumentation:
     def test_module_comment_about_removed_component(self):
         """Test that module documents the removal of ToolManager"""
         # Read the actual file to check comments
-        init_file = Path(__file__).parent.parent.parent / "backend" / "services" / "tools" / "__init__.py"
+        init_file = (
+            Path(__file__).parent.parent.parent / "backend" / "services" / "tools" / "__init__.py"
+        )
 
-        with open(init_file, 'r') as f:
+        with open(init_file) as f:
             content = f.read()
 
         # Check that the comment about ToolManager removal exists
@@ -182,6 +187,7 @@ class TestToolsModuleIntegration:
     def test_module_can_be_reloaded(self):
         """Test that the module can be reloaded without errors"""
         import importlib
+
         import services.tools
 
         try:
@@ -211,7 +217,6 @@ class TestToolsModuleIntegration:
             del sys.modules["services.tools"]
 
         try:
-            import services.tools
             # If we got here, no errors occurred
             assert True
         except Exception as e:
@@ -228,9 +233,11 @@ class TestToolsModuleCoverageCompletion:
 
     def test_module_file_is_minimal(self):
         """Test that the module file is minimal and contains only necessary elements"""
-        init_file = Path(__file__).parent.parent.parent / "backend" / "services" / "tools" / "__init__.py"
+        init_file = (
+            Path(__file__).parent.parent.parent / "backend" / "services" / "tools" / "__init__.py"
+        )
 
-        with open(init_file, 'r') as f:
+        with open(init_file) as f:
             lines = [line.rstrip() for line in f.readlines()]
 
         # File should be short and minimal
@@ -242,7 +249,9 @@ class TestToolsModuleCoverageCompletion:
 
     def test_module_follows_python_conventions(self):
         """Test that the module follows Python packaging conventions"""
-        init_file = Path(__file__).parent.parent.parent / "backend" / "services" / "tools" / "__init__.py"
+        init_file = (
+            Path(__file__).parent.parent.parent / "backend" / "services" / "tools" / "__init__.py"
+        )
 
         # __init__.py should exist (it does, since we're testing it)
         assert init_file.exists()
@@ -353,8 +362,8 @@ class TestToolsModuleEdgeCases:
 
     def test_module_pickle_support(self):
         """Test that the module can be referenced in pickle context"""
+
         import services.tools
-        import pickle
 
         # Modules aren't typically pickled, but verify reference works
         module_name = services.tools.__name__
@@ -376,23 +385,29 @@ class TestToolsModuleEdgeCases:
 class TestToolsModuleParameterized:
     """Parameterized tests for comprehensive coverage"""
 
-    @pytest.mark.parametrize("attr_name", [
-        "__name__",
-        "__doc__",
-        "__file__",
-        "__all__",
-    ])
+    @pytest.mark.parametrize(
+        "attr_name",
+        [
+            "__name__",
+            "__doc__",
+            "__file__",
+            "__all__",
+        ],
+    )
     def test_required_attributes_present(self, attr_name):
         """Test that all required module attributes are present"""
         import services.tools
 
         assert hasattr(services.tools, attr_name)
 
-    @pytest.mark.parametrize("attr_name,expected_type", [
-        ("__name__", str),
-        ("__doc__", str),
-        ("__all__", list),
-    ])
+    @pytest.mark.parametrize(
+        "attr_name,expected_type",
+        [
+            ("__name__", str),
+            ("__doc__", str),
+            ("__all__", list),
+        ],
+    )
     def test_attribute_types(self, attr_name, expected_type):
         """Test that module attributes have correct types"""
         import services.tools
@@ -400,9 +415,12 @@ class TestToolsModuleParameterized:
         attr = getattr(services.tools, attr_name)
         assert isinstance(attr, expected_type)
 
-    @pytest.mark.parametrize("all_value", [
-        [],  # The expected value
-    ])
+    @pytest.mark.parametrize(
+        "all_value",
+        [
+            [],  # The expected value
+        ],
+    )
     def test_all_values(self, all_value):
         """Test that __all__ has the expected value"""
         import services.tools
@@ -427,7 +445,6 @@ class TestToolsModuleAccessPatterns:
 
     def test_from_import_all(self):
         """Test from...import * pattern"""
-        import services.tools
 
         # Since __all__ is empty, nothing should be imported
         namespace = {}
@@ -470,7 +487,6 @@ class TestToolsModulePerformance:
 
         # Import and measure
         start = time.time()
-        import services.tools
         elapsed = time.time() - start
 
         # Should be very fast (< 100ms) for a simple module
@@ -478,7 +494,9 @@ class TestToolsModulePerformance:
 
     def test_module_size_minimal(self):
         """Test that the module file is minimal in size"""
-        init_file = Path(__file__).parent.parent.parent / "backend" / "services" / "tools" / "__init__.py"
+        init_file = (
+            Path(__file__).parent.parent.parent / "backend" / "services" / "tools" / "__init__.py"
+        )
 
         file_size = init_file.stat().st_size
         # Should be < 1KB for this minimal module

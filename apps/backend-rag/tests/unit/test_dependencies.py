@@ -6,8 +6,9 @@ use internal imports to avoid circular dependencies. These are tested via integr
 tests and the health endpoints.
 """
 
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 from fastapi import HTTPException
 
 from app import dependencies
