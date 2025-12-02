@@ -535,16 +535,15 @@ export default function ChatPage() {
                     </div>
                   )}
 
-                  {/* AVATAR ZANTARA TEMPORANEAMENTE RIMOSSO */}
-                  {/* {msg.role === "assistant" && (
-                    <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
+                  {msg.role === "assistant" && (
+                    <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-white/10 flex items-center justify-center">
                       <img
-                        src="/images/zantara_avatar.png"
+                        src="/images/logo_zan.svg"
                         alt="Zantara AI"
-                        className="w-full h-full object-cover"
+                        className="w-8 h-8 object-contain"
                       />
                     </div>
-                  )} */}
+                  )}
 
                   <div className="flex flex-col gap-1 max-w-[75%]">
                     {msg.role === "user" ? (
@@ -572,14 +571,13 @@ export default function ChatPage() {
 
           {streamingContent && (
             <div className="flex items-start gap-3 justify-start animate-message-fade-in">
-              {/* AVATAR ZANTARA TEMPORANEAMENTE RIMOSSO */}
-              {/* <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-white/10 flex items-center justify-center">
                 <img
-                  src="/images/zantara_avatar.png"
+                  src="/images/logo_zan.svg"
                   alt="Zantara AI"
-                  className="w-full h-full object-cover"
+                  className="w-8 h-8 object-contain"
                 />
-              </div> */}
+              </div>
 
               <div className="flex-1 max-w-[75%]">
                 <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
@@ -593,14 +591,13 @@ export default function ChatPage() {
 
           {isLoading && !streamingContent && (
             <div className="flex items-start gap-3 justify-start">
-              {/* AVATAR ZANTARA TEMPORANEAMENTE RIMOSSO */}
-              {/* <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-white/10 flex items-center justify-center">
                 <img
-                  src="/images/zantara_avatar.png"
+                  src="/images/logo_zan.svg"
                   alt="Zantara AI"
-                  className="w-full h-full object-cover"
+                  className="w-8 h-8 object-contain"
                 />
-              </div> */}
+              </div>
 
               <div className="flex-1 max-w-[75%]">
                 <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
