@@ -1,6 +1,8 @@
 import { create } from "zustand"
+import { persist } from "zustand/middleware"
+import type { ZantaraSession, ZantaraContext } from "@/lib/api/zantara-integration"
 
-interface Message {
+export interface Message {
   id: string
   role: "user" | "assistant"
   content: string
@@ -13,38 +15,219 @@ interface Message {
       preview?: string
     }>
     intent?: string
+    model_used?: string
+    execution_time_ms?: number
   }
 }
 
+export interface CRMContext {
+  clientId: number
+  clientName: string
+  status: string
+  practices?: Array<{
+    id: number
+    type: string
+    status: string
+  }>
+  activeJourneys?: Array<{
+    journeyId: string
+    type: string
+    progress: number
+  }>
+  complianceAlerts?: Array<{
+    type: string
+    severity: string
+    dueDate: string
+  }>
+}
+
 interface ChatState {
+  // Messages
   messages: Message[]
   isStreaming: boolean
   streamingMessage: string
-  contextMetadata: Message["metadata"] | null
 
+  // Session Management
+  session: ZantaraSession | null
+  isSessionInitialized: boolean
+
+  // Context
+  contextMetadata: Message["metadata"] | null
+  crmContext: CRMContext | null
+  zantaraContext: ZantaraContext | null
+
+  // Backend Sync
+  isSyncing: boolean
+  lastSyncedAt: string | null
+  pendingSync: boolean
+
+  // Actions - Messages
   addMessage: (message: Message) => void
   updateStreamingMessage: (content: string) => void
   setStreaming: (isStreaming: boolean) => void
-  setContextMetadata: (metadata: Message["metadata"]) => void
   clearMessages: () => void
+
+  // Actions - Session
+  setSession: (session: ZantaraSession) => void
+  setSessionInitialized: (initialized: boolean) => void
+  clearSession: () => void
+
+  // Actions - Context
+  setContextMetadata: (metadata: Message["metadata"]) => void
+  setCRMContext: (context: CRMContext | null) => void
+  setZantaraContext: (context: ZantaraContext | null) => void
+
+  // Actions - Sync
+  setSyncing: (syncing: boolean) => void
+  markSynced: () => void
+  setPendingSync: (pending: boolean) => void
+
+  // Actions - Bulk
+  loadMessages: (messages: Message[]) => void
+  replaceMessages: (messages: Message[]) => void
 }
 
-export const useChatStore = create<ChatState>((set) => ({
-  messages: [],
-  isStreaming: false,
-  streamingMessage: "",
-  contextMetadata: null,
+export const useChatStore = create<ChatState>()(
+  persist(
+    (set, get) => ({
+      // Initial State - Messages
+      messages: [],
+      isStreaming: false,
+      streamingMessage: "",
 
-  addMessage: (message) =>
-    set((state) => ({
-      messages: [...state.messages, message],
-    })),
+      // Initial State - Session
+      session: null,
+      isSessionInitialized: false,
 
-  updateStreamingMessage: (content) => set({ streamingMessage: content }),
+      // Initial State - Context
+      contextMetadata: null,
+      crmContext: null,
+      zantaraContext: null,
 
-  setStreaming: (isStreaming) => set({ isStreaming }),
+      // Initial State - Sync
+      isSyncing: false,
+      lastSyncedAt: null,
+      pendingSync: false,
 
-  setContextMetadata: (metadata) => set({ contextMetadata: metadata }),
+      // Actions - Messages
+      addMessage: (message) =>
+        set((state) => ({
+          messages: [...state.messages, message],
+          pendingSync: true,
+        })),
 
-  clearMessages: () => set({ messages: [], streamingMessage: "", contextMetadata: null }),
-}))
+      updateStreamingMessage: (content) => set({ streamingMessage: content }),
+
+      setStreaming: (isStreaming) =>
+        set({
+          isStreaming,
+          streamingMessage: isStreaming ? get().streamingMessage : "",
+        }),
+
+      clearMessages: () =>
+        set({
+          messages: [],
+          streamingMessage: "",
+          contextMetadata: null,
+          pendingSync: true,
+        }),
+
+      // Actions - Session
+      setSession: (session) =>
+        set({
+          session,
+          isSessionInitialized: true,
+        }),
+
+      setSessionInitialized: (initialized) =>
+        set({ isSessionInitialized: initialized }),
+
+      clearSession: () =>
+        set({
+          session: null,
+          isSessionInitialized: false,
+          messages: [],
+          streamingMessage: "",
+          contextMetadata: null,
+          crmContext: null,
+          zantaraContext: null,
+        }),
+
+      // Actions - Context
+      setContextMetadata: (metadata) => set({ contextMetadata: metadata }),
+
+      setCRMContext: (context) => set({ crmContext: context }),
+
+      setZantaraContext: (context) =>
+        set({
+          zantaraContext: context,
+          crmContext: context?.crmContext
+            ? {
+                clientId: context.crmContext.clientId,
+                clientName: context.crmContext.clientName,
+                status: context.crmContext.status,
+                practices: context.crmContext.practices,
+              }
+            : get().crmContext,
+        }),
+
+      // Actions - Sync
+      setSyncing: (syncing) => set({ isSyncing: syncing }),
+
+      markSynced: () =>
+        set({
+          lastSyncedAt: new Date().toISOString(),
+          pendingSync: false,
+        }),
+
+      setPendingSync: (pending) => set({ pendingSync: pending }),
+
+      // Actions - Bulk
+      loadMessages: (messages) =>
+        set((state) => ({
+          messages: [...state.messages, ...messages],
+        })),
+
+      replaceMessages: (messages) =>
+        set({
+          messages,
+          pendingSync: false,
+        }),
+    }),
+    {
+      name: "zantara-chat-storage",
+      partialize: (state) => ({
+        messages: state.messages,
+        session: state.session,
+        crmContext: state.crmContext,
+        lastSyncedAt: state.lastSyncedAt,
+      }),
+    }
+  )
+)
+
+// Selectors for computed values
+export const selectMessageCount = (state: ChatState) => state.messages.length
+
+export const selectLastMessage = (state: ChatState) =>
+  state.messages[state.messages.length - 1] || null
+
+export const selectUserMessages = (state: ChatState) =>
+  state.messages.filter((m) => m.role === "user")
+
+export const selectAssistantMessages = (state: ChatState) =>
+  state.messages.filter((m) => m.role === "assistant")
+
+export const selectHasCRMContext = (state: ChatState) =>
+  state.crmContext !== null
+
+export const selectActiveAlerts = (state: ChatState) =>
+  state.crmContext?.complianceAlerts?.filter(
+    (a) => a.severity === "high" || a.severity === "critical"
+  ) || []
+
+export const selectConversationHistory = (state: ChatState) =>
+  state.messages.map((m) => ({
+    role: m.role,
+    content: m.content,
+  }))
