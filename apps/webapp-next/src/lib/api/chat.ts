@@ -1,6 +1,7 @@
 import type { ChatMetadata } from './types';
 import { apiClient } from '@/lib/api/client';
 import { AUTH_TOKEN_KEY } from '@/lib/constants';
+import { authAPI } from '@/lib/api/auth';
 
 export const chatAPI = {
   // Client-side chat API wrapper
@@ -59,7 +60,7 @@ export const chatAPI = {
     try {
       // Add timeout to prevent hanging requests
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 180000); // 180 second timeout (3 mins) - increased for complex RAG queries and Deep Thinking chains
 
       const response = await fetch('/api/chat/stream', {
         method: 'POST',
@@ -69,8 +70,15 @@ export const chatAPI = {
         },
         body: JSON.stringify({
           message: message,
-          user_id: 'web_user',
+          user_id: authAPI.getUser()?.email || 'web_user',
           conversation_history: conversationHistory || [],
+          metadata: {
+            client_locale: typeof navigator !== 'undefined' ? navigator.language : 'en-US',
+            client_timezone:
+              typeof Intl !== 'undefined'
+                ? Intl.DateTimeFormat().resolvedOptions().timeZone
+                : 'UTC',
+          },
         }),
         signal: controller.signal,
       });
