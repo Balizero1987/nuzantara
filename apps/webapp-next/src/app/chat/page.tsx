@@ -623,13 +623,13 @@ export default function ChatPage() {
                         type="button"
                         onClick={() => setShowImageModal(true)}
                         disabled={isLoading}
-                        className="h-[18px] w-[18px] flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-10 w-10 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Generate image"
                       >
                         <img
                           src="/images/imageb.svg"
                           alt=""
-                          className="h-[18px] w-[18px] object-contain brightness-[1.6]"
+                          className="h-10 w-10 object-contain brightness-[1.6]"
                         />
                       </button>
 
@@ -637,26 +637,26 @@ export default function ChatPage() {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isLoading}
-                        className="h-[18px] w-[18px] flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-10 w-10 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Upload file"
                       >
                         <img
                           src="/images/file_botton.svg"
                           alt=""
-                          className="h-[18px] w-[18px] object-contain brightness-[1.6]"
+                          className="h-10 w-10 object-contain brightness-[1.6]"
                         />
                       </button>
 
                       <button
                         type="submit"
                         disabled={isLoading || !input.trim()}
-                        className="h-[18px] w-[18px] flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        className="h-10 w-10 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
                         aria-label="Send message"
                       >
                         <img
                           src="/images/sendb.svg"
                           alt=""
-                          className="h-[18px] w-[18px] object-contain brightness-[4.5]"
+                          className="h-10 w-10 object-contain brightness-[4.5]"
                         />
                       </button>
                     </div>
