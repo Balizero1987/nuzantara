@@ -173,6 +173,7 @@ zan_handlers.py
 # Script shell temporanei
 *.sh
 !scripts/**/*.sh
+!apps/**/*.sh
 !.github/**/*.sh
 
 # File di configurazione locale e backup
