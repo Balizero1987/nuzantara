@@ -86,8 +86,8 @@ pandas>=2.0.0
 pdfplumber>=0.11.0
 pdfminer.six>=20251107  # Match pdfplumber requirement
 
-# Protocol Buffers - For autogen compatibility
-protobuf>=5.29.0
+# Protocol Buffers - Let pip resolve version
+# protobuf>=5.29.0  # Removed: conflicts with google-cloud-aiplatform
 
 # XML/HTML Processing - UPGRADED
 lxml>=5.3.0  # Required by trafilatura, htmldate
