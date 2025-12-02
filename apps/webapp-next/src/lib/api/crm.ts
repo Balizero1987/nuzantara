@@ -1,5 +1,5 @@
-import { apiClient } from '@/lib/api/client';
-import { fetchWithRetry } from '@/lib/api/fetch-utils';
+import { apiClient } from './client';
+import { fetchWithRetry } from './fetch-utils';
 
 interface CRMClient {
   id: number;
@@ -39,23 +39,20 @@ export const crmAPI = {
         'Content-Type': 'application/json',
       },
     });
-    return response.json();
+    return response.json() as Promise<CRMClient[]>;
   },
 
   async syncGmail(): Promise<GmailSyncResult> {
     const token = apiClient.getToken();
-    const response = await fetchWithRetry(
-      `${BASE_URL}/api/crm/interactions/sync-gmail`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({}),
-      }
-    );
-    return response.json();
+    const response = await fetchWithRetry(`${BASE_URL}/api/crm/interactions/sync-gmail`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+    return response.json() as Promise<GmailSyncResult>;
   },
 
   async createClient(data: Partial<CRMClient>): Promise<CRMClient> {
@@ -68,7 +65,7 @@ export const crmAPI = {
       },
       body: JSON.stringify(data),
     });
-    return response.json();
+    return response.json() as Promise<CRMClient>;
   },
 
   async updateClient(id: number, data: Partial<CRMClient>): Promise<CRMClient> {
@@ -81,6 +78,6 @@ export const crmAPI = {
       },
       body: JSON.stringify(data),
     });
-    return response.json();
+    return response.json() as Promise<CRMClient>;
   },
 };

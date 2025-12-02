@@ -278,18 +278,28 @@ class IntelligentRouter:
                 result["text"], query_type, apply_santai=True, add_contact=True
             )
 
-            # STEP 15: Jaksel Style Transfer (if applicable)
-            if user_id in self.jaksel_caller.jaksel_users:
-                logger.info(f"🦎 [Router] Applying Jaksel style for user {user_id}")
-                jaksel_result = await self.jaksel_caller.call_jaksel_direct(
-                    query=message,
-                    user_email=user_id,
-                    gemini_answer=sanitized_response,
-                    ai_client=self.ai,
-                )
-                if jaksel_result.get("success"):
-                    sanitized_response = jaksel_result.get("response", sanitized_response)
-                    logger.info("✅ [Router] Jaksel style applied successfully")
+            # STEP 15: Jaksel Style Transfer (ALWAYS applied - official voice)
+            logger.info(f"🦎 [Router] Applying Jaksel personality layer")
+
+            # Step 15.1: Jaksel reads query for context (language, tone)
+            jaksel_context = await self.jaksel_caller.analyze_query_context(
+                query=message,
+                user_email=user_id,
+            )
+
+            # Step 15.2: Apply Jaksel personality to Gemini response
+            jaksel_result = await self.jaksel_caller.apply_jaksel_style(
+                query=message,
+                gemini_answer=sanitized_response,
+                context=jaksel_context,
+                ai_client=self.ai,  # Fallback
+            )
+
+            if jaksel_result.get("success"):
+                sanitized_response = jaksel_result.get("response", sanitized_response)
+                logger.info("✅ [Router] Jaksel personality applied successfully")
+            else:
+                logger.warning("⚠️ [Router] Jaksel transformation failed, using professional answer")
 
             return {
                 "response": sanitized_response,
@@ -491,36 +501,46 @@ class IntelligentRouter:
                 identity_context=identity_context,
                 max_tokens=max_tokens_to_use,
             ):
-                if user_id in self.jaksel_caller.jaksel_users:
-                    full_response_buffer += chunk
-                else:
-                    # Yield structured token dictionary
-                    yield {"type": "token", "data": chunk}
+                # Buffer all chunks for Jaksel transformation
+                full_response_buffer += chunk
 
-            # Jaksel style transfer if needed
-            if user_id in self.jaksel_caller.jaksel_users and full_response_buffer:
-                logger.info(f"🦎 [Router Stream] Applying Jaksel style for {user_id}")
+            # Jaksel style transfer (ALWAYS applied - official voice)
+            if full_response_buffer:
+                logger.info("🎨 [Router Stream] Applying Jaksel style to complete response")
 
                 sanitized_buffer = self.response_handler.sanitize_response(
                     full_response_buffer, query_type, apply_santai=True, add_contact=True
                 )
 
-                jaksel_result = await self.jaksel_caller.call_jaksel_direct(
+                # Analyze query context
+                jaksel_context = await self.jaksel_caller.analyze_query_context(
                     query=message,
                     user_email=user_id,
+                )
+
+                # Apply Jaksel style
+                jaksel_result = await self.jaksel_caller.apply_jaksel_style(
+                    query=message,
                     gemini_answer=sanitized_buffer,
+                    context=jaksel_context,
                     ai_client=self.ai,
                 )
 
                 final_response = sanitized_buffer
                 if jaksel_result.get("success"):
                     final_response = jaksel_result.get("response", sanitized_buffer)
-                    logger.info("✅ [Router Stream] Jaksel style applied")
+                    logger.info("✅ [Router Stream] Jaksel style applied successfully")
+                else:
+                    logger.warning("⚠️ [Router Stream] Jaksel transformation failed, using professional answer")
 
+                # Yield transformed response word by word
                 for word in final_response.split(" "):
                     # Yield structured token dictionary
                     yield {"type": "token", "data": word + " "}
                     await asyncio.sleep(0.05)
+            else:
+                # No response buffer, yield empty
+                logger.warning("⚠️ [Router Stream] No response buffer to transform")
 
             # Yield done signal
             yield {"type": "done", "data": None}

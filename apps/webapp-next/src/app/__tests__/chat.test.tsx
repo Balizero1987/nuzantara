@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import ChatPage from '../chat/page'
 
-// Mock next/navigation - must return stable reference to prevent infinite re-renders
+// Mock next/navigation
 const mockPush = jest.fn()
 const mockReplace = jest.fn()
 const mockPrefetch = jest.fn()
@@ -33,6 +33,16 @@ jest.mock('@/lib/api/auth', () => ({
   },
 }))
 
+// Mock AuthContext
+const mockLogin = jest.fn()
+const mockLogout = jest.fn()
+const mockUseAuth = jest.fn()
+
+jest.mock('@/context/AuthContext', () => ({
+  useAuth: () => mockUseAuth(),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
+
 // Mock chatAPI
 const mockStreamChat = jest.fn()
 jest.mock('@/lib/api/chat', () => ({
@@ -54,7 +64,7 @@ jest.mock('@/components/chat/ThinkingIndicator', () => ({
   ThinkingIndicator: () => <div data-testid="thinking">Thinking...</div>,
 }))
 
-// Mock scrollIntoView since jsdom doesn't implement it
+// Mock scrollIntoView
 Element.prototype.scrollIntoView = jest.fn()
 
 describe('ChatPage', () => {
@@ -62,8 +72,16 @@ describe('ChatPage', () => {
     jest.clearAllMocks()
     localStorage.clear()
     mockGetToken.mockReturnValue('test-token')
-    mockReplace.mockClear()
-    mockPrefetch.mockClear()
+
+    // Default auth state
+    mockUseAuth.mockReturnValue({
+      user: { id: '1', email: 'test@example.com', name: 'Test User' },
+      token: 'test-token',
+      isLoading: false,
+      isAuthenticated: true,
+      login: mockLogin,
+      logout: mockLogout,
+    })
   })
 
   it('should render welcome message when no messages', () => {
@@ -71,17 +89,22 @@ describe('ChatPage', () => {
     expect(screen.getByText(/Selamat datang di ZANTARA/)).toBeInTheDocument()
   })
 
-  it('should redirect to login if no token', async () => {
-    mockGetToken.mockReturnValue(null)
+  it('should redirect to login if not authenticated', async () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      token: null,
+      isLoading: false,
+      isAuthenticated: false,
+      login: mockLogin,
+      logout: mockLogout,
+    })
 
     render(<ChatPage />)
 
-    // Wait for retry timeout
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 150))
+    // Wait for effect
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/login')
     })
-
-    expect(mockPush).toHaveBeenCalledWith('/login')
   })
 
   it('should render chat input', () => {
@@ -94,13 +117,12 @@ describe('ChatPage', () => {
     expect(screen.getByText('Logout')).toBeInTheDocument()
   })
 
-  it('should clear token and redirect on logout', () => {
+  it('should call logout from auth context', () => {
     render(<ChatPage />)
 
     fireEvent.click(screen.getByText('Logout'))
 
-    expect(mockClearToken).toHaveBeenCalled()
-    expect(mockPush).toHaveBeenCalledWith('/')
+    expect(mockLogout).toHaveBeenCalled()
   })
 
   it('should toggle sidebar when menu button is clicked', () => {
@@ -113,7 +135,6 @@ describe('ChatPage', () => {
   })
 
   it('should start new conversation when New Chat is clicked', () => {
-    // Set up messages in localStorage
     localStorage.setItem('zantara_conversation', JSON.stringify([
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi!' },
@@ -121,18 +142,12 @@ describe('ChatPage', () => {
 
     render(<ChatPage />)
 
-    // Verify messages are loaded
     expect(screen.getByText('Hello')).toBeInTheDocument()
 
-    // Open sidebar
     fireEvent.click(screen.getByLabelText('Menu'))
-
-    // Click New Chat
     fireEvent.click(screen.getByText('New Chat'))
 
-    // Messages should be cleared from view (shows welcome)
     expect(screen.getByText(/Selamat datang di ZANTARA/)).toBeInTheDocument()
-    // Sidebar should be closed
     expect(screen.queryByText('Chat History')).not.toBeInTheDocument()
   })
 
@@ -206,7 +221,7 @@ describe('ChatPage', () => {
   })
 
   it('should show thinking indicator while loading', async () => {
-    mockStreamChat.mockImplementation(() => new Promise(() => {})) // Never resolves
+    mockStreamChat.mockImplementation(() => new Promise(() => { }))
 
     render(<ChatPage />)
 
@@ -243,7 +258,7 @@ describe('ChatPage', () => {
   })
 
   it('should disable input while loading', async () => {
-    mockStreamChat.mockImplementation(() => new Promise(() => {}))
+    mockStreamChat.mockImplementation(() => new Promise(() => { }))
 
     render(<ChatPage />)
 
@@ -290,11 +305,9 @@ describe('ChatPage', () => {
   it('should close image modal on cancel', () => {
     render(<ChatPage />)
 
-    // Open modal
     fireEvent.click(screen.getByLabelText('Generate image'))
     expect(screen.getByText('Generate Magical Image')).toBeInTheDocument()
 
-    // Close modal
     fireEvent.click(screen.getByText('Cancel'))
     expect(screen.queryByText('Generate Magical Image')).not.toBeInTheDocument()
   })
@@ -304,8 +317,6 @@ describe('ChatPage', () => {
 
     const fileButton = screen.getByLabelText('Upload file')
     fireEvent.click(fileButton)
-
-    // File input should be triggered (we can't test the actual file selection in jest)
   })
 
   it('should load avatar from localStorage', () => {
@@ -320,7 +331,6 @@ describe('ChatPage', () => {
   it('should display chat history in sidebar', () => {
     render(<ChatPage />)
 
-    // Open sidebar
     fireEvent.click(screen.getByLabelText('Menu'))
 
     expect(screen.getByText('Chat History')).toBeInTheDocument()
@@ -331,24 +341,19 @@ describe('ChatPage', () => {
   it('should close sidebar when chat is selected', () => {
     render(<ChatPage />)
 
-    // Open sidebar
     fireEvent.click(screen.getByLabelText('Menu'))
     expect(screen.getByText('Chat History')).toBeInTheDocument()
 
-    // Select a chat
     fireEvent.click(screen.getByText('Tourist visa for Bali'))
 
-    // Sidebar should close
     expect(screen.queryByText('Chat History')).not.toBeInTheDocument()
   })
 
   it('should close sidebar when backdrop is clicked', () => {
     render(<ChatPage />)
 
-    // Open sidebar
     fireEvent.click(screen.getByLabelText('Menu'))
 
-    // Click backdrop
     const backdrop = document.querySelector('.fixed.inset-0.bg-black\\/60')
     if (backdrop) {
       fireEvent.click(backdrop)
@@ -358,26 +363,21 @@ describe('ChatPage', () => {
   })
 
   it('should handle invalid localStorage conversation gracefully', () => {
-    // Set invalid JSON in localStorage
     localStorage.setItem('zantara_conversation', 'invalid json {{{')
 
-    // Should not throw error
     expect(() => render(<ChatPage />)).not.toThrow()
     expect(screen.getByText(/Selamat datang di ZANTARA/)).toBeInTheDocument()
   })
 
   it('should toggle check out when already checked in', () => {
-    // Set up checked in state
     const checkInTime = new Date().toISOString()
     localStorage.setItem('zantara_checkin', checkInTime)
 
     render(<ChatPage />)
 
-    // Should show check out button
     const checkButton = screen.getByTitle('Check Out')
     fireEvent.click(checkButton)
 
-    // Check in should be removed
     expect(localStorage.getItem('zantara_checkin')).toBeNull()
   })
 
@@ -387,10 +387,8 @@ describe('ChatPage', () => {
     const fileInput = document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement
     expect(fileInput).toBeTruthy()
 
-    // Create a mock file
     const file = new File(['test'], 'test.png', { type: 'image/png' })
 
-    // Mock FileReader
     const mockFileReader = {
       readAsDataURL: jest.fn(),
       result: 'data:image/png;base64,test',
@@ -398,10 +396,8 @@ describe('ChatPage', () => {
     }
     jest.spyOn(global, 'FileReader').mockImplementation(() => mockFileReader as any)
 
-    // Trigger file change
     fireEvent.change(fileInput, { target: { files: [file] } })
 
-    // Trigger onload
     if (mockFileReader.onload) {
       mockFileReader.onload({ target: { result: 'data:image/png;base64,test' } })
     }
@@ -410,14 +406,11 @@ describe('ChatPage', () => {
   it('should handle avatar upload', () => {
     render(<ChatPage />)
 
-    // Find avatar input (it's hidden, type="file")
     const avatarInputs = document.querySelectorAll('input[type="file"][accept="image/*"]')
-    const avatarInput = avatarInputs[0] as HTMLInputElement // First one is avatar
+    const avatarInput = avatarInputs[0] as HTMLInputElement
 
-    // Create a mock file
     const file = new File(['avatar'], 'avatar.png', { type: 'image/png' })
 
-    // Mock FileReader
     const mockFileReader = {
       readAsDataURL: jest.fn(),
       result: 'data:image/png;base64,avatar',
@@ -425,10 +418,8 @@ describe('ChatPage', () => {
     }
     jest.spyOn(global, 'FileReader').mockImplementation(() => mockFileReader as any)
 
-    // Trigger file change
     fireEvent.change(avatarInput, { target: { files: [file] } })
 
-    // Trigger onload
     if (mockFileReader.onload) {
       mockFileReader.onload({ target: { result: 'data:image/png;base64,avatar' } })
     }
@@ -446,14 +437,11 @@ describe('ChatPage', () => {
 
     render(<ChatPage />)
 
-    // Open image modal
     fireEvent.click(screen.getByLabelText('Generate image'))
 
-    // Enter prompt
     const promptInput = screen.getByPlaceholderText(/Describe your imagination/i)
     fireEvent.change(promptInput, { target: { value: 'A beautiful sunset' } })
 
-    // Click generate
     fireEvent.click(screen.getByText('Generate'))
 
     await waitFor(() => {
@@ -470,18 +458,15 @@ describe('ChatPage', () => {
       }),
     })
     global.fetch = mockFetch
-    const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {})
+    const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => { })
 
     render(<ChatPage />)
 
-    // Open image modal
     fireEvent.click(screen.getByLabelText('Generate image'))
 
-    // Enter prompt
     const promptInput = screen.getByPlaceholderText(/Describe your imagination/i)
     fireEvent.change(promptInput, { target: { value: 'A test prompt' } })
 
-    // Click generate
     fireEvent.click(screen.getByText('Generate'))
 
     await waitFor(() => {
@@ -494,10 +479,8 @@ describe('ChatPage', () => {
   it('should not generate image with empty prompt', () => {
     render(<ChatPage />)
 
-    // Open image modal
     fireEvent.click(screen.getByLabelText('Generate image'))
 
-    // Generate button should be disabled with empty prompt
     const generateBtn = screen.getByText('Generate')
     expect(generateBtn).toBeDisabled()
   })
@@ -531,11 +514,9 @@ describe('ChatPage', () => {
   it('should close image modal with X button', () => {
     render(<ChatPage />)
 
-    // Open modal
     fireEvent.click(screen.getByLabelText('Generate image'))
     expect(screen.getByText('Generate Magical Image')).toBeInTheDocument()
 
-    // Find and click X button (close button in modal header)
     const closeButtons = document.querySelectorAll('button')
     const xButton = Array.from(closeButtons).find(btn =>
       btn.querySelector('svg') && btn.closest('.flex.items-center.justify-between')
@@ -550,10 +531,8 @@ describe('ChatPage', () => {
 
     const input = screen.getByPlaceholderText('Ketik pesan Anda...')
 
-    // Change input value (triggers handleInputChange which auto-resizes)
     fireEvent.change(input, { target: { value: 'Line 1\nLine 2\nLine 3\nLine 4' } })
 
-    // Input should have content
     expect(input).toHaveValue('Line 1\nLine 2\nLine 3\nLine 4')
   })
 
@@ -564,7 +543,6 @@ describe('ChatPage', () => {
       onMetadata: (meta: any) => void,
       onComplete: () => void,
     ) => {
-      // Simulate streaming
       setTimeout(() => onChunk('First '), 10)
       setTimeout(() => onChunk('Second '), 20)
       setTimeout(() => onChunk('Third'), 30)
@@ -586,14 +564,11 @@ describe('ChatPage', () => {
   it('should upload preview and allow removal', () => {
     render(<ChatPage />)
 
-    // Get file input for chat uploads (second one)
     const fileInputs = document.querySelectorAll('input[type="file"][accept="image/*"]')
     const fileInput = fileInputs[1] as HTMLInputElement
 
-    // Create a mock file
     const file = new File(['test'], 'test.png', { type: 'image/png' })
 
-    // Mock FileReader
     const mockFileReader = {
       readAsDataURL: jest.fn(),
       result: 'data:image/png;base64,preview',
@@ -601,10 +576,8 @@ describe('ChatPage', () => {
     }
     jest.spyOn(global, 'FileReader').mockImplementation(() => mockFileReader as any)
 
-    // Trigger file change
     fireEvent.change(fileInput, { target: { files: [file] } })
 
-    // Trigger onload
     if (mockFileReader.onload) {
       mockFileReader.onload({ target: { result: 'data:image/png;base64,preview' } })
     }

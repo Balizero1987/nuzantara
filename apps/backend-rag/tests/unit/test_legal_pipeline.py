@@ -298,10 +298,12 @@ async def test_legal_ingestion_service_full_pipeline():
 
 def test_ingestion_service_routes_to_legal():
     """Test that IngestionService routes legal documents to LegalIngestionService"""
-    from services.ingestion_service import IngestionService
-
-    service = IngestionService()
-    # Test detection method
-    # Note: This requires a real file, so we test the detection logic
-    assert hasattr(service, "_is_legal_document")
+    # Mock EmbeddingsGenerator to avoid API key requirement
+    with patch("services.ingestion_service.EmbeddingsGenerator") as mock_embedder:
+        from services.ingestion_service import IngestionService
+        
+        service = IngestionService()
+        # Test detection method
+        # Note: This requires a real file, so we test the detection logic
+        assert hasattr(service, "_is_legal_document")
 

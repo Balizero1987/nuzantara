@@ -83,12 +83,13 @@ PARAGRAF_PATTERN = re.compile(r"^Paragraf\s+(\d+)\s+(.+?)(?=\n|$)", re.IGNORECAS
 
 # Pasal (Article) - CRITICAL UNIT
 PASAL_PATTERN = re.compile(
-    r"^Pasal\s+(\d+[A-Z]?)\s*(.+?)(?=^Pasal\s+\d+|^BAB\s+|^Penjelasan|$)",
+    r"^Pasal\s+(\d+[A-Z]?)\s*(.+?)(?=^Pasal\s+\d+|^BAB\s+|^Penjelasan|\Z)",
     re.IGNORECASE | re.MULTILINE | re.DOTALL
 )
 
 # Ayat (Clause/Paragraph within Pasal)
-AYAT_PATTERN = re.compile(r"\((\d+)\)\s*(.+?)(?=\(\d+\)|$)", re.MULTILINE | re.DOTALL)
+# Ayat (Clause/Paragraph within Pasal)
+AYAT_PATTERN = re.compile(r"(?:^|\n)\s*\((\d+)\)\s*(.+?)(?=(?:^|\n)\s*\(\d+\)|$)", re.MULTILINE | re.DOTALL)
 
 # Penjelasan (Elucidation)
 PENJELASAN_PATTERN = re.compile(r"^Penjelasan\s+(?:Umum|Atas|Pasal|Ayat)", re.IGNORECASE | re.MULTILINE)

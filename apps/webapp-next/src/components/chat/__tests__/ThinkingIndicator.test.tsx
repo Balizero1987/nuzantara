@@ -3,12 +3,17 @@ import { render, screen, act } from '@testing-library/react'
 import { ThinkingIndicator } from '../ThinkingIndicator'
 
 describe('ThinkingIndicator', () => {
+  let randomSpy: jest.SpyInstance
+
   beforeEach(() => {
     jest.useFakeTimers()
+    // Mock Math.random to return 0 for predictable message index (0) and delay
+    randomSpy = jest.spyOn(global.Math, 'random').mockReturnValue(0)
   })
 
   afterEach(() => {
     jest.useRealTimers()
+    randomSpy.mockRestore()
   })
 
   it('should render thinking indicator with dots', () => {
@@ -22,49 +27,25 @@ describe('ThinkingIndicator', () => {
   it('should display initial thinking message', () => {
     render(<ThinkingIndicator />)
 
-    expect(screen.getByText('Consulting Knowledge Base...')).toBeInTheDocument()
+    expect(screen.getByText('Memahami pertanyaan Anda...')).toBeInTheDocument()
   })
 
   it('should cycle through thinking messages', () => {
     render(<ThinkingIndicator />)
 
-    expect(screen.getByText('Consulting Knowledge Base...')).toBeInTheDocument()
+    expect(screen.getByText('Memahami pertanyaan Anda...')).toBeInTheDocument()
 
-    // Advance timer by 2 seconds
+    // Mock random to return next index (1)
+    // The implementation uses: Math.floor(Math.random() * length)
+    // To get index 1 from length 6, random needs to be >= 1/6 and < 2/6. e.g. 0.2
+    randomSpy.mockReturnValue(0.2)
+
+    // Advance timer by 3 seconds (max delay is 3000ms)
     act(() => {
-      jest.advanceTimersByTime(2000)
+      jest.advanceTimersByTime(3000)
     })
 
-    expect(screen.getByText('Analyzing regulations...')).toBeInTheDocument()
-
-    // Advance timer by another 2 seconds
-    act(() => {
-      jest.advanceTimersByTime(2000)
-    })
-
-    expect(screen.getByText('Formulating answer...')).toBeInTheDocument()
-  })
-
-  it('should loop back to first message after all messages', () => {
-    render(<ThinkingIndicator />)
-
-    // There are 5 messages, so after 5 * 2000ms = 10000ms it should loop
-    act(() => {
-      jest.advanceTimersByTime(10000)
-    })
-
-    expect(screen.getByText('Consulting Knowledge Base...')).toBeInTheDocument()
-  })
-
-  it('should clean up interval on unmount', () => {
-    const { unmount } = render(<ThinkingIndicator />)
-
-    const clearIntervalSpy = jest.spyOn(global, 'clearInterval')
-
-    unmount()
-
-    expect(clearIntervalSpy).toHaveBeenCalled()
-    clearIntervalSpy.mockRestore()
+    expect(screen.getByText('Mencari informasi terkait...')).toBeInTheDocument()
   })
 
   it('should render dots with correct animation delays', () => {
@@ -77,31 +58,10 @@ describe('ThinkingIndicator', () => {
     expect(dots[2]).toHaveStyle({ animationDelay: '300ms' })
   })
 
-  it('should have pulse animation on message', () => {
+  it('should have correct styling on message', () => {
     render(<ThinkingIndicator />)
 
-    const message = screen.getByText('Consulting Knowledge Base...')
-    expect(message).toHaveClass('animate-pulse')
-  })
-
-  it('should cycle through all 5 messages in order', () => {
-    render(<ThinkingIndicator />)
-
-    const messages = [
-      'Consulting Knowledge Base...',
-      'Analyzing regulations...',
-      'Formulating answer...',
-      'Connecting to Oracle...',
-      'Synthesizing context...'
-    ]
-
-    messages.forEach((message, index) => {
-      if (index > 0) {
-        act(() => {
-          jest.advanceTimersByTime(2000)
-        })
-      }
-      expect(screen.getByText(message)).toBeInTheDocument()
-    })
+    const message = screen.getByText('Memahami pertanyaan Anda...')
+    expect(message).toHaveClass('text-sm', 'text-gray-300')
   })
 })

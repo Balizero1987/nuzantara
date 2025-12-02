@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { LoginRequest, LoginResponse, User } from './types';
-import { apiClient } from '@/lib/api/client';
-import { fetchWithRetry } from '@/lib/api/fetch-utils';
+import { apiClient } from './client';
+import { fetchWithRetry } from './fetch-utils';
 
 export const authAPI = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
@@ -19,7 +20,7 @@ export const authAPI = {
         timeout: 10000,
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as any;
 
       if (!response.ok) {
         throw new Error(data.error || 'Login failed');
@@ -55,31 +56,31 @@ export const authAPI = {
   },
 
   saveUser(user: User): void {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('zantara_user', JSON.stringify(user));
-      localStorage.setItem('zantara_user_email', user.email);
+    if (typeof globalThis !== 'undefined' && (globalThis as any).localStorage) {
+      (globalThis as any).localStorage.setItem('zantara_user', JSON.stringify(user));
+      (globalThis as any).localStorage.setItem('zantara_user_email', user.email);
     }
   },
 
   getUser(): User | null {
-    if (typeof window === 'undefined') return null;
-    const userStr = localStorage.getItem('zantara_user');
+    if (typeof globalThis === 'undefined' || !(globalThis as any).localStorage) return null;
+    const userStr = (globalThis as any).localStorage.getItem('zantara_user');
     return userStr ? JSON.parse(userStr) : null;
   },
 
   clearUser(): void {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('zantara_user');
-      localStorage.removeItem('zantara_user_email');
-      localStorage.removeItem('zantara_session_token');
+    if (typeof globalThis !== 'undefined' && (globalThis as any).localStorage) {
+      (globalThis as any).localStorage.removeItem('zantara_user');
+      (globalThis as any).localStorage.removeItem('zantara_user_email');
+      (globalThis as any).localStorage.removeItem('zantara_session_token');
     }
   },
 
   logout(): void {
     this.clearUser();
     apiClient.clearToken();
-    if (typeof window !== 'undefined') {
-      window.location.href = '/';
+    if (typeof globalThis !== 'undefined' && (globalThis as any).window) {
+      (globalThis as any).window.location.href = '/';
     }
   },
 };
