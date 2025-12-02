@@ -2,20 +2,81 @@ import type { ChatMetadata } from './types';
 import { apiClient } from '@/lib/api/client';
 import { AUTH_TOKEN_KEY } from '@/lib/constants';
 import { authAPI } from '@/lib/api/auth';
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
+import { zantaraAPI, type ZantaraContext } from '@/lib/api/zantara-integration';
+
+export interface EnrichedChatRequest {
+  message: string;
+  conversationHistory: Array<{ role: string; content: string }>;
+  context?: ZantaraContext;
+}
+
 import { fetchWithRetry } from '@/lib/api/fetch-utils';
+ main
 
 export const chatAPI = {
-  // Client-side chat API wrapper
+  /**
+   * Stream chat with full ZANTARA integration
+   * - Enriches context with CRM, Memory, and Agentic data
+   * - Saves conversations to backend
+   * - Stores important memories
+   */
   async streamChat(
     message: string,
     onChunk: (chunk: string) => void,
     onMetadata: (metadata: ChatMetadata) => void,
     onComplete: () => void,
     onError: (error: Error) => void,
-    conversationHistory?: Array<{ role: string; content: string }>
+    conversationHistory?: Array<{ role: string; content: string }>,
+    options?: {
+      enrichContext?: boolean;
+      saveConversation?: boolean;
+    }
   ): Promise<void> {
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
+    const { enrichContext = true, saveConversation = true } = options || {};
+
+    // Try multiple ways to get token
+    let token = apiClient.getToken();
+
+    // Fallback: try localStorage directly (only in browser)
+    if (!token && typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+      token = globalThis.localStorage.getItem(AUTH_TOKEN_KEY) || '';
+    }
+
+    console.log(
+      '[ChatClient] Token available:',
+      !!token,
+      token ? `${token.substring(0, 10)}...` : 'None'
+    );
+
+    // Log token sources only in browser
+    if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+      const storage = globalThis.localStorage;
+      const allKeys = Object.keys(storage);
+      const tokenKeys = allKeys.filter((k) => k.toLowerCase().includes('token'));
+      const tokenValues = tokenKeys.map((k) => ({
+        key: k,
+        value: storage.getItem(k)?.substring(0, 20) + '...',
+      }));
+
+      console.log('[ChatClient] Token sources:', {
+        apiClient: apiClient.getToken() ? 'found' : 'not found',
+        apiClientValue: apiClient.getToken()
+          ? apiClient.getToken()?.substring(0, 20) + '...'
+          : 'none',
+        localStorage_token: storage.getItem('token') ? 'found' : 'not found',
+        zantara_token: storage.getItem('zantara_token') ? 'found' : 'not found',
+        zantara_session_token: storage.getItem('zantara_session_token') ? 'found' : 'not found',
+        allTokenKeys: tokenKeys,
+        tokenValues: tokenValues,
+      });
+    }
+    console.log('[ChatClient] Conversation history length:', conversationHistory?.length || 0);
+
     // Get token from single source of truth
     const token = apiClient.getToken();
+ main
 
     if (!token) {
       console.error('[ChatClient] No authentication token found');
@@ -23,15 +84,71 @@ export const chatAPI = {
       return;
     }
 
+    // Build enriched context if enabled
+    let context: ZantaraContext | undefined;
+    if (enrichContext) {
+      try {
+        console.log('[ChatClient] Building ZANTARA context...');
+        context = await zantaraAPI.buildContext(message);
+        console.log('[ChatClient] Context built:', {
+          hasSession: !!context.session,
+          hasMemories: !!context.recentMemories?.length,
+          hasCRM: !!context.crmContext,
+          hasAgents: !!context.agentsStatus,
+        });
+      } catch (error) {
+        console.warn('[ChatClient] Failed to build context, proceeding without:', error);
+      }
+    }
+
     try {
-      // Use fetchWithRetry for robust connection
-      // We use a long timeout (3 mins) for the streaming connection itself
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 180000); // 180 second timeout
+
+      // Build request body with enriched context
+      const requestBody: Record<string, unknown> = {
+        message: message,
+        user_id: authAPI.getUser()?.email || 'web_user',
+        conversation_history: conversationHistory || [],
+        metadata: {
+          client_locale: typeof navigator !== 'undefined' ? navigator.language : 'en-US',
+          client_timezone:
+            typeof Intl !== 'undefined'
+              ? Intl.DateTimeFormat().resolvedOptions().timeZone
+              : 'UTC',
+        },
+      };
+
+      if (context) {
+        requestBody.zantara_context = {
+          session_id: context.session.sessionId,
+          user_email: context.session.userEmail,
+          crm_client_id: context.crmContext?.clientId,
+          crm_client_name: context.crmContext?.clientName,
+          crm_status: context.crmContext?.status,
+          active_practices: context.crmContext?.practices?.map(p => p.type),
+          recent_memories: context.recentMemories?.map(m => m.content),
+          agents_available: context.agentsStatus?.available,
+          pending_alerts: context.agentsStatus?.pendingAlerts,
+        };
+      }
+
+      const response = await fetch('/api/chat/stream', {
+
+      
       const response = await fetchWithRetry('/api/chat/stream', {
+ main
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+ claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
+        body: JSON.stringify(requestBody),
+        signal: controller.signal,
+
         body: JSON.stringify({
           message: message,
           user_id: authAPI.getUser()?.email || 'web_user',
@@ -46,6 +163,7 @@ export const chatAPI = {
         }),
         timeout: 180000, // 180 second timeout (3 mins)
         retries: 2, // Retry connection failures twice
+ main
       });
 
       if (!response.ok) {
@@ -63,25 +181,36 @@ export const chatAPI = {
       }
 
       let buffer = '';
+      let accumulatedContent = '';
 
       while (true) {
         const { done, value } = await reader.read();
 
         if (done) {
+          // Post-process turn: save to backend and extract memories
+          if (saveConversation && accumulatedContent) {
+            const allMessages = [
+              ...(conversationHistory || []).map(m => ({
+                role: m.role as 'user' | 'assistant',
+                content: m.content,
+              })),
+              { role: 'user' as const, content: message },
+              { role: 'assistant' as const, content: accumulatedContent },
+            ];
+
+            // Fire and forget - don't block completion
+            zantaraAPI.postProcessTurn(message, accumulatedContent, allMessages).catch(err => {
+              console.warn('[ChatClient] Post-process failed:', err);
+            });
+          }
+
           onComplete();
           break;
         }
 
         buffer += decoder.decode(value, { stream: true });
 
-        // Process buffer line by line (assuming backend sends SSE-like or chunked text)
-        // If backend sends raw text chunks, just call onChunk.
-        // If backend sends "data: {...}", parse it.
-        // The proxy returns response.body directly.
-        // Let's assume the backend sends raw text or SSE.
-        // The original code handled SSE "data: ".
-
-        // Simple text streaming for now, or try to parse SSE if detected
+        // Process buffer line by line
         if (buffer.includes('data: ')) {
           const lines = buffer.split('\n\n');
           buffer = lines.pop() || '';
@@ -90,20 +219,23 @@ export const chatAPI = {
             if (line.startsWith('data: ')) {
               const dataStr = line.slice(6);
               try {
-                // Try to parse as JSON first
                 const event = JSON.parse(dataStr);
-                if (event.type === 'token' && event.data) onChunk(event.data);
-                else if (event.type === 'metadata') onMetadata(event.data);
-                else if (event.type === 'error') throw new Error(event.data);
-              } catch (e) {
-                // If not JSON, maybe just text?
-                // But "data: " implies SSE structure.
-                console.warn('Failed to parse SSE:', e);
+                if (event.type === 'token' && event.data) {
+                  accumulatedContent += event.data;
+                  onChunk(event.data);
+                } else if (event.type === 'metadata') {
+                  onMetadata(event.data);
+                } else if (event.type === 'error') {
+                  throw new Error(event.data);
+                }
+              } catch {
+                console.warn('Failed to parse SSE line');
               }
             }
           }
         } else {
           // Fallback for raw text streaming if not SSE
+          accumulatedContent += buffer;
           onChunk(buffer);
           buffer = '';
         }
@@ -114,6 +246,85 @@ export const chatAPI = {
       } else {
         onError(new Error(String(error)));
       }
+    }
+  },
+
+  /**
+   * Quick chat without context enrichment (for simple queries)
+   */
+  async quickChat(
+    message: string,
+    onChunk: (chunk: string) => void,
+    onMetadata: (metadata: ChatMetadata) => void,
+    onComplete: () => void,
+    onError: (error: Error) => void,
+    conversationHistory?: Array<{ role: string; content: string }>
+  ): Promise<void> {
+    return this.streamChat(
+      message,
+      onChunk,
+      onMetadata,
+      onComplete,
+      onError,
+      conversationHistory,
+      { enrichContext: false, saveConversation: false }
+    );
+  },
+
+  /**
+   * Get conversation context for the current session
+   */
+  async getContext(message: string): Promise<ZantaraContext | null> {
+    try {
+      return await zantaraAPI.buildContext(message);
+    } catch (error) {
+      console.error('[ChatClient] Failed to get context:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Save conversation manually
+   */
+  async saveConversation(
+    messages: Array<{ role: 'user' | 'assistant'; content: string }>
+  ): Promise<boolean> {
+    try {
+      const result = await zantaraAPI.saveConversation(messages);
+      return result.success;
+    } catch (error) {
+      console.error('[ChatClient] Failed to save conversation:', error);
+      return false;
+    }
+  },
+
+  /**
+   * Load conversation history from backend
+   */
+  async loadHistory(limit: number = 50): Promise<Array<{ role: 'user' | 'assistant'; content: string }>> {
+    try {
+      return await zantaraAPI.loadConversationHistory(limit);
+    } catch (error) {
+      console.error('[ChatClient] Failed to load history:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Clear conversation history (both local and backend)
+   */
+  async clearHistory(): Promise<boolean> {
+    try {
+      // Clear backend
+      const result = await zantaraAPI.clearConversationHistory();
+
+      // Clear local session
+      zantaraAPI.clearSession();
+
+      return result;
+    } catch (error) {
+      console.error('[ChatClient] Failed to clear history:', error);
+      return false;
     }
   },
 };
