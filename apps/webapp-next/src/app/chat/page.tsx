@@ -360,7 +360,7 @@ export default function ChatPage() {
 
       <div className={`flex flex-col h-screen transition-all duration-300 ${isSidebarOpen ? "ml-80" : "ml-0"}`}>
         {/* Header */}
-        <header className="flex items-center justify-between px-6 py-2 border-b border-gray-700/50 backdrop-blur-sm shrink-0 z-30 relative">
+        <header className="flex items-center justify-between px-6 py-0 border-b border-gray-700/50 backdrop-blur-sm shrink-0 z-30 relative">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
