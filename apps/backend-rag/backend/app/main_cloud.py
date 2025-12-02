@@ -751,12 +751,17 @@ async def bali_zero_chat_stream(
     if not query.strip():
         raise HTTPException(status_code=400, detail="Query must not be empty")
 
-    # Enhanced Auth Check (JWT + API Key)
-    user_profile = await _validate_auth_mixed(
-        authorization=authorization,
-        auth_token=auth_token,
-        x_api_key=request.headers.get("x-api-key"),
-    )
+    # Use middleware auth result first (already validated by HybridAuthMiddleware)
+    user_profile = getattr(request.state, "user", None)
+
+    # Fallback: validate manually if middleware didn't set user (shouldn't happen)
+    if not user_profile:
+        user_profile = await _validate_auth_mixed(
+            authorization=authorization,
+            auth_token=auth_token,
+            x_api_key=request.headers.get("X-API-Key"),  # Note: Capital letters for header name
+        )
+
     if not user_profile:
         raise HTTPException(
             status_code=401,

@@ -49,27 +49,27 @@ class MockResponse {
 (global as any).Request = MockRequest;
 (global as any).Response = MockResponse;
 
+// Mock global fetch
+const mockFetch = jest.fn() as unknown as jest.Mock<(...args: any[]) => Promise<any>>;
+(global as any).fetch = mockFetch;
+
 // Mock NextResponse
-jest.unstable_mockModule('next/server', () => ({
+jest.mock('next/server', () => ({
   NextResponse: {
     json: (body: any, init?: { status?: number }) => new MockResponse(body, init),
   },
 }));
 
-// Mock global fetch
-const mockFetch = jest.fn() as unknown as jest.Mock<(...args: any[]) => Promise<any>>;
-(global as any).fetch = mockFetch;
-
 // Import AFTER mocks
-const { POST } = await import('../image/generate/route');
+import { POST } from '../image/generate/route';
 
 describe('Image Generate API Route', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, 'log').mockImplementation(() => { });
-    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     process.env = {
       ...originalEnv,
       NUZANTARA_API_KEY: 'test-api-key',

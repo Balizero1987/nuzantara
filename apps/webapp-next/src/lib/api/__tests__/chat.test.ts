@@ -3,41 +3,11 @@ import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 // Mock fetchWithRetry
 const mockFetchWithRetry = jest.fn() as any;
-jest.unstable_mockModule('../fetch-utils', () => ({
-  fetchWithRetry: mockFetchWithRetry,
-}));
 
 // Mock apiClient
 const mockApiClient = {
   getToken: jest.fn(() => 'test-token'),
 };
-jest.unstable_mockModule('../client', () => ({
-  apiClient: mockApiClient,
-  client: {
-    conversations: {
-      saveConversationApiBaliZeroConversationsSavePost: (jest.fn() as any).mockResolvedValue({ conversation_id: 1, messages_saved: 1 }),
-      getConversationHistoryApiBaliZeroConversationsHistoryGet: (jest.fn() as any).mockResolvedValue({ messages: [] }),
-    },
-    memory: {
-      generateEmbeddingApiMemoryEmbedPost: (jest.fn() as any).mockResolvedValue({ embedding: [] }),
-      searchMemoriesSemanticApiMemorySearchPost: (jest.fn() as any).mockResolvedValue({ results: [] }),
-    },
-    crmClients: {
-      getClientByEmailApiCrmClientsByEmailEmailGet: (jest.fn() as any).mockResolvedValue({ id: 1 }),
-      getClientSummaryApiCrmClientsClientIdSummaryGet: (jest.fn() as any).mockResolvedValue({}),
-    },
-    agenticFunctions: {
-      getAgentsStatusApiAgentsStatusGet: (jest.fn() as any).mockResolvedValue({ agents_available: [], active_journeys: [], pending_alerts: 0 }),
-    },
-  },
-}));
-
-// Mock authAPI
-jest.unstable_mockModule('../auth', () => ({
-  authAPI: {
-    getUser: jest.fn(() => ({ email: 'test@example.com' })),
-  },
-}));
 
 // Mock localStorage
 const localStorageMock = {
@@ -52,8 +22,50 @@ Object.defineProperty(global, 'localStorage', {
   configurable: true,
 });
 
-// Import module under test dynamically
-const { chatAPI } = await import('../chat');
+jest.mock('../fetch-utils', () => ({
+  fetchWithRetry: mockFetchWithRetry,
+}));
+
+jest.mock('../client', () => ({
+  apiClient: mockApiClient,
+  client: {
+    conversations: {
+      saveConversationApiBaliZeroConversationsSavePost: (jest.fn() as any).mockResolvedValue({
+        conversation_id: 1,
+        messages_saved: 1,
+      }),
+      getConversationHistoryApiBaliZeroConversationsHistoryGet: (
+        jest.fn() as any
+      ).mockResolvedValue({ messages: [] }),
+    },
+    memory: {
+      generateEmbeddingApiMemoryEmbedPost: (jest.fn() as any).mockResolvedValue({ embedding: [] }),
+      searchMemoriesSemanticApiMemorySearchPost: (jest.fn() as any).mockResolvedValue({
+        results: [],
+      }),
+    },
+    crmClients: {
+      getClientByEmailApiCrmClientsByEmailEmailGet: (jest.fn() as any).mockResolvedValue({ id: 1 }),
+      getClientSummaryApiCrmClientsClientIdSummaryGet: (jest.fn() as any).mockResolvedValue({}),
+    },
+    agenticFunctions: {
+      getAgentsStatusApiAgentsStatusGet: (jest.fn() as any).mockResolvedValue({
+        agents_available: [],
+        active_journeys: [],
+        pending_alerts: 0,
+      }),
+    },
+  },
+}));
+
+jest.mock('../auth', () => ({
+  authAPI: {
+    getUser: jest.fn(() => ({ email: 'test@example.com' })),
+  },
+}));
+
+// Import module under test
+import { chatAPI } from '../chat';
 
 describe('chatAPI', () => {
   beforeEach(() => {

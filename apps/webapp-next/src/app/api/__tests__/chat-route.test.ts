@@ -30,8 +30,11 @@ class MockRequest {
 // Mock globals
 (global as any).Request = MockRequest;
 
+// Mock the client
+const mockHybridOracleQuery = jest.fn();
+
 // Mock NextResponse
-jest.unstable_mockModule('next/server', () => ({
+jest.mock('next/server', () => ({
   NextResponse: {
     json: (body: any, init?: { status?: number }) => ({
       json: async () => body,
@@ -40,10 +43,7 @@ jest.unstable_mockModule('next/server', () => ({
   },
 }));
 
-// Mock the client
-const mockHybridOracleQuery = jest.fn();
-
-jest.unstable_mockModule('../../../lib/api/client', () => ({
+jest.mock('../../../lib/api/client', () => ({
   createServerClient: () => ({
     oracleV53UltraHybrid: {
       hybridOracleQueryApiOracleQueryPost: mockHybridOracleQuery,
@@ -52,13 +52,13 @@ jest.unstable_mockModule('../../../lib/api/client', () => ({
 }));
 
 // Import AFTER mocks
-const { POST } = await import('../chat/route');
+import { POST } from '../chat/route';
 
 describe('Chat API Route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, 'log').mockImplementation(() => { });
-    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {

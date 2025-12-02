@@ -74,19 +74,19 @@ class MockResponse {
 (global as any).Response = MockResponse;
 (global as any).Headers = MockHeaders;
 
+// Mock fetch globally
+const mockFetch = jest.fn() as unknown as jest.Mock<(...args: any[]) => Promise<any>>;
+(global as any).fetch = mockFetch;
+
 // Mock NextResponse
-jest.unstable_mockModule('next/server', () => ({
+jest.mock('next/server', () => ({
   NextResponse: {
     json: (body: any, init?: { status?: number }) => new MockResponse(body, init),
   },
 }));
 
-// Mock fetch globally
-const mockFetch = jest.fn() as unknown as jest.Mock<(...args: any[]) => Promise<any>>;
-(global as any).fetch = mockFetch;
-
 // Import AFTER mocks
-const { POST } = await import('../chat/stream/route');
+import { POST } from '../chat/stream/route';
 
 describe('POST /api/chat/stream', () => {
   const originalEnv = process.env;
