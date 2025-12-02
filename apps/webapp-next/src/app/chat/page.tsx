@@ -137,7 +137,9 @@ export default function ChatPage() {
 
     // Prepare conversation history (max 100 turns = 200 messages)
     // Keep only the last 200 messages to ensure context window management
+    // Filter out error messages to avoid confusing the AI
     const conversationHistory = messages
+      .filter(msg => msg.content !== "Sorry, I encountered an error. Please try again.") // Filter errors
       .slice(-200) // Last 200 messages = 100 user + 100 assistant turns
       .map(msg => ({
         role: msg.role,
@@ -409,13 +411,11 @@ export default function ChatPage() {
             </button>
           </div>
 
-          <div className="scale-[2.69] mx-auto">
-            <img
-              src="/logo-zantara.svg"
-              alt="ZANTARA"
-              className="h-16 w-auto"
-            />
-          </div>
+          <img
+            src="/logo-zantara.svg"
+            alt="ZANTARA"
+            className="h-12 w-auto mx-auto"
+          />
 
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -428,7 +428,7 @@ export default function ChatPage() {
               />
               <button
                 onClick={() => avatarInputRef.current?.click()}
-                className="w-14 h-14 rounded-full overflow-hidden transition-all duration-300 hover:scale-110 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-600"
+                className="w-10 h-10 rounded-full overflow-hidden transition-all duration-300 hover:scale-110 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-600"
                 title="Click to upload avatar"
               >
                 {avatarImage ? (
@@ -516,7 +516,7 @@ export default function ChatPage() {
                   className={`flex items-start gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"} animate-message-fade-in`}
                 >
                   {msg.role === "user" && (
-                    <div className="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-purple-600 via-purple-500 to-indigo-600 shadow-lg flex-shrink-0 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-purple-600 via-purple-500 to-indigo-600 shadow-lg flex-shrink-0 flex items-center justify-center">
                       {avatarImage ? (
                         <img
                           src={avatarImage || "/placeholder.svg"}
@@ -536,7 +536,7 @@ export default function ChatPage() {
                   )}
 
                   {msg.role === "assistant" && (
-                    <div className="w-14 h-14 rounded-full flex-shrink-0 overflow-hidden">
+                    <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
                       <img
                         src="/images/zantara_avatar.png"
                         alt="Zantara AI"
@@ -547,13 +547,13 @@ export default function ChatPage() {
 
                   <div className="flex flex-col gap-1 max-w-[75%]">
                     {msg.role === "user" ? (
-                      <div className="bg-gray-500/20 backdrop-blur-sm px-3 py-1.5 rounded-2xl rounded-br-md shadow-lg border border-gray-400/30">
+                      <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-br-md shadow-lg border border-gray-400/30">
                         <div className="text-white text-base leading-relaxed">
                           <MarkdownRenderer content={msg.content} />
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-gray-500/20 backdrop-blur-sm px-3 py-1.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
+                      <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
                         <div className="text-white text-base leading-relaxed">
                           <MarkdownRenderer content={msg.content} />
                         </div>
@@ -571,7 +571,7 @@ export default function ChatPage() {
 
           {streamingContent && (
             <div className="flex items-start gap-3 justify-start animate-message-fade-in">
-              <div className="w-14 h-14 rounded-full flex-shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
                 <img
                   src="/images/zantara_avatar.png"
                   alt="Zantara AI"
@@ -580,7 +580,7 @@ export default function ChatPage() {
               </div>
 
               <div className="flex-1 max-w-[75%]">
-                <div className="bg-gray-500/20 backdrop-blur-sm px-3 py-1.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
+                <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
                   <div className="text-white text-base leading-relaxed">
                     <MarkdownRenderer content={streamingContent + " ▍"} />
                   </div>
@@ -592,7 +592,7 @@ export default function ChatPage() {
           {isLoading && !streamingContent && (
             <div className="flex items-start gap-3 justify-start">
               {/* Zantara avatar durante il loading */}
-              <div className="w-14 h-14 rounded-full flex-shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
                 <img
                   src="/images/zantara_avatar.png"
                   alt="Zantara AI"
@@ -601,7 +601,7 @@ export default function ChatPage() {
               </div>
 
               <div className="flex-1 max-w-[75%]">
-                <div className="bg-gray-500/20 backdrop-blur-sm px-3 py-1.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
+                <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
                   <ThinkingIndicator />
                 </div>
               </div>
@@ -643,7 +643,7 @@ export default function ChatPage() {
             <form onSubmit={handleSubmit}>
               <div className="relative group">
                 <div className="relative rounded-3xl p-[1px]">
-                  <div className="relative flex items-center gap-3 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-3 border border-gray-500/20">
+                  <div className="relative flex items-center gap-3 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-4 border border-gray-500/20">
                     <div className="relative flex-1">
                       <textarea
                         ref={textareaRef}
@@ -658,49 +658,52 @@ export default function ChatPage() {
                       />
                     </div>
 
-                    {/* Image Button - 60px */}
-                    <button
-                      type="button"
-                      onClick={() => setShowImageModal(true)}
-                      disabled={isLoading}
-                      className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
-                      aria-label="Generate image"
-                    >
-                      <img
-                        src="/images/imageb1.svg"
-                        alt=""
-                        className="w-[60px] h-[60px] object-contain brightness-[1.6]"
-                      />
-                    </button>
+                    {/* Action Buttons - Harmonized Layout */}
+                    <div className="flex items-center gap-3">
+                      {/* Image Button */}
+                      <button
+                        type="button"
+                        onClick={() => setShowImageModal(true)}
+                        disabled={isLoading}
+                        className="h-12 w-12 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        aria-label="Generate image"
+                      >
+                        <img
+                          src="/images/imageb.svg"
+                          alt=""
+                          className="h-6 w-6 object-contain brightness-[1.6]"
+                        />
+                      </button>
 
-                    {/* File Button - 48px */}
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isLoading}
-                      className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
-                      aria-label="Upload file"
-                    >
-                      <img
-                        src="/images/fileb.svg"
-                        alt=""
-                        className="w-[48px] h-[48px] object-contain brightness-[1.6]"
-                      />
-                    </button>
+                      {/* File Button */}
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isLoading}
+                        className="h-12 w-12 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        aria-label="Upload file"
+                      >
+                        <img
+                          src="/images/file_botton.svg"
+                          alt=""
+                          className="h-6 w-6 object-contain brightness-[1.6]"
+                        />
+                      </button>
 
-                    {/* Send Button - 60px */}
-                    <button
-                      type="submit"
-                      disabled={isLoading || !input.trim()}
-                      className="flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
-                      aria-label="Send message"
-                    >
-                      <img
-                        src="/images/sendb.pdf.svg"
-                        alt=""
-                        className="w-[60px] h-[60px] object-contain brightness-[2.0]"
-                      />
-                    </button>
+                      {/* Send Button */}
+                      <button
+                        type="submit"
+                        disabled={isLoading || !input.trim()}
+                        className="h-12 w-12 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
+                        aria-label="Send message"
+                      >
+                        <img
+                          src="/images/sendb.svg"
+                          alt=""
+                          className="h-6 w-6 object-contain brightness-[2.0]"
+                        />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
