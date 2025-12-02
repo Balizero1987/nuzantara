@@ -33,9 +33,12 @@ jobs:
     - name: Run Tests with Coverage
       env:
         DATABASE_URL: postgresql://test:test@localhost/test
-        JWT_SECRET_KEY: test-secret-key-for-ci
+        JWT_SECRET_KEY: test-secret-key-for-ci-1234567890ab
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         QDRANT_URL: http://localhost:6333
+        API_KEYS: test-api-key-for-ci
+        WHATSAPP_VERIFY_TOKEN: test-verify-token
+        INSTAGRAM_VERIFY_TOKEN: test-verify-token
       run: |
         cd apps/backend-rag
         pytest tests/unit/ \
