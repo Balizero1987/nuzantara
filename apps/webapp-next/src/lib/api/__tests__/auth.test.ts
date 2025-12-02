@@ -1,13 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, it, expect, beforeEach, beforeAll, afterAll } from '@jest/globals';
-import { authAPI } from '../auth';
-import { apiClient } from '../client';
-import { fetchWithRetry } from '../fetch-utils';
 
-// Mock fetchWithRetry
-jest.mock('../fetch-utils', () => ({
-  fetchWithRetry: jest.fn(),
+// Mock fetchWithRetry using unstable_mockModule for ESM
+const mockFetchWithRetry = jest.fn() as any;
+jest.unstable_mockModule('../fetch-utils', () => ({
+  fetchWithRetry: mockFetchWithRetry,
 }));
+
+// Mock client
+jest.unstable_mockModule('../client', () => ({
+  apiClient: {
+    getToken: jest.fn(() => 'test-token'),
+    setToken: jest.fn(),
+    clearToken: jest.fn(),
+  },
+}));
+
+// Import module under test dynamically after mocking
+const { authAPI } = await import('../auth');
+const { apiClient } = await import('../client'); // Import apiClient to access its mocked methods
 
 // Mock localStorage
 const localStorageMock = {
@@ -16,7 +27,7 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
 };
-Object.defineProperty(globalThis, 'localStorage', {
+Object.defineProperty(global, 'localStorage', {
   value: localStorageMock,
   writable: true,
   configurable: true,
@@ -33,7 +44,7 @@ const mockLocation = {
 // Save original location
 const originalLocation = (global as any).window?.location;
 
-describe.skip('authAPI', () => {
+describe('authAPI', () => {
   beforeAll(() => {
     // Delete the existing location object
     // Delete the existing location object
@@ -58,8 +69,8 @@ describe.skip('authAPI', () => {
 
     // Spy on apiClient methods
     jest.spyOn(apiClient, 'getToken').mockImplementation(() => 'mock-token');
-    jest.spyOn(apiClient, 'setToken').mockImplementation(() => {});
-    jest.spyOn(apiClient, 'clearToken').mockImplementation(() => {});
+    jest.spyOn(apiClient, 'setToken').mockImplementation(() => { });
+    jest.spyOn(apiClient, 'clearToken').mockImplementation(() => { });
   });
 
   afterAll(() => {
@@ -104,14 +115,14 @@ describe.skip('authAPI', () => {
         message: 'Login successful',
       };
 
-      (fetchWithRetry as any).mockResolvedValue({
+      mockFetchWithRetry.mockResolvedValue({
         ok: true,
         json: async () => mockResponse,
       });
 
       const result = await authAPI.login({ email: 'test@example.com', pin: '1234' });
 
-      expect(fetchWithRetry).toHaveBeenCalledWith(
+      expect(mockFetchWithRetry).toHaveBeenCalledWith(
         expect.stringContaining('/api/auth/login'),
         expect.objectContaining({
           method: 'POST',
@@ -119,7 +130,21 @@ describe.skip('authAPI', () => {
         })
       );
 
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual(
+        expect.objectContaining({
+          token: mockResponse.token,
+          expiresIn: 3600,
+          user: expect.objectContaining({
+            id: mockResponse.user.id,
+            email: mockResponse.user.email,
+            name: mockResponse.user.name,
+            role: mockResponse.user.role,
+            avatar: null,
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+          }),
+        })
+      );
       expect(apiClient.setToken).toHaveBeenCalledWith(mockResponse.token);
     });
 
@@ -128,7 +153,7 @@ describe.skip('authAPI', () => {
         error: 'Invalid credentials',
       };
 
-      (fetchWithRetry as any).mockResolvedValue({
+      mockFetchWithRetry.mockResolvedValue({
         ok: false,
         json: async () => mockError,
       });
@@ -142,7 +167,7 @@ describe.skip('authAPI', () => {
     });
 
     it('should throw error on failed login', async () => {
-      (fetchWithRetry as any).mockResolvedValue({
+      mockFetchWithRetry.mockResolvedValue({
         ok: false,
         json: async () => ({ error: 'Invalid credentials' }),
       });
@@ -166,7 +191,7 @@ describe.skip('authAPI', () => {
         }),
       };
 
-      (fetchWithRetry as any).mockResolvedValue(mockResponse);
+      mockFetchWithRetry.mockResolvedValue(mockResponse);
 
       await authAPI.login({ email: 'test@example.com', pin: '1234' });
 

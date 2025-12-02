@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+import { jest, describe, it, expect, beforeEach } from '@jest/globals'
 import { useAuthStore } from '../auth-store'
 
 // Mock localStorage

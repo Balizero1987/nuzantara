@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * API Contract Tests - Verify Frontend-Backend Contract Alignment
  *
@@ -8,10 +8,11 @@
  * 3. All required fields are present
  */
 
+import { describe, it, expect } from '@jest/globals';
 import type { LoginRequest, LoginResponse, User } from '../types';
 import type { ChatMetadata, ChatMessage } from '../types';
 
-describe.skip('API Contract Alignment', () => {
+describe('API Contract Alignment', () => {
   describe('Authentication API Contract', () => {
     it('should match LoginRequest structure', () => {
       const loginRequest: LoginRequest = {
@@ -108,24 +109,23 @@ describe.skip('API Contract Alignment', () => {
   });
 
   describe('Generated Client Contract', () => {
-    it('should have all required services', () => {
-      const { NuzantaraClient } = require('../generated/NuzantaraClient');
+    it('should have all required services', async () => {
+      const { NuzantaraClient } = await import('../generated/NuzantaraClient');
 
       // Verify client has all expected services
       const client = new NuzantaraClient({
         BASE: 'http://localhost:8000',
       });
 
-      expect(client).toHaveProperty('authentication');
+      expect(client).toHaveProperty('identity');
       expect(client).toHaveProperty('oracleV53UltraHybrid');
       expect(client).toHaveProperty('conversations');
-      expect(client).toHaveProperty('identity');
       expect(client).toHaveProperty('health');
     });
 
-    it('should match backend endpoint structure', () => {
+    it('should match backend endpoint structure', async () => {
       // Verify that frontend client methods match backend routes
-      const { NuzantaraClient } = require('../generated/NuzantaraClient');
+      const { NuzantaraClient } = await import('../generated/NuzantaraClient');
       const client = new NuzantaraClient({
         BASE: 'http://localhost:8000',
       });

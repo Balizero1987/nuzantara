@@ -315,7 +315,7 @@ export const zantaraAPI = {
         requestBody: {
           query_embedding: embedResponse.embedding,
           limit,
-          metadata_filter: userId ? { userId } : undefined,
+          metadata_filter: userId ? { userId } : null,
         },
       });
 
@@ -460,10 +460,9 @@ export const zantaraAPI = {
         requestBody: {
           client_id: clientId,
           interaction_type: type,
-          summary,
-          notes: `Automated log from ZANTARA chat session`,
+          summary: `${summary} (Notes: Automated log from ZANTARA chat session)`,
+          team_member: user.email,
         },
-        recordedBy: user.email,
       });
       return true;
     } catch (error) {
@@ -547,8 +546,8 @@ export const zantaraAPI = {
   }>> {
     try {
       const response = await client.agenticFunctions.getComplianceAlertsApiAgentsComplianceAlertsGet({
-        clientId,
-        severity,
+        clientId: clientId || null,
+        severity: severity || null,
       });
       return (response.alerts || []).map((a: Record<string, unknown>) => ({
         type: a.type as string,
@@ -638,13 +637,15 @@ export const zantaraAPI = {
 
     const context: ZantaraContext = {
       session,
-      recentMemories: memories.length > 0 ? memories : undefined,
-      crmContext: crmContext || undefined,
-      agentsStatus: agentsStatus ? {
-        available: agentsStatus.available,
-        activeJourneys: agentsStatus.activeJourneys.length,
-        pendingAlerts: agentsStatus.pendingAlerts,
-      } : undefined,
+      ...(memories.length > 0 ? { recentMemories: memories } : {}),
+      ...(crmContext ? { crmContext } : {}),
+      ...(agentsStatus ? {
+        agentsStatus: {
+          available: agentsStatus.available,
+          activeJourneys: agentsStatus.activeJourneys.length,
+          pendingAlerts: agentsStatus.pendingAlerts,
+        }
+      } : {}),
     };
 
     return context;

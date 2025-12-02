@@ -1,12 +1,15 @@
-import { socketClient } from '../socket';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
 // Mock apiClient
 const mockGetToken = jest.fn();
-jest.mock('@/lib/api/client', () => ({
+jest.unstable_mockModule('../client', () => ({
   apiClient: {
     getToken: () => mockGetToken(),
   },
 }));
+
+// Import module under test dynamically
+const { socketClient } = await import('../socket');
 
 // Mock WebSocket
 class MockWebSocket {
@@ -35,7 +38,7 @@ class MockWebSocket {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  send(data: string) {
+  send(_data: string) {
     // Mock send
   }
 }
@@ -43,15 +46,15 @@ class MockWebSocket {
 // @ts-expect-error Mocking global WebSocket for testing
 global.WebSocket = MockWebSocket;
 
-describe.skip('socketClient', () => {
+describe('socketClient', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     // Reset the socket client state by disconnecting
     socketClient.disconnect();
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
+    jest.spyOn(console, 'warn').mockImplementation(() => { });
+    jest.spyOn(console, 'error').mockImplementation(() => { });
   });
 
   afterEach(() => {
@@ -83,7 +86,7 @@ describe.skip('socketClient', () => {
       socketClient.connect();
 
       // Should only log connecting once
-      const connectingCalls = (console.log as jest.Mock).mock.calls.filter((call) =>
+      const connectingCalls = (console.log as jest.Mock).mock.calls.filter((call: any) =>
         call[0].includes('Connecting')
       );
       expect(connectingCalls.length).toBe(1);
@@ -164,7 +167,7 @@ describe.skip('socketClient', () => {
       jest.advanceTimersByTime(5000);
 
       // Should not see reconnecting message after explicit disconnect
-      const reconnectCalls = (console.log as jest.Mock).mock.calls.filter((call) =>
+      const reconnectCalls = (console.log as jest.Mock).mock.calls.filter((call: any) =>
         call[0].includes('Reconnecting')
       );
       expect(reconnectCalls.length).toBe(0);
@@ -172,16 +175,16 @@ describe.skip('socketClient', () => {
   });
 });
 
-describe.skip('WebSocketClient message handling', () => {
+describe('WebSocketClient message handling', () => {
   let mockSocket: MockWebSocket | null = null;
 
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     socketClient.disconnect();
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(console, 'warn').mockImplementation(() => { });
     mockGetToken.mockReturnValue('test-token');
 
     // Store reference to created socket
@@ -297,7 +300,7 @@ describe.skip('WebSocketClient message handling', () => {
     jest.advanceTimersByTime(3500);
 
     // Should attempt to connect again
-    const connectingCalls = (console.log as jest.Mock).mock.calls.filter((call) =>
+    const connectingCalls = (console.log as jest.Mock).mock.calls.filter((call: any) =>
       call[0].includes('Connecting')
     );
     expect(connectingCalls.length).toBeGreaterThan(1);

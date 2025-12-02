@@ -1,29 +1,61 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
-import { chatAPI } from '../chat';
-import { apiClient } from '../client';
-import { fetchWithRetry } from '../fetch-utils';
 
 // Mock fetchWithRetry
-jest.mock('../fetch-utils', () => ({
-  fetchWithRetry: jest.fn(),
+const mockFetchWithRetry = jest.fn() as any;
+jest.unstable_mockModule('../fetch-utils', () => ({
+  fetchWithRetry: mockFetchWithRetry,
 }));
 
 // Mock apiClient
-jest.mock('../client', () => ({
-  apiClient: {
-    getToken: jest.fn(() => 'test-token'),
+const mockApiClient = {
+  getToken: jest.fn(() => 'test-token'),
+};
+jest.unstable_mockModule('../client', () => ({
+  apiClient: mockApiClient,
+  client: {
+    conversations: {
+      saveConversationApiBaliZeroConversationsSavePost: (jest.fn() as any).mockResolvedValue({ conversation_id: 1, messages_saved: 1 }),
+      getConversationHistoryApiBaliZeroConversationsHistoryGet: (jest.fn() as any).mockResolvedValue({ messages: [] }),
+    },
+    memory: {
+      generateEmbeddingApiMemoryEmbedPost: (jest.fn() as any).mockResolvedValue({ embedding: [] }),
+      searchMemoriesSemanticApiMemorySearchPost: (jest.fn() as any).mockResolvedValue({ results: [] }),
+    },
+    crmClients: {
+      getClientByEmailApiCrmClientsByEmailEmailGet: (jest.fn() as any).mockResolvedValue({ id: 1 }),
+      getClientSummaryApiCrmClientsClientIdSummaryGet: (jest.fn() as any).mockResolvedValue({}),
+    },
+    agenticFunctions: {
+      getAgentsStatusApiAgentsStatusGet: (jest.fn() as any).mockResolvedValue({ agents_available: [], active_journeys: [], pending_alerts: 0 }),
+    },
   },
 }));
 
 // Mock authAPI
-jest.mock('../auth', () => ({
+jest.unstable_mockModule('../auth', () => ({
   authAPI: {
     getUser: jest.fn(() => ({ email: 'test@example.com' })),
   },
 }));
 
-describe.skip('chatAPI', () => {
+// Mock localStorage
+const localStorageMock = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
+Object.defineProperty(global, 'localStorage', {
+  value: localStorageMock,
+  writable: true,
+  configurable: true,
+});
+
+// Import module under test dynamically
+const { chatAPI } = await import('../chat');
+
+describe('chatAPI', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -39,7 +71,7 @@ describe.skip('chatAPI', () => {
         },
       });
 
-      (fetchWithRetry as any).mockResolvedValue({
+      (mockFetchWithRetry as any).mockResolvedValue({
         ok: true,
         body: mockStream,
       });
@@ -51,7 +83,7 @@ describe.skip('chatAPI', () => {
 
       await chatAPI.streamChat('Hello', onChunk, onMetadata, onComplete, onError);
 
-      expect(fetchWithRetry).toHaveBeenCalledWith(
+      expect(mockFetchWithRetry).toHaveBeenCalledWith(
         '/api/chat/stream',
         expect.objectContaining({
           method: 'POST',
@@ -78,7 +110,7 @@ describe.skip('chatAPI', () => {
         },
       });
 
-      (fetchWithRetry as any).mockResolvedValue({
+      (mockFetchWithRetry as any).mockResolvedValue({
         ok: true,
         body: mockStream,
       });
@@ -103,7 +135,7 @@ describe.skip('chatAPI', () => {
         },
       });
 
-      (fetchWithRetry as any).mockResolvedValue({
+      (mockFetchWithRetry as any).mockResolvedValue({
         ok: true,
         body: mockStream,
       });
@@ -119,7 +151,7 @@ describe.skip('chatAPI', () => {
     });
 
     it('should handle network errors', async () => {
-      (fetchWithRetry as any).mockRejectedValue(new Error('Network error'));
+      mockFetchWithRetry.mockRejectedValue(new Error('Network error'));
 
       const onError = jest.fn();
       await chatAPI.streamChat('Hello', jest.fn(), jest.fn(), jest.fn(), onError);
@@ -128,7 +160,7 @@ describe.skip('chatAPI', () => {
     });
 
     it('should handle authentication errors', async () => {
-      (fetchWithRetry as any).mockResolvedValue({
+      mockFetchWithRetry.mockResolvedValue({
         ok: false,
         status: 401,
       });
@@ -140,7 +172,7 @@ describe.skip('chatAPI', () => {
     });
 
     it('should handle missing token', async () => {
-      (apiClient.getToken as any).mockReturnValue(null);
+      (mockApiClient.getToken as any).mockReturnValue(null);
 
       const onError = jest.fn();
       await chatAPI.streamChat('Hello', jest.fn(), jest.fn(), jest.fn(), onError);

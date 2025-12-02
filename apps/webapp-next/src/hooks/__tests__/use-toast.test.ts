@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { renderHook, act } from '@testing-library/react'
 import { useToast, toast, reducer } from '../use-toast'
 
@@ -239,7 +242,6 @@ describe('reducer', () => {
 
       const result = reducer(state, {
         type: 'DISMISS_TOAST',
-        toastId: undefined,
       })
 
       result.toasts.forEach((t) => {
@@ -276,7 +278,6 @@ describe('reducer', () => {
 
       const result = reducer(state, {
         type: 'REMOVE_TOAST',
-        toastId: undefined,
       })
 
       expect(result.toasts).toHaveLength(0)

@@ -1,4 +1,10 @@
 /**
+ * @jest-environment node
+ */
+
+import { describe, it, expect } from '@jest/globals';
+
+/**
  * Integration Tests - Frontend-Backend Alignment
  *
  * These tests verify that:

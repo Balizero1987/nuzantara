@@ -1,4 +1,19 @@
+/**
+ * @jest-environment jsdom
+ */
+import { jest, describe, it, expect, beforeEach } from '@jest/globals'
 import { useChatStore } from '../chat-store'
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+}
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+})
 
 describe('useChatStore', () => {
   beforeEach(() => {
@@ -198,4 +213,3 @@ describe('useChatStore', () => {
     })
   })
 })
-

@@ -10,6 +10,7 @@ Responsibilities:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from collections.abc import AsyncIterator
@@ -78,8 +79,12 @@ from app.routers import (
     oracle_universal,
     productivity,
     team_activity,
+    websocket,
     whatsapp,
 )
+
+# --- WebSocket ---
+from app.routers.websocket import redis_listener
 
 # --- Core Services ---
 from services.alert_service import AlertService
@@ -224,6 +229,7 @@ def include_routers(api: FastAPI) -> None:
     api.include_router(oracle_universal.router)
     api.include_router(productivity.router)
     api.include_router(whatsapp.router)
+    api.include_router(websocket.router)
     api.include_router(instagram.router)
     # Identity module (Prime Standard - team login)
     api.include_router(identity_router, prefix="/api/auth")
@@ -648,6 +654,19 @@ async def initialize_services() -> None:
         )
         logger.error(f"❌ Failed to initialize Health Monitor: {e}")
 
+    # 10. WebSocket Redis Listener
+    try:
+        logger.info("🔌 Starting WebSocket Redis Listener...")
+        redis_task = asyncio.create_task(redis_listener())
+        app.state.redis_listener_task = redis_task
+        service_registry.register("websocket", ServiceStatus.HEALTHY, critical=False)
+        logger.info("✅ WebSocket Redis Listener started")
+    except Exception as e:
+        service_registry.register(
+            "websocket", ServiceStatus.DEGRADED, error=str(e), critical=False
+        )
+        logger.error(f"❌ Failed to start WebSocket Redis Listener: {e}")
+
     app.state.services_initialized = True
     logger.info("✅ ZANTARA Services Initialization Complete.")
     logger.info(f"📊 Service Status: {service_registry.get_status()['overall']}")
@@ -661,6 +680,16 @@ async def on_startup() -> None:
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
     logger.info("🛑 Shutting down ZANTARA services...")
+
+    # Shutdown WebSocket Redis Listener
+    redis_task = getattr(app.state, "redis_listener_task", None)
+    if redis_task:
+        redis_task.cancel()
+        try:
+            await redis_task
+        except asyncio.CancelledError:
+            pass
+        logger.info("✅ WebSocket Redis Listener stopped")
 
     # Shutdown Health Monitor
     health_monitor: HealthMonitor | None = getattr(app.state, "health_monitor", None)

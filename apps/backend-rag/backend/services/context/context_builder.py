@@ -282,6 +282,29 @@ COME POSSO AIUTARTI:
 
         return team_context
 
+    def build_synthetic_context(self, examples: list[dict]) -> str | None:
+        """
+        Build context from synthetic few-shot examples.
+        
+        Args:
+            examples: List of example dicts {question, answer, persona}
+            
+        Returns:
+            Formatted string of examples
+        """
+        if not examples:
+            return None
+            
+        logger.info(f"📚 [ContextBuilder] Formatting {len(examples)} synthetic examples")
+        
+        formatted_examples = []
+        for i, ex in enumerate(examples, 1):
+            formatted_examples.append(f"""Esempio {i} ({ex.get('persona', 'general')}):
+Q: {ex.get('question')}
+A: {ex.get('answer')}""")
+            
+        return "ESEMPI DI RISPOSTA (FEW-SHOT):\n" + "\n\n".join(formatted_examples)
+
     def combine_contexts(
         self,
         memory_context: str | None,
@@ -289,6 +312,7 @@ COME POSSO AIUTARTI:
         rag_context: str | None,
         cultural_context: str | None = None,
         identity_context: str | None = None,
+        synthetic_context: str | None = None,
         zantara_identity: bool = False,
     ) -> str | None:
         """
@@ -300,6 +324,7 @@ COME POSSO AIUTARTI:
             rag_context: RAG context string
             cultural_context: Cultural context string (optional)
             identity_context: User identity context (optional)
+            synthetic_context: Synthetic examples context (optional)
             zantara_identity: Include Zantara self-identity (optional)
 
         Returns:
@@ -340,6 +365,10 @@ ISTRUZIONI PER L'USO DELLA KNOWLEDGE BASE:
         # 6. Cultural context (Indonesian insights)
         if cultural_context:
             contexts.append(cultural_context)
+
+        # 7. Synthetic Context (Few-Shot Examples) - Guide for style/content
+        if synthetic_context:
+            contexts.append(synthetic_context)
 
         if not contexts:
             return None

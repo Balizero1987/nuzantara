@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
-import { createServerClient } from "@/lib/api/client"
-import { CalendarEvent } from "@/lib/api/generated"
+import { createServerClient } from "../../../../../lib/api/client"
+import { CalendarEvent } from "../../../../../lib/api/generated"
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const body = (await request.json()) as any
     const { title, start_time, duration_minutes, attendees } = body
 
     // Extract token from Authorization header

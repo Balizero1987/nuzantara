@@ -86,8 +86,27 @@ class LegalIngestionService:
 
             # STAGE 3: Extract Metadata (The Librarian)
             metadata = self.metadata_extractor.extract(cleaned_text)
+            
+            # HYBRID EXTRACTION: Fallback to Vertex AI if Pattern Extraction fails
+            if not metadata or metadata.get("type") == "UNKNOWN":
+                logger.info("Pattern extraction failed/incomplete. Attempting Vertex AI fallback...")
+                try:
+                    from services.vertex_ai_service import VertexAIService
+                    vertex_service = VertexAIService()
+                    ai_metadata = await vertex_service.extract_metadata(cleaned_text)
+                    
+                    if ai_metadata:
+                        logger.info(f"Vertex AI extraction successful: {ai_metadata.get('type_abbrev')} {ai_metadata.get('number')}")
+                        # Merge AI metadata, preferring AI results for missing fields
+                        if not metadata:
+                            metadata = ai_metadata
+                        else:
+                            metadata.update({k: v for k, v in ai_metadata.items() if v})
+                except Exception as e:
+                    logger.warning(f"Vertex AI fallback failed: {e}")
+
             if not metadata:
-                logger.warning("Could not extract metadata, using defaults")
+                logger.warning("Could not extract metadata (Pattern + AI failed), using defaults")
                 metadata = {
                     "type": "UNKNOWN",
                     "type_abbrev": "UNKNOWN",

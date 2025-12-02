@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import type { ZantaraSession, ZantaraContext } from "@/lib/api/zantara-integration"
+import type { ZantaraSession, ZantaraContext } from "../api/zantara-integration"
 
 export interface Message {
   id: string
@@ -88,8 +88,8 @@ interface ChatState {
 }
 
 export const useChatStore = create<ChatState>()(
-  persist(
-    (set, get) => ({
+  (persist as any)(
+    (set: any, get: any) => ({
       // Initial State - Messages
       messages: [],
       isStreaming: false,
@@ -110,15 +110,15 @@ export const useChatStore = create<ChatState>()(
       pendingSync: false,
 
       // Actions - Messages
-      addMessage: (message) =>
-        set((state) => ({
+      addMessage: (message: any) =>
+        set((state: any) => ({
           messages: [...state.messages, message],
           pendingSync: true,
         })),
 
-      updateStreamingMessage: (content) => set({ streamingMessage: content }),
+      updateStreamingMessage: (content: any) => set({ streamingMessage: content }),
 
-      setStreaming: (isStreaming) =>
+      setStreaming: (isStreaming: any) =>
         set({
           isStreaming,
           streamingMessage: isStreaming ? get().streamingMessage : "",
@@ -133,13 +133,13 @@ export const useChatStore = create<ChatState>()(
         }),
 
       // Actions - Session
-      setSession: (session) =>
+      setSession: (session: any) =>
         set({
           session,
           isSessionInitialized: true,
         }),
 
-      setSessionInitialized: (initialized) =>
+      setSessionInitialized: (initialized: any) =>
         set({ isSessionInitialized: initialized }),
 
       clearSession: () =>
@@ -154,25 +154,25 @@ export const useChatStore = create<ChatState>()(
         }),
 
       // Actions - Context
-      setContextMetadata: (metadata) => set({ contextMetadata: metadata }),
+      setContextMetadata: (metadata: any) => set({ contextMetadata: metadata }),
 
-      setCRMContext: (context) => set({ crmContext: context }),
+      setCRMContext: (context: any) => set({ crmContext: context }),
 
-      setZantaraContext: (context) =>
+      setZantaraContext: (context: any) =>
         set({
           zantaraContext: context,
           crmContext: context?.crmContext
             ? {
-                clientId: context.crmContext.clientId,
-                clientName: context.crmContext.clientName,
-                status: context.crmContext.status,
-                practices: context.crmContext.practices,
-              }
+              clientId: context.crmContext.clientId,
+              clientName: context.crmContext.clientName,
+              status: context.crmContext.status,
+              practices: context.crmContext.practices,
+            }
             : get().crmContext,
         }),
 
       // Actions - Sync
-      setSyncing: (syncing) => set({ isSyncing: syncing }),
+      setSyncing: (syncing: any) => set({ isSyncing: syncing }),
 
       markSynced: () =>
         set({
@@ -180,15 +180,15 @@ export const useChatStore = create<ChatState>()(
           pendingSync: false,
         }),
 
-      setPendingSync: (pending) => set({ pendingSync: pending }),
+      setPendingSync: (pending: any) => set({ pendingSync: pending }),
 
       // Actions - Bulk
-      loadMessages: (messages) =>
-        set((state) => ({
+      loadMessages: (messages: any) =>
+        set((state: any) => ({
           messages: [...state.messages, ...messages],
         })),
 
-      replaceMessages: (messages) =>
+      replaceMessages: (messages: any) =>
         set({
           messages,
           pendingSync: false,
@@ -196,7 +196,7 @@ export const useChatStore = create<ChatState>()(
     }),
     {
       name: "zantara-chat-storage",
-      partialize: (state) => ({
+      partialize: (state: any) => ({
         messages: state.messages,
         session: state.session,
         crmContext: state.crmContext,
