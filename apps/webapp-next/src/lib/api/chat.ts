@@ -2,6 +2,7 @@ import type { ChatMetadata } from './types';
 import { apiClient } from '@/lib/api/client';
 import { AUTH_TOKEN_KEY } from '@/lib/constants';
 import { authAPI } from '@/lib/api/auth';
+import { fetchWithRetry } from '@/lib/api/fetch-utils';
 
 export const chatAPI = {
   // Client-side chat API wrapper
@@ -13,56 +14,19 @@ export const chatAPI = {
     onError: (error: Error) => void,
     conversationHistory?: Array<{ role: string; content: string }>
   ): Promise<void> {
-    // Try multiple ways to get token
-    let token = apiClient.getToken();
-
-    // Fallback: try localStorage directly (only in browser)
-    if (!token && typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
-      token = globalThis.localStorage.getItem(AUTH_TOKEN_KEY) || '';
-    }
-
-    console.log(
-      '[ChatClient] Token available:',
-      !!token,
-      token ? `${token.substring(0, 10)}...` : 'None'
-    );
-
-    // Log token sources only in browser
-    if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
-      const storage = globalThis.localStorage;
-      const allKeys = Object.keys(storage);
-      const tokenKeys = allKeys.filter((k) => k.toLowerCase().includes('token'));
-      const tokenValues = tokenKeys.map((k) => ({
-        key: k,
-        value: storage.getItem(k)?.substring(0, 20) + '...',
-      }));
-
-      console.log('[ChatClient] Token sources:', {
-        apiClient: apiClient.getToken() ? 'found' : 'not found',
-        apiClientValue: apiClient.getToken()
-          ? apiClient.getToken()?.substring(0, 20) + '...'
-          : 'none',
-        localStorage_token: storage.getItem('token') ? 'found' : 'not found',
-        zantara_token: storage.getItem('zantara_token') ? 'found' : 'not found',
-        zantara_session_token: storage.getItem('zantara_session_token') ? 'found' : 'not found',
-        allTokenKeys: tokenKeys,
-        tokenValues: tokenValues,
-      });
-    }
-    console.log('[ChatClient] Conversation history length:', conversationHistory?.length || 0);
+    // Get token from single source of truth
+    const token = apiClient.getToken();
 
     if (!token) {
-      console.error('[ChatClient] No token found in any storage location');
+      console.error('[ChatClient] No authentication token found');
       onError(new Error('No authentication token found. Please log in.'));
       return;
     }
 
     try {
-      // Add timeout to prevent hanging requests
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 180000); // 180 second timeout (3 mins) - increased for complex RAG queries and Deep Thinking chains
-
-      const response = await fetch('/api/chat/stream', {
+      // Use fetchWithRetry for robust connection
+      // We use a long timeout (3 mins) for the streaming connection itself
+      const response = await fetchWithRetry('/api/chat/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,10 +44,9 @@ export const chatAPI = {
                 : 'UTC',
           },
         }),
-        signal: controller.signal,
+        timeout: 180000, // 180 second timeout (3 mins)
+        retries: 2, // Retry connection failures twice
       });
-
-      clearTimeout(timeoutId);
 
       if (!response.ok) {
         if (response.status === 401) {
