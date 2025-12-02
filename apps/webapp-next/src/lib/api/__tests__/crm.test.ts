@@ -3,20 +3,22 @@ import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 // Mock fetchWithRetry
 const mockFetchWithRetry = jest.fn() as any;
-jest.unstable_mockModule('../fetch-utils', () => ({
-  fetchWithRetry: mockFetchWithRetry,
-}));
 
 // Mock apiClient
 const mockApiClient = {
   getToken: jest.fn(() => 'test-token'),
 };
-jest.unstable_mockModule('../client', () => ({
+
+jest.mock('../fetch-utils', () => ({
+  fetchWithRetry: mockFetchWithRetry,
+}));
+
+jest.mock('../client', () => ({
   apiClient: mockApiClient,
 }));
 
-// Import module under test dynamically
-const { crmAPI } = await import('../crm');
+// Import module under test
+import { crmAPI } from '../crm';
 
 describe('crmAPI', () => {
   beforeEach(() => {

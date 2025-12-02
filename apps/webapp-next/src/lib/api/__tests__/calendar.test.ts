@@ -6,20 +6,22 @@ const mockAxios = {
   post: jest.fn(),
   get: jest.fn(),
 };
-jest.unstable_mockModule('axios', () => ({
-  default: mockAxios,
-}));
 
 // Mock apiClient
 const mockApiClient = {
   getToken: jest.fn(() => 'test-token'),
 };
-jest.unstable_mockModule('../client', () => ({
+
+jest.mock('axios', () => ({
+  default: mockAxios,
+}));
+
+jest.mock('../client', () => ({
   apiClient: mockApiClient,
 }));
 
-// Import module under test dynamically
-const { calendarAPI } = await import('../calendar');
+// Import module under test
+import { calendarAPI } from '../calendar';
 
 describe('calendarAPI', () => {
   beforeEach(() => {

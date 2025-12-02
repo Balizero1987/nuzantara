@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
 // Mock apiClient
 const mockGetToken = jest.fn();
-jest.unstable_mockModule('../client', () => ({
+
+jest.mock('../client', () => ({
   apiClient: {
     getToken: () => mockGetToken(),
   },
 }));
 
-// Import module under test dynamically
-const { socketClient } = await import('../socket');
+// Import module under test
+import { socketClient } from '../socket';
 
 // Mock WebSocket
 class MockWebSocket {
@@ -52,9 +54,9 @@ describe('socketClient', () => {
     jest.useFakeTimers();
     // Reset the socket client state by disconnecting
     socketClient.disconnect();
-    jest.spyOn(console, 'log').mockImplementation(() => { });
-    jest.spyOn(console, 'warn').mockImplementation(() => { });
-    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -182,9 +184,9 @@ describe('WebSocketClient message handling', () => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     socketClient.disconnect();
-    jest.spyOn(console, 'log').mockImplementation(() => { });
-    jest.spyOn(console, 'error').mockImplementation(() => { });
-    jest.spyOn(console, 'warn').mockImplementation(() => { });
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
     mockGetToken.mockReturnValue('test-token');
 
     // Store reference to created socket

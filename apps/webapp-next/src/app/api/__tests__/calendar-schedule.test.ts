@@ -34,8 +34,11 @@ class MockRequest {
 // Mock globals
 (global as any).Request = MockRequest;
 
+// Mock createServerClient
+const mockScheduleMeeting = jest.fn();
+
 // Mock NextResponse
-jest.unstable_mockModule('next/server', () => ({
+jest.mock('next/server', () => ({
   NextResponse: {
     json: (body: any, init?: { status?: number }) => ({
       json: async () => body,
@@ -44,9 +47,7 @@ jest.unstable_mockModule('next/server', () => ({
   },
 }));
 
-// Mock createServerClient
-const mockScheduleMeeting = jest.fn();
-jest.unstable_mockModule('../../../lib/api/client', () => ({
+jest.mock('../../../lib/api/client', () => ({
   createServerClient: () => ({
     productivity: {
       scheduleMeetingApiProductivityCalendarSchedulePost: mockScheduleMeeting,
@@ -55,7 +56,7 @@ jest.unstable_mockModule('../../../lib/api/client', () => ({
 }));
 
 // Import AFTER mocks
-const { POST } = await import('../productivity/calendar/schedule/route');
+import { POST } from '../productivity/calendar/schedule/route';
 
 describe('POST /api/productivity/calendar/schedule', () => {
   beforeEach(() => {

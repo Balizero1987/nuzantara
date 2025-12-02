@@ -1,24 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, it, expect, beforeEach, beforeAll, afterAll } from '@jest/globals';
 
-// Mock fetchWithRetry using unstable_mockModule for ESM
+// Mock fetchWithRetry
 const mockFetchWithRetry = jest.fn() as any;
-jest.unstable_mockModule('../fetch-utils', () => ({
+jest.mock('../fetch-utils', () => ({
   fetchWithRetry: mockFetchWithRetry,
 }));
 
 // Mock client
-jest.unstable_mockModule('../client', () => ({
-  apiClient: {
-    getToken: jest.fn(() => 'test-token'),
-    setToken: jest.fn(),
-    clearToken: jest.fn(),
-  },
+const mockApiClient = {
+  getToken: jest.fn(() => 'test-token'),
+  setToken: jest.fn(),
+  clearToken: jest.fn(),
+};
+jest.mock('../client', () => ({
+  apiClient: mockApiClient,
 }));
 
-// Import module under test dynamically after mocking
-const { authAPI } = await import('../auth');
-const { apiClient } = await import('../client'); // Import apiClient to access its mocked methods
+// Import module under test after mocking
+import { authAPI } from '../auth';
+import { apiClient } from '../client';
 
 // Mock localStorage
 const localStorageMock = {
@@ -69,8 +70,8 @@ describe('authAPI', () => {
 
     // Spy on apiClient methods
     jest.spyOn(apiClient, 'getToken').mockImplementation(() => 'mock-token');
-    jest.spyOn(apiClient, 'setToken').mockImplementation(() => { });
-    jest.spyOn(apiClient, 'clearToken').mockImplementation(() => { });
+    jest.spyOn(apiClient, 'setToken').mockImplementation(() => {});
+    jest.spyOn(apiClient, 'clearToken').mockImplementation(() => {});
   });
 
   afterAll(() => {

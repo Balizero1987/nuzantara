@@ -1,4 +1,4 @@
-// eslint-disable @typescript-eslint/no-explicit-any
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @jest-environment node
  */
@@ -34,8 +34,11 @@ class MockRequest {
 // Mock global Request
 (global as any).Request = MockRequest;
 
+// Mock the client
+const mockTeamLoginApiAuthTeamLoginPost = jest.fn();
+
 // Mock NextResponse
-jest.unstable_mockModule('next/server', () => ({
+jest.mock('next/server', () => ({
   NextResponse: {
     json: (body: any, init?: { status?: number }) => ({
       json: async () => body,
@@ -44,9 +47,7 @@ jest.unstable_mockModule('next/server', () => ({
   },
 }));
 
-// Mock the client
-const mockTeamLoginApiAuthTeamLoginPost = jest.fn();
-jest.unstable_mockModule('../../../lib/api/client', () => ({
+jest.mock('../../../lib/api/client', () => ({
   createPublicClient: () => ({
     identity: {
       teamLoginApiAuthTeamLoginPost: mockTeamLoginApiAuthTeamLoginPost,
@@ -56,7 +57,7 @@ jest.unstable_mockModule('../../../lib/api/client', () => ({
 }));
 
 // Import AFTER mocks are set up
-const { POST } = await import('../auth/login/route');
+import { POST } from '../auth/login/route';
 
 describe('POST /api/auth/login', () => {
   beforeEach(() => {
