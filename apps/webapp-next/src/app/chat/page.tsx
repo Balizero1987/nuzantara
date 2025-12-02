@@ -110,7 +110,6 @@ export default function ChatPage() {
   }, [isInitialized, setSession, replaceMessages, setCRMContext, setSessionInitialized])
 
   useEffect(() => {
- claude/analyze-llm-integration-018p7FsF5kriUCjhDezJjgyc
     // Check for token - try multiple possible storage keys with retry mechanism
     const checkToken = () => {
       const token = apiClient.getToken() ||
