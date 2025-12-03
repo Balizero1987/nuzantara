@@ -188,13 +188,15 @@ class IntelligentRouter:
             search_query = await self._rewrite_query_for_search(message, conversation_history)
             logger.info(f"🔍 [Router] Query rewritten: '{message}' → '{search_query}'")
 
-            # STEP 6: RAG retrieval
+            # STEP 6: RAG retrieval (increased limit for business/legal queries)
             force_collection = "bali_zero_team" if category in ["identity", "team_query"] else None
+            # Use higher limit for business/emergency queries (legal content always in KB)
+            rag_limit = 10 if query_type in ["business", "emergency"] else 5
             rag_result = await self.rag_manager.retrieve_context(
                 query=search_query,  # Use rewritten query for better retrieval
                 query_type=query_type,
                 user_level=0,
-                limit=5,
+                limit=rag_limit,
                 force_collection=force_collection,
             )
 
@@ -441,15 +443,17 @@ class IntelligentRouter:
             search_query = await self._rewrite_query_for_search(message, conversation_history)
             logger.info(f"🔍 [Router Stream] Query rewritten: '{message}' → '{search_query}'")
 
-            # STEP 9: RAG retrieval
+            # STEP 9: RAG retrieval (increased limit for business/legal queries)
             force_collection = (
                 "bali_zero_team" if query_type in ["identity", "team_query"] else None
             )
+            # Use higher limit for business/emergency queries (legal content always in KB)
+            rag_limit = 10 if query_type in ["business", "emergency"] else 5
             rag_result = await self.rag_manager.retrieve_context(
                 query=search_query,  # Use rewritten query for better retrieval
                 query_type=query_type,
                 user_level=0,
-                limit=5,
+                limit=rag_limit,
                 force_collection=force_collection,
             )
 
@@ -495,12 +499,15 @@ class IntelligentRouter:
             # STEP 12: Stream from ZANTARA AI
             logger.info("🎯 [Router Stream] Using ZANTARA AI with REAL token-by-token streaming")
 
-            full_response_buffer = ""
+            # ⚡ PERFORMANCE FIX: Stream tokens immediately instead of buffering
+            # Jaksel transformation disabled for instant response (can be re-enabled later with feature flag)
+            logger.info("⚡ [Router Stream] Streaming tokens in real-time (Jaksel disabled for performance)")
 
             # Heartbeat mechanism to prevent Fly.io timeout (60s)
-            # We yield a comment or empty space to keep connection alive while waiting for LLM
             yield {"type": "ping", "data": "ping"}
 
+            # Stream tokens directly from AI - NO BUFFERING!
+            token_count = 0
             async for chunk in self.ai.stream(
                 message=message,
                 user_id=user_id,
@@ -509,46 +516,12 @@ class IntelligentRouter:
                 identity_context=identity_context,
                 max_tokens=max_tokens_to_use,
             ):
-                # Buffer all chunks for Jaksel transformation
-                full_response_buffer += chunk
+                # Yield token immediately - real-time streaming!
+                if chunk and chunk.strip():
+                    yield {"type": "token", "data": chunk}
+                    token_count += 1
 
-            # Jaksel style transfer (ALWAYS applied - official voice)
-            if full_response_buffer:
-                logger.info("🎨 [Router Stream] Applying Jaksel style to complete response")
-
-                sanitized_buffer = self.response_handler.sanitize_response(
-                    full_response_buffer, query_type, apply_santai=True, add_contact=True
-                )
-
-                # Analyze query context
-                jaksel_context = await self.jaksel_caller.analyze_query_context(
-                    query=message,
-                    user_email=user_id,
-                )
-
-                # Apply Jaksel style
-                jaksel_result = await self.jaksel_caller.apply_jaksel_style(
-                    query=message,
-                    gemini_answer=sanitized_buffer,
-                    context=jaksel_context,
-                    ai_client=self.ai,
-                )
-
-                final_response = sanitized_buffer
-                if jaksel_result.get("success"):
-                    final_response = jaksel_result.get("response", sanitized_buffer)
-                    logger.info("✅ [Router Stream] Jaksel style applied successfully")
-                else:
-                    logger.warning("⚠️ [Router Stream] Jaksel transformation failed, using professional answer")
-
-                # Yield transformed response word by word
-                for word in final_response.split(" "):
-                    # Yield structured token dictionary
-                    yield {"type": "token", "data": word + " "}
-                    await asyncio.sleep(0.05)
-            else:
-                # No response buffer, yield empty
-                logger.warning("⚠️ [Router Stream] No response buffer to transform")
+            logger.info(f"✅ [Router Stream] Streamed {token_count} tokens in real-time")
 
             # Yield done signal
             yield {"type": "done", "data": None}
@@ -640,8 +613,12 @@ class IntelligentRouter:
         Returns:
             Rewritten query optimized for semantic search
         """
-        # Skip rewriting for simple queries or if no history
-        if not conversation_history or len(conversation_history) < 2:
+        # For queries without history, still translate to English for better RAG
+        # but skip complex context expansion
+        needs_translation = any(c in query.lower() for c in ['à', 'è', 'ì', 'ò', 'ù', 'é', 'ê', 'ñ', 'ü', 'ö', 'ä'])
+        is_italian = any(w in query.lower() for w in ['come', 'quali', 'cosa', 'quanto', 'perché', 'dove', 'quando', 'chi', 'quale', 'visto', 'documenti', 'requisiti', 'costo', 'permesso'])
+
+        if (not conversation_history or len(conversation_history) < 2) and not (needs_translation or is_italian):
             return query
 
         # Skip rewriting for identity/team queries (they're already explicit)
@@ -681,9 +658,10 @@ Conversation context:
 Current user query: "{query}"
 
 Instructions:
-1. If the query is a follow-up (e.g., "e per le tasse?", "what about taxes?"), expand it using the conversation context
-2. Make it explicit and complete (include subject, object, and key terms)
-3. Keep it concise (1-2 sentences max)
+1. ALWAYS translate the query to ENGLISH for better RAG retrieval (the knowledge base is primarily in English)
+2. If the query is a follow-up (e.g., "e per le tasse?", "what about taxes?"), expand it using the conversation context
+3. Make it explicit and complete (include subject, object, and key terms)
+4. Keep it concise (1-2 sentences max)
 4. If the query is already explicit, return it as-is
 5. Return ONLY the rewritten query, no explanations
 
