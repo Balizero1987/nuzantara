@@ -716,6 +716,50 @@ CONTEXT USAGE INSTRUCTIONS:
             "tokens": result["tokens"],
         }
 
+    def _convert_tools_to_gemini_format(self, tools: list[dict[str, Any]]) -> list:
+        """
+        Convert Anthropic/OpenAI tool format to Gemini FunctionDeclaration format
+
+        Input format (Anthropic):
+        {
+            "name": "get_pricing",
+            "description": "Get pricing info",
+            "input_schema": {"type": "object", "properties": {...}, "required": [...]}
+        }
+
+        Output: list of genai.types.FunctionDeclaration
+        """
+        import google.generativeai as genai
+
+        gemini_tools = []
+        for tool in tools:
+            try:
+                name = tool.get("name", "")
+                description = tool.get("description", "")
+
+                # Get schema from either input_schema (Anthropic) or parameters (OpenAI)
+                schema = tool.get("input_schema") or tool.get("parameters") or {}
+
+                # Clean schema for Gemini (remove unsupported fields)
+                clean_schema = {
+                    "type": schema.get("type", "object"),
+                    "properties": schema.get("properties", {}),
+                }
+                if "required" in schema:
+                    clean_schema["required"] = schema["required"]
+
+                func_decl = genai.types.FunctionDeclaration(
+                    name=name,
+                    description=description,
+                    parameters=clean_schema if clean_schema.get("properties") else None,
+                )
+                gemini_tools.append(func_decl)
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to convert tool '{tool.get('name', 'unknown')}': {e}")
+                continue
+
+        return gemini_tools
+
     async def conversational_with_tools(
         self,
         message: str,
@@ -724,30 +768,177 @@ CONTEXT USAGE INSTRUCTIONS:
         memory_context: str | None = None,
         identity_context: str | None = None,
         tools: list[dict[str, Any]] | None = None,
-        _tool_executor: Any | None = None,
+        tool_executor: Any | None = None,
         max_tokens: int = 150,
-        _max_tool_iterations: int = 2,
+        max_tool_iterations: int = 2,
     ) -> dict:
         """
         Compatible interface for IntelligentRouter - conversational WITH tool calling
+        Supports both Native Gemini and OpenAI-compatible fallback
         """
-        if tools:
-            logger.info("🔧 [ZantaraAI] Tool use requested")
-
-            messages = []
-            if conversation_history:
-                messages.extend(conversation_history)
-            messages.append({"role": "user", "content": message})
-
-            system = self._build_system_prompt(
+        if not tools:
+            # No tools, use standard conversational
+            result = await self.conversational(
+                message=message,
+                _user_id=user_id,
+                conversation_history=conversation_history,
                 memory_context=memory_context,
                 identity_context=identity_context,
+                max_tokens=max_tokens,
             )
+            result["tools_called"] = []
+            result["used_tools"] = False
+            return result
 
-            full_messages = [{"role": "system", "content": system}]
-            full_messages.extend(messages)
+        logger.info(f"🔧 [ZantaraAI] Tool use requested with {len(tools)} tools")
 
+        # Build system prompt with context
+        system = self._build_system_prompt(
+            memory_context=memory_context,
+            identity_context=identity_context,
+        )
+
+        # --- NATIVE GEMINI FUNCTION CALLING ---
+        if self.use_native_genai and self.genai_client:
             try:
+                import google.generativeai as genai
+
+                # Convert tools to Gemini format
+                gemini_tools = self._convert_tools_to_gemini_format(tools)
+
+                if not gemini_tools:
+                    logger.warning("⚠️ No valid tools after conversion, falling back to no-tool mode")
+                    result = await self.conversational(
+                        message=message,
+                        _user_id=user_id,
+                        conversation_history=conversation_history,
+                        memory_context=memory_context,
+                        identity_context=identity_context,
+                        max_tokens=max_tokens,
+                    )
+                    result["tools_called"] = []
+                    result["used_tools"] = False
+                    return result
+
+                logger.info(f"🔧 [ZantaraAI] Converted {len(gemini_tools)} tools to Gemini format")
+
+                # Create model with tools
+                model_with_tools = genai.GenerativeModel(
+                    self.model,
+                    system_instruction=system,
+                    tools=gemini_tools,
+                )
+
+                # Build history
+                gemini_history = []
+                if conversation_history:
+                    for msg in conversation_history:
+                        role = msg.get("role")
+                        content = msg.get("content", "")
+                        if role == "user":
+                            gemini_history.append({"role": "user", "parts": [content]})
+                        elif role == "assistant":
+                            gemini_history.append({"role": "model", "parts": [content]})
+
+                # Start chat
+                chat = model_with_tools.start_chat(history=gemini_history)
+
+                # Generate with function calling
+                response = await chat.send_message_async(
+                    message,
+                    generation_config=genai.types.GenerationConfig(
+                        max_output_tokens=max_tokens,
+                        temperature=0.7,
+                    ),
+                )
+
+                # Process response - check for function calls
+                tools_called = []
+                response_text = ""
+
+                # Check if response contains function calls
+                if hasattr(response, 'candidates') and response.candidates:
+                    candidate = response.candidates[0]
+                    if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                        for part in candidate.content.parts:
+                            if hasattr(part, 'function_call') and part.function_call:
+                                # Extract function call
+                                func_call = part.function_call
+                                tool_name = func_call.name
+                                tool_args = dict(func_call.args) if func_call.args else {}
+                                tools_called.append(tool_name)
+
+                                logger.info(f"🔧 [ZantaraAI] Function call detected: {tool_name}")
+
+                                # Execute tool if executor provided
+                                if tool_executor:
+                                    try:
+                                        tool_result = await tool_executor.execute_tool(
+                                            tool_name=tool_name,
+                                            tool_input=tool_args,
+                                            user_id=user_id,
+                                        )
+
+                                        # Send tool result back to model
+                                        tool_response = await chat.send_message_async(
+                                            genai.types.ContentDict(
+                                                role="function",
+                                                parts=[genai.types.PartDict(
+                                                    function_response=genai.types.FunctionResponseDict(
+                                                        name=tool_name,
+                                                        response={"result": tool_result.get("result", tool_result)},
+                                                    )
+                                                )]
+                                            ),
+                                            generation_config=genai.types.GenerationConfig(
+                                                max_output_tokens=max_tokens,
+                                                temperature=0.7,
+                                            ),
+                                        )
+
+                                        # Get final response text
+                                        if hasattr(tool_response, 'text'):
+                                            response_text = tool_response.text
+
+                                    except Exception as e:
+                                        logger.error(f"❌ Tool execution failed: {e}")
+                                        response_text = f"Tool {tool_name} execution failed: {str(e)}"
+
+                            elif hasattr(part, 'text') and part.text:
+                                response_text += part.text
+
+                # Fallback to response.text if no parts processed
+                if not response_text and hasattr(response, 'text'):
+                    response_text = response.text
+
+                tokens_input = len(str(message)) / 4
+                tokens_output = len(response_text) / 4
+
+                return {
+                    "text": response_text,
+                    "model": self.model,
+                    "provider": "google_native",
+                    "ai_used": "zantara-ai",
+                    "tokens": {"input": int(tokens_input), "output": int(tokens_output)},
+                    "tools_called": tools_called,
+                    "used_tools": len(tools_called) > 0,
+                }
+
+            except Exception as e:
+                logger.warning(f"⚠️ [ZantaraAI] Gemini function calling failed: {e}, falling back")
+                # Fall through to OpenAI-compatible or no-tool fallback
+
+        # --- OPENAI COMPATIBILITY FALLBACK ---
+        if self.client:
+            try:
+                messages = []
+                if conversation_history:
+                    messages.extend(conversation_history)
+                messages.append({"role": "user", "content": message})
+
+                full_messages = [{"role": "system", "content": system}]
+                full_messages.extend(messages)
+
                 response = await self.client.chat.completions.create(
                     model=self.model,
                     messages=full_messages,
@@ -777,20 +968,10 @@ CONTEXT USAGE INSTRUCTIONS:
                 }
 
             except Exception as e:
-                logger.warning(f"⚠️ [ZantaraAI] Tool calling failed: {e}, falling back")
-                result = await self.conversational(
-                    message=message,
-                    _user_id=user_id,
-                    conversation_history=conversation_history,
-                    memory_context=memory_context,
-                    identity_context=identity_context,
-                    max_tokens=max_tokens,
-                )
-                result["tools_called"] = []
-                result["used_tools"] = False
-                return result
+                logger.warning(f"⚠️ [ZantaraAI] OpenAI tool calling failed: {e}, falling back")
 
-        # No tools
+        # --- FINAL FALLBACK: No tools ---
+        logger.info("🔧 [ZantaraAI] Using fallback mode without tools")
         result = await self.conversational(
             message=message,
             _user_id=user_id,

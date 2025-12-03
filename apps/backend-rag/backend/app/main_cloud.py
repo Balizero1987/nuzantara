@@ -605,6 +605,24 @@ async def initialize_services() -> None:
         logger.warning(f"⚠️ CollaboratorService initialization failed: {e}")
         app.state.collaborator_service = None
 
+    # Connect optional services to ZantaraTools (for memory and timesheet tools)
+    try:
+        memory_svc = getattr(app.state, "memory_service", None)
+        ts_svc = getattr(app.state, "ts_service", None)
+        if memory_svc or ts_svc:
+            zantara_tools.set_services(
+                memory_service=memory_svc,
+                timesheet_service=ts_svc,
+            )
+            services_connected = []
+            if memory_svc:
+                services_connected.append("memory")
+            if ts_svc:
+                services_connected.append("timesheet")
+            logger.info(f"✅ ZantaraTools connected to services: {services_connected}")
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to connect services to ZantaraTools: {e}")
+
     # Initialize IntelligentRouter (critical services are guaranteed available)
     try:
         intelligent_router = IntelligentRouter(

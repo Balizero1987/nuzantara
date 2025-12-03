@@ -166,7 +166,14 @@ class IntelligentRouter:
             # STEP 2: Determine tools to use
             tools_to_use = frontend_tools
             if not tools_to_use and self.tool_executor:
-                tools_to_use = getattr(self.tool_executor, "get_available_tools", lambda: [])()
+                # FIX: get_available_tools is async, must await it
+                get_tools_fn = getattr(self.tool_executor, "get_available_tools", None)
+                if get_tools_fn and asyncio.iscoroutinefunction(get_tools_fn):
+                    tools_to_use = await get_tools_fn()
+                elif get_tools_fn:
+                    tools_to_use = get_tools_fn()
+                else:
+                    tools_to_use = []
                 if tools_to_use:
                     logger.info(f"🔧 [Router] Using {len(tools_to_use)} tools from BACKEND")
 
