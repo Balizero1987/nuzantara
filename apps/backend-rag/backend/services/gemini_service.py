@@ -63,23 +63,31 @@ class GeminiJakselService:
         Yields:
             Chunks of text
         """
+        # Initialize history if None
+        if history is None:
+            history = []
+
         # Combine few-shot history with actual conversation history
         chat_history = self.few_shot_history.copy()
 
         # Convert app history format to Gemini format
-        if history is None:
-            history = []
         for msg in history:
-            role = "user" if msg["role"] == "user" else "model"
-            chat_history.append({"role": role, "parts": [msg["content"]]})
+            role = "user" if msg.get("role") == "user" else "model"
+            content = msg.get("content", "")
+            if content:  # Only add non-empty messages
+                chat_history.append({"role": role, "parts": [content]})
 
+        # Initialize chat with history
         chat = self.model.start_chat(history=chat_history)
 
-        # Inject Context if available
-        final_message = message
-        if context:
+        # Build final message: combine context (if present) and message
+        # Format: CONTEXT section + USER QUERY section for clarity
+        if context and context.strip():
             final_message = f"CONTEXT (Use this data):\n{context}\n\nUSER QUERY:\n{message}"
+        else:
+            final_message = message
 
+        # Stream response
         response = await chat.send_message_async(final_message, stream=True)
 
         async for chunk in response:
