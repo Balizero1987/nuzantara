@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ChatStreamRequest } from '../models/ChatStreamRequest';
 import type { IntelSearchRequest } from '../models/IntelSearchRequest';
 import type { IntelStoreRequest } from '../models/IntelStoreRequest';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -232,4 +233,41 @@ export class DefaultService {
             },
         });
     }
-}
+    /**
+     * Chat Stream Post
+     * Modern POST endpoint for chat streaming (JSON body).
+     * Compatible with frontend Next.js client.
+     *
+     * Body:
+     * {
+         * "message": "User query",
+         * "user_id": "optional-user-id",
+         * "conversation_history": [{"role": "user", "content": "..."}, ...],
+         * "metadata": {"key": "value"},
+         * "zantara_context": {"session_id": "...", ...}
+         * }
+         *
+         * Returns: SSE stream with {"type": "token|metadata|done", "data": "..."}
+         * @param requestBody
+         * @param authorization
+         * @returns any Successful Response
+         * @throws ApiError
+         */
+        public chatStreamPostApiChatStreamPost(
+            requestBody: ChatStreamRequest,
+            authorization?: (string | null),
+        ): CancelablePromise<any> {
+            return this.httpRequest.request({
+                method: 'POST',
+                url: '/api/chat/stream',
+                headers: {
+                    'authorization': authorization,
+                },
+                body: requestBody,
+                mediaType: 'application/json',
+                errors: {
+                    422: `Validation Error`,
+                },
+            });
+        }
+    }

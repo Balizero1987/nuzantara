@@ -14,14 +14,14 @@ services:
       dockerfile: Dockerfile
     container_name: nuzantara-backend
     ports:
-      - "8000:8000"
+      - "8080:8080"
     env_file:
       - ./apps/backend-rag/.env
     environment:
       - QDRANT_URL=http://qdrant:6333
       # Connect to local Postgres on host
       - DATABASE_URL=postgresql://host.docker.internal:5432/nuzantara_dev
-      - PORT=8000
+      - PORT=8080
       - HOST=0.0.0.0
     depends_on:
       - qdrant

@@ -107,7 +107,7 @@ const getWebSocketURL = (): string => {
         if (window.location.hostname.includes('fly.dev') || window.location.hostname.includes('nuzantara')) {
             return 'wss://nuzantara-rag.fly.dev/ws';
         }
-        return `${wsProtocol}//${window.location.hostname}:8000/ws`;
+        return `${wsProtocol}//${window.location.hostname}:8080/ws`;
     }
     // SSR fallback - shouldn't be used
     return 'wss://nuzantara-rag.fly.dev/ws';

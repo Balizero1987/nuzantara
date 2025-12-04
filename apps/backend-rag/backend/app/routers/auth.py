@@ -14,6 +14,7 @@ from jose import JWTError, jwt
 from pydantic import BaseModel, EmailStr
 
 from app.core.config import settings
+from app.models import UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -49,18 +50,6 @@ class LoginResponse(BaseModel):
     success: bool
     message: str
     data: dict[str, Any] | None = None
-
-
-class UserProfile(BaseModel):
-    """User profile model"""
-
-    id: str
-    email: str
-    name: str
-    role: str
-    status: str
-    metadata: dict[str, Any] | None = None
-    language_preference: str | None = None
 
 
 # ============================================================================
@@ -267,7 +256,7 @@ async def login(request: LoginRequest, req: Request = None):
             user_agent=user_agent,
             failure_reason=f"System error: {str(e)}",
         )
-        raise HTTPException(status_code=500, detail="Authentication service unavailable")
+        raise HTTPException(status_code=500, detail="Authentication service unavailable") from e
     finally:
         await conn.close()
 

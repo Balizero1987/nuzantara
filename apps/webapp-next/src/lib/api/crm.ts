@@ -36,7 +36,7 @@ const getBaseURL = (): string => {
         (window.location.hostname.includes('fly.dev') || window.location.hostname.includes('nuzantara'))) {
         return 'https://nuzantara-rag.fly.dev';
     }
-    return 'http://localhost:8000';
+    return 'http://localhost:8080';
 };
 const BASE_URL = getBaseURL();
 

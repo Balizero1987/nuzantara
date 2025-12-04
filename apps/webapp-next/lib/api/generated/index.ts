@@ -24,6 +24,7 @@ export type { Body_upload_and_ingest_api_ingest_upload_post } from './models/Bod
 export type { BookIngestionRequest } from './models/BookIngestionRequest';
 export type { BookIngestionResponse } from './models/BookIngestionResponse';
 export type { CalendarEvent } from './models/CalendarEvent';
+export type { ChatStreamRequest } from './models/ChatStreamRequest';
 export type { ChunkMetadata } from './models/ChunkMetadata';
 export type { ClientCreate } from './models/ClientCreate';
 export type { ClientResponse } from './models/ClientResponse';

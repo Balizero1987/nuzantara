@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Configuration
-const OPENAPI_URL = 'http://localhost:8000/api/v1/openapi.json';
+const OPENAPI_URL = 'http://localhost:8080/api/v1/openapi.json';
 const OUTPUT_DIR = path.resolve(__dirname, '../src/lib/api/generated');
 
 async function generateClient() {
@@ -33,7 +33,7 @@ async function generateClient() {
         console.log('✅ Client generated successfully!');
     } catch (error) {
         console.error('❌ Error generating client:', error);
-        console.error('💡 Hint: Is the backend running at http://localhost:8000?');
+        console.error('💡 Hint: Is the backend running at http://localhost:8080?');
         process.exit(1);
     }
 }
