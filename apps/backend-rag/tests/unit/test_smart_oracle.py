@@ -661,7 +661,7 @@ async def test_smart_oracle_gemini_model_selection(mock_settings):
                         await smart_oracle("Question", "doc.pdf")
 
                         # Verify correct model was used
-                        mock_model.assert_called_once_with("gemini-2.5-flash")
+                        mock_model.assert_called_once_with("models/gemini-2.5-flash")
 
 
 @pytest.mark.asyncio
