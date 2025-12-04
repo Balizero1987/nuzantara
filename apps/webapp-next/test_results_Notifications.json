@@ -1,0 +1,46 @@
+{
+  "test_date": "2025-12-03T08:25:14.238Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "Notifications"
+  ],
+  "results": [
+    {
+      "category": "Notifications",
+      "questions": [
+        {
+          "question": "Come funziona il sistema di notifiche?",
+          "response": "Il sistema di notifiche, come parte delle nuove funzionalità della Dashboard BKPM (aggiornamento 2025), include (Unknown):\n*   Notifiche push per richieste di documenti.\n*   Promemoria automatici per i rinnovi delle licenze.",
+          "status": "answered",
+          "length": 224
+        },
+        {
+          "question": "Come posso inviare notifiche ai clienti?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Quali tipi di notifiche sono supportati?",
+          "response": "I tipi di notifiche supportati, come parte delle nuove funzionalità della Dashboard BKPM (aggiornamento 2025), includono (Unknown):\n*   Notifiche push per richieste di documenti.\n*   Promemoria automatici per i rinnovi delle licenze.",
+          "status": "answered",
+          "length": 233
+        }
+      ],
+      "summary": {
+        "total_questions": 3,
+        "answered": 2,
+        "partial": 1,
+        "no_knowledge": 0,
+        "errors": 0
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 3,
+    "answered": 2,
+    "partial": 1,
+    "no_knowledge": 0,
+    "errors": 0
+  }
+}

@@ -1,221 +1,103 @@
+// src/app/chat/page.tsx - REFACTORED VERSION
+// Original: 909 lines → Now: ~200 lines
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { chatAPI } from "@/lib/api/chat"
 import { useAuth } from "@/context/AuthContext"
-import { apiClient } from "@/lib/api/client"
-import { zantaraAPI } from "@/lib/api/zantara-integration"
 import { useChatStore } from "@/lib/store/chat-store"
+import { chatAPI } from "@/lib/api/chat"
 import { RAGDrawer } from "@/components/chat/RAGDrawer"
-import { MarkdownRenderer } from "@/components/chat/MarkdownRenderer"
-import { ThinkingIndicator } from "@/components/chat/ThinkingIndicator"
-import type { ChatMessage, ChatMetadata } from "@/lib/api/types"
-import { AUTH_TOKEN_KEY } from "@/lib/constants"
+import type { ChatMetadata } from "@/lib/api/types"
+
+// Local components
+import { ChatHeader } from "./components/ChatHeader"
+import { ChatSidebar } from "./components/ChatSidebar"
+import { ChatMessages } from "./components/ChatMessages"
+import { ChatInput } from "./components/ChatInput"
+import { ImageGenerationModal } from "./components/ImageGenerationModal"
+import { WelcomeScreen } from "./components/WelcomeScreen"
+
+// Hooks
+import { useChatSession } from "./hooks/useChatSession"
+import { useImageGeneration } from "./hooks/useImageGeneration"
 
 export default function ChatPage() {
   const router = useRouter()
-  const { user, token, logout, isAuthenticated, isLoading: isAuthLoading } = useAuth()
+  const { user, logout, isAuthenticated, isLoading: isAuthLoading } = useAuth()
+
+  // Chat state
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [streamingContent, setStreamingContent] = useState("")
+
+  // UI state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [uploadPreview, setUploadPreview] = useState<string | null>(null)
   const [avatarImage, setAvatarImage] = useState<string | null>(null)
   const [isCheckedIn, setIsCheckedIn] = useState(false)
-  const [checkInTime, setCheckInTime] = useState<Date | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [drawerMetadata, setDrawerMetadata] = useState<ChatMetadata | undefined>(undefined)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const avatarInputRef = useRef<HTMLInputElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
-  const [showImageModal, setShowImageModal] = useState(false)
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null)
-  const [imagePrompt, setImagePrompt] = useState("")
-  const [isInitialized, setIsInitialized] = useState(false)
 
-  // Zustand store
-  const {
-    messages,
-    addMessage,
-    clearMessages,
-    replaceMessages,
-    session,
-    setSession,
-    crmContext,
-    setCRMContext,
-    setZantaraContext,
-    isSessionInitialized,
-    setSessionInitialized,
-  } = useChatStore()
-
-  // Removed conversationHistory selector to avoid infinite loop
-
-  const [previousChats, setPreviousChats] = useState([
+  // Mock chat history
+  const [previousChats] = useState([
     { id: 1, title: "Tourist visa for Bali", date: "2 hours ago" },
     { id: 2, title: "Indonesia tax information", date: "Yesterday" },
     { id: 3, title: "Company registration in Jakarta", date: "3 days ago" },
     { id: 4, title: "Work permit application", date: "1 week ago" },
   ])
 
-  // Initialize ZANTARA session and load context
-  const initializeSession = useCallback(async () => {
-    if (isInitialized) return
+  // Zustand store
+  const { messages, addMessage, clearMessages, crmContext } = useChatStore()
 
-    try {
-      console.log('[ChatPage] Initializing ZANTARA session...')
+  // Custom hooks
+  const { isInitialized } = useChatSession()
+  const {
+    showImageModal,
+    imagePrompt,
+    isGeneratingImage,
+    setShowImageModal,
+    setImagePrompt,
+    handleGenerateImage
+  } = useImageGeneration()
 
-      // Initialize session with backend
-      const newSession = await zantaraAPI.initSession()
-      setSession(newSession)
-
-      // Load conversation history from backend
-      const backendHistory = await zantaraAPI.loadConversationHistory(50)
-      if (backendHistory.length > 0) {
-        console.log('[ChatPage] Loaded', backendHistory.length, 'messages from backend')
-        const formattedMessages = backendHistory.map((m, idx) => ({
-          id: `msg_${idx}_${Date.now()}`,
-          role: m.role,
-          content: m.content,
-          timestamp: new Date(),
-        }))
-        replaceMessages(formattedMessages)
-      }
-
-      // Load CRM context if available
-      if (newSession.crmClientId) {
-        const crmCtx = await zantaraAPI.getCRMContext(newSession.userEmail)
-        if (crmCtx) {
-          setCRMContext({
-            clientId: crmCtx.clientId,
-            clientName: crmCtx.clientName,
-            status: crmCtx.status,
-            practices: crmCtx.practices,
-          })
-        }
-      }
-
-      setSessionInitialized(true)
-      setIsInitialized(true)
-      console.log('[ChatPage] ZANTARA session initialized:', {
-        sessionId: newSession.sessionId,
-        hasCRM: !!newSession.crmClientId,
-      })
-    } catch (error) {
-      console.error('[ChatPage] Failed to initialize session:', error)
-      setIsInitialized(true) // Continue anyway
-    }
-  }, [isInitialized, setSession, replaceMessages, setCRMContext, setSessionInitialized])
-
+  // Auth redirect
   useEffect(() => {
-    // Check for token using standardized AUTH_TOKEN_KEY, with migration from old keys
-    const checkToken = () => {
-      let token = apiClient.getToken()
-
-      // Migrate from old token keys if AUTH_TOKEN_KEY not found
-      if (!token && typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
-        const oldKeys = ['token', 'zantara_token', 'zantara_session_token']
-        for (const oldKey of oldKeys) {
-          const oldToken = globalThis.localStorage.getItem(oldKey)
-          if (oldToken) {
-            console.log(`[ChatPage] Migrating token from ${oldKey} to ${AUTH_TOKEN_KEY}`)
-            globalThis.localStorage.setItem(AUTH_TOKEN_KEY, oldToken)
-            globalThis.localStorage.removeItem(oldKey)
-            token = oldToken
-            break
-          }
-        }
-      }
-
-      return token
-    }
-
-    let token = checkToken()
-
-    // If token not found immediately, wait a bit and retry (for navigation from login)
-    if (!token) {
-      setTimeout(() => {
-        token = checkToken()
-        console.log('[ChatPage] Token check (retry):', {
-          [AUTH_TOKEN_KEY]: token ? 'found' : 'not found',
-        })
-
-        if (!token) {
-          console.log('[ChatPage] No token found after retry, redirecting to login')
-          router.push("/login")
-          return
-        }
-
-        // Initialize session after token found
-        initializeSession()
-      }, 100)
-    }
-
-    console.log('[ChatPage] Token check:', {
-      [AUTH_TOKEN_KEY]: token ? 'found' : 'not found',
-    })
-
-    if (!token) {
-      // Don't redirect immediately, wait for retry
-      return
-    }
-
     if (!isAuthLoading && !isAuthenticated) {
       router.push("/login")
     }
   }, [isAuthLoading, isAuthenticated, router])
 
-  useEffect(() => {
-    // Initialize ZANTARA session
-    initializeSession()
-  }, [router, initializeSession])
-
-  // Messages are automatically persisted by Zustand middleware
-  // No manual localStorage operations needed
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages, streamingContent])
-
+  // Load avatar and check-in state from localStorage
   useEffect(() => {
     const savedAvatar = localStorage.getItem("zantara_avatar")
-    if (savedAvatar) {
-      setAvatarImage(savedAvatar)
-    }
+    if (savedAvatar) setAvatarImage(savedAvatar)
+
     const savedCheckIn = localStorage.getItem("zantara_checkin")
-    if (savedCheckIn) {
-      setIsCheckedIn(true)
-      setCheckInTime(new Date(savedCheckIn))
-    }
+    if (savedCheckIn) setIsCheckedIn(true)
   }, [])
 
+  // Submit handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isLoading) return
 
     const userMessage = input.trim()
     setInput("")
-
-    // Add user message to store
-    const newUserMessage = {
+    addMessage({
       id: `user_${Date.now()}`,
-      role: "user" as const,
+      role: "user",
       content: userMessage,
-      timestamp: new Date(),
-    }
-    addMessage(newUserMessage)
+      timestamp: new Date()
+    })
     setIsLoading(true)
     setStreamingContent("")
 
     let accumulatedContent = ""
-    let metadata: ChatMetadata | undefined = undefined
+    let metadata: ChatMetadata | undefined
 
-    // Prepare conversation history from store (max 100 turns = 200 messages)
-    // Keep only the last 200 messages to ensure context window management
-    // Filter out error messages to avoid confusing the AI
+    // Prepare conversation history (max 200 messages, filter errors)
     const history = messages
       .map((m) => ({ role: m.role, content: m.content }))
       .filter(msg => msg.content !== "Sorry, I encountered an error. Please try again.")
@@ -224,46 +106,41 @@ export default function ChatPage() {
     try {
       await chatAPI.streamChat(
         userMessage,
-        (chunk: string) => {
+        (chunk) => {
           accumulatedContent += chunk
           setStreamingContent(accumulatedContent)
         },
-        (meta: ChatMetadata) => {
-          console.log("[ZANTARA] Metadata received:", meta)
+        (meta) => {
           metadata = meta
         },
         () => {
-          // Add assistant message to store
-          const aiMessage = {
+          addMessage({
             id: `assistant_${Date.now()}`,
-            role: "assistant" as const,
+            role: "assistant",
             content: accumulatedContent,
             timestamp: new Date(),
             metadata: metadata ? {
               memory_used: metadata.memory_used,
-              rag_sources: metadata.rag_sources?.map(source => ({
-                source: source.document || source.collection,
-                relevance: source.score,
-                preview: source.text_preview,
+              rag_sources: metadata.rag_sources?.map(s => ({
+                source: s.document || s.collection,
+                relevance: s.score,
+                preview: s.text_preview,
               })),
               intent: metadata.intent,
             } : undefined,
-          }
-          addMessage(aiMessage)
+          })
           setStreamingContent("")
           setIsLoading(false)
         },
-        (error: Error) => {
-          console.error("[ZANTARA] Chat stream error:", error)
+        () => {
+          addMessage({
+            id: `error_${Date.now()}`,
+            role: "assistant",
+            content: "Sorry, I encountered an error. Please try again.",
+            timestamp: new Date()
+          })
           setStreamingContent("")
           setIsLoading(false)
-          const errorMessage = {
-            id: `error_${Date.now()}`,
-            role: "assistant" as const,
-            content: "Sorry, I encountered an error. Please try again.",
-            timestamp: new Date(),
-          }
-          addMessage(errorMessage)
         },
         history
       )
@@ -274,52 +151,15 @@ export default function ChatPage() {
     }
   }
 
+  // Keyboard handler
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      handleSubmit(e as any)
+      handleSubmit(e as unknown as React.FormEvent)
     }
   }
 
-  const handleLogout = () => {
-    logout()
-  }
-
-  const handleNewConversation = async () => {
-    // Clear local store
-    clearMessages()
-
-    // Clear backend history
-    try {
-      await chatAPI.clearHistory()
-      console.log("[ZANTARA] Conversation cleared from backend")
-    } catch (error) {
-      console.warn("[ZANTARA] Failed to clear backend history:", error)
-    }
-
-    // Clear legacy localStorage
-    localStorage.removeItem("zantara_conversation")
-    console.log("[ZANTARA] Started new conversation")
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(e.target.value)
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto"
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`
-    }
-  }
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader()
-      reader.onload = (e) => setUploadPreview(e.target?.result as string)
-      reader.readAsDataURL(file)
-    }
-  }
-
+  // Avatar upload handler
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file && file.type.startsWith("image/")) {
@@ -333,255 +173,66 @@ export default function ChatPage() {
     }
   }
 
+  // Check in/out handler
   const handleCheckInOut = () => {
     if (isCheckedIn) {
       setIsCheckedIn(false)
-      setCheckInTime(null)
       localStorage.removeItem("zantara_checkin")
     } else {
-      const now = new Date()
       setIsCheckedIn(true)
-      setCheckInTime(now)
-      localStorage.setItem("zantara_checkin", now.toISOString())
+      localStorage.setItem("zantara_checkin", new Date().toISOString())
     }
   }
 
-  const handleGenerateImage = async () => {
-    if (!imagePrompt.trim()) return
-
-    setIsGeneratingImage(true)
-    try {
-      const token = apiClient.getToken()
-
-      // Use Next.js Proxy instead of direct backend call
-      const response = await fetch('/api/image/generate', {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          prompt: imagePrompt,
-          number_of_images: 1,
-          aspect_ratio: "1:1",
-          safety_filter_level: "block_some",
-          person_generation: "allow_adult",
-        }),
-      })
-
-      const data = await response.json()
-      if (data.success && data.images?.length > 0) {
-        setGeneratedImage(data.images[0])
-      } else {
-        throw new Error(data.error || "No images generated")
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("[v0] Image generation error:", error)
-      alert(`Failed to generate image: ${error.message}`)
-    } finally {
-      setIsGeneratingImage(false)
-      setShowImageModal(false)
-      setImagePrompt("")
+  // File upload handler
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader()
+      reader.onload = (e) => setUploadPreview(e.target?.result as string)
+      reader.readAsDataURL(file)
     }
   }
 
+  // New chat handler
   const handleNewChat = async () => {
-    await handleNewConversation()
-    setIsSidebarOpen(false)
-  }
-
-  const handleSelectChat = (chatId: number) => {
-    // Mock: in production would load chat from backend
-    console.log("[v0] Selected chat:", chatId)
+    clearMessages()
+    try {
+      await chatAPI.clearHistory()
+    } catch (error) {
+      console.warn("[ZANTARA] Failed to clear backend history:", error)
+    }
     setIsSidebarOpen(false)
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a1a1a] via-[#2a2a2a] to-[#1a1a1a] text-white font-sans flex flex-col">
-      {isSidebarOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
-            onClick={() => setIsSidebarOpen(false)}
-          />
+      {/* Sidebar */}
+      <ChatSidebar
+        isOpen={isSidebarOpen}
+        previousChats={previousChats}
+        onNewChat={handleNewChat}
+        onSelectChat={(id) => {
+          console.log("Selected:", id)
+          setIsSidebarOpen(false)
+        }}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
-          <aside
-            className={`fixed left-0 top-0 h-full w-80 bg-[#1a1a1a]/95 backdrop-blur-md border-r border-gray-800/50 transform transition-transform duration-300 ease-in-out z-40 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-              }`}
-          >
-            <div className="p-6 h-full flex flex-col">
-              <button
-                onClick={handleNewChat}
-                className="w-full bg-gradient-to-r from-[#d4af37] to-[#f0c75e] hover:from-[#f0c75e] hover:to-[#d4af37] text-black py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] mb-6"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                New Chat
-              </button>
-
-              <div className="flex-1 overflow-y-auto">
-                <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3">Chat History</h3>
-                <div className="space-y-2">
-                  {previousChats.map((chat) => (
-                    <button
-                      key={chat.id}
-                      onClick={() => handleSelectChat(chat.id)}
-                      className="w-full px-4 py-3 bg-gray-800/40 hover:bg-gray-700/60 rounded-xl text-left transition-all duration-200 border border-gray-700/30 hover:border-[#d4af37]/30 group hover:scale-[1.02]"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate group-hover:text-[#d4af37] transition-colors">
-                            {chat.title}
-                          </div>
-                          <div className="text-xs text-gray-400 mt-1">{chat.date}</div>
-                        </div>
-                        <svg
-                          className="w-4 h-4 text-gray-600 group-hover:text-[#d4af37] transition-colors flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </aside>
-        </>
-      )}
-
+      {/* Main Content */}
       <div className={`flex flex-col h-screen transition-all duration-300 ${isSidebarOpen ? "ml-80" : "ml-0"}`}>
         {/* Header */}
-        <header className="flex items-center justify-between px-16 py-0 border-b border-gray-700/50 backdrop-blur-sm shrink-0 z-30 relative">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 hover:bg-gray-700/50 rounded-lg transition-all duration-300 hover:scale-110 group"
-              aria-label="Menu"
-            >
-              <svg
-                className={`w-6 h-6 transition-transform duration-300 ${isSidebarOpen ? "rotate-90" : ""}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-                />
-              </svg>
-            </button>
-
-            <button
-              onClick={handleCheckInOut}
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${isCheckedIn
-                ? "bg-green-500/20 border-2 border-green-500 text-green-400"
-                : "bg-gray-700/50 border-2 border-gray-600 text-gray-400 hover:border-[#d4af37]"
-                }`}
-              title={isCheckedIn ? "Check Out" : "Check In"}
-            >
-              {isCheckedIn ? (
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              )}
-            </button>
-
-            {/* CRM Context Badge */}
-            {crmContext && (
-              <div
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-full text-xs"
-                title={`CRM Client: ${crmContext.clientName} (${crmContext.status})`}
-              >
-                <svg className="w-4 h-4 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                <span className="text-[#d4af37] font-medium truncate max-w-[100px]">
-                  {crmContext.clientName}
-                </span>
-                {crmContext.practices && crmContext.practices.length > 0 && (
-                  <span className="bg-[#d4af37]/20 text-[#d4af37] px-1.5 py-0.5 rounded-full text-[10px]">
-                    {crmContext.practices.length} pratiche
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-
-          <img
-            src="/images/logo_zan.svg"
-            alt="ZANTARA"
-            className="h-24 w-auto mx-auto"
-          />
-
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <input
-                ref={avatarInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                className="hidden"
-              />
-              <button
-                onClick={() => avatarInputRef.current?.click()}
-                className="w-10 h-10 rounded-full overflow-hidden transition-all duration-300 hover:scale-110 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-600"
-                title="Click to upload avatar"
-              >
-                {avatarImage ? (
-                  <img src={avatarImage} alt="User" className="w-full h-full object-cover" />
-                ) : (
-                  <img
-                    src="/logo-zantara.svg"
-                    alt="ZANTARA"
-                    className="w-10 h-10 object-contain p-1"
-                  />
-                )}
-              </button>
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#2a2a2a] animate-pulse" />
-            </div>
-            {/* </CHANGE> */}
-            <button
-              onClick={handleLogout}
-              className="text-sm hover:text-[#d4af37] transition-colors font-serif flex items-center gap-1 group"
-            >
-              <span>Logout</span>
-              <svg
-                className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
-            </button>
-          </div>
-        </header>
+        <ChatHeader
+          user={user}
+          avatarImage={avatarImage}
+          isCheckedIn={isCheckedIn}
+          crmContext={crmContext}
+          isSidebarOpen={isSidebarOpen}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          onCheckInOut={handleCheckInOut}
+          onAvatarUpload={handleAvatarUpload}
+          onLogout={logout}
+        />
 
         {/* Golden Divider */}
         <div
@@ -593,317 +244,50 @@ export default function ChatPage() {
           }}
         />
 
+        {/* Messages Area */}
         <main className="flex-1 overflow-y-auto px-4 py-6">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center space-y-3 py-16 relative">
-              {/* AI Brain Background */}
-              <div
-                className="absolute inset-0 opacity-10"
-                style={{
-                  backgroundImage: 'url(/images/image_art/zantara_brain_transparent.png)',
-                  backgroundSize: 'contain',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat'
-                }}
-              />
-              <h1 className="text-3xl md:text-4xl font-bold tracking-wide animate-fade-in-down relative z-10">
-                <span className="text-white">Selamat datang di ZANTARA</span>
-              </h1>
-
-              <div className="relative py-4 w-full max-w-xl animate-fade-in">
-                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-transparent via-yellow-200 to-transparent shadow-[0_0_20px_rgba(254,240,138,0.8),0_0_40px_rgba(254,240,138,0.4)]" />
-              </div>
-
-              <div className="space-y-0 animate-fade-in-up">
-                <p className="text-xl md:text-2xl text-gray-300 italic font-serif leading-relaxed">
-                  Semoga kehadiran kami membawa cahaya dan kebijaksanaan
-                </p>
-                <p className="text-lg md:text-xl text-gray-400 italic font-serif">dalam perjalanan Anda</p>
-              </div>
-
-              <p className="text-sm text-gray-500 animate-fade-in animation-delay-400 mt-2">
-                Mulai percakapan dengan mengetik pesan Anda di bawah
-              </p>
-            </div>
+            <WelcomeScreen />
           ) : (
-            <div className="max-w-5xl mx-auto space-y-6">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex items-start gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"} animate-message-fade-in`}
-                >
-                  {msg.role === "user" && (
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-purple-600 via-purple-500 to-indigo-600 shadow-lg flex-shrink-0 flex items-center justify-center">
-                      {avatarImage ? (
-                        <img
-                          src={avatarImage || "/placeholder.svg"}
-                          alt="User"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            fillRule="evenodd"
-                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      )}
-                    </div>
-                  )}
-
-                  {msg.role === "assistant" && (
-                    <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-white/10 flex items-center justify-center">
-                      <img
-                        src="/images/logo_zan.svg"
-                        alt="Zantara AI"
-                        className="w-10 h-10 object-contain"
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex flex-col gap-1 max-w-[75%]">
-                    {msg.role === "user" ? (
-                      <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-br-md shadow-lg border border-gray-400/30">
-                        <div className="text-white text-base leading-relaxed">
-                          <MarkdownRenderer content={msg.content} />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
-                        <div className="text-white text-base leading-relaxed">
-                          <MarkdownRenderer content={msg.content} />
-                        </div>
-                      </div>
-                    )}
-
-                    <span className={`text-xs text-gray-500 px-2 ${msg.role === "user" ? "text-right" : "text-left"}`}>
-                      {new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ChatMessages
+              messages={messages}
+              streamingContent={streamingContent}
+              isLoading={isLoading}
+              avatarImage={avatarImage}
+            />
           )}
-
-          {streamingContent && (
-            <div className="flex items-start gap-3 justify-start animate-message-fade-in">
-              <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-white/10 flex items-center justify-center">
-                <img
-                  src="/images/logo_zan.svg"
-                  alt="Zantara AI"
-                  className="w-10 h-10 object-contain"
-                />
-              </div>
-
-              <div className="flex-1 max-w-[75%]">
-                <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
-                  <div className="text-white text-base leading-relaxed">
-                    <MarkdownRenderer content={streamingContent + " ▍"} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {isLoading && !streamingContent && (
-            <div className="flex items-start gap-3 justify-start">
-              <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-white/10 flex items-center justify-center">
-                <img
-                  src="/images/logo_zan.svg"
-                  alt="Zantara AI"
-                  className="w-10 h-10 object-contain"
-                />
-              </div>
-
-              <div className="flex-1 max-w-[75%]">
-                <div className="bg-gray-500/20 backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-bl-md shadow-lg border border-gray-400/30">
-                  <ThinkingIndicator />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
         </main>
 
-        <div className="shrink-0 border-t border-white/5 p-4 backdrop-blur-sm">
-          <div className="max-w-4xl mx-auto">
-            {uploadPreview && (
-              <div className="px-6 pt-4 pb-2 animate-fade-in">
-                <div className="relative inline-block group">
-                  <img
-                    src={uploadPreview || "/placeholder.svg"}
-                    alt="Upload preview"
-                    className="h-20 w-20 object-cover rounded-lg border-2 border-gray-600 shadow-lg"
-                  />
-                  <button
-                    onClick={() => setUploadPreview(null)}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Hidden file input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-
-            <form onSubmit={handleSubmit}>
-              <div className="relative group">
-                <div className="relative rounded-3xl p-[1px]">
-                  <div className="relative flex items-center gap-3 rounded-3xl bg-gray-600/30 backdrop-blur-sm p-4 border border-gray-500/20">
-                    <div className="relative flex-1">
-                      <textarea
-                        ref={textareaRef}
-                        value={input}
-                        onChange={handleInputChange}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Ketik pesan Anda..."
-                        className="w-full bg-transparent border-none outline-none resize-none text-white placeholder-gray-500 text-base leading-relaxed font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif]"
-                        rows={1}
-                        disabled={isLoading}
-                        style={{ minHeight: "32px", maxHeight: "120px" }}
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setShowImageModal(true)}
-                        disabled={isLoading}
-                        className="h-10 w-10 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
-                        aria-label="Generate image"
-                      >
-                        <img
-                          src="/images/imageb.svg"
-                          alt=""
-                          className="h-10 w-10 object-contain brightness-[1.6]"
-                        />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isLoading}
-                        className="h-10 w-10 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
-                        aria-label="Upload file"
-                      >
-                        <img
-                          src="/images/file_botton.svg"
-                          alt=""
-                          className="h-10 w-10 object-contain brightness-[1.6]"
-                        />
-                      </button>
-
-                      <button
-                        type="submit"
-                        disabled={isLoading || !input.trim()}
-                        className="h-10 w-10 flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110 active:scale-95 hover:brightness-125 flex items-center justify-center"
-                        aria-label="Send message"
-                      >
-                        <img
-                          src="/images/sendb.svg"
-                          alt=""
-                          className="h-10 w-10 object-contain brightness-[4.5]"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
+        {/* Input Area */}
+        <ChatInput
+          input={input}
+          isLoading={isLoading}
+          uploadPreview={uploadPreview}
+          onInputChange={(e) => setInput(e.target.value)}
+          onSubmit={handleSubmit}
+          onKeyDown={handleKeyDown}
+          onFileUpload={handleFileUpload}
+          onClearPreview={() => setUploadPreview(null)}
+          onOpenImageModal={() => setShowImageModal(true)}
+        />
       </div>
 
-      {showImageModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-gradient-to-br from-purple-900/90 via-indigo-900/90 to-purple-900/90 rounded-3xl shadow-2xl border-2 border-purple-400/30 p-8 max-w-lg w-full animate-scale-in backdrop-blur-xl">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white bg-gradient-to-r from-purple-200 to-pink-200 bg-clip-text text-transparent">
-                Generate Magical Image
-              </h3>
-              <button
-                onClick={() => setShowImageModal(false)}
-                className="text-white/60 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+      {/* Image Generation Modal */}
+      <ImageGenerationModal
+        isOpen={showImageModal}
+        imagePrompt={imagePrompt}
+        isGenerating={isGeneratingImage}
+        onClose={() => setShowImageModal(false)}
+        onPromptChange={setImagePrompt}
+        onGenerate={handleGenerateImage}
+      />
 
-            <div className="space-y-4">
-              <div className="relative">
-                <textarea
-                  value={imagePrompt}
-                  onChange={(e) => setImagePrompt(e.target.value)}
-                  placeholder="Describe your imagination... A dragon flying over a crystal city, an astronaut riding a unicorn..."
-                  className="w-full px-4 py-3 bg-black/30 border border-purple-400/30 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-400/50 resize-none h-32 backdrop-blur-sm"
-                  autoFocus
-                />
-                <div className="absolute bottom-2 right-2 text-xs text-white/40">{imagePrompt.length} chars</div>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowImageModal(false)}
-                  className="flex-1 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleGenerateImage}
-                  disabled={!imagePrompt.trim() || isGeneratingImage}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isGeneratingImage ? (
-                    <>
-                      <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                      </svg>
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                        />
-                      </svg>
-                      Generate
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-4 p-3 bg-purple-500/10 rounded-lg border border-purple-400/20">
-              <p className="text-xs text-purple-200/80">
-                Powered by Google Imagen AI - Your imagination brought to life with cutting-edge generative technology
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <RAGDrawer metadata={drawerMetadata} isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+      {/* RAG Drawer */}
+      <RAGDrawer
+        metadata={drawerMetadata}
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      />
     </div>
   )
 }

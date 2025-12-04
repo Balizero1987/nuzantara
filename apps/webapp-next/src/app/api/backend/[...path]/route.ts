@@ -17,7 +17,7 @@ async function proxyRequest(
   request: NextRequest,
   method: string,
   pathSegments: string[]
-): Promise<NextResponse> {
+): Promise<Response> {
   const path = '/' + pathSegments.join('/');
   const url = new URL(request.url);
   const queryString = url.search;
@@ -76,7 +76,21 @@ async function proxyRequest(
       );
     }
 
-    // Return successful response
+    // Check if response is SSE (Server-Sent Events) for streaming
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('text/event-stream') || path.includes('stream')) {
+      // Stream the response directly
+      return new Response(response.body, {
+        status: response.status,
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
+    }
+
+    // Return successful JSON response
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {

@@ -121,10 +121,20 @@ class RAGManager:
                 doc_text = result["text"][
                     :2500
                 ]  # Increased from 500 to leverage Gemini 2.5 Flash's large context window
-                doc_title = result.get("metadata", {}).get("title") or result.get(
-                    "metadata", {}
-                ).get("book_title", "Unknown")
-                doc_source = result.get("metadata", {}).get("source_collection", "Unknown")
+                metadata = result.get("metadata", {})
+                # Try multiple fields for document title (in order of preference)
+                doc_title = (
+                    metadata.get("title")
+                    or metadata.get("book_title")
+                    or metadata.get("section")
+                    or metadata.get("document_id")
+                    or metadata.get("source")
+                    or metadata.get("chunk_id")
+                    # Extract title from first line of text if no metadata
+                    or doc_text.split("\n")[0][:80].strip()
+                    or "Documento KB"
+                )
+                doc_source = metadata.get("source_collection") or metadata.get("collection", "KB")
                 collections_used.add(doc_source)
                 rag_docs.append(f"📄 [{doc_source}] {doc_title}: {doc_text}")
 

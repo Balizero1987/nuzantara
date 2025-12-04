@@ -1,0 +1,52 @@
+{
+  "test_date": "2025-12-03T03:59:01.833Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "General API Knowledge"
+  ],
+  "results": [
+    {
+      "category": "General API Knowledge",
+      "questions": [
+        {
+          "question": "Quali sono tutti i servizi API disponibili nel backend?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come posso vedere la lista completa degli endpoint disponibili?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Quali router sono montati nel backend FastAPI?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come funziona l'autenticazione nel backend?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        }
+      ],
+      "summary": {
+        "total_questions": 4,
+        "answered": 0,
+        "partial": 4,
+        "no_knowledge": 0,
+        "errors": 0
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 4,
+    "answered": 0,
+    "partial": 4,
+    "no_knowledge": 0,
+    "errors": 0
+  }
+}

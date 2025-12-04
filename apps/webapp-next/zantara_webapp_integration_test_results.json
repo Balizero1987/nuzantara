@@ -1,0 +1,121 @@
+{
+  "test_date": "2025-12-03T08:22:43.898Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "results": [
+    {
+      "scenario": "Basic Chat",
+      "message": "Ciao Zantara, come stai?",
+      "context": null,
+      "response": "Sono qui per assisterti. Come posso aiutarti oggi?",
+      "analysis": {
+        "hasServiceKnowledge": false,
+        "hasAccessInfo": false,
+        "hasNoAccess": false,
+        "mentionsTools": false,
+        "length": 50,
+        "preview": "Sono qui per assisterti. Come posso aiutarti oggi?"
+      },
+      "status": "success"
+    },
+    {
+      "scenario": "Service Knowledge Check",
+      "message": "Quali servizi backend sono disponibili?",
+      "context": null,
+      "response": "I servizi backend disponibili, basati sui requisiti operativi e i servizi della piattaforma, includono:\n\n*   **Elaborazione dei pagamenti:** sistema di deposito a garanzia (escrow) e integrazione con gateway di pagamento (Unknown).\n*   **Integrazione logistica:** partnership con servizi di corriere (Unknown).\n*   **Servizio clienti:** supporto per acquirenti e venditori (Unknown).\n*   **Meccanismo di risoluzione delle controversie:** gestione di rimborsi e reclami (Unknown).\n*   **Verifica del venditore:** prevenzione delle frodi (Unknown).\n*   **Sicurezza dei dati:** certificato SSL, crittografia e elaborazione sicura dei pagamenti (Unknown).\n*   **Listing sul marketplace:** per consentire ai venditori di elencare prodotti e agli acquirenti di navigare e acquistare (Unknown).",
+      "analysis": {
+        "hasServiceKnowledge": true,
+        "hasAccessInfo": false,
+        "hasNoAccess": false,
+        "mentionsTools": false,
+        "length": 787,
+        "preview": "I servizi backend disponibili, basati sui requisiti operativi e i servizi della piattaforma, includono:\n\n*   **Elaborazione dei pagamenti:** sistema di deposito a garanzia (escrow) e integrazione con "
+      },
+      "status": "success"
+    },
+    {
+      "scenario": "CRM Access Test",
+      "message": "Come posso accedere ai dati CRM di un cliente?",
+      "context": {
+        "session_id": "test_session_123",
+        "user_email": "test@balizero.com"
+      },
+      "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+      "analysis": {
+        "hasServiceKnowledge": false,
+        "hasAccessInfo": false,
+        "hasNoAccess": false,
+        "mentionsTools": false,
+        "length": 107,
+        "preview": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi."
+      },
+      "status": "success"
+    },
+    {
+      "scenario": "Memory Service Test",
+      "message": "Come funziona il servizio di memoria semantica?",
+      "context": {
+        "session_id": "test_session_123",
+        "user_email": "test@balizero.com",
+        "recent_memories": [
+          "Test memory 1",
+          "Test memory 2"
+        ]
+      },
+      "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+      "analysis": {
+        "hasServiceKnowledge": false,
+        "hasAccessInfo": false,
+        "hasNoAccess": false,
+        "mentionsTools": false,
+        "length": 107,
+        "preview": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi."
+      },
+      "status": "success"
+    },
+    {
+      "scenario": "Conversations Service Test",
+      "message": "Come posso salvare una conversazione nel database?",
+      "context": {
+        "session_id": "test_session_123",
+        "user_email": "test@balizero.com",
+        "crm_client_id": 1
+      },
+      "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+      "analysis": {
+        "hasServiceKnowledge": false,
+        "hasAccessInfo": false,
+        "hasNoAccess": false,
+        "mentionsTools": false,
+        "length": 107,
+        "preview": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi."
+      },
+      "status": "success"
+    },
+    {
+      "scenario": "Tool Execution Test",
+      "message": "Quali tools puoi eseguire per accedere ai servizi backend?",
+      "context": {
+        "session_id": "test_session_123",
+        "user_email": "test@balizero.com"
+      },
+      "response": "Per accedere ai servizi backend, la piattaforma ZANTARA v5.2.0 può eseguire i seguenti strumenti e integrazioni:\n\n*   **Accesso tramite API**: La piattaforma dispone di un'API con specifica OpenAPI (`/openapi.yaml`) (Piattaforma ZANTARA v5.2.0).\n*   **Integrazioni Workspace**: Sono disponibili integrazioni verificate con gli strumenti di Google Workspace, tra cui Drive, Docs, Sheets, Slides, Calendar, Gmail, Contacts e Maps (Piattaforma ZANTARA v5.2.0).\n*   **Servizio AI**: Utilizza un servizio `ai.chat` con fallback a diversi modelli (OpenAI, Claude, Groq, Gemini, Cohere) e handler dedicati (Piattaforma ZANTARA v5.2.0).",
+      "analysis": {
+        "hasServiceKnowledge": true,
+        "hasAccessInfo": true,
+        "hasNoAccess": false,
+        "mentionsTools": true,
+        "length": 628,
+        "preview": "Per accedere ai servizi backend, la piattaforma ZANTARA v5.2.0 può eseguire i seguenti strumenti e integrazioni:\n\n*   **Accesso tramite API**: La piattaforma dispone di un'API con specifica OpenAPI (`"
+      },
+      "status": "success"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "successful": 6,
+    "with_service_knowledge": 2,
+    "with_access_info": 1,
+    "mentions_tools": 1,
+    "no_access": 0
+  }
+}

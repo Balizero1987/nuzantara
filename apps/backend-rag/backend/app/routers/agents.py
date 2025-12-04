@@ -11,6 +11,8 @@ Performance Optimizations:
 - Redis caching (5 min TTL for status endpoints)
 - Rate limiting (prevents abuse)
 - Request deduplication
+
+SECURITY: All endpoints require authentication (added 2025-12-03)
 """
 
 import logging
@@ -19,7 +21,8 @@ from typing import Any
 
 # Import caching utilities
 from core.cache import cached
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 
 from services.auto_ingestion_orchestrator import AutoIngestionOrchestrator
@@ -35,6 +38,56 @@ from services.proactive_compliance_monitor import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/agents", tags=["agentic-functions"])
+
+# Security - JWT Authentication
+security = HTTPBearer(auto_error=False)
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> dict:
+    """
+    Validate JWT token and return current user.
+    Required for all agent endpoints.
+    """
+    if not credentials:
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required. Provide Bearer token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    try:
+        from jose import jwt, JWTError
+        from app.core.config import settings
+
+        token = credentials.credentials
+        payload = jwt.decode(
+            token,
+            settings.jwt_secret_key,
+            algorithms=["HS256"]
+        )
+
+        user_email = payload.get("sub") or payload.get("email")
+        if not user_email:
+            raise HTTPException(status_code=401, detail="Invalid token: missing user identifier")
+
+        return {
+            "email": user_email,
+            "user_id": payload.get("user_id", user_email),
+            "role": payload.get("role", "user"),
+            "permissions": payload.get("permissions", []),
+        }
+    except JWTError as e:
+        logger.warning(f"JWT validation failed: {e}")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from e
+    except Exception as e:
+        logger.error(f"Authentication error: {e}")
+        raise HTTPException(status_code=401, detail="Authentication failed") from e
 
 # Initialize agents that don't require dependencies
 journey_orchestrator = ClientJourneyOrchestrator()
@@ -53,7 +106,7 @@ auto_ingestion = AutoIngestionOrchestrator()
 
 @router.get("/status")
 @cached(ttl=300, prefix="agents_status")  # Cache for 5 minutes
-async def get_agents_status():
+async def get_agents_status(current_user: dict = Depends(get_current_user)):
     """
     Get status of all 10 agentic functions
 
@@ -120,7 +173,10 @@ class CreateJourneyRequest(BaseModel):
 
 
 @router.post("/journey/create")
-async def create_client_journey(request: CreateJourneyRequest):
+async def create_client_journey(
+    request: CreateJourneyRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """
     🎯 AGENT 1: Client Journey Orchestrator
 
@@ -149,7 +205,7 @@ async def create_client_journey(request: CreateJourneyRequest):
 
 
 @router.get("/journey/{journey_id}")
-async def get_journey(journey_id: str):
+async def get_journey(journey_id: str, current_user: dict = Depends(get_current_user)):
     """Get journey details and progress"""
     journey = journey_orchestrator.get_journey(journey_id)
     if not journey:
@@ -163,7 +219,12 @@ async def get_journey(journey_id: str):
 
 
 @router.post("/journey/{journey_id}/step/{step_id}/complete")
-async def complete_journey_step(journey_id: str, step_id: str, notes: str | None = None):
+async def complete_journey_step(
+    journey_id: str,
+    step_id: str,
+    notes: str | None = None,
+    current_user: dict = Depends(get_current_user)
+):
     """Mark a journey step as completed"""
     try:
         journey_orchestrator.complete_step(journey_id, step_id, notes)
@@ -177,7 +238,7 @@ async def complete_journey_step(journey_id: str, step_id: str, notes: str | None
 
 
 @router.get("/journey/{journey_id}/next-steps")
-async def get_next_steps(journey_id: str):
+async def get_next_steps(journey_id: str, current_user: dict = Depends(get_current_user)):
     """Get next available steps in the journey"""
     next_steps = journey_orchestrator.get_next_steps(journey_id)
     return {
@@ -203,7 +264,10 @@ class AddComplianceItemRequest(BaseModel):
 
 
 @router.post("/compliance/track")
-async def add_compliance_tracking(request: AddComplianceItemRequest):
+async def add_compliance_tracking(
+    request: AddComplianceItemRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """
     ⚠️ AGENT 2: Proactive Compliance Monitor
 
@@ -242,7 +306,10 @@ async def add_compliance_tracking(request: AddComplianceItemRequest):
 
 @router.get("/compliance/alerts")
 async def get_compliance_alerts(
-    client_id: str | None = None, severity: str | None = None, auto_notify: bool = False
+    client_id: str | None = None,
+    severity: str | None = None,
+    auto_notify: bool = False,
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Get upcoming compliance alerts
@@ -383,7 +450,7 @@ async def get_compliance_alerts(
 
 
 @router.get("/compliance/client/{client_id}")
-async def get_client_compliance(client_id: str):
+async def get_client_compliance(client_id: str, current_user: dict = Depends(get_current_user)):
     """Get all compliance items for a client"""
     items = compliance_monitor.get_client_items(client_id)
     return {
@@ -403,6 +470,7 @@ async def get_client_compliance(client_id: str):
 async def extract_knowledge_graph(
     request: Request,
     text: str = Query(..., description="Text to extract entities and relationships from"),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     🧠 AGENT 3: Knowledge Graph Builder
@@ -458,7 +526,7 @@ async def extract_knowledge_graph(
 
 
 @router.get("/knowledge-graph/export")
-async def export_knowledge_graph(format: str = "neo4j"):
+async def export_knowledge_graph(format: str = "neo4j", current_user: dict = Depends(get_current_user)):
     """
     Export knowledge graph in Neo4j-ready format
 
@@ -486,7 +554,11 @@ async def export_knowledge_graph(format: str = "neo4j"):
 
 
 @router.post("/ingestion/run")
-async def run_auto_ingestion(sources: list[str] | None = None, force: bool = False):
+async def run_auto_ingestion(
+    sources: list[str] | None = None,
+    force: bool = False,
+    current_user: dict = Depends(get_current_user)
+):
     """
     🤖 AGENT 4: Auto Ingestion Orchestrator
 
@@ -512,7 +584,7 @@ async def run_auto_ingestion(sources: list[str] | None = None, force: bool = Fal
 
 
 @router.get("/ingestion/status")
-async def get_ingestion_status():
+async def get_ingestion_status(current_user: dict = Depends(get_current_user)):
     """Get status of automatic ingestion service"""
     return {
         "success": True,
@@ -540,6 +612,7 @@ async def cross_oracle_synthesis(
         default=["tax", "legal", "property", "visa", "kbli"],
         description="Domains to search: tax, legal, property, visa, kbli",
     ),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     🔍 AGENT 5: Cross-Oracle Synthesis
@@ -602,7 +675,10 @@ async def cross_oracle_synthesis(
 
 @router.post("/pricing/calculate")
 async def calculate_dynamic_pricing(
-    service_type: str, complexity: str = "standard", urgency: str = "normal"
+    service_type: str,
+    complexity: str = "standard",
+    urgency: str = "normal",
+    current_user: dict = Depends(get_current_user),
 ):
     """
     💰 AGENT 6: Dynamic Pricing Service
@@ -621,7 +697,11 @@ async def calculate_dynamic_pricing(
 
 @router.post("/research/autonomous")
 async def run_autonomous_research(
-    request: Request, topic: str, depth: str = "standard", sources: list[str] | None = None
+    request: Request,
+    topic: str,
+    depth: str = "standard",
+    sources: list[str] | None = None,
+    current_user: dict = Depends(get_current_user),
 ):
     """
     🔬 AGENT 7: Autonomous Research Service
@@ -711,7 +791,7 @@ async def run_autonomous_research(
 
 @router.get("/analytics/summary")
 @cached(ttl=180, prefix="agents_analytics")  # Cache for 3 minutes
-async def get_analytics_summary():
+async def get_analytics_summary(current_user: dict = Depends(get_current_user)):
     """
     Get comprehensive analytics for all agentic functions
 

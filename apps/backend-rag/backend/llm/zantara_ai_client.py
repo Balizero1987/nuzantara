@@ -3,17 +3,9 @@ ZANTARA AI Client - Primary engine for all conversational AI
 
 AI Models Architecture:
 - PRIMARY: Google Gemini 2.5 Flash (unlimited on ULTRA plan)
-- JAKSEL: zeroai87/jaksel-ai (Gemma 9B) via Oracle Cloud
-Ollama
-  - Endpoint: https://jaksel.balizero.com
-  - Purpose: Indonesian Jaksel slang personality for specific
-users
-  - Connected via: SimpleJakselCaller in oracle_universal.py
 
 Configuration:
 - GOOGLE_API_KEY: API key for Gemini (primary)
-- JAKSEL_ORACLE_URL: Oracle Cloud tunnel for Jaksel (default:
-https://jaksel.balizero.com)
 
 UPDATED 2025-11-30:
 - Load rich system prompt from file
@@ -29,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from app.core.config import settings
-from backend.prompts.jaksel_builder import build_jaksel_system_prompt
+
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +38,7 @@ class ZantaraAIClient:
 
         AI Models:
         - PRIMARY: Google Gemini 2.5 Flash (production)
-        - JAKSEL: Gemma 9B via Oracle Cloud
-    (https://jaksel.balizero.com)
-          - Activated for specific users via SimpleJakselCaller
-          - Provides Indonesian Jaksel slang personality
+
 
         Provider: Google AI (Gemini) - native implementation
     """
@@ -482,22 +471,18 @@ CONTEXT USAGE INSTRUCTIONS:
         """
         logger.info(f"🌊 [ZantaraAI] Starting stream for user {user_id}")
 
-        # ✨ JAKSEL PERSONALITY: Build system prompt with few-shot examples
-        system, few_shot_messages = build_jaksel_system_prompt(
-            user_message=message,
+        # Standard streaming
+        system = self._build_system_prompt(
             memory_context=memory_context,
             identity_context=identity_context,
-            include_few_shot=True,
-            num_examples=6
         )
-        logger.info(f"🎭 [ZantaraAI] Jaksel personality enabled with {len(few_shot_messages)//2} few-shot examples")
+        few_shot_messages = [] # No few-shot for standard stream
 
         # DRY RUN LOGGING: Log full prompt assembly for debugging
         logger.debug("=" * 80)
-        logger.debug("🔍 [DRY RUN] Full Prompt Assembly for stream (JAKSEL MODE)")
+        logger.debug("🔍 [DRY RUN] Full Prompt Assembly for stream")
         logger.debug("=" * 80)
         logger.debug(f"System Prompt ({len(system)} chars):\n{system}")
-        logger.debug(f"Few-shot examples: {len(few_shot_messages)//2} pairs")
         logger.debug(f"User Message: {message}")
         if conversation_history:
             logger.debug(f"Conversation History ({len(conversation_history)} messages):")

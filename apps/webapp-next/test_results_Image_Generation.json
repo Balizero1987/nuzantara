@@ -1,0 +1,46 @@
+{
+  "test_date": "2025-12-03T08:24:22.101Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "Image Generation"
+  ],
+  "results": [
+    {
+      "category": "Image Generation",
+      "questions": [
+        {
+          "question": "Come posso generare immagini con Zantara?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Quale servizio di generazione immagini è disponibile?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come funziona l'integrazione con i servizi di image generation?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        }
+      ],
+      "summary": {
+        "total_questions": 3,
+        "answered": 0,
+        "partial": 3,
+        "no_knowledge": 0,
+        "errors": 0
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 3,
+    "answered": 0,
+    "partial": 3,
+    "no_knowledge": 0,
+    "errors": 0
+  }
+}

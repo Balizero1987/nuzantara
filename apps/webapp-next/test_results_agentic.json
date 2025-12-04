@@ -1,0 +1,58 @@
+{
+  "test_date": "2025-12-03T08:21:59.645Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "Agentic Functions"
+  ],
+  "results": [
+    {
+      "category": "Agentic Functions",
+      "questions": [
+        {
+          "question": "Quali funzioni agentiche sono disponibili nel sistema?",
+          "response": "Nel sistema sono disponibili funzioni agentiche per lo scraping giornaliero automatico. Specificamente, ci sono 5 agenti (TypeScript Agents) che eseguono lo scraping multi-domain in parallelo ogni giorno alle 02:00 AM (Unknown).",
+          "status": "answered",
+          "length": 228
+        },
+        {
+          "question": "Come posso creare un client journey automatizzato?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come funziona il monitoraggio proattivo della compliance?",
+          "response": "Il monitoraggio proattivo della compliance funziona attraverso le seguenti attività di controllo post-arrivo (8.4 Visa Compliance Monitoring):\n\n*   **Controlli casuali**: L'immigrazione effettua controlli casuali sui titolari di KITAS.\n*   **Visite in loco al datore di lavoro**: Vengono effettuate visite per verificare che i lavoratori stranieri (TKA) operino nella sede dichiarata.\n*   **Verifica dell'indirizzo**: Viene controllato che il titolare del KITAS risieda all'indirizzo registrato.",
+          "status": "answered",
+          "length": 495
+        },
+        {
+          "question": "Come posso calcolare il pricing dinamico per un servizio?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come funziona la ricerca cross-oracle synthesis?",
+          "response": "La ricerca cross-oracle synthesis funziona attraverso un backend RAG (Retrieval-Augmented Generation) che interroga diverse collezioni di ChromaDB, ognuna dedicata a un'area specifica. Queste collezioni includono:\n\n*   `visa_oracle_kb`\n*   `legal_architect_kb`\n*   `kbli_codes_kb`\n*   `tax_genius_kb`\n*   `property_sage_kb`\n\nDopo aver recuperato i dati pertinenti da queste fonti, un modello come Claude genera la risposta utilizzando le informazioni ottenute (Unknown).",
+          "status": "answered",
+          "length": 470
+        }
+      ],
+      "summary": {
+        "total_questions": 5,
+        "answered": 3,
+        "partial": 2,
+        "no_knowledge": 0,
+        "errors": 0
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 5,
+    "answered": 3,
+    "partial": 2,
+    "no_knowledge": 0,
+    "errors": 0
+  }
+}

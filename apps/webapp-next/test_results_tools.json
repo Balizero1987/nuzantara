@@ -1,0 +1,52 @@
+{
+  "test_date": "2025-12-03T08:21:24.567Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "Tools & Handlers"
+  ],
+  "results": [
+    {
+      "category": "Tools & Handlers",
+      "questions": [
+        {
+          "question": "Quali tools sono disponibili per Zantara?",
+          "response": "Per il sistema Zantara sono disponibili i seguenti strumenti e componenti (ZANTARA Agent Scraping System - Complete Workflow):\n\n*   **Agenti di Scraping**:\n    *   `visa-oracle-scraper.ts`\n    *   `legal-architect-scraper.ts`\n    *   `kbli-eye-scraper.ts`\n    *   `tax-genius-scraper.ts`\n    *   `property-sage-scraper.ts`\n*   **Servizi**:\n    *   `ollama-processor.ts`\n    *   `email-notifier.ts`\n    *   `chromadb-uploader.ts` (wrapper Python)\n*   **Processo Cron**:\n    *   `daily-knowledge-update.ts`",
+          "status": "answered",
+          "length": 504
+        },
+        {
+          "question": "Come funziona il sistema di tool execution?",
+          "response": "Il sistema di esecuzione degli strumenti di Zantara, denominato \"ZANTARA Agent Scraping System - Complete Workflow\", è strutturato come segue:\n\n*   **Agenti di Scraping**: Questi agenti sono responsabili della raccolta di dati specifici:\n    *   `visa-oracle-scraper.ts`\n    *   `legal-architect-scraper.ts`\n    *   `kbli-eye-scraper.ts`\n    *   `tax-genius-scraper.ts`\n    *   `property-sage-scraper.ts`\n*   **Servizi**: Questi componenti elaborano o gestiscono i dati raccolti:\n    *   `ollama-processor.ts`: Probabilmente per l'elaborazione tramite modelli linguistici.\n    *   `email-notifier.ts`: Per l'invio di notifiche via email.\n    *   `chromadb-uploader.ts`: Un wrapper Python per il caricamento di dati in ChromaDB.\n*   **Processo Cron**:\n    *   `daily-knowledge-update.ts`: Questo processo automatizzato gestisce gli aggiornamenti quotidiani della conoscenza, coordinando probabilmente l'esecuzione degli agenti di scraping e dei servizi.",
+          "status": "answered",
+          "length": 952
+        },
+        {
+          "question": "Quali handlers TypeScript sono disponibili?",
+          "response": "I seguenti handler TypeScript sono disponibili all'interno del sistema Zantara (ZANTARA Agent Scraping System - Complete Workflow):\n\n*   **Agenti di Scraping**:\n    *   `visa-oracle-scraper.ts`\n    *   `legal-architect-scraper.ts`\n    *   `kbli-eye-scraper.ts`\n    *   `tax-genius-scraper.ts`\n    *   `property-sage-scraper.ts`\n*   **Servizi**:\n    *   `ollama-processor.ts`\n    *   `email-notifier.ts`\n    *   `chromadb-uploader.ts`\n*   **Cron**:\n    *   `daily-knowledge-update.ts`\n*   **Admin**:\n    *   `review-portal.ts`",
+          "status": "answered",
+          "length": 525
+        },
+        {
+          "question": "Come posso eseguire un tool tramite il backend?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        }
+      ],
+      "summary": {
+        "total_questions": 4,
+        "answered": 3,
+        "partial": 1,
+        "no_knowledge": 0,
+        "errors": 0
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 4,
+    "answered": 3,
+    "partial": 1,
+    "no_knowledge": 0,
+    "errors": 0
+  }
+}

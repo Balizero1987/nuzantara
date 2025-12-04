@@ -1,0 +1,52 @@
+{
+  "test_date": "2025-12-03T08:24:02.985Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "Ingestion"
+  ],
+  "results": [
+    {
+      "category": "Ingestion",
+      "questions": [
+        {
+          "question": "Come posso ingerire nuovi documenti nella knowledge base?",
+          "response": "Per ingerire nuovi documenti nella knowledge base, seguire i seguenti passaggi:\n\n1.  **Revisione Dati**: Il \"Collaboratore Bali Zero\" deve revisionare i dati attraverso il portale o i file. (Unknown)\n2.  **Accesso Interfaccia Web**: Accedere all'interfaccia web all'indirizzo `https://zantara-admin.balizero.com/review/YYYY-MM-DD`. (Unknown)\n3.  **Azioni sui Documenti**: Nell'interfaccia, è possibile eseguire le seguenti azioni:\n    *   Approvare tutti i documenti (azione di massa).\n    *   Approvare documenti selezionati (tramite checkbox).\n    *   Rifiutare documenti (specificando una ragione).\n    *   Modificare documenti (per correggere errori di battitura o dati). (Unknown)\n4.  **Caricamento su ChromaDB**: Una volta che i documenti sono stati revisionati e approvati/modificati, cliccare sul pulsante \"UPLOAD SELECTED TO CHROMADB\". (Unknown)",
+          "status": "answered",
+          "length": 854
+        },
+        {
+          "question": "Quali formati di documenti sono supportati per l'ingestion?",
+          "response": "I documenti supportati per l'ingestion nella knowledge base sono:\n\n*   **PDF** (Unknown)\n*   **Markdown (.md)** (Unknown)",
+          "status": "unclear",
+          "length": 121
+        },
+        {
+          "question": "Come funziona il processo di ingestion automatica?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come posso ingerire documenti legali o fiscali?",
+          "response": "Per ingerire documenti legali o fiscali, si segue il processo generale di ingestion dei nuovi documenti. Questo processo include:\n\n1.  **Revisione Dati**: Il \"Collaboratore Bali Zero\" deve revisionare i dati attraverso il portale o i file. (Unknown)\n2.  **Accesso Interfaccia Web**: Accedere all'interfaccia web all'indirizzo `https://zantara-admin.balizero.com/review/YYYY-MM-DD`. (Unknown)\n3.  **Azioni sui Documenti**: Nell'interfaccia, è possibile eseguire le seguenti azioni:\n    *   Approvare tutti i documenti (azione di massa).\n    *   Approvare documenti selezionati (tramite checkbox).\n    *   Rifiutare documenti (specificando una ragione).\n    *   Modificare documenti (per correggere errori di battitura o dati). (Unknown)\n4.  **Caricamento su ChromaDB**: Una volta che i documenti sono stati revisionati e approvati/modificati, cliccare sul pulsante \"UPLOAD SELECTED TO CHROMADB\". (Unknown)\n\nTra i documenti che possono essere raccolti e ingeriti rientrano elementi di natura legale o fiscale come:\n\n*   Atto costitutivo PT PMA, NIB, dati OSS (Unknown: Documenti da raccogliere)\n*   Titoli immobiliari/locazione (Unknown: Documenti da raccogliere)\n*   Valutazione ambientale (UKL‑UPL/AMDAL) (Unknown: Documenti da raccogliere)\n*   Mandati di gestione, policy locazioni, registri conduttori, procedure KYC base (Unknown: Documenti)\n*   Assicurazioni property/responsabilità civile (Unknown: Documenti)",
+          "status": "answered",
+          "length": 1414
+        }
+      ],
+      "summary": {
+        "total_questions": 4,
+        "answered": 2,
+        "partial": 2,
+        "no_knowledge": 0,
+        "errors": 0
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 4,
+    "answered": 2,
+    "partial": 2,
+    "no_knowledge": 0,
+    "errors": 0
+  }
+}

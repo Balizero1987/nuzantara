@@ -1,0 +1,52 @@
+{
+  "test_date": "2025-12-04T06:39:02.653Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "General API Knowledge"
+  ],
+  "results": [
+    {
+      "category": "General API Knowledge",
+      "questions": [
+        {
+          "question": "Quali sono tutti i servizi API disponibili nel backend?",
+          "response": null,
+          "status": "error",
+          "error": "Client network socket disconnected before secure TLS connection was established"
+        },
+        {
+          "question": "Come posso vedere la lista completa degli endpoint disponibili?",
+          "response": null,
+          "status": "error",
+          "error": "Client network socket disconnected before secure TLS connection was established"
+        },
+        {
+          "question": "Quali router sono montati nel backend FastAPI?",
+          "response": null,
+          "status": "error",
+          "error": "Client network socket disconnected before secure TLS connection was established"
+        },
+        {
+          "question": "Come funziona l'autenticazione nel backend?",
+          "response": null,
+          "status": "error",
+          "error": "Client network socket disconnected before secure TLS connection was established"
+        }
+      ],
+      "summary": {
+        "total_questions": 4,
+        "answered": 0,
+        "partial": 0,
+        "no_knowledge": 0,
+        "errors": 4
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 4,
+    "answered": 0,
+    "partial": 0,
+    "no_knowledge": 0,
+    "errors": 4
+  }
+}

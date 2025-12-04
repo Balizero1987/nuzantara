@@ -1,0 +1,46 @@
+{
+  "test_date": "2025-12-03T08:24:54.920Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "Productivity"
+  ],
+  "results": [
+    {
+      "category": "Productivity",
+      "questions": [
+        {
+          "question": "Quali servizi di produttività sono disponibili?",
+          "response": "I servizi disponibili che rientrano nella categoria \"Consulenza & Creativi\" includono:\n\n*   Consulenza (KBLI 70201)\n*   Pubblicità (KBLI 73100)\n*   Fotografia (KBLI 7420x)\n*   Architettura e ingegneria (KBLI 71101/71102)\n*   Contabilità (KBLI 69200)\n\nQuesti servizi sono indicati per servizi B2B/B2C, go-to-market e studi tecnici (Unknown: Consulenza & Creativi).",
+          "status": "unclear",
+          "length": 363
+        },
+        {
+          "question": "Come posso tracciare le attività del team?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come funziona il sistema di check-in/check-out?",
+          "response": "Il sistema di check-in/check-out si riferisce al processo di dichiarazione e controllo immigrazione per l'ingresso e l'uscita dall'Indonesia, che include un sistema di QR code e biometria.\n\nEcco come funziona:\n\n**1. Preparazione Prima dell'Arrivo (Online Submission)**\n*   **Quando inviare**:\n    *   Il più presto: 3 giorni (72 ore) prima dell'arrivo (Unknown).\n    *   Il più tardi: All'arrivo in aeroporto (non raccomandato per evitare ritardi) (Unknown).\n    *   Raccomandazione: 24-48 ore prima del volo per gestire eventuali problemi tecnici (Unknown).\n*   **Processo di invio**: Cliccare \"Submit\" dopo aver completato i dati online. Il tempo di elaborazione è di 5-10 minuti (Unknown).\n*   **Ricezione QR Code**: Si riceve un'email di conferma con un QR code in formato PDF (Unknown). Questo codice è unico per ogni viaggio (Unknown).\n*   **Salvataggio**: Salvare il QR code sul telefono o stamparlo (Unknown).\n*   **Validità QR Code**: Dalla data di invio fino a 3 giorni dopo l'arrivo (finestra flessibile) (Unknown).\n*   **Costo**: Il servizio è GRATUITO (Unknown).\n*   **Obbligatorietà**: Obbligatorio per tutti i cittadini stranieri (titolari di VOA, visa-free, VITAS). I cittadini indonesiani sono esenti (Unknown).\n\n**2. All'Arrivo in Indonesia (Check-in)**\n*   **Processo immigrazione**:\n    1.  Dopo lo sbarco, procedere all'immigrazione (Unknown).\n    2.  L'ufficiale dell'immigrazione richiederà il QR code (Unknown).\n    3.  Mostrare il QR code (da telefono o stampato) (Unknown).\n    4.  L'ufficiale scansiona il QR code, visualizzando la dichiarazione (Unknown).\n    5.  Scansione biometrica (impronta digitale, foto) (Unknown).\n    6.  L'ufficiale timbra il passaporto (se non ci sono problemi) (Unknown).\n*   **Benefici**: Il processo è più veloce (1-2 minuti rispetto ai 5-10 minuti con i vecchi moduli cartacei) e la clearance è più rapida (riduzione stimata del 30% del tempo) (Unknown).\n*   **Biometria**: Il sistema include la scansione delle impronte digitali in tutti gli aeroporti internazionali e il riconoscimento facciale ai gate di arrivo/partenza. I dati biometrici di tutti gli stranieri in ingresso in Indonesia vengono acquisiti e archiviati in un database centrale dell'immigrazione. Questo sistema è obbligatorio dal 2018 ed è stato ampliato nel 2025 (Unknown).\n\n**3. Sistema di Check-out e Rilevamento Overstay**\n*   **Rilevamento overstay**: Il sistema biometrico esegue un controllo incrociato automatico con il database delle scadenze dei visti e genera avvisi in tempo reale per chi tenta di uscire con un overstay (Unknown).\n*   **Impatto**: C'è un tasso di rilevamento del 100% degli overstay negli aeroporti. Gli overstayer non possono uscire senza autorizzazione (i gate automatizzati bloccano l'uscita). È necessario recarsi a un banco immigrazione manuale per il pagamento delle multe per overstay (Unknown).\n\nIl sistema \"All Indonesia Arrival Card System\" è diventato obbligatorio dal 1° ottobre 2025 (Unknown).Scusi, ho riscontrato un problema di connessione con i servizi di intelligenza artificiale. Provi di tra qualche istante o contatti il supporto tecnico se il problema persiste. ",
+          "status": "no_knowledge",
+          "length": 3141
+        }
+      ],
+      "summary": {
+        "total_questions": 3,
+        "answered": 0,
+        "partial": 2,
+        "no_knowledge": 1,
+        "errors": 0
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 3,
+    "answered": 0,
+    "partial": 2,
+    "no_knowledge": 1,
+    "errors": 0
+  }
+}

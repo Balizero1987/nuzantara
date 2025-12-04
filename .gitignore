@@ -210,6 +210,7 @@ madge-output.json
 # Test e development folders
 eval/
 datasets/
+!tests/datasets/
 models_ft/
 test_memory/
 indonesian_laws_download/
@@ -288,3 +289,9 @@ models/
 apps/backend-rag/oracle_ssh_key
 oracle_zantara_key.pem
 .coverage
+!apps/scraper/targeted_scraper.py
+!apps/scraper/*.png
+!apps/scraper/visa_scraper.py
+!apps/scraper/debug_google_*.png
+!apps/scraper/debug_ddg_*.png
+!debug_ddg_*.html

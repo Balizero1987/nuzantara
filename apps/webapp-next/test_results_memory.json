@@ -1,0 +1,52 @@
+{
+  "test_date": "2025-12-03T04:01:02.500Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "Memory Service"
+  ],
+  "results": [
+    {
+      "category": "Memory Service",
+      "questions": [
+        {
+          "question": "Come funziona il servizio di memoria semantica vettoriale?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come posso cercare memorie rilevanti per una query usando embeddings?",
+          "response": "La ricerca di memorie rilevanti per una query tramite embeddings avviene attraverso il seguente processo:\n\n*   I dati sono caricati in collezioni all'interno di ChromaDB (Unknown).\n*   Vengono utilizzati modelli di embedding come `SentenceTransformer all-MiniLM-L6-v2` o `Ollama nomic-embed-text` (Unknown).\n*   Il RAG Backend interroga ChromaDB per recuperare i dati pertinenti (Unknown).\n\nQuesto processo consente di trovare informazioni rilevanti basandosi sulla similarità vettoriale delle embeddings.",
+          "status": "answered",
+          "length": 505
+        },
+        {
+          "question": "Come posso salvare una nuova memoria vettoriale?",
+          "response": "Le nuove memorie vettoriali vengono salvate caricando i dati in collezioni all'interno di ChromaDB (Unknown).",
+          "status": "unclear",
+          "length": 109
+        },
+        {
+          "question": "Quale database vettoriale viene usato per le memorie?",
+          "response": "Il database vettoriale utilizzato per le memorie è ChromaDB (Unknown).",
+          "status": "partial",
+          "length": 70
+        }
+      ],
+      "summary": {
+        "total_questions": 4,
+        "answered": 1,
+        "partial": 3,
+        "no_knowledge": 0,
+        "errors": 0
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 4,
+    "answered": 1,
+    "partial": 3,
+    "no_knowledge": 0,
+    "errors": 0
+  }
+}
