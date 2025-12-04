@@ -191,9 +191,9 @@ def main():
 
     # Summary
     total_updated = sum(r.get("updated", 0) for r in results.values())
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("📊 RIEPILOGO")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     print(f"Documenti aggiornati: {total_updated}")
     print("\n✅ Aggiornamento completato!")
 

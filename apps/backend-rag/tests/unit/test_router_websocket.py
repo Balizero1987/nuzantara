@@ -441,9 +441,11 @@ class TestWebSocketEndpoint:
     @pytest.mark.asyncio
     async def test_websocket_rejects_invalid_token(self, mock_settings, mock_websocket):
         """Test that WebSocket endpoint rejects invalid token"""
-        with patch("app.routers.websocket.settings", mock_settings), patch(
-            "app.routers.websocket.get_current_user_ws", AsyncMock(return_value=None)
-        ), patch("app.routers.websocket.logger"):
+        with (
+            patch("app.routers.websocket.settings", mock_settings),
+            patch("app.routers.websocket.get_current_user_ws", AsyncMock(return_value=None)),
+            patch("app.routers.websocket.logger"),
+        ):
             from app.routers.websocket import websocket_endpoint
 
             await websocket_endpoint(mock_websocket, token="invalid-token")
@@ -460,9 +462,11 @@ class TestWebSocketEndpoint:
 
         mock_websocket.receive_text = AsyncMock(side_effect=WebSocketDisconnect())
 
-        with patch("app.routers.websocket.settings", mock_settings), patch(
-            "app.routers.websocket.manager"
-        ) as mock_manager, patch("app.routers.websocket.logger"):
+        with (
+            patch("app.routers.websocket.settings", mock_settings),
+            patch("app.routers.websocket.manager") as mock_manager,
+            patch("app.routers.websocket.logger"),
+        ):
             mock_manager.connect = AsyncMock()
             mock_manager.disconnect = AsyncMock()
 
@@ -484,9 +488,10 @@ class TestRedisListener:
     @pytest.mark.asyncio
     async def test_redis_listener_disabled_without_url(self, mock_settings_no_redis):
         """Test that Redis listener is disabled without URL"""
-        with patch("app.routers.websocket.settings", mock_settings_no_redis), patch(
-            "app.routers.websocket.logger"
-        ) as mock_logger:
+        with (
+            patch("app.routers.websocket.settings", mock_settings_no_redis),
+            patch("app.routers.websocket.logger") as mock_logger,
+        ):
             from app.routers.websocket import redis_listener
 
             await redis_listener()
@@ -516,10 +521,11 @@ class TestRedisListener:
         mock_redis.pubsub = MagicMock(return_value=mock_pubsub)
         mock_redis.close = AsyncMock()
 
-        with patch("app.routers.websocket.settings", mock_settings), patch(
-            "app.routers.websocket.redis.from_url", return_value=mock_redis
-        ), patch("app.routers.websocket.manager") as mock_manager, patch(
-            "app.routers.websocket.logger"
+        with (
+            patch("app.routers.websocket.settings", mock_settings),
+            patch("app.routers.websocket.redis.from_url", return_value=mock_redis),
+            patch("app.routers.websocket.manager") as mock_manager,
+            patch("app.routers.websocket.logger"),
         ):
             mock_manager.send_personal_message = AsyncMock()
 
@@ -553,10 +559,11 @@ class TestRedisListener:
         mock_redis.pubsub = MagicMock(return_value=mock_pubsub)
         mock_redis.close = AsyncMock()
 
-        with patch("app.routers.websocket.settings", mock_settings), patch(
-            "app.routers.websocket.redis.from_url", return_value=mock_redis
-        ), patch("app.routers.websocket.manager") as mock_manager, patch(
-            "app.routers.websocket.logger"
+        with (
+            patch("app.routers.websocket.settings", mock_settings),
+            patch("app.routers.websocket.redis.from_url", return_value=mock_redis),
+            patch("app.routers.websocket.manager") as mock_manager,
+            patch("app.routers.websocket.logger"),
         ):
             mock_manager.send_personal_message = AsyncMock()
 
@@ -588,10 +595,11 @@ class TestRedisListener:
         mock_redis.pubsub = MagicMock(return_value=mock_pubsub)
         mock_redis.close = AsyncMock()
 
-        with patch("app.routers.websocket.settings", mock_settings), patch(
-            "app.routers.websocket.redis.from_url", return_value=mock_redis
-        ), patch("app.routers.websocket.manager") as mock_manager, patch(
-            "app.routers.websocket.logger"
+        with (
+            patch("app.routers.websocket.settings", mock_settings),
+            patch("app.routers.websocket.redis.from_url", return_value=mock_redis),
+            patch("app.routers.websocket.manager") as mock_manager,
+            patch("app.routers.websocket.logger"),
         ):
             mock_manager.broadcast = AsyncMock()
 
@@ -624,10 +632,11 @@ class TestRedisListener:
         mock_redis.pubsub = MagicMock(return_value=mock_pubsub)
         mock_redis.close = AsyncMock()
 
-        with patch("app.routers.websocket.settings", mock_settings), patch(
-            "app.routers.websocket.redis.from_url", return_value=mock_redis
-        ), patch("app.routers.websocket.manager") as mock_manager, patch(
-            "app.routers.websocket.logger"
+        with (
+            patch("app.routers.websocket.settings", mock_settings),
+            patch("app.routers.websocket.redis.from_url", return_value=mock_redis),
+            patch("app.routers.websocket.manager") as mock_manager,
+            patch("app.routers.websocket.logger"),
         ):
             mock_manager.send_personal_message = AsyncMock()
 
@@ -655,9 +664,11 @@ class TestRedisListener:
         mock_redis.pubsub = MagicMock(return_value=mock_pubsub)
         mock_redis.close = AsyncMock()
 
-        with patch("app.routers.websocket.settings", mock_settings), patch(
-            "app.routers.websocket.redis.from_url", return_value=mock_redis
-        ), patch("app.routers.websocket.logger") as mock_logger:
+        with (
+            patch("app.routers.websocket.settings", mock_settings),
+            patch("app.routers.websocket.redis.from_url", return_value=mock_redis),
+            patch("app.routers.websocket.logger") as mock_logger,
+        ):
             from app.routers.websocket import redis_listener
 
             await redis_listener()

@@ -1,6 +1,0 @@
-packages:
-  - "apps/backend-rag"
-  - "apps/bali-intel-scraper"
-  - "apps/memory-service"
-  - "apps/webapp-next"
-  - "packages/*"

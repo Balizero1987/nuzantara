@@ -155,14 +155,14 @@ class ClientValuePredictor:
         prompt = f"""Generate a personalized WhatsApp message to nurture this client:
 
 Client Profile:
-- Name: {client_data['name']}
-- Segment: {client_data['segment']}
-- LTV Score: {client_data['ltv_score']}/100
-- Risk Level: {client_data['risk_level']}
-- Days Since Last Contact: {client_data['days_since_last_interaction']}
-- Total Interactions: {client_data['total_interactions']}
-- Practice Count: {client_data.get('practice_count', 0)}
-- Avg Sentiment: {client_data['sentiment_score']}/100
+- Name: {client_data["name"]}
+- Segment: {client_data["segment"]}
+- LTV Score: {client_data["ltv_score"]}/100
+- Risk Level: {client_data["risk_level"]}
+- Days Since Last Contact: {client_data["days_since_last_interaction"]}
+- Total Interactions: {client_data["total_interactions"]}
+- Practice Count: {client_data.get("practice_count", 0)}
+- Avg Sentiment: {client_data["sentiment_score"]}/100
 
 Guidelines:
 1. Warm and personal tone (use their name)
@@ -311,10 +311,10 @@ Output ONLY the message text, no explanations."""
                 json={
                     "text": f"""💰 Daily Client Nurturing Report
 
-VIP Clients Nurtured: {results['vip_nurtured']}
-High-Risk Contacted: {results['high_risk_contacted']}
-Total Messages Sent: {results['total_messages_sent']}
-Errors: {len(results['errors'])}
+VIP Clients Nurtured: {results["vip_nurtured"]}
+High-Risk Contacted: {results["high_risk_contacted"]}
+Total Messages Sent: {results["total_messages_sent"]}
+Errors: {len(results["errors"])}
 
 All clients scored and segmented automatically!
 """

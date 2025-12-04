@@ -56,6 +56,10 @@ Copy the environment template:
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
+
+# Service-specific templates
+cp apps/backend-rag/.env.example apps/backend-rag/.env
+cp apps/webapp-next/.env.example apps/webapp-next/.env.local
 ```
 
 ### 3. Install Dependencies
@@ -69,6 +73,8 @@ cd apps/backend-rag
 pip install -r requirements.txt
 cd ../..
 ```
+
+> **Package manager:** the monorepo now standardizes on npm workspaces. Use `npm install` / `npm run <script>` everywhere—pnpm/yarn lockfiles have been removed to avoid drift.
 
 ### 4. Database Setup
 

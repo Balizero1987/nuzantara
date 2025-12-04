@@ -161,13 +161,17 @@ async def test_send_notification_auto_select_channels(
     sample_notification.channels = []
     sample_notification.priority = NotificationPriority.HIGH
 
-    with patch.object(
-        notification_hub_instance, "_send_email", new_callable=AsyncMock
-    ) as mock_email, patch.object(
-        notification_hub_instance, "_send_whatsapp", new_callable=AsyncMock
-    ) as mock_whatsapp, patch.object(
-        notification_hub_instance, "_send_in_app", new_callable=AsyncMock
-    ) as mock_in_app:
+    with (
+        patch.object(
+            notification_hub_instance, "_send_email", new_callable=AsyncMock
+        ) as mock_email,
+        patch.object(
+            notification_hub_instance, "_send_whatsapp", new_callable=AsyncMock
+        ) as mock_whatsapp,
+        patch.object(
+            notification_hub_instance, "_send_in_app", new_callable=AsyncMock
+        ) as mock_in_app,
+    ):
         mock_email.return_value = {"success": True}
         mock_whatsapp.return_value = {"success": True}
         mock_in_app.return_value = {"success": True}
@@ -559,11 +563,12 @@ async def test_send_notification_partial_failure(notification_hub_instance, samp
     notification_hub_instance.channels_config["email"]["enabled"] = True
     notification_hub_instance.channels_config["sms"]["enabled"] = True
 
-    with patch.object(
-        notification_hub_instance, "_send_email", new_callable=AsyncMock
-    ) as mock_email, patch.object(
-        notification_hub_instance, "_send_sms", new_callable=AsyncMock
-    ) as mock_sms:
+    with (
+        patch.object(
+            notification_hub_instance, "_send_email", new_callable=AsyncMock
+        ) as mock_email,
+        patch.object(notification_hub_instance, "_send_sms", new_callable=AsyncMock) as mock_sms,
+    ):
         mock_email.return_value = {"success": True}
         mock_sms.return_value = {"success": False, "error": "SMS service down"}
 
@@ -1002,20 +1007,22 @@ def test_create_notification_template_title_keyerror():
         "priority": NotificationPriority.NORMAL,
     }
 
-    with patch(
-        "services.notification_hub.NOTIFICATION_TEMPLATES",
-        {"test_template": template_with_missing_key},
+    with (
+        patch(
+            "services.notification_hub.NOTIFICATION_TEMPLATES",
+            {"test_template": template_with_missing_key},
+        ),
+        patch("services.notification_hub.logger") as mock_logger,
     ):
-        with patch("services.notification_hub.logger") as mock_logger:
-            notification = create_notification_from_template(
-                template_id="test_template",
-                recipient_id="user123",
-                template_data={"other_key": "value"},  # Missing 'missing_key'
-            )
+        notification = create_notification_from_template(
+            template_id="test_template",
+            recipient_id="user123",
+            template_data={"other_key": "value"},  # Missing 'missing_key'
+        )
 
-            # Should fallback to original title
-            assert notification.title == "Hello {missing_key}"
-            mock_logger.warning.assert_called()
+        # Should fallback to original title
+        assert notification.title == "Hello {missing_key}"
+        mock_logger.warning.assert_called()
 
 
 def test_create_notification_template_message_empty_template_data():

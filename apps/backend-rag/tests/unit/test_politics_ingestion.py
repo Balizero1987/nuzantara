@@ -82,9 +82,11 @@ SAMPLE_LAW_RECORD = {
 @pytest.fixture
 def politics_ingestion_service():
     """Create PoliticsIngestionService instance"""
-    with patch("services.politics_ingestion.EmbeddingsGenerator"), patch(
-        "services.politics_ingestion.QdrantClient"
-    ), patch("services.politics_ingestion.logger"):
+    with (
+        patch("services.politics_ingestion.EmbeddingsGenerator"),
+        patch("services.politics_ingestion.QdrantClient"),
+        patch("services.politics_ingestion.logger"),
+    ):
         service = PoliticsIngestionService()
         service.embedder = MagicMock()
         service.vector_db = MagicMock()
@@ -212,8 +214,9 @@ def test_ingest_jsonl_files_success(politics_ingestion_service):
     mock_file.__enter__.return_value = mock_file
     mock_file.__iter__.return_value = iter(jsonl_content.splitlines())
 
-    with patch("pathlib.Path.open", return_value=mock_open(read_data=jsonl_content)()), patch(
-        "builtins.open", mock_open(read_data=jsonl_content)
+    with (
+        patch("pathlib.Path.open", return_value=mock_open(read_data=jsonl_content)()),
+        patch("builtins.open", mock_open(read_data=jsonl_content)),
     ):
         result = politics_ingestion_service.ingest_jsonl_files([Path("test.jsonl")])
 
@@ -224,8 +227,9 @@ def test_ingest_jsonl_files_success(politics_ingestion_service):
 
 def test_ingest_jsonl_files_empty(politics_ingestion_service):
     """Test ingesting empty JSONL file"""
-    with patch("pathlib.Path.open", return_value=mock_open(read_data="")()), patch(
-        "builtins.open", mock_open(read_data="")
+    with (
+        patch("pathlib.Path.open", return_value=mock_open(read_data="")()),
+        patch("builtins.open", mock_open(read_data="")),
     ):
         result = politics_ingestion_service.ingest_jsonl_files([Path("empty.jsonl")])
 
@@ -245,8 +249,9 @@ def test_ingest_jsonl_files_with_empty_lines(politics_ingestion_service):
         ]
     )
 
-    with patch("pathlib.Path.open", return_value=mock_open(read_data=jsonl_content)()), patch(
-        "builtins.open", mock_open(read_data=jsonl_content)
+    with (
+        patch("pathlib.Path.open", return_value=mock_open(read_data=jsonl_content)()),
+        patch("builtins.open", mock_open(read_data=jsonl_content)),
     ):
         result = politics_ingestion_service.ingest_jsonl_files([Path("test.jsonl")])
 
@@ -267,8 +272,9 @@ def test_ingest_jsonl_files_metadata(politics_ingestion_service):
     """Test metadata in ingested documents"""
     jsonl_content = json.dumps(SAMPLE_PERSON_RECORD)
 
-    with patch("pathlib.Path.open", return_value=mock_open(read_data=jsonl_content)()), patch(
-        "builtins.open", mock_open(read_data=jsonl_content)
+    with (
+        patch("pathlib.Path.open", return_value=mock_open(read_data=jsonl_content)()),
+        patch("builtins.open", mock_open(read_data=jsonl_content)),
     ):
         politics_ingestion_service.ingest_jsonl_files([Path("test.jsonl")])
 
@@ -285,9 +291,11 @@ def test_ingest_jsonl_files_ids(politics_ingestion_service):
     """Test ID generation for ingested documents"""
     jsonl_content = json.dumps(SAMPLE_PERSON_RECORD)
 
-    with patch("pathlib.Path.open", return_value=mock_open(read_data=jsonl_content)()), patch(
-        "builtins.open", mock_open(read_data=jsonl_content)
-    ), patch("pathlib.Path.stem", "test_file"):
+    with (
+        patch("pathlib.Path.open", return_value=mock_open(read_data=jsonl_content)()),
+        patch("builtins.open", mock_open(read_data=jsonl_content)),
+        patch("pathlib.Path.stem", "test_file"),
+    ):
         politics_ingestion_service.ingest_jsonl_files([Path("test_file.jsonl")])
 
         call_args = politics_ingestion_service.vector_db.upsert_documents.call_args

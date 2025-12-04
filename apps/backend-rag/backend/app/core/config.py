@@ -47,6 +47,7 @@ class Settings(BaseSettings):
     # QDRANT VECTOR DATABASE
     # ========================================
     qdrant_url: str = "https://nuzantara-qdrant.fly.dev"
+    qdrant_api_key: str | None = None  # Set via QDRANT_API_KEY env var
     qdrant_collection_name: str = "knowledge_base"
 
     # ========================================

@@ -34,8 +34,10 @@ def mock_settings():
 @pytest.fixture
 def work_session_service(mock_settings):
     """Create WorkSessionService instance"""
-    with patch("services.work_session_service.logger"), patch("pathlib.Path.mkdir"), patch(
-        "pathlib.Path.exists", return_value=True
+    with (
+        patch("services.work_session_service.logger"),
+        patch("pathlib.Path.mkdir"),
+        patch("pathlib.Path.exists", return_value=True),
     ):
         service = WorkSessionService()
         service.pool = MagicMock(spec=asyncpg.Pool)
@@ -103,8 +105,9 @@ async def test_start_session_success(work_session_service):
     work_session_service.pool.fetchrow = AsyncMock(side_effect=[None, mock_session])
     work_session_service.pool.execute = AsyncMock()
 
-    with patch.object(work_session_service, "_write_to_log"), patch.object(
-        work_session_service, "_notify_zero", new_callable=AsyncMock
+    with (
+        patch.object(work_session_service, "_write_to_log"),
+        patch.object(work_session_service, "_notify_zero", new_callable=AsyncMock),
     ):
         result = await work_session_service.start_session(
             "user123", "User Name", "user@example.com"
@@ -214,8 +217,9 @@ async def test_end_session_success(work_session_service):
     work_session_service.pool.fetchrow = AsyncMock(return_value=mock_session)
     work_session_service.pool.execute = AsyncMock()
 
-    with patch.object(work_session_service, "_write_to_log"), patch.object(
-        work_session_service, "_notify_zero_session_end", new_callable=AsyncMock
+    with (
+        patch.object(work_session_service, "_write_to_log"),
+        patch.object(work_session_service, "_notify_zero_session_end", new_callable=AsyncMock),
     ):
         result = await work_session_service.end_session("user123", notes="Completed work")
 
@@ -504,9 +508,10 @@ def test_ensure_data_dir_success():
     """Test ensuring data directory succeeds"""
     with patch("app.core.config.settings") as mock_settings:
         mock_settings.database_url = "postgresql://test"
-        with patch("pathlib.Path.mkdir") as mock_mkdir, patch(
-            "services.work_session_service.logger"
-        ) as mock_logger:
+        with (
+            patch("pathlib.Path.mkdir") as mock_mkdir,
+            patch("services.work_session_service.logger") as mock_logger,
+        ):
             service = WorkSessionService()
             mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
             # Check that logger.info was called
@@ -517,9 +522,10 @@ def test_ensure_data_dir_exception():
     """Test ensuring data directory with exception"""
     with patch("app.core.config.settings") as mock_settings:
         mock_settings.database_url = "postgresql://test"
-        with patch("pathlib.Path.mkdir", side_effect=PermissionError("No permission")), patch(
-            "services.work_session_service.logger"
-        ) as mock_logger:
+        with (
+            patch("pathlib.Path.mkdir", side_effect=PermissionError("No permission")),
+            patch("services.work_session_service.logger") as mock_logger,
+        ):
             service = WorkSessionService()
             # Should catch exception and log warning
             assert any(
@@ -577,9 +583,12 @@ async def test_end_session_with_none_notes(work_session_service):
     work_session_service.pool.fetchrow = AsyncMock(return_value=mock_session)
     work_session_service.pool.execute = AsyncMock()
 
-    with patch.object(work_session_service, "_write_to_log"), patch.object(
-        work_session_service, "_notify_zero_session_end", new_callable=AsyncMock
-    ) as mock_notify:
+    with (
+        patch.object(work_session_service, "_write_to_log"),
+        patch.object(
+            work_session_service, "_notify_zero_session_end", new_callable=AsyncMock
+        ) as mock_notify,
+    ):
         result = await work_session_service.end_session("user123", notes=None)
 
         assert result["status"] == "completed"
@@ -902,8 +911,9 @@ async def test_start_session_calls_write_to_log(work_session_service):
     }
     work_session_service.pool.fetchrow = AsyncMock(side_effect=[None, mock_session])
 
-    with patch.object(work_session_service, "_write_to_log") as mock_log, patch.object(
-        work_session_service, "_notify_zero", new_callable=AsyncMock
+    with (
+        patch.object(work_session_service, "_write_to_log") as mock_log,
+        patch.object(work_session_service, "_notify_zero", new_callable=AsyncMock),
     ):
         await work_session_service.start_session("user123", "Test User", "test@example.com")
 
@@ -925,9 +935,10 @@ async def test_start_session_calls_notify_zero(work_session_service):
     }
     work_session_service.pool.fetchrow = AsyncMock(side_effect=[None, mock_session])
 
-    with patch.object(work_session_service, "_write_to_log"), patch.object(
-        work_session_service, "_notify_zero", new_callable=AsyncMock
-    ) as mock_notify:
+    with (
+        patch.object(work_session_service, "_write_to_log"),
+        patch.object(work_session_service, "_notify_zero", new_callable=AsyncMock) as mock_notify,
+    ):
         await work_session_service.start_session("user123", "Test User", "test@example.com")
 
         mock_notify.assert_called_once()
@@ -955,8 +966,9 @@ async def test_end_session_calls_write_to_log(work_session_service):
     work_session_service.pool.fetchrow = AsyncMock(return_value=mock_session)
     work_session_service.pool.execute = AsyncMock()
 
-    with patch.object(work_session_service, "_write_to_log") as mock_log, patch.object(
-        work_session_service, "_notify_zero_session_end", new_callable=AsyncMock
+    with (
+        patch.object(work_session_service, "_write_to_log") as mock_log,
+        patch.object(work_session_service, "_notify_zero_session_end", new_callable=AsyncMock),
     ):
         await work_session_service.end_session("user123", notes="Test notes")
 

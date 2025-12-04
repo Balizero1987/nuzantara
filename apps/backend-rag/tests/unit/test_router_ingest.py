@@ -67,10 +67,12 @@ def mock_file():
 @pytest.mark.asyncio
 async def test_upload_and_ingest_success(client, mock_ingestion_service):
     """Test upload_and_ingest successful"""
-    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), patch(
-        "builtins.open", create=True
-    ), patch("pathlib.Path.mkdir"), patch("pathlib.Path.exists", return_value=True), patch(
-        "os.remove"
+    with (
+        patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service),
+        patch("builtins.open", create=True),
+        patch("pathlib.Path.mkdir"),
+        patch("pathlib.Path.exists", return_value=True),
+        patch("os.remove"),
     ):
         files = {"file": ("test.pdf", b"PDF content", "application/pdf")}
         response = client.post(
@@ -97,10 +99,12 @@ async def test_upload_and_ingest_exception(client, mock_ingestion_service):
     """Test upload_and_ingest handles exception"""
     mock_ingestion_service.ingest_book.side_effect = Exception("Ingestion error")
 
-    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), patch(
-        "builtins.open", create=True
-    ), patch("pathlib.Path.mkdir"), patch("pathlib.Path.exists", return_value=True), patch(
-        "os.remove"
+    with (
+        patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service),
+        patch("builtins.open", create=True),
+        patch("pathlib.Path.mkdir"),
+        patch("pathlib.Path.exists", return_value=True),
+        patch("os.remove"),
     ):
         files = {"file": ("test.pdf", b"PDF content", "application/pdf")}
         response = client.post("/api/ingest/upload", files=files)
@@ -116,8 +120,9 @@ async def test_upload_and_ingest_exception(client, mock_ingestion_service):
 @pytest.mark.asyncio
 async def test_ingest_local_file_success(client, mock_ingestion_service):
     """Test ingest_local_file successful"""
-    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), patch(
-        "os.path.exists", return_value=True
+    with (
+        patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service),
+        patch("os.path.exists", return_value=True),
     ):
         response = client.post(
             "/api/ingest/file",
@@ -136,8 +141,9 @@ async def test_ingest_local_file_success(client, mock_ingestion_service):
 @pytest.mark.asyncio
 async def test_ingest_local_file_not_found(client, mock_ingestion_service):
     """Test ingest_local_file with file not found"""
-    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), patch(
-        "os.path.exists", return_value=False
+    with (
+        patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service),
+        patch("os.path.exists", return_value=False),
     ):
         response = client.post(
             "/api/ingest/file", json={"file_path": "nonexistent.pdf", "title": "Test"}
@@ -166,9 +172,11 @@ async def test_batch_ingest_success(client, mock_ingestion_service):
         }
     )
 
-    with patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service), patch(
-        "pathlib.Path.exists", return_value=True
-    ), patch("pathlib.Path.glob", return_value=[Path("book1.pdf"), Path("book2.pdf")]):
+    with (
+        patch("app.routers.ingest.IngestionService", return_value=mock_ingestion_service),
+        patch("pathlib.Path.exists", return_value=True),
+        patch("pathlib.Path.glob", return_value=[Path("book1.pdf"), Path("book2.pdf")]),
+    ):
         response = client.post(
             "/api/ingest/batch",
             json={

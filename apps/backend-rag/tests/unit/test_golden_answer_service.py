@@ -303,9 +303,10 @@ async def test_semantic_lookup_success(golden_answer_service):
 
     conn.fetch = AsyncMock(return_value=mock_golden_answers)
 
-    with patch.object(service, "_load_model"), patch(
-        "services.golden_answer_service.SentenceTransformer"
-    ) as mock_transformer:
+    with (
+        patch.object(service, "_load_model"),
+        patch("services.golden_answer_service.SentenceTransformer") as mock_transformer,
+    ):
         mock_model = MagicMock()
         mock_model.encode = MagicMock(
             side_effect=[
@@ -342,8 +343,9 @@ async def test_semantic_lookup_below_threshold(golden_answer_service):
         ]
     )
 
-    with patch.object(service, "_load_model"), patch(
-        "services.golden_answer_service.SentenceTransformer"
+    with (
+        patch.object(service, "_load_model"),
+        patch("services.golden_answer_service.SentenceTransformer"),
     ):
         mock_model = MagicMock()
         mock_model.encode = MagicMock(return_value=[[0.1, 0.2]])
@@ -679,19 +681,19 @@ async def test_semantic_lookup_with_multiple_candidates():
             service.model = mock_model
 
             # Simulate embeddings and similarities
-            with patch("services.golden_answer_service.SentenceTransformer"):
-                with patch(
+            with (
+                patch("services.golden_answer_service.SentenceTransformer"),
+                patch(
                     "services.golden_answer_service.cosine_similarity",
                     return_value=[[0.75, 0.85, 0.65]],
-                ):
-                    with patch(
-                        "services.golden_answer_service.np.argmax", return_value=1
-                    ):  # cluster_2 is best
-                        result = await service._semantic_lookup("get KITAS info")
+                ),
+                patch("services.golden_answer_service.np.argmax", return_value=1),
+            ):  # cluster_2 is best
+                result = await service._semantic_lookup("get KITAS info")
 
-                        assert result is not None
-                        assert result["cluster_id"] == "cluster_2"
-                        assert result["similarity"] == 0.85
+                assert result is not None
+                assert result["cluster_id"] == "cluster_2"
+                assert result["similarity"] == 0.85
 
 
 @pytest.mark.asyncio
@@ -1376,15 +1378,17 @@ async def test_semantic_lookup_filters_by_usage_count():
             mock_model = MagicMock()
             service.model = mock_model
 
-            with patch(
-                "services.golden_answer_service.cosine_similarity", return_value=[[0.85] * 100]
+            with (
+                patch(
+                    "services.golden_answer_service.cosine_similarity", return_value=[[0.85] * 100]
+                ),
+                patch("services.golden_answer_service.np.argmax", return_value=0),
             ):
-                with patch("services.golden_answer_service.np.argmax", return_value=0):
-                    result = await service._semantic_lookup("test")
+                result = await service._semantic_lookup("test")
 
-                    # Verify it selected from the answers
-                    assert result is not None
-                    assert result["cluster_id"] == "cluster_0"  # First one has highest usage
+                # Verify it selected from the answers
+                assert result is not None
+                assert result["cluster_id"] == "cluster_0"  # First one has highest usage
 
 
 @pytest.mark.asyncio
@@ -1475,12 +1479,14 @@ async def test_test_service_with_database_url_and_match():
         return_value={"total_golden_answers": 100, "total_hits": 500, "avg_confidence": 0.85}
     )
 
-    with patch("app.core.config.settings", mock_settings):
-        with patch(
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch(
             "services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance
-        ):
-            # Run test_service
-            await test_service()
+        ),
+    ):
+        # Run test_service
+        await test_service()
 
     # Verify service methods were called
     mock_service_instance.connect.assert_called_once()
@@ -1505,11 +1511,13 @@ async def test_test_service_with_database_url_and_no_match():
         return_value={"total_golden_answers": 100, "total_hits": 500, "avg_confidence": 0.85}
     )
 
-    with patch("app.core.config.settings", mock_settings):
-        with patch(
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch(
             "services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance
-        ):
-            await test_service()
+        ),
+    ):
+        await test_service()
 
     mock_service_instance.connect.assert_called_once()
     mock_service_instance.lookup_golden_answer.assert_called_once()
@@ -1545,15 +1553,17 @@ async def test_test_service_with_exception_in_connect():
     mock_service_instance.connect = AsyncMock(side_effect=Exception("Connection failed"))
     mock_service_instance.close = AsyncMock()
 
-    with patch("app.core.config.settings", mock_settings):
-        with patch(
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch(
             "services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance
-        ):
-            # Should not raise exception
-            try:
-                await test_service()
-            except Exception:
-                pass  # Exception is expected but handled
+        ),
+    ):
+        # Should not raise exception
+        try:
+            await test_service()
+        except Exception:
+            pass  # Exception is expected but handled
 
     # close() should still be called in finally block
     mock_service_instance.close.assert_called_once()
@@ -1584,11 +1594,13 @@ async def test_test_service_with_empty_sources():
         return_value={"total_golden_answers": 50, "total_hits": 200, "avg_confidence": 0.80}
     )
 
-    with patch("app.core.config.settings", mock_settings):
-        with patch(
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch(
             "services.golden_answer_service.GoldenAnswerService", return_value=mock_service_instance
-        ):
-            await test_service()
+        ),
+    ):
+        await test_service()
 
     mock_service_instance.connect.assert_called_once()
     mock_service_instance.close.assert_called_once()

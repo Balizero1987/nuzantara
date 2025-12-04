@@ -202,15 +202,15 @@ async def test_get_journey_not_found():
 @pytest.mark.asyncio
 async def test_complete_journey_step_success(mock_journey):
     """Test successful step completion"""
-    with patch("app.routers.agents.journey_orchestrator.complete_step") as mock_complete:
-        with patch(
-            "app.routers.agents.journey_orchestrator.get_journey", return_value=mock_journey
-        ):
-            result = await complete_journey_step("journey-123", "step-1", "Notes")
+    with (
+        patch("app.routers.agents.journey_orchestrator.complete_step") as mock_complete,
+        patch("app.routers.agents.journey_orchestrator.get_journey", return_value=mock_journey),
+    ):
+        result = await complete_journey_step("journey-123", "step-1", "Notes")
 
-            assert result["success"] is True
-            assert "message" in result
-            mock_complete.assert_called_once_with("journey-123", "step-1", "Notes")
+        assert result["success"] is True
+        assert "message" in result
+        mock_complete.assert_called_once_with("journey-123", "step-1", "Notes")
 
 
 @pytest.mark.asyncio
@@ -336,23 +336,26 @@ async def test_get_compliance_alerts_with_auto_notify(mock_alert):
         return_value={"notification_id": "notif-123", "status": "sent"}
     )
 
-    with patch(
-        "app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]
+    with (
+        patch(
+            "app.routers.agents.compliance_monitor.check_compliance_items",
+            return_value=[mock_alert],
+        ),
+        patch("services.notification_hub.create_notification_from_template") as mock_create,
     ):
-        with patch("services.notification_hub.create_notification_from_template") as mock_create:
-            with patch("services.notification_hub.notification_hub", mock_notification_hub):
-                mock_notification = MagicMock()
-                mock_notification.notification_id = "notif-123"
-                mock_create.return_value = mock_notification
+        with patch("services.notification_hub.notification_hub", mock_notification_hub):
+            mock_notification = MagicMock()
+            mock_notification.notification_id = "notif-123"
+            mock_create.return_value = mock_notification
 
-                result = await get_compliance_alerts(auto_notify=True)
+            result = await get_compliance_alerts(auto_notify=True)
 
-                assert result["success"] is True
-                assert result["count"] == 1
-                assert result["notifications_sent"] is not None
-                assert len(result["notifications_sent"]) == 1
-                mock_create.assert_called_once()
-                mock_notification_hub.send.assert_called_once()
+            assert result["success"] is True
+            assert result["count"] == 1
+            assert result["notifications_sent"] is not None
+            assert len(result["notifications_sent"]) == 1
+            mock_create.assert_called_once()
+            mock_notification_hub.send.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -361,19 +364,22 @@ async def test_get_compliance_alerts_auto_notify_error(mock_alert):
     mock_notification_hub = AsyncMock()
     mock_notification_hub.send = AsyncMock(side_effect=Exception("Notification failed"))
 
-    with patch(
-        "app.routers.agents.compliance_monitor.check_compliance_items", return_value=[mock_alert]
+    with (
+        patch(
+            "app.routers.agents.compliance_monitor.check_compliance_items",
+            return_value=[mock_alert],
+        ),
+        patch("services.notification_hub.create_notification_from_template") as mock_create,
     ):
-        with patch("services.notification_hub.create_notification_from_template") as mock_create:
-            with patch("services.notification_hub.notification_hub", mock_notification_hub):
-                mock_notification = MagicMock()
-                mock_create.return_value = mock_notification
+        with patch("services.notification_hub.notification_hub", mock_notification_hub):
+            mock_notification = MagicMock()
+            mock_create.return_value = mock_notification
 
-                # Should not raise exception, just log error
-                result = await get_compliance_alerts(auto_notify=True)
+            # Should not raise exception, just log error
+            result = await get_compliance_alerts(auto_notify=True)
 
-                assert result["success"] is True
-                # Notification send failed but endpoint still succeeds
+            assert result["success"] is True
+            # Notification send failed but endpoint still succeeds
 
 
 @pytest.mark.asyncio

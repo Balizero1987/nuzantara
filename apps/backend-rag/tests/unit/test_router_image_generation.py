@@ -51,9 +51,10 @@ async def test_generate_image_success(client):
     }
     mock_response.raise_for_status = MagicMock()
 
-    with patch("app.routers.image_generation.settings") as mock_settings, patch(
-        "httpx.AsyncClient"
-    ) as mock_client_class:
+    with (
+        patch("app.routers.image_generation.settings") as mock_settings,
+        patch("httpx.AsyncClient") as mock_client_class,
+    ):
         mock_settings.google_ai_api_key = "test_key"
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
@@ -96,9 +97,10 @@ async def test_generate_image_api_error(client):
         side_effect=httpx.HTTPStatusError("Error", request=MagicMock(), response=mock_response)
     )
 
-    with patch("app.routers.image_generation.settings") as mock_settings, patch(
-        "httpx.AsyncClient"
-    ) as mock_client_class:
+    with (
+        patch("app.routers.image_generation.settings") as mock_settings,
+        patch("httpx.AsyncClient") as mock_client_class,
+    ):
         mock_settings.google_ai_api_key = "test_key"
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
@@ -128,9 +130,10 @@ async def test_generate_image_with_parameters(client):
     }
     mock_response.raise_for_status = MagicMock()
 
-    with patch("app.routers.image_generation.settings") as mock_settings, patch(
-        "httpx.AsyncClient"
-    ) as mock_client_class:
+    with (
+        patch("app.routers.image_generation.settings") as mock_settings,
+        patch("httpx.AsyncClient") as mock_client_class,
+    ):
         mock_settings.google_ai_api_key = "test_key"
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
@@ -157,9 +160,10 @@ async def test_generate_image_with_parameters(client):
 @pytest.mark.asyncio
 async def test_generate_image_exception(client):
     """Test generate_image handles exception"""
-    with patch("app.routers.image_generation.settings") as mock_settings, patch(
-        "httpx.AsyncClient"
-    ) as mock_client_class:
+    with (
+        patch("app.routers.image_generation.settings") as mock_settings,
+        patch("httpx.AsyncClient") as mock_client_class,
+    ):
         mock_settings.google_ai_api_key = "test_key"
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)

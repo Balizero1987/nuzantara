@@ -50,11 +50,11 @@ def mock_generative_model():
 @pytest.fixture
 def gemini_service(mock_genai, mock_generative_model):
     """Create GeminiJakselService instance"""
-    with patch("services.gemini_service.genai", mock_genai):
-        with patch(
-            "services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model
-        ):
-            return GeminiJakselService(model_name="gemini-2.5-flash")
+    with (
+        patch("services.gemini_service.genai", mock_genai),
+        patch("services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model),
+    ):
+        return GeminiJakselService(model_name="gemini-2.5-flash")
 
 
 # ============================================================================
@@ -64,61 +64,61 @@ def gemini_service(mock_genai, mock_generative_model):
 
 def test_init_default_model(mock_genai, mock_generative_model):
     """Test initialization with default model"""
-    with patch("services.gemini_service.genai", mock_genai):
-        with patch(
-            "services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model
-        ):
-            service = GeminiJakselService()
-            assert service.model_name == "models/gemini-2.5-flash"
-            assert service.system_instruction is not None
-            assert len(service.few_shot_history) > 0
+    with (
+        patch("services.gemini_service.genai", mock_genai),
+        patch("services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model),
+    ):
+        service = GeminiJakselService()
+        assert service.model_name == "models/gemini-2.5-flash"
+        assert service.system_instruction is not None
+        assert len(service.few_shot_history) > 0
 
 
 def test_init_custom_model(mock_genai, mock_generative_model):
     """Test initialization with custom model"""
-    with patch("services.gemini_service.genai", mock_genai):
-        with patch(
-            "services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model
-        ):
-            service = GeminiJakselService(model_name="gemini-2.5-pro")
-            assert service.model_name == "models/gemini-2.5-pro"
+    with (
+        patch("services.gemini_service.genai", mock_genai),
+        patch("services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model),
+    ):
+        service = GeminiJakselService(model_name="gemini-2.5-pro")
+        assert service.model_name == "models/gemini-2.5-pro"
 
 
 def test_init_custom_model_with_prefix(mock_genai, mock_generative_model):
     """Test initialization with custom model that already has models/ prefix"""
-    with patch("services.gemini_service.genai", mock_genai):
-        with patch(
-            "services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model
-        ):
-            service = GeminiJakselService(model_name="models/gemini-2.5-pro")
-            assert service.model_name == "models/gemini-2.5-pro"
+    with (
+        patch("services.gemini_service.genai", mock_genai),
+        patch("services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model),
+    ):
+        service = GeminiJakselService(model_name="models/gemini-2.5-pro")
+        assert service.model_name == "models/gemini-2.5-pro"
 
 
 def test_init_system_instruction(mock_genai, mock_generative_model):
     """Test that system instruction is set"""
-    with patch("services.gemini_service.genai", mock_genai):
-        with patch(
+    with (
+        patch("services.gemini_service.genai", mock_genai),
+        patch(
             "services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model
-        ) as mock_model_class:
-            service = GeminiJakselService()
-            # Verify GenerativeModel was called with system_instruction
-            mock_model_class.assert_called_once()
-            call_kwargs = mock_model_class.call_args[1]
-            assert "system_instruction" in call_kwargs
+        ) as mock_model_class,
+    ):
+        service = GeminiJakselService()
+        # Verify GenerativeModel was called with system_instruction
+        mock_model_class.assert_called_once()
+        call_kwargs = mock_model_class.call_args[1]
+        assert "system_instruction" in call_kwargs
 
 
 def test_init_few_shot_history(mock_genai, mock_generative_model):
     """Test that few-shot history is populated"""
-    with patch("services.gemini_service.genai", mock_genai):
-        with patch(
-            "services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model
-        ):
-            with patch(
-                "services.gemini_service.FEW_SHOT_EXAMPLES", [{"role": "user", "content": "test"}]
-            ):
-                service = GeminiJakselService()
-                assert len(service.few_shot_history) == 1
-                assert service.few_shot_history[0]["role"] == "user"
+    with (
+        patch("services.gemini_service.genai", mock_genai),
+        patch("services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model),
+        patch("services.gemini_service.FEW_SHOT_EXAMPLES", [{"role": "user", "content": "test"}]),
+    ):
+        service = GeminiJakselService()
+        assert len(service.few_shot_history) == 1
+        assert service.few_shot_history[0]["role"] == "user"
 
 
 # ============================================================================

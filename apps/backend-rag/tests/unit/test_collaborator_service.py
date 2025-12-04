@@ -54,8 +54,9 @@ SAMPLE_TEAM_DATA = [
 @pytest.fixture
 def mock_team_data_file():
     """Mock team_members.json file"""
-    with patch("services.collaborator_service.DATA_PATH") as mock_path, patch(
-        "builtins.open", mock_open(read_data=json.dumps(SAMPLE_TEAM_DATA))
+    with (
+        patch("services.collaborator_service.DATA_PATH") as mock_path,
+        patch("builtins.open", mock_open(read_data=json.dumps(SAMPLE_TEAM_DATA))),
     ):
         mock_path.exists.return_value = True
         mock_path.open.return_value = mock_open(read_data=json.dumps(SAMPLE_TEAM_DATA)).return_value

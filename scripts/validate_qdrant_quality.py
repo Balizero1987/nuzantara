@@ -157,9 +157,9 @@ def main():
     quality_scores = []
 
     for collection_name in COLLECTIONS:
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"🔍 Validando: {collection_name}")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         try:
             client = SimpleQdrantClient(QDRANT_URL, collection_name)
@@ -218,9 +218,9 @@ def main():
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("📊 RIEPILOGO VALIDAZIONE")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     print(f"Collezioni validate: {results['summary']['total_collections']}")
     print(f"Documenti totali: {results['summary']['total_documents_validated']}")
     print(f"Problemi totali: {results['summary']['total_issues']}")

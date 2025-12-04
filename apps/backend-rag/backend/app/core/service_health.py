@@ -8,7 +8,6 @@ and health-based degradation in production environments.
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
 
 
 class ServiceStatus(Enum):
@@ -25,10 +24,10 @@ class ServiceHealth:
 
     name: str
     status: ServiceStatus
-    error: Optional[str] = None
+    error: str | None = None
     is_critical: bool = False
-    initialized_at: Optional[datetime] = None
-    last_check: Optional[datetime] = None
+    initialized_at: datetime | None = None
+    last_check: datetime | None = None
 
     def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
@@ -63,8 +62,8 @@ class ServiceRegistry:
         self,
         name: str,
         status: ServiceStatus,
-        error: Optional[str] = None,
-        critical: Optional[bool] = None,
+        error: str | None = None,
+        critical: bool | None = None,
     ) -> None:
         """
         Register or update a service's health status.
@@ -86,7 +85,7 @@ class ServiceRegistry:
             last_check=datetime.now(timezone.utc),
         )
 
-    def get_service(self, name: str) -> Optional[ServiceHealth]:
+    def get_service(self, name: str) -> ServiceHealth | None:
         """Get health info for a specific service."""
         return self._services.get(name)
 

@@ -89,7 +89,7 @@ def chat_turn(conn, token, query, history):
 
 
 def run_scenario(scenario_name, questions, token):
-    print(f"\n{'='*20} SCENARIO: {scenario_name} {'='*20}")
+    print(f"\n{'=' * 20} SCENARIO: {scenario_name} {'=' * 20}")
     conn = http.client.HTTPSConnection(BASE_URL)
     history = []
 

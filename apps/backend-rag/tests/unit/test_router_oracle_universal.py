@@ -718,11 +718,11 @@ class TestUtilityFunctions:
         mock_downloader = MagicMock()
         mock_downloader.next_chunk.return_value = (None, True)
 
-        with patch(
-            "app.routers.oracle_universal.MediaIoBaseDownload", return_value=mock_downloader
+        with (
+            patch("app.routers.oracle_universal.MediaIoBaseDownload", return_value=mock_downloader),
+            patch("app.routers.oracle_universal.io.BytesIO"),
         ):
-            with patch("app.routers.oracle_universal.io.BytesIO"):
-                result = download_pdf_from_drive("test.pdf")
+            result = download_pdf_from_drive("test.pdf")
 
         assert result == "/tmp/test.pdf"
 
@@ -829,11 +829,12 @@ class TestAPIEndpoints:
     @pytest.fixture
     def mock_dependencies(self):
         """Mock all external dependencies"""
-        with patch("app.routers.oracle_universal.db_manager") as mock_db, patch(
-            "app.routers.oracle_universal.google_services"
-        ) as mock_google, patch(
-            "app.routers.oracle_universal.EmbeddingsGenerator"
-        ) as mock_embedder, patch("app.routers.oracle_universal.smart_oracle") as mock_smart_oracle:
+        with (
+            patch("app.routers.oracle_universal.db_manager") as mock_db,
+            patch("app.routers.oracle_universal.google_services") as mock_google,
+            patch("app.routers.oracle_universal.EmbeddingsGenerator") as mock_embedder,
+            patch("app.routers.oracle_universal.smart_oracle") as mock_smart_oracle,
+        ):
             # Setup mock returns
             mock_db.get_user_profile = AsyncMock(return_value=None)
             mock_db.store_query_analytics = AsyncMock()
@@ -1351,9 +1352,10 @@ class TestEdgeCases:
         """Test oracle query when no documents found"""
         from app.routers.oracle_universal import OracleQueryRequest, hybrid_oracle_query
 
-        with patch("app.routers.oracle_universal.db_manager") as mock_db, patch(
-            "app.routers.oracle_universal.EmbeddingsGenerator"
-        ) as mock_embedder_class:
+        with (
+            patch("app.routers.oracle_universal.db_manager") as mock_db,
+            patch("app.routers.oracle_universal.EmbeddingsGenerator") as mock_embedder_class,
+        ):
             mock_db.get_user_profile = AsyncMock(return_value=None)
             mock_db.store_query_analytics = AsyncMock()
 
@@ -1389,13 +1391,12 @@ class TestEdgeCases:
         """Test oracle query when Smart Oracle fails"""
         from app.routers.oracle_universal import OracleQueryRequest, hybrid_oracle_query
 
-        with patch("app.routers.oracle_universal.db_manager") as mock_db, patch(
-            "app.routers.oracle_universal.EmbeddingsGenerator"
-        ) as mock_embedder_class, patch(
-            "app.routers.oracle_universal.smart_oracle"
-        ) as mock_smart_oracle, patch(
-            "app.routers.oracle_universal.reason_with_gemini"
-        ) as mock_reason:
+        with (
+            patch("app.routers.oracle_universal.db_manager") as mock_db,
+            patch("app.routers.oracle_universal.EmbeddingsGenerator") as mock_embedder_class,
+            patch("app.routers.oracle_universal.smart_oracle") as mock_smart_oracle,
+            patch("app.routers.oracle_universal.reason_with_gemini") as mock_reason,
+        ):
             mock_db.get_user_profile = AsyncMock(return_value=None)
             mock_db.store_query_analytics = AsyncMock()
 

@@ -39,36 +39,38 @@ def mock_legal_components():
 @pytest.fixture
 def legal_ingestion_service(mock_legal_components):
     """Create LegalIngestionService with mocked components"""
-    with patch(
-        "services.legal_ingestion_service.LegalCleaner",
-        return_value=mock_legal_components["cleaner"],
-    ):
-        with patch(
+    with (
+        patch(
+            "services.legal_ingestion_service.LegalCleaner",
+            return_value=mock_legal_components["cleaner"],
+        ),
+        patch(
             "services.legal_ingestion_service.LegalMetadataExtractor",
             return_value=mock_legal_components["metadata_extractor"],
-        ):
-            with patch(
-                "services.legal_ingestion_service.LegalStructureParser",
-                return_value=mock_legal_components["structure_parser"],
-            ):
-                with patch(
-                    "services.legal_ingestion_service.LegalChunker",
-                    return_value=mock_legal_components["chunker"],
-                ):
-                    with patch(
-                        "services.legal_ingestion_service.EmbeddingsGenerator",
-                        return_value=mock_legal_components["embedder"],
-                    ):
-                        with patch(
-                            "services.legal_ingestion_service.QdrantClient",
-                            return_value=mock_legal_components["vector_db"],
-                        ):
-                            with patch(
-                                "services.legal_ingestion_service.TierClassifier",
-                                return_value=mock_legal_components["classifier"],
-                            ):
-                                service = LegalIngestionService()
-                                return service, mock_legal_components
+        ),
+        patch(
+            "services.legal_ingestion_service.LegalStructureParser",
+            return_value=mock_legal_components["structure_parser"],
+        ),
+        patch(
+            "services.legal_ingestion_service.LegalChunker",
+            return_value=mock_legal_components["chunker"],
+        ),
+        patch(
+            "services.legal_ingestion_service.EmbeddingsGenerator",
+            return_value=mock_legal_components["embedder"],
+        ),
+        patch(
+            "services.legal_ingestion_service.QdrantClient",
+            return_value=mock_legal_components["vector_db"],
+        ),
+        patch(
+            "services.legal_ingestion_service.TierClassifier",
+            return_value=mock_legal_components["classifier"],
+        ),
+    ):
+        service = LegalIngestionService()
+        return service, mock_legal_components
 
 
 @pytest.fixture
@@ -96,84 +98,80 @@ def sample_legal_text():
 
 def test_init_default_collection(mock_legal_components):
     """Test initialization with default collection"""
-    with patch(
-        "services.legal_ingestion_service.LegalCleaner",
-        return_value=mock_legal_components["cleaner"],
-    ):
-        with patch(
+    with (
+        patch(
+            "services.legal_ingestion_service.LegalCleaner",
+            return_value=mock_legal_components["cleaner"],
+        ),
+        patch(
             "services.legal_ingestion_service.LegalMetadataExtractor",
             return_value=mock_legal_components["metadata_extractor"],
-        ):
-            with patch(
-                "services.legal_ingestion_service.LegalStructureParser",
-                return_value=mock_legal_components["structure_parser"],
-            ):
-                with patch(
-                    "services.legal_ingestion_service.LegalChunker",
-                    return_value=mock_legal_components["chunker"],
-                ):
-                    with patch(
-                        "services.legal_ingestion_service.EmbeddingsGenerator",
-                        return_value=mock_legal_components["embedder"],
-                    ):
-                        with patch(
-                            "services.legal_ingestion_service.QdrantClient",
-                            return_value=mock_legal_components["vector_db"],
-                        ):
-                            with patch(
-                                "services.legal_ingestion_service.TierClassifier",
-                                return_value=mock_legal_components["classifier"],
-                            ):
-                                service = LegalIngestionService()
-                                assert service.cleaner == mock_legal_components["cleaner"]
-                                assert (
-                                    service.metadata_extractor
-                                    == mock_legal_components["metadata_extractor"]
-                                )
-                                assert (
-                                    service.structure_parser
-                                    == mock_legal_components["structure_parser"]
-                                )
-                                assert service.chunker == mock_legal_components["chunker"]
-                                assert service.embedder == mock_legal_components["embedder"]
-                                assert service.vector_db == mock_legal_components["vector_db"]
-                                assert service.classifier == mock_legal_components["classifier"]
+        ),
+        patch(
+            "services.legal_ingestion_service.LegalStructureParser",
+            return_value=mock_legal_components["structure_parser"],
+        ),
+        patch(
+            "services.legal_ingestion_service.LegalChunker",
+            return_value=mock_legal_components["chunker"],
+        ),
+        patch(
+            "services.legal_ingestion_service.EmbeddingsGenerator",
+            return_value=mock_legal_components["embedder"],
+        ),
+        patch(
+            "services.legal_ingestion_service.QdrantClient",
+            return_value=mock_legal_components["vector_db"],
+        ),
+        patch(
+            "services.legal_ingestion_service.TierClassifier",
+            return_value=mock_legal_components["classifier"],
+        ),
+    ):
+        service = LegalIngestionService()
+        assert service.cleaner == mock_legal_components["cleaner"]
+        assert service.metadata_extractor == mock_legal_components["metadata_extractor"]
+        assert service.structure_parser == mock_legal_components["structure_parser"]
+        assert service.chunker == mock_legal_components["chunker"]
+        assert service.embedder == mock_legal_components["embedder"]
+        assert service.vector_db == mock_legal_components["vector_db"]
+        assert service.classifier == mock_legal_components["classifier"]
 
 
 def test_init_custom_collection(mock_legal_components):
     """Test initialization with custom collection name"""
-    with patch(
-        "services.legal_ingestion_service.LegalCleaner",
-        return_value=mock_legal_components["cleaner"],
-    ):
-        with patch(
+    with (
+        patch(
+            "services.legal_ingestion_service.LegalCleaner",
+            return_value=mock_legal_components["cleaner"],
+        ),
+        patch(
             "services.legal_ingestion_service.LegalMetadataExtractor",
             return_value=mock_legal_components["metadata_extractor"],
-        ):
-            with patch(
-                "services.legal_ingestion_service.LegalStructureParser",
-                return_value=mock_legal_components["structure_parser"],
-            ):
-                with patch(
-                    "services.legal_ingestion_service.LegalChunker",
-                    return_value=mock_legal_components["chunker"],
-                ):
-                    with patch(
-                        "services.legal_ingestion_service.EmbeddingsGenerator",
-                        return_value=mock_legal_components["embedder"],
-                    ):
-                        with patch(
-                            "services.legal_ingestion_service.QdrantClient",
-                            return_value=mock_legal_components["vector_db"],
-                        ) as mock_qdrant:
-                            with patch(
-                                "services.legal_ingestion_service.TierClassifier",
-                                return_value=mock_legal_components["classifier"],
-                            ):
-                                service = LegalIngestionService(collection_name="custom_collection")
-                                mock_qdrant.assert_called_once_with(
-                                    collection_name="custom_collection"
-                                )
+        ),
+        patch(
+            "services.legal_ingestion_service.LegalStructureParser",
+            return_value=mock_legal_components["structure_parser"],
+        ),
+        patch(
+            "services.legal_ingestion_service.LegalChunker",
+            return_value=mock_legal_components["chunker"],
+        ),
+        patch(
+            "services.legal_ingestion_service.EmbeddingsGenerator",
+            return_value=mock_legal_components["embedder"],
+        ),
+        patch(
+            "services.legal_ingestion_service.QdrantClient",
+            return_value=mock_legal_components["vector_db"],
+        ) as mock_qdrant,
+        patch(
+            "services.legal_ingestion_service.TierClassifier",
+            return_value=mock_legal_components["classifier"],
+        ),
+    ):
+        service = LegalIngestionService(collection_name="custom_collection")
+        mock_qdrant.assert_called_once_with(collection_name="custom_collection")
 
 
 # ============================================================================
@@ -315,16 +313,19 @@ async def test_ingest_legal_document_with_collection_override(
         mocks["classifier"].classify_book_tier.return_value = TierLevel.S
         mocks["classifier"].get_min_access_level.return_value = 0
 
-        with patch(
-            "services.legal_ingestion_service.auto_detect_and_parse", return_value=sample_legal_text
+        with (
+            patch(
+                "services.legal_ingestion_service.auto_detect_and_parse",
+                return_value=sample_legal_text,
+            ),
+            patch("services.legal_ingestion_service.QdrantClient", return_value=new_vector_db),
         ):
-            with patch("services.legal_ingestion_service.QdrantClient", return_value=new_vector_db):
-                result = await service.ingest_legal_document(
-                    tmp_path, collection_name="custom_collection"
-                )
+            result = await service.ingest_legal_document(
+                tmp_path, collection_name="custom_collection"
+            )
 
-                assert service.vector_db == new_vector_db
-                new_vector_db.upsert_documents.assert_called_once()
+            assert service.vector_db == new_vector_db
+            new_vector_db.upsert_documents.assert_called_once()
     finally:
         Path(tmp_path).unlink(missing_ok=True)
 
@@ -354,16 +355,17 @@ async def test_ingest_legal_document_vertex_ai_fallback(legal_ingestion_service,
             return_value={"type": "UNDANG-UNDANG", "type_abbrev": "UU", "number": "12"}
         )
 
-        with patch(
-            "services.legal_ingestion_service.auto_detect_and_parse", return_value=sample_legal_text
+        with (
+            patch(
+                "services.legal_ingestion_service.auto_detect_and_parse",
+                return_value=sample_legal_text,
+            ),
+            patch("services.vertex_ai_service.VertexAIService", return_value=mock_vertex_service),
         ):
-            with patch(
-                "services.vertex_ai_service.VertexAIService", return_value=mock_vertex_service
-            ):
-                result = await service.ingest_legal_document(tmp_path)
+            result = await service.ingest_legal_document(tmp_path)
 
-                assert result["success"] is True
-                mock_vertex_service.extract_metadata.assert_called_once()
+            assert result["success"] is True
+            mock_vertex_service.extract_metadata.assert_called_once()
     finally:
         Path(tmp_path).unlink(missing_ok=True)
 
@@ -393,18 +395,19 @@ async def test_ingest_legal_document_vertex_ai_fallback_failure(
         mock_vertex_service = MagicMock()
         mock_vertex_service.extract_metadata = AsyncMock(side_effect=Exception("Vertex AI error"))
 
-        with patch(
-            "services.legal_ingestion_service.auto_detect_and_parse", return_value=sample_legal_text
+        with (
+            patch(
+                "services.legal_ingestion_service.auto_detect_and_parse",
+                return_value=sample_legal_text,
+            ),
+            patch("services.vertex_ai_service.VertexAIService", return_value=mock_vertex_service),
+            patch("services.legal_ingestion_service.logger") as mock_logger,
         ):
-            with patch(
-                "services.vertex_ai_service.VertexAIService", return_value=mock_vertex_service
-            ):
-                with patch("services.legal_ingestion_service.logger") as mock_logger:
-                    result = await service.ingest_legal_document(tmp_path)
+            result = await service.ingest_legal_document(tmp_path)
 
-                    # Should continue with default metadata
-                    assert result["success"] is True
-                    mock_logger.warning.assert_called()
+            # Should continue with default metadata
+            assert result["success"] is True
+            mock_logger.warning.assert_called()
     finally:
         Path(tmp_path).unlink(missing_ok=True)
 

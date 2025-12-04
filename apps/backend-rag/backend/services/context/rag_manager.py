@@ -82,7 +82,7 @@ class RAGManager:
         # For casual queries, do a light search (might have relevant info)
         if query_type == "casual":
             logger.info("🔍 [RAGManager] Light search for casual query")
-            return await self._retrieve_light(query, user_level, limit=2)
+            return await self._retrieve_light(query, user_level, limit=5)
 
         if not self.search:
             logger.warning("🔍 [RAGManager] SearchService not available")
@@ -269,7 +269,7 @@ class RAGManager:
                 query=query,
                 user_level=user_level,
                 limit=limit,
-                enable_fallbacks=False,  # No fallbacks for light search
+                enable_fallbacks=True,  # Enable fallbacks for better results
             )
 
             if not search_results.get("results"):

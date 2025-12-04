@@ -106,13 +106,17 @@ def intelligent_router(
 
     mock_specialized_router = MagicMock()
 
-    with patch("services.intelligent_router.IntentClassifier", return_value=mock_classifier), patch(
-        "services.intelligent_router.ContextBuilder", return_value=mock_context_builder
-    ), patch("services.intelligent_router.RAGManager", return_value=mock_rag_manager), patch(
-        "services.intelligent_router.SpecializedServiceRouter", return_value=mock_specialized_router
-    ), patch(
-        "services.intelligent_router.ResponseHandler", return_value=mock_response_handler
-    ), patch("services.intelligent_router.gemini_jaksel", mock_gemini_jaksel):
+    with (
+        patch("services.intelligent_router.IntentClassifier", return_value=mock_classifier),
+        patch("services.intelligent_router.ContextBuilder", return_value=mock_context_builder),
+        patch("services.intelligent_router.RAGManager", return_value=mock_rag_manager),
+        patch(
+            "services.intelligent_router.SpecializedServiceRouter",
+            return_value=mock_specialized_router,
+        ),
+        patch("services.intelligent_router.ResponseHandler", return_value=mock_response_handler),
+        patch("services.intelligent_router.gemini_jaksel", mock_gemini_jaksel),
+    ):
         router = IntelligentRouter(
             ai_client=mock_ai_client,
             search_service=mock_search_service,

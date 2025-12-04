@@ -1,4 +1,5 @@
 """Verify coverage for all critical files"""
+
 import re
 import subprocess
 

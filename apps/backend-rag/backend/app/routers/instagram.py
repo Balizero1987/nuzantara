@@ -5,7 +5,7 @@ Handles webhook verification and incoming messages from Meta
 
 import json
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
@@ -37,13 +37,13 @@ class InstagramMessaging(BaseModel):
     sender: dict[str, str]
     recipient: dict[str, str]
     timestamp: int
-    message: Optional[dict[str, Any]] = None
+    message: dict[str, Any] | None = None
 
 
 class InstagramEntry(BaseModel):
     id: str
     time: int
-    messaging: Optional[list[InstagramMessaging]] = None
+    messaging: list[InstagramMessaging] | None = None
 
 
 class InstagramWebhookPayload(BaseModel):

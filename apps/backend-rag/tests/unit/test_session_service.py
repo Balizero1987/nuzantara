@@ -63,11 +63,11 @@ def test_init(mock_redis):
 
 def test_init_exception():
     """Test initialization with exception"""
-    with patch(
-        "services.session_service.redis.from_url", side_effect=Exception("Connection error")
+    with (
+        patch("services.session_service.redis.from_url", side_effect=Exception("Connection error")),
+        pytest.raises(Exception),
     ):
-        with pytest.raises(Exception):
-            SessionService("redis://localhost:6379")
+        SessionService("redis://localhost:6379")
 
 
 # ============================================================================

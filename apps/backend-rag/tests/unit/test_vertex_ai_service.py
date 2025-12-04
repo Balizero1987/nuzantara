@@ -85,17 +85,15 @@ def test_init_with_custom_location():
 
 def test_ensure_initialized_success(vertex_ai_service, mock_vertexai, mock_generative_model):
     """Test successful initialization"""
-    with patch("services.vertex_ai_service.vertexai", mock_vertexai):
-        with patch(
-            "services.vertex_ai_service.GenerativeModel", return_value=mock_generative_model
-        ):
-            vertex_ai_service._ensure_initialized()
+    with (
+        patch("services.vertex_ai_service.vertexai", mock_vertexai),
+        patch("services.vertex_ai_service.GenerativeModel", return_value=mock_generative_model),
+    ):
+        vertex_ai_service._ensure_initialized()
 
-            assert vertex_ai_service._initialized is True
-            assert vertex_ai_service.model == mock_generative_model
-            mock_vertexai.init.assert_called_once_with(
-                project="test-project", location="us-central1"
-            )
+        assert vertex_ai_service._initialized is True
+        assert vertex_ai_service.model == mock_generative_model
+        mock_vertexai.init.assert_called_once_with(project="test-project", location="us-central1")
 
 
 def test_ensure_initialized_already_initialized(vertex_ai_service):
@@ -236,13 +234,13 @@ async def test_extract_metadata_exception_handling(vertex_ai_service, mock_gener
 @pytest.mark.asyncio
 async def test_extract_metadata_initializes_if_needed(vertex_ai_service, mock_generative_model):
     """Test that extract_metadata calls _ensure_initialized"""
-    with patch("services.vertex_ai_service.vertexai"):
-        with patch(
-            "services.vertex_ai_service.GenerativeModel", return_value=mock_generative_model
-        ):
-            with patch.object(vertex_ai_service, "_ensure_initialized") as mock_init:
-                await vertex_ai_service.extract_metadata("test")
-                mock_init.assert_called_once()
+    with (
+        patch("services.vertex_ai_service.vertexai"),
+        patch("services.vertex_ai_service.GenerativeModel", return_value=mock_generative_model),
+        patch.object(vertex_ai_service, "_ensure_initialized") as mock_init,
+    ):
+        await vertex_ai_service.extract_metadata("test")
+        mock_init.assert_called_once()
 
 
 # ============================================================================

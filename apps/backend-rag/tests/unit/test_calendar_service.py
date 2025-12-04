@@ -37,10 +37,14 @@ def calendar_service_authenticated():
     mock_creds.valid = True
     mock_service = MagicMock()
 
-    with patch("os.path.exists", return_value=True), patch(
-        "google.oauth2.credentials.Credentials.from_authorized_user_file", return_value=mock_creds
-    ), patch("googleapiclient.discovery.build", return_value=mock_service), patch(
-        "services.calendar_service.logger"
+    with (
+        patch("os.path.exists", return_value=True),
+        patch(
+            "google.oauth2.credentials.Credentials.from_authorized_user_file",
+            return_value=mock_creds,
+        ),
+        patch("googleapiclient.discovery.build", return_value=mock_service),
+        patch("services.calendar_service.logger"),
     ):
         service = CalendarService()
         service.service = mock_service
@@ -70,11 +74,16 @@ def test_calendar_service_init_with_expired_token():
     mock_creds.refresh_token = "token123"
     mock_creds.refresh = MagicMock()
 
-    with patch("os.path.exists", return_value=True), patch(
-        "google.oauth2.credentials.Credentials.from_authorized_user_file", return_value=mock_creds
-    ), patch("google.auth.transport.requests.Request"), patch(
-        "googleapiclient.discovery.build"
-    ), patch("services.calendar_service.logger"):
+    with (
+        patch("os.path.exists", return_value=True),
+        patch(
+            "google.oauth2.credentials.Credentials.from_authorized_user_file",
+            return_value=mock_creds,
+        ),
+        patch("google.auth.transport.requests.Request"),
+        patch("googleapiclient.discovery.build"),
+        patch("services.calendar_service.logger"),
+    ):
         service = CalendarService()
         mock_creds.refresh.assert_called_once()
 

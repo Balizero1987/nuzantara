@@ -56,8 +56,9 @@ def personality_service(mock_zantara_client):
         }
 
     # Patch settings before import
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         service = PersonalityService()
         return service, mock_zantara_client
@@ -505,8 +506,9 @@ def test_get_user_personality_fallback_to_professional():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         from services.personality_service import PersonalityService
 
@@ -538,8 +540,9 @@ async def test_translate_to_personality_jaksel_with_language_forcing():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         from services.personality_service import PersonalityService
 
@@ -588,8 +591,9 @@ async def test_translate_to_personality_jaksel_http_error():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         from services.personality_service import PersonalityService
 
@@ -643,8 +647,9 @@ async def test_translate_to_personality_jaksel_exception():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         from services.personality_service import PersonalityService
 
@@ -682,8 +687,9 @@ async def test_translate_to_personality_non_jaksel():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         from services.personality_service import PersonalityService
 
@@ -795,8 +801,9 @@ async def test_translate_to_personality_gemini_only_with_model_getter():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         from services.personality_service import PersonalityService
 
@@ -841,8 +848,9 @@ async def test_translate_to_personality_gemini_only_model_getter_exception():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         from services.personality_service import PersonalityService
 
@@ -881,8 +889,9 @@ async def test_translate_to_personality_gemini_only_exception():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         from services.personality_service import PersonalityService
 
@@ -1003,8 +1012,9 @@ async def test_fast_chat_http_error():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         from services.personality_service import PersonalityService
 
@@ -1051,8 +1061,9 @@ async def test_fast_chat_exception():
         }
     }
 
-    with patch("app.core.config.settings", mock_settings), patch(
-        "data.team_members.TEAM_MEMBERS", mock_team_members
+    with (
+        patch("app.core.config.settings", mock_settings),
+        patch("data.team_members.TEAM_MEMBERS", mock_team_members),
     ):
         from services.personality_service import PersonalityService
 

@@ -317,9 +317,9 @@ def verify_jaksel_persona() -> Dict[str, Any]:
 
 async def main():
     """Main verification function"""
-    print(f"{BLUE}{'='*60}{NC}")
+    print(f"{BLUE}{'=' * 60}{NC}")
     print(f"{BLUE}🚀 NUZANTARA PRIME - Zantara Services Verification{NC}")
-    print(f"{BLUE}{'='*60}{NC}\n")
+    print(f"{BLUE}{'=' * 60}{NC}\n")
 
     all_results = {}
 
@@ -344,9 +344,9 @@ async def main():
     all_results["persona"] = persona_results
 
     # Summary
-    print(f"\n{BLUE}{'='*60}{NC}")
+    print(f"\n{BLUE}{'=' * 60}{NC}")
     print(f"{BLUE}📊 VERIFICATION SUMMARY{NC}")
-    print(f"{BLUE}{'='*60}{NC}\n")
+    print(f"{BLUE}{'=' * 60}{NC}\n")
 
     # Health summary
     if health_results.get("basic", {}).get("status") == "healthy":
@@ -390,7 +390,7 @@ async def main():
     print(f"\n{GREEN}✅ Results saved to: {results_file}{NC}")
 
     # Final verdict
-    print(f"\n{BLUE}{'='*60}{NC}")
+    print(f"\n{BLUE}{'=' * 60}{NC}")
     if (
         health_results.get("basic", {}).get("status") == "healthy"
         and accessible_services >= total_services * 0.8

@@ -44,7 +44,7 @@ async def run():
         questions_to_run = questions[:1]
 
         for i, question in enumerate(questions_to_run):
-            print(f"\n❓ [{i+1}/{len(questions_to_run)}] Asking: {question}")
+            print(f"\n❓ [{i + 1}/{len(questions_to_run)}] Asking: {question}")
 
             try:
                 # Call Chat Stream

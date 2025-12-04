@@ -75,8 +75,9 @@ def mock_qdrant_client():
 @pytest.mark.asyncio
 async def test_search_intel_success(client, mock_embeddings_generator, mock_qdrant_client):
     """Test search_intel successful"""
-    with patch("app.routers.intel.embedder", mock_embeddings_generator), patch(
-        "app.routers.intel.QdrantClient", return_value=mock_qdrant_client
+    with (
+        patch("app.routers.intel.embedder", mock_embeddings_generator),
+        patch("app.routers.intel.QdrantClient", return_value=mock_qdrant_client),
     ):
         response = client.post(
             "/api/intel/search",
@@ -97,8 +98,9 @@ async def test_search_intel_success(client, mock_embeddings_generator, mock_qdra
 @pytest.mark.asyncio
 async def test_search_intel_all_categories(client, mock_embeddings_generator, mock_qdrant_client):
     """Test search_intel without category (searches all)"""
-    with patch("app.routers.intel.embedder", mock_embeddings_generator), patch(
-        "app.routers.intel.QdrantClient", return_value=mock_qdrant_client
+    with (
+        patch("app.routers.intel.embedder", mock_embeddings_generator),
+        patch("app.routers.intel.QdrantClient", return_value=mock_qdrant_client),
     ):
         response = client.post("/api/intel/search", json={"query": "test query", "limit": 10})
 
@@ -111,8 +113,9 @@ async def test_search_intel_all_categories(client, mock_embeddings_generator, mo
 @pytest.mark.asyncio
 async def test_search_intel_date_range_all(client, mock_embeddings_generator, mock_qdrant_client):
     """Test search_intel with date_range='all'"""
-    with patch("app.routers.intel.embedder", mock_embeddings_generator), patch(
-        "app.routers.intel.QdrantClient", return_value=mock_qdrant_client
+    with (
+        patch("app.routers.intel.embedder", mock_embeddings_generator),
+        patch("app.routers.intel.QdrantClient", return_value=mock_qdrant_client),
     ):
         response = client.post("/api/intel/search", json={"query": "test", "date_range": "all"})
 

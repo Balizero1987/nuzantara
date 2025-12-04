@@ -216,8 +216,49 @@ def classify_query_type(message: str) -> str:
         "parlami di te",
         "describe yourself",
     ]
+    # Business keywords to prevent false casual classification
+    business_keywords = [
+        "legale",
+        "leggi",
+        "contratto",
+        "memoria",
+        "ricordo",
+        "cliente",
+        "CRM",
+        "funzioni",
+        "servizi",
+        "errore",
+        "sistema",
+        "conoscenza",
+        "documento",
+        "informazione",
+        "azienda",
+        "consulenza",
+        "cerca",
+        "controlla",
+        "puoi",
+        "dimmi",
+        "trova",
+        "pratiche",
+        "visti",
+        "licenze",
+        "tasse",
+        "immigrazione",
+        "visa",
+        "company",
+        "business",
+        "tax",
+        "immigration",
+        "permit",
+        "license",
+    ]
     word_count = len(msg_lower.split())
-    if word_count < 10 and any(pattern in msg_lower for pattern in casual_patterns):
+    has_business_keyword = any(kw in msg_lower for kw in business_keywords)
+    if (
+        word_count < 10
+        and any(pattern in msg_lower for pattern in casual_patterns)
+        and not has_business_keyword
+    ):
         return "casual"
 
     # EMERGENCY: Urgent issues (RAG + special handling)

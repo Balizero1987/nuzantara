@@ -497,15 +497,17 @@ async def test_get_db_connection_success():
     mock_settings_obj.database_url = "postgresql://test:test@localhost/test"
     mock_connection = MagicMock()
 
-    with patch("app.routers.crm_shared_memory.settings", mock_settings_obj):
-        with patch(
+    with (
+        patch("app.routers.crm_shared_memory.settings", mock_settings_obj),
+        patch(
             "app.routers.crm_shared_memory.psycopg2.connect", return_value=mock_connection
-        ) as mock_connect:
-            result = get_db_connection()
+        ) as mock_connect,
+    ):
+        result = get_db_connection()
 
-            # Verify connection was created with correct parameters
-            mock_connect.assert_called_once()
-            assert result == mock_connection
+        # Verify connection was created with correct parameters
+        mock_connect.assert_called_once()
+        assert result == mock_connection
 
 
 @pytest.mark.asyncio

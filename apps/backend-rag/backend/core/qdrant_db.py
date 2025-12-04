@@ -22,26 +22,37 @@ class QdrantClient:
     Handles storage, retrieval, and filtering via REST API.
     """
 
-    def __init__(self, qdrant_url: str = None, collection_name: str = None):
+    def __init__(self, qdrant_url: str = None, collection_name: str = None, api_key: str = None):
         """
         Initialize Qdrant client.
 
         Args:
             qdrant_url: Qdrant server URL (default from env/settings)
             collection_name: Name of collection to use
+            api_key: Qdrant API key for authentication (default from settings)
         """
         # Get Qdrant URL from settings
         self.qdrant_url = qdrant_url or settings.qdrant_url
 
         self.collection_name = collection_name or "knowledge_base"
 
+        # Get API key from settings or parameter
+        self.api_key = api_key or (settings.qdrant_api_key if settings else None)
+
         # Remove trailing slash
         self.qdrant_url = self.qdrant_url.rstrip("/")
 
         logger.info(
             f"Qdrant client initialized: collection='{self.collection_name}', "
-            f"url='{self.qdrant_url}'"
+            f"url='{self.qdrant_url}', api_key={'***' if self.api_key else 'None'}"
         )
+
+    def _get_headers(self) -> dict[str, str]:
+        """Get headers for API requests including API key if configured"""
+        headers = {}
+        if self.api_key:
+            headers["api-key"] = self.api_key
+        return headers
 
     def _convert_filter_to_qdrant_format(
         self, filter_dict: dict[str, Any]
@@ -124,7 +135,7 @@ class QdrantClient:
                 if qdrant_filter:
                     payload["filter"] = qdrant_filter
 
-            response = requests.post(url, json=payload, timeout=30)
+            response = requests.post(url, json=payload, headers=self._get_headers(), timeout=30)
 
             if response.status_code != 200:
                 logger.error(f"Qdrant search failed: {response.status_code} - {response.text}")
@@ -165,7 +176,7 @@ class QdrantClient:
         """
         try:
             url = f"{self.qdrant_url}/collections/{self.collection_name}"
-            response = requests.get(url, timeout=10)
+            response = requests.get(url, headers=self._get_headers(), timeout=10)
 
             if response.status_code == 200:
                 data = response.json().get("result", {})
@@ -211,7 +222,7 @@ class QdrantClient:
 
             payload = {"vectors": {"size": vector_size, "distance": distance}}
 
-            response = requests.put(url, json=payload, timeout=30)
+            response = requests.put(url, json=payload, headers=self._get_headers(), timeout=30)
 
             if response.status_code == 200:
                 logger.info(f"Created collection '{self.collection_name}'")
@@ -266,7 +277,9 @@ class QdrantClient:
 
             # Upsert via REST API
             payload = {"points": points}
-            response = requests.put(url, json=payload, params={"wait": "true"}, timeout=60)
+            response = requests.put(
+                url, json=payload, headers=self._get_headers(), params={"wait": "true"}, timeout=60
+            )
 
             if response.status_code == 200:
                 logger.info(
@@ -325,7 +338,9 @@ class QdrantClient:
             else:
                 params = {"with_payload": True, "with_vectors": True}
 
-            response = requests.post(url, json=payload, params=params, timeout=30)
+            response = requests.post(
+                url, json=payload, headers=self._get_headers(), params=params, timeout=30
+            )
 
             if response.status_code != 200:
                 logger.error(f"Qdrant get failed: {response.status_code} - {response.text}")
@@ -367,7 +382,9 @@ class QdrantClient:
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points/delete"
 
             payload = {"points": ids}
-            response = requests.post(url, json=payload, params={"wait": "true"}, timeout=30)
+            response = requests.post(
+                url, json=payload, headers=self._get_headers(), params={"wait": "true"}, timeout=30
+            )
 
             if response.status_code == 200:
                 logger.info(
@@ -396,7 +413,7 @@ class QdrantClient:
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points/scroll"
 
             payload = {"limit": limit, "with_payload": True, "with_vectors": False}
-            response = requests.post(url, json=payload, timeout=10)
+            response = requests.post(url, json=payload, headers=self._get_headers(), timeout=10)
 
             if response.status_code == 200:
                 data = response.json().get("result", {})

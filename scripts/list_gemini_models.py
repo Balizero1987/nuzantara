@@ -32,9 +32,9 @@ try:
             if hasattr(model, "output_token_limit"):
                 print(f"   Output tokens: {model.output_token_limit}")
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"📊 TOTALE: {len(available_models)} modelli disponibili")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     # Modelli da testare per estrazione metadata
     models_to_test = [

@@ -151,9 +151,9 @@ class MetadataExtractor:
         # Duration
         duration_match = self.patterns["duration"].search(text)
         if duration_match:
-            metadata[
-                "duration"
-            ] = f"{duration_match.group(1)} {duration_match.group(2)}"
+            metadata["duration"] = (
+                f"{duration_match.group(1)} {duration_match.group(2)}"
+            )
 
         # Fee USD
         fee_usd_match = self.patterns["fee_usd"].search(text)
@@ -423,9 +423,9 @@ def main():
     }
 
     for collection_name in collections_to_process:
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"📊 Processando: {collection_name}")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         try:
             client = SimpleQdrantClient(QDRANT_URL, collection_name)
@@ -506,9 +506,9 @@ def main():
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("📊 RIEPILOGO")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     total_extracted = sum(
         c.get("extracted_count", 0) for c in results["collections"].values()
     )
