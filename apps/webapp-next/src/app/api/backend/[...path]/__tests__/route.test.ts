@@ -86,12 +86,12 @@ describe('Backend Proxy Route Handler', () => {
       const response = await proxyRequest(request, 'GET', ['test']);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://nuzantara-rag.fly.dev/test',
+        'https://test-backend.example.com/test',
         expect.objectContaining({
           method: 'GET',
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
-            'X-API-Key': 'zantara-secret-2024',
+            'X-API-Key': 'test-api-key',
           }),
         })
       );
@@ -119,7 +119,7 @@ describe('Backend Proxy Route Handler', () => {
         expect.objectContaining({
           headers: expect.objectContaining({
             Authorization: 'Bearer test-token',
-            'X-API-Key': 'zantara-secret-2024',
+            'X-API-Key': 'test-api-key',
           }),
         })
       );
@@ -241,7 +241,7 @@ describe('Backend Proxy Route Handler', () => {
       await proxyRequest(request, 'GET', ['test']);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://nuzantara-rag.fly.dev/test?param1=value1&param2=value2',
+        'https://test-backend.example.com/test?param1=value1&param2=value2',
         expect.any(Object)
       );
     });

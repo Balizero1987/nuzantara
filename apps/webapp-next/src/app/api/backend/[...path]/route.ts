@@ -11,14 +11,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildBackendUrl, executeProxyRequest, isStreamingResponse } from './proxy-utils';
 
-const BACKEND_URL = process.env.NUZANTARA_API_URL || 'https://nuzantara-rag.fly.dev';
-const API_KEY = process.env.NUZANTARA_API_KEY;
-
 export async function proxyRequest(
   request: NextRequest,
   method: string,
   pathSegments: string[]
 ): Promise<Response> {
+  const BACKEND_URL = process.env.NUZANTARA_API_URL || 'https://nuzantara-rag.fly.dev';
+  const API_KEY = process.env.NUZANTARA_API_KEY;
+
   const url = new URL(request.url);
   const queryString = url.search;
   const backendUrl = buildBackendUrl(BACKEND_URL, pathSegments, queryString);
