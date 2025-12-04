@@ -5,39 +5,23 @@
   "chat_tests": [
     {
       "question": "Ciao, come stai?",
-      "status": "error",
-      "error": "Old model (1.5-flash) still referenced",
-      "response_preview": "data: {\"type\": \"metadata\", \"data\": {\"status\": \"connected\", \"user\": \"zero@balizero.com\", \"identified\": \"Zero\"}}\n\ndata: {\"type\": \"metadata\", \"data\": {\"memory_used\": true, \"used_rag\": true, \"rag_sources\""
+      "status": "partial",
+      "response_length": 675,
+      "note": "Response received but no content chunks found"
     },
     {
       "question": "Cosa puoi fare per me?",
-      "status": "error",
-      "error": "Old model (1.5-flash) still referenced",
-      "response_preview": "data: {\"type\": \"metadata\", \"data\": {\"status\": \"connected\", \"user\": \"zero@balizero.com\", \"identified\": \"Zero\"}}\n\ndata: {\"type\": \"metadata\", \"data\": {\"memory_used\": true, \"used_rag\": true, \"rag_sources\""
+      "status": "partial",
+      "response_length": 2953,
+      "note": "Response received but no content chunks found"
     },
     {
       "question": "Test semplice",
-      "status": "error",
-      "error": "Old model (1.5-flash) still referenced",
-      "response_preview": "data: {\"type\": \"metadata\", \"data\": {\"status\": \"connected\", \"user\": \"zero@balizero.com\", \"identified\": \"Zero\"}}\n\ndata: {\"type\": \"metadata\", \"data\": {\"memory_used\": true, \"used_rag\": true, \"rag_sources\""
+      "status": "partial",
+      "response_length": 1134,
+      "note": "Response received but no content chunks found"
     }
   ],
-  "errors_found": [
-    {
-      "status": "error",
-      "error": "Old model (1.5-flash) still referenced",
-      "response_preview": "data: {\"type\": \"metadata\", \"data\": {\"status\": \"connected\", \"user\": \"zero@balizero.com\", \"identified\": \"Zero\"}}\n\ndata: {\"type\": \"metadata\", \"data\": {\"memory_used\": true, \"used_rag\": true, \"rag_sources\""
-    },
-    {
-      "status": "error",
-      "error": "Old model (1.5-flash) still referenced",
-      "response_preview": "data: {\"type\": \"metadata\", \"data\": {\"status\": \"connected\", \"user\": \"zero@balizero.com\", \"identified\": \"Zero\"}}\n\ndata: {\"type\": \"metadata\", \"data\": {\"memory_used\": true, \"used_rag\": true, \"rag_sources\""
-    },
-    {
-      "status": "error",
-      "error": "Old model (1.5-flash) still referenced",
-      "response_preview": "data: {\"type\": \"metadata\", \"data\": {\"status\": \"connected\", \"user\": \"zero@balizero.com\", \"identified\": \"Zero\"}}\n\ndata: {\"type\": \"metadata\", \"data\": {\"memory_used\": true, \"used_rag\": true, \"rag_sources\""
-    }
-  ],
+  "errors_found": [],
   "summary": {}
 }
