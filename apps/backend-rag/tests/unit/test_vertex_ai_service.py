@@ -15,6 +15,13 @@ if str(backend_path) not in sys.path:
 
 from services.vertex_ai_service import VertexAIService
 
+try:
+    import vertexai
+except ImportError:
+    vertexai = None
+
+pytestmark = pytest.mark.skipif(vertexai is None, reason="vertexai module not installed")
+
 # ============================================================================
 # Fixtures
 # ============================================================================
