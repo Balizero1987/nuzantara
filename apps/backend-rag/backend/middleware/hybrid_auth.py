@@ -50,7 +50,6 @@ class HybridAuthMiddleware(BaseHTTPMiddleware):
             "/api/auth/team/login",  # Login endpoint must be public
             "/api/auth/login",  # Login endpoint must be public
             "/api/auth/csrf-token",  # CSRF token endpoint must be public
-            "/debug/config",  # TEMPORARY: Debug endpoint to check configuration
         ]
 
         logger.info(

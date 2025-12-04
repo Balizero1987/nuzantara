@@ -115,8 +115,8 @@ class RateLimiter:
 
         except Exception as e:
             logger.error(f"Rate limit check error: {e}")
-            # On error, allow request (fail open)
-            return True, {"limit": limit, "remaining": limit, "reset": current_time + window}
+            # FAIL-CLOSED: On error, deny request for security
+            return False, {"limit": limit, "remaining": 0, "reset": current_time + window}
 
 
 # Global rate limiter instance

@@ -166,17 +166,19 @@ def _allowed_origins() -> list[str]:
             [origin.strip() for origin in settings.dev_origins.split(",") if origin.strip()]
         )
 
-    # Default production origins
+    # Production origins (localhost only in DEBUG mode)
     default_origins = [
         "https://zantara.balizero.com",
         "https://www.zantara.balizero.com",
         "https://balizero1987.github.io",
         "https://balizero.github.io",
-        "https://nuzantara-webapp.fly.dev",  # Frontend Fly.io deployment
-        "http://localhost:3000",  # Local development
+        "https://nuzantara-webapp.fly.dev",
     ]
 
-    # Always include defaults
+    # Add localhost ONLY in debug mode
+    if settings.log_level == "DEBUG":
+        default_origins.append("http://localhost:3000")
+
     for origin in default_origins:
         if origin not in origins:
             origins.append(origin)
@@ -189,8 +191,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins(),
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "X-API-Key", "X-CSRF-Token"],
 )
 
 # Add Hybrid Authentication middleware (after CORS)

@@ -99,7 +99,7 @@ export const apiClient = {
 
       const payload = JSON.parse(atob(parts[1]));
       const exp = payload.exp;
-      if (!exp) return true; // No expiration, assume valid
+      if (!exp) return false; // No expiration = invalid token
 
       return Date.now() < exp * 1000;
     } catch {
