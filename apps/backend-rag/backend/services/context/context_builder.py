@@ -240,6 +240,8 @@ PROACTIVE OFFERS:
 - Offer memory search: "I remember we discussed this before, let me find it"
 
 Remember: You have these capabilities built-in. Use them naturally to help users, not as features to advertise."""
+
+    def build_memory_context(self, memory: Any | None) -> str | None:
         """
         Build memory context from user memory
 
@@ -457,26 +459,19 @@ A: {ex.get('answer')}"""
         if zantara_identity:
             contexts.append(self.build_zantara_identity())
 
-        # 2. Backend services context (what ZANTARA can do) - after identity, before user context
-        if backend_services_context:
-            contexts.append(backend_services_context)
-        else:
-            # Always include backend services context if not explicitly provided
-            contexts.append(self.build_backend_services_context())
-
-        # 3. Identity context (who is the USER) - highest priority
+        # 2. Identity context (who is the USER) - highest priority
         if identity_context:
             contexts.append(identity_context)
 
-        # 4. Team context (response personalization)
+        # 3. Team context (response personalization)
         if team_context:
             contexts.append(team_context)
 
-        # 5. Memory context (conversation history)
+        # 4. Memory context (conversation history)
         if memory_context:
             contexts.append(memory_context)
 
-        # 6. RAG context (knowledge base) - wrapped in XML tags
+        # 5. RAG context (knowledge base) - wrapped in XML tags
         if rag_context:
             contexts.append(
                 f"""<knowledge_base>
@@ -504,13 +499,23 @@ ISTRUZIONI OBBLIGATORIE PER LA KNOWLEDGE BASE:
 5. ACCURATEZZA: NON inventare dati, codici, prezzi o requisiti - usa SOLO i dati dalla KB"""
             )
 
-        # 7. Cultural context (Indonesian insights)
+        # 6. Cultural context (Indonesian insights)
         if cultural_context:
             contexts.append(cultural_context)
 
-        # 8. Synthetic Context (Few-Shot Examples) - Guide for style/content
+        # 7. Synthetic Context (Few-Shot Examples) - Guide for style/content
         if synthetic_context:
             contexts.append(synthetic_context)
+
+        # 8. Backend services context (what ZANTARA can do) - include if we have other contexts
+        # Only include if there are other contexts to avoid breaking existing behavior
+        if contexts:  # Only add if we have other contexts
+            if backend_services_context:
+                # Insert after identity/team but before RAG for better flow
+                contexts.insert(min(2, len(contexts)), backend_services_context)
+            else:
+                # Insert default backend services context
+                contexts.insert(min(2, len(contexts)), self.build_backend_services_context())
 
         if not contexts:
             return None
