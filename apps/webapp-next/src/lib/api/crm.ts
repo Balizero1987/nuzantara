@@ -66,9 +66,26 @@ export const crmAPI = {
     return response.json() as Promise<GmailSyncResult>;
   },
 
-  async createClient(data: Partial<CRMClient>): Promise<CRMClient> {
+  async createClient(data: Partial<CRMClient>, createdBy?: string): Promise<CRMClient> {
     const token = apiClient.getToken();
-    const response = await fetchWithRetry(`${BASE_URL}/api/crm/clients`, {
+
+    // Get current user email for created_by if not provided
+    let createdByEmail = createdBy;
+    if (!createdByEmail) {
+      try {
+        // Try to get from auth context
+        const user = (await import('./auth')).authAPI.getUser();
+        createdByEmail = user?.email || 'system@nuzantara.io';
+      } catch {
+        createdByEmail = 'system@nuzantara.io';
+      }
+    }
+
+    // Build URL with query parameter
+    const url = new URL(`${BASE_URL}/api/crm/clients`);
+    url.searchParams.append('created_by', createdByEmail);
+
+    const response = await fetchWithRetry(url.toString(), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -79,10 +96,27 @@ export const crmAPI = {
     return response.json() as Promise<CRMClient>;
   },
 
-  async updateClient(id: number, data: Partial<CRMClient>): Promise<CRMClient> {
+  async updateClient(id: number, data: Partial<CRMClient>, updatedBy?: string): Promise<CRMClient> {
     const token = apiClient.getToken();
-    const response = await fetchWithRetry(`${BASE_URL}/api/crm/clients/${id}`, {
-      method: 'PUT',
+
+    // Get current user email for updated_by if not provided
+    let updatedByEmail = updatedBy;
+    if (!updatedByEmail) {
+      try {
+        // Try to get from auth context
+        const user = (await import('./auth')).authAPI.getUser();
+        updatedByEmail = user?.email || 'system@nuzantara.io';
+      } catch {
+        updatedByEmail = 'system@nuzantara.io';
+      }
+    }
+
+    // Build URL with query parameter and use PATCH instead of PUT
+    const url = new URL(`${BASE_URL}/api/crm/clients/${id}`);
+    url.searchParams.append('updated_by', updatedByEmail);
+
+    const response = await fetchWithRetry(url.toString(), {
+      method: 'PATCH', // Changed from PUT to PATCH to match backend
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

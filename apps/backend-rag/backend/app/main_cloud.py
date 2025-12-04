@@ -33,6 +33,7 @@ from middleware.error_monitoring import ErrorMonitoringMiddleware
 # --- Middleware ---
 from middleware.hybrid_auth import HybridAuthMiddleware
 from middleware.rate_limiter import RateLimitMiddleware
+from pydantic import BaseModel
 
 # --- OpenTelemetry (optional - only for local dev with Jaeger) ---
 OTEL_AVAILABLE = False
@@ -758,7 +759,18 @@ def _parse_history(history_raw: str | None) -> list[dict]:
     return []
 
 
-# --- MAIN SMART BROKER ENDPOINT ---
+# --- Pydantic Models for POST endpoint ---
+class ChatStreamRequest(BaseModel):
+    """Request model for POST /api/chat/stream"""
+
+    message: str
+    user_id: str | None = None
+    conversation_history: list[dict] | None = None
+    metadata: dict | None = None
+    zantara_context: dict | None = None
+
+
+# --- MAIN SMART BROKER ENDPOINT (GET - Legacy) ---
 @app.get("/api/v2/bali-zero/chat-stream")
 @app.get("/bali-zero/chat-stream")
 async def bali_zero_chat_stream(
@@ -913,6 +925,198 @@ async def bali_zero_chat_stream(
                         "query": query,
                         "user_id": user_id,
                         "session_id": "session_0",  # Placeholder
+                        "participants": [user_id],
+                        "existing_memories": [],
+                        "relationships_to_update": [],
+                        "profile_updates": [],
+                        "consolidation_actions": [],
+                        "memory_to_store": None,
+                    }
+
+                    async def run_collective_memory(workflow, input_state):
+                        try:
+                            await workflow.ainvoke(input_state)
+                            logger.info(
+                                f"🧠 Collective Memory processed for {input_state['user_id']}"
+                            )
+                        except Exception as e:
+                            logger.error(f"❌ Collective Memory failed: {e}")
+
+                    background_tasks.add_task(run_collective_memory, collective_workflow, state)
+            except Exception as e:
+                logger.error(f"⚠️ Collective Memory background task failed: {e}")
+
+        except Exception as exc:
+            logger.exception("Streaming error: %s", exc)
+            yield f"data: {json.dumps({'type': 'error', 'data': str(exc)}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+# --- MAIN SMART BROKER ENDPOINT (POST - Modern) ---
+@app.post("/api/chat/stream")
+async def chat_stream_post(
+    request: Request,
+    body: ChatStreamRequest,
+    background_tasks: BackgroundTasks,
+    authorization: str | None = Header(None),
+):
+    """
+    Modern POST endpoint for chat streaming (JSON body).
+    Compatible with frontend Next.js client.
+
+    Body:
+    {
+        "message": "User query",
+        "user_id": "optional-user-id",
+        "conversation_history": [{"role": "user", "content": "..."}, ...],
+        "metadata": {"key": "value"},
+        "zantara_context": {"session_id": "...", ...}
+    }
+
+    Returns: SSE stream with {"type": "token|metadata|done", "data": "..."}
+    """
+    if not body.message or not body.message.strip():
+        raise HTTPException(status_code=400, detail="Message must not be empty")
+
+    # Use middleware auth result first (already validated by HybridAuthMiddleware)
+    user_profile = getattr(request.state, "user", None)
+
+    # Fallback: validate manually if middleware didn't set user
+    if not user_profile:
+        user_profile = await _validate_auth_mixed(
+            authorization=authorization,
+            auth_token=None,
+            x_api_key=request.headers.get("X-API-Key"),
+        )
+
+    if not user_profile:
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required. Provide either JWT token (Bearer <token>) or API key (X-API-Key header)",
+        )
+
+    if not getattr(app.state, "services_initialized", False):
+        raise HTTPException(status_code=503, detail="Services are still initializing")
+
+    # Load Services
+    intelligent_router: IntelligentRouter = app.state.intelligent_router
+
+    # Extract user info from body or auth
+    user_email = body.user_id or user_profile.get("email") or user_profile.get("name")
+    user_role = user_profile.get("role", "member")
+
+    # Parse conversation history from body (already a list of dicts)
+    conversation_history_list = body.conversation_history or []
+    user_id = user_email or user_role or user_profile.get("id") or "anonymous"
+
+    # Collaborator lookup
+    collaborator = None
+    collaborator_service = getattr(app.state, "collaborator_service", None)
+    if collaborator_service and user_email:
+        try:
+            collaborator = await collaborator_service.identify(user_email)
+            if collaborator and collaborator.id != "anonymous":
+                logger.info(f"✅ Identified user: {collaborator.name} ({collaborator.role})")
+            else:
+                logger.info(f"👤 User not in team database: {user_email}")
+        except Exception as e:
+            logger.warning(f"⚠️ Collaborator lookup failed: {e}")
+
+    # Load user memory from persistent storage
+    memory_service = app.state.memory_service
+    user_memory = None
+    if memory_service:
+        try:
+            memory_obj = await memory_service.get_memory(user_id)
+            if memory_obj:
+                user_memory = {
+                    "facts": memory_obj.profile_facts,
+                    "summary": memory_obj.summary,
+                    "counters": memory_obj.counters,
+                }
+                logger.info(
+                    f"✅ Loaded memory for {user_id}: {len(memory_obj.profile_facts)} facts"
+                )
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to load memory for {user_id}: {e}")
+
+    async def event_stream() -> AsyncIterator[str]:
+        # Send connection metadata
+        yield f"data: {json.dumps({'type': 'metadata', 'data': {'status': 'connected', 'user': user_id, 'identified': collaborator.name if collaborator and collaborator.id != 'anonymous' else None}}, ensure_ascii=False)}\n\n"
+
+        try:
+            # Stream response using IntelligentRouter
+            async for chunk in intelligent_router.stream_chat(
+                message=body.message,
+                user_id=user_id,
+                conversation_history=conversation_history_list,
+                memory=user_memory,
+                collaborator=collaborator,
+            ):
+                # Handle structured chunk format (dict) from IntelligentRouter
+                if isinstance(chunk, dict):
+                    chunk_type = chunk.get("type", "token")
+                    chunk_data = chunk.get("data", "")
+
+                    if chunk_type == "metadata":
+                        yield f"data: {json.dumps({'type': 'metadata', 'data': chunk_data}, ensure_ascii=False)}\n\n"
+                    elif chunk_type == "token":
+                        # Sanitize token data before yielding
+                        sanitized_data = (
+                            sanitize_zantara_response(str(chunk_data)) if chunk_data else chunk_data
+                        )
+                        yield f"data: {json.dumps({'type': 'token', 'data': sanitized_data}, ensure_ascii=False)}\n\n"
+                    elif chunk_type == "done":
+                        yield f"data: {json.dumps({'type': 'done', 'data': chunk_data}, ensure_ascii=False)}\n\n"
+                    else:
+                        logger.warning(f"Unknown chunk type: {chunk_type}")
+                elif isinstance(chunk, str):
+                    # Legacy string format (fallback compatibility)
+                    if chunk.startswith("[METADATA]"):
+                        try:
+                            json_str = chunk.replace("[METADATA]", "").replace("[METADATA]", "")
+                            metadata_data = json.loads(json_str)
+                            yield f"data: {json.dumps({'type': 'metadata', 'data': metadata_data}, ensure_ascii=False)}\n\n"
+                        except Exception as e:
+                            logger.warning(f"Failed to parse legacy metadata chunk: {e}")
+                    else:
+                        # Plain text token
+                        yield f"data: {json.dumps({'type': 'token', 'data': chunk}, ensure_ascii=False)}\n\n"
+                else:
+                    logger.warning(f"Unexpected chunk type: {type(chunk)}")
+
+            # Background: Auto-CRM Processing
+            try:
+                crm_messages = [{"role": "user", "content": body.message}]
+                background_tasks.add_task(
+                    get_auto_crm_service().process_conversation,
+                    conversation_id=0,
+                    messages=crm_messages,
+                    user_email=user_email,
+                    team_member="system",
+                )
+            except Exception as e:
+                logger.error(f"⚠️ Auto-CRM background task failed: {e}")
+
+            # Background: Collective Memory Processing
+            try:
+                collective_workflow = getattr(app.state, "collective_memory_workflow", None)
+                if collective_workflow:
+                    state = {
+                        "query": body.message,
+                        "user_id": user_id,
+                        "session_id": body.zantara_context.get("session_id", "session_0")
+                        if body.zantara_context
+                        else "session_0",
                         "participants": [user_id],
                         "existing_memories": [],
                         "relationships_to_update": [],
