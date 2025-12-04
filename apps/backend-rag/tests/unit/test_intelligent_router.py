@@ -20,6 +20,7 @@ from services.intelligent_router import IntelligentRouter
 # Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def mock_gemini_jaksel():
     """Mock GeminiJakselService"""
@@ -29,17 +30,20 @@ def mock_gemini_jaksel():
     service.model_name = "gemini-1.5-flash"
     return service
 
+
 @pytest.fixture
 def mock_ai_client():
     """Mock ZantaraAIClient (Legacy)"""
     client = AsyncMock()
     return client
 
+
 @pytest.fixture
 def mock_search_service():
     """Mock SearchService"""
     service = AsyncMock()
     return service
+
 
 @pytest.fixture
 def mock_tool_executor():
@@ -48,6 +52,7 @@ def mock_tool_executor():
     executor.get_available_tools = MagicMock(return_value=[{"name": "tool1"}])
     return executor
 
+
 @pytest.fixture
 def mock_cultural_rag_service():
     """Mock CulturalRAGService"""
@@ -55,6 +60,7 @@ def mock_cultural_rag_service():
     service.get_cultural_context = AsyncMock(return_value=[])
     service.build_cultural_prompt_injection = MagicMock(return_value="Cultural context")
     return service
+
 
 @pytest.fixture
 def intelligent_router(
@@ -100,13 +106,13 @@ def intelligent_router(
 
     mock_specialized_router = MagicMock()
 
-    with patch("services.intelligent_router.IntentClassifier", return_value=mock_classifier), \
-         patch("services.intelligent_router.ContextBuilder", return_value=mock_context_builder), \
-         patch("services.intelligent_router.RAGManager", return_value=mock_rag_manager), \
-         patch("services.intelligent_router.SpecializedServiceRouter", return_value=mock_specialized_router), \
-         patch("services.intelligent_router.ResponseHandler", return_value=mock_response_handler), \
-         patch("services.intelligent_router.gemini_jaksel", mock_gemini_jaksel):
-
+    with patch("services.intelligent_router.IntentClassifier", return_value=mock_classifier), patch(
+        "services.intelligent_router.ContextBuilder", return_value=mock_context_builder
+    ), patch("services.intelligent_router.RAGManager", return_value=mock_rag_manager), patch(
+        "services.intelligent_router.SpecializedServiceRouter", return_value=mock_specialized_router
+    ), patch(
+        "services.intelligent_router.ResponseHandler", return_value=mock_response_handler
+    ), patch("services.intelligent_router.gemini_jaksel", mock_gemini_jaksel):
         router = IntelligentRouter(
             ai_client=mock_ai_client,
             search_service=mock_search_service,
@@ -121,21 +127,26 @@ def intelligent_router(
         router.response_handler = mock_response_handler
         router.specialized_router = mock_specialized_router
 
-        yield router, {
-            "ai": mock_ai_client,
-            "gemini": mock_gemini_jaksel,
-            "search": mock_search_service,
-            "tool_executor": mock_tool_executor,
-            "cultural_rag": mock_cultural_rag_service,
-            "classifier": mock_classifier,
-            "context_builder": mock_context_builder,
-            "rag_manager": mock_rag_manager,
-            "response_handler": mock_response_handler,
-        }
+        yield (
+            router,
+            {
+                "ai": mock_ai_client,
+                "gemini": mock_gemini_jaksel,
+                "search": mock_search_service,
+                "tool_executor": mock_tool_executor,
+                "cultural_rag": mock_cultural_rag_service,
+                "classifier": mock_classifier,
+                "context_builder": mock_context_builder,
+                "rag_manager": mock_rag_manager,
+                "response_handler": mock_response_handler,
+            },
+        )
+
 
 # ============================================================================
 # Tests for __init__
 # ============================================================================
+
 
 def test_init(intelligent_router):
     """Test initialization"""
@@ -144,9 +155,11 @@ def test_init(intelligent_router):
     assert router.cultural_rag == mocks["cultural_rag"]
     assert router.tool_executor == mocks["tool_executor"]
 
+
 # ============================================================================
 # Tests for route_chat
 # ============================================================================
+
 
 @pytest.mark.asyncio
 async def test_route_chat_basic(intelligent_router):
@@ -160,6 +173,7 @@ async def test_route_chat_basic(intelligent_router):
     assert result["ai_used"] == "gemini-jaksel"
     mocks["gemini"].generate_response.assert_called_once()
 
+
 @pytest.mark.asyncio
 async def test_route_chat_exception(intelligent_router):
     """Test route_chat handles exception"""
@@ -172,9 +186,11 @@ async def test_route_chat_exception(intelligent_router):
 
     assert "Routing failed" in str(exc_info.value)
 
+
 # ============================================================================
 # Tests for stream_chat
 # ============================================================================
+
 
 @pytest.mark.asyncio
 async def test_stream_chat_basic(intelligent_router):
@@ -200,6 +216,7 @@ async def test_stream_chat_basic(intelligent_router):
     assert "token" in types
     assert "done" in types
 
+
 @pytest.mark.asyncio
 async def test_stream_chat_exception(intelligent_router):
     """Test stream_chat handles exception"""
@@ -213,9 +230,11 @@ async def test_stream_chat_exception(intelligent_router):
 
     assert "Streaming failed" in str(exc_info.value)
 
+
 # ============================================================================
 # Tests for _handle_emotional_override
 # ============================================================================
+
 
 @pytest.mark.asyncio
 async def test_handle_emotional_override(intelligent_router):
@@ -224,9 +243,11 @@ async def test_handle_emotional_override(intelligent_router):
     result = await router._handle_emotional_override("I'm sad", "user123")
     assert result is None
 
+
 # ============================================================================
 # Tests for _get_cultural_context
 # ============================================================================
+
 
 @pytest.mark.asyncio
 async def test_get_cultural_context_success(intelligent_router):
@@ -242,6 +263,7 @@ async def test_get_cultural_context_success(intelligent_router):
     assert result is not None
     mocks["cultural_rag"].build_cultural_prompt_injection.assert_called_once()
 
+
 @pytest.mark.asyncio
 async def test_get_cultural_context_no_service(intelligent_router):
     """Test _get_cultural_context without service"""
@@ -252,9 +274,11 @@ async def test_get_cultural_context_no_service(intelligent_router):
 
     assert result is None
 
+
 # ============================================================================
 # Tests for get_stats
 # ============================================================================
+
 
 def test_get_stats(intelligent_router):
     """Test get_stats"""

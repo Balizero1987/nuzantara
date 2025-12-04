@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr, Field
 
-from app.core.config import settings
 from app.modules.identity.service import IdentityService
 
 logger = logging.getLogger(__name__)

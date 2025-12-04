@@ -55,8 +55,8 @@ export function CheckInOut() {
   const handleCheckOut = async () => {
     setIsLoading(true)
     try {
-      const now = new Date()
-      const duration = checkInTime ? Math.round((now.getTime() - checkInTime.getTime()) / (1000 * 60)) : 0
+      // const now = new Date()
+      // const duration = checkInTime ? Math.round((now.getTime() - checkInTime.getTime()) / (1000 * 60)) : 0
 
       // In production, you'd update the existing calendar event
       // For now, just clear the state
@@ -87,10 +87,9 @@ export function CheckInOut() {
         className={`
           px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300
           flex items-center gap-2 hover:scale-105 active:scale-95
-          ${
-            isCheckedIn
-              ? "bg-red-500/20 border-2 border-red-500 text-red-400 hover:bg-red-500/30"
-              : "bg-green-500/20 border-2 border-green-500 text-green-400 hover:bg-green-500/30"
+          ${isCheckedIn
+            ? "bg-red-500/20 border-2 border-red-500 text-red-400 hover:bg-red-500/30"
+            : "bg-green-500/20 border-2 border-green-500 text-green-400 hover:bg-green-500/30"
           }
           disabled:opacity-50 disabled:cursor-not-allowed
         `}

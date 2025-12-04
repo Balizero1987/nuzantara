@@ -198,33 +198,30 @@ class QdrantClient:
     def create_collection(self, vector_size: int = 1536, distance: str = "Cosine") -> bool:
         """
         Create a new collection.
-        
+
         Args:
             vector_size: Size of the vectors (default 1536 for OpenAI)
             distance: Distance metric (Cosine, Euclidean, Dot)
-            
+
         Returns:
             True if successful
         """
         try:
             url = f"{self.qdrant_url}/collections/{self.collection_name}"
-            
-            payload = {
-                "vectors": {
-                    "size": vector_size,
-                    "distance": distance
-                }
-            }
-            
+
+            payload = {"vectors": {"size": vector_size, "distance": distance}}
+
             response = requests.put(url, json=payload, timeout=30)
-            
+
             if response.status_code == 200:
                 logger.info(f"Created collection '{self.collection_name}'")
                 return True
             else:
-                logger.error(f"Failed to create collection: {response.status_code} - {response.text}")
+                logger.error(
+                    f"Failed to create collection: {response.status_code} - {response.text}"
+                )
                 return False
-                
+
         except Exception as e:
             logger.error(f"Error creating collection: {e}")
             return False

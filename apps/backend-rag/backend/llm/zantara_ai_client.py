@@ -22,7 +22,6 @@ from typing import Any
 
 from app.core.config import settings
 
-
 logger = logging.getLogger(__name__)
 
 # Path to rich system prompt file
@@ -73,7 +72,7 @@ class ZantaraAIClient:
             if settings.environment == "production":
                 logger.critical("❌ CRITICAL: No Gemini API key found in PRODUCTION environment")
                 raise ValueError("GOOGLE_API_KEY is required in production environment")
-            
+
             logger.warning("⚠️ No Gemini API key found - defaulting to MOCK MODE (Development only)")
             self.mock_mode = True
 
@@ -376,21 +375,25 @@ CONTEXT USAGE INSTRUCTIONS:
                 )
 
                 # Handle safety blocks - check candidates first
-                if hasattr(response, 'candidates') and response.candidates:
+                if hasattr(response, "candidates") and response.candidates:
                     candidate = response.candidates[0]
                     # Check if blocked by safety filters
-                    if hasattr(candidate, 'safety_ratings'):
+                    if hasattr(candidate, "safety_ratings"):
                         blocked = any(
-                            rating.probability.name in ['HIGH', 'MEDIUM'] 
+                            rating.probability.name in ["HIGH", "MEDIUM"]
                             for rating in candidate.safety_ratings
                         )
                         if blocked:
                             # Try to extract content anyway from parts
-                            if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                            if hasattr(candidate, "content") and hasattr(
+                                candidate.content, "parts"
+                            ):
                                 if candidate.content.parts:
                                     answer = candidate.content.parts[0].text
                                 else:
-                                    raise ValueError("Response blocked by safety filters and no content available")
+                                    raise ValueError(
+                                        "Response blocked by safety filters and no content available"
+                                    )
                             else:
                                 raise ValueError("Response blocked by safety filters")
                         else:
@@ -399,7 +402,7 @@ CONTEXT USAGE INSTRUCTIONS:
                         answer = response.text
                 else:
                     # Fallback to response.text
-                    answer = response.text if hasattr(response, 'text') else ""
+                    answer = response.text if hasattr(response, "text") else ""
 
                 # Estimate tokens
                 tokens_input = len(str(messages)) / 4
@@ -476,7 +479,7 @@ CONTEXT USAGE INSTRUCTIONS:
             memory_context=memory_context,
             identity_context=identity_context,
         )
-        few_shot_messages = [] # No few-shot for standard stream
+        few_shot_messages = []  # No few-shot for standard stream
 
         # DRY RUN LOGGING: Log full prompt assembly for debugging
         logger.debug("=" * 80)

@@ -6,7 +6,6 @@ import {
   Clock,
   Star,
   Trash2,
-  MoreHorizontal,
   Plus,
   Sparkles,
   Brain,
@@ -118,9 +117,7 @@ export function ChatHistory({ className, onChatSelect, onNewChat }: ChatHistoryP
     }
   }, [selectedChatId])
 
-  const formatTimestamp = (timestamp: string) => {
-    return timestamp
-  }
+
 
   // Separate pinned and regular chats
   const pinnedChats = chats.filter(chat => chat.isPinned)

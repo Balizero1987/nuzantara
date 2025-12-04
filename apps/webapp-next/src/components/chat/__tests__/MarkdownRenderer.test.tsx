@@ -203,9 +203,8 @@ This is a paragraph.
 })
 
 describe('markdownComponents', () => {
-  const { markdownComponents } = require('../MarkdownRenderer')
-
-  it('should render inline code', () => {
+  it('should render inline code', async () => {
+    const { markdownComponents } = await import('../MarkdownRenderer')
     const CodeComponent = markdownComponents.code
     render(<CodeComponent className="">inline code</CodeComponent>)
 
@@ -214,7 +213,8 @@ describe('markdownComponents', () => {
     expect(codeElement.tagName).toBe('CODE')
   })
 
-  it('should render code block', () => {
+  it('should render code block', async () => {
+    const { markdownComponents } = await import('../MarkdownRenderer')
     const CodeComponent = markdownComponents.code
     render(<CodeComponent className="language-javascript">const x = 1;</CodeComponent>)
 

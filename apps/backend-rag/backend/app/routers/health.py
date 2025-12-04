@@ -296,17 +296,20 @@ async def debug_config() -> dict[str, Any]:
     TEMPORARY: Debug endpoint to check loaded configuration.
     Shows what API keys and config the backend actually loaded.
     """
-    from app.core.config import settings
     import os
+
+    from app.core.config import settings
 
     return {
         "api_keys_count": len(settings.api_keys.split(",")) if settings.api_keys else 0,
-        "api_keys_preview": [
-            f"{key[:10]}...{key[-10:]}" for key in settings.api_keys.split(",")
-        ] if settings.api_keys else [],
+        "api_keys_preview": [f"{key[:10]}...{key[-10:]}" for key in settings.api_keys.split(",")]
+        if settings.api_keys
+        else [],
         "api_auth_enabled": settings.api_auth_enabled,
         "jwt_secret_set": bool(settings.jwt_secret_key),
-        "jwt_secret_preview": f"{settings.jwt_secret_key[:10]}..." if settings.jwt_secret_key else None,
+        "jwt_secret_preview": f"{settings.jwt_secret_key[:10]}..."
+        if settings.jwt_secret_key
+        else None,
         "environment": settings.environment,
         "env_vars_present": {
             "API_KEYS": "API_KEYS" in os.environ,

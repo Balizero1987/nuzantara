@@ -6,7 +6,7 @@ This conftest.py provides common fixtures used across all unit tests.
 """
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -99,9 +99,6 @@ def mock_specialized_router():
     router.detect_cross_oracle = MagicMock(return_value=False)
     router.detect_client_journey = MagicMock(return_value=False)
     return router
-
-
-
 
 
 @pytest.fixture

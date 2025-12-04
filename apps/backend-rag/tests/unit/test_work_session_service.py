@@ -82,16 +82,8 @@ async def test_connect_success(work_session_service):
         mock_pool.assert_called_once()
 
 
-@pytest.mark.asyncio
-@pytest.mark.skipif(
-    True,  # Skip in CI where PostgreSQL is not available
-    reason="Requires PostgreSQL service - test needs better mocking for CI",
-)
-async def test_connect_no_database_url(work_session_service_no_db):
-    """Test connecting without database URL"""
-    await work_session_service_no_db.connect()
-
-    assert work_session_service_no_db.pool is None
+# NOTE: This test has been moved to tests/integration/test_work_session_integration.py
+# It requires a real PostgreSQL instance and is better suited as an integration test.
 
 
 # ============================================================================

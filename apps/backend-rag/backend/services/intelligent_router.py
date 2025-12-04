@@ -9,7 +9,6 @@ UPDATED 2025-12-04:
 - Optimized streaming
 """
 
-import asyncio
 import logging
 from typing import Any
 
@@ -47,7 +46,7 @@ class IntelligentRouter:
         collaborator_service=None,
     ):
         # Core services
-        self.ai = ai_client # Kept for backward compatibility/tools if needed
+        self.ai = ai_client  # Kept for backward compatibility/tools if needed
         self.cultural_rag = cultural_rag_service
         self.personality_service = personality_service
         self.collaborator_service = collaborator_service
@@ -64,6 +63,92 @@ class IntelligentRouter:
         self.tool_executor = tool_executor
 
         logger.info("🎯 [IntelligentRouter] Initialized (GEMINI JAKSEL NATIVE)")
+
+    async def _prepare_routing_context(
+        self,
+        message: str,
+        user_id: str,
+        conversation_history: list[dict] | None = None,
+        memory: Any | None = None,
+        collaborator: Any | None = None,
+    ) -> dict:
+        """
+        Unified context preparation logic for both route_chat and stream_chat.
+        Returns a dictionary containing all necessary context and metadata.
+        """
+        # STEP 0: Fast Intent Classification
+        intent = await self.classifier.classify_intent(message)
+        category = intent["category"]
+        logger.info(f"📋 [Router] Classification: {category}")
+
+        # STEP 0.5: Detect special query types
+        is_identity_query = self.context_builder.detect_identity_query(message)
+        is_zantara_query = self.context_builder.detect_zantara_query(message)
+        is_team_query = self.context_builder.detect_team_query(message)
+
+        if is_identity_query:
+            category = "identity"
+        elif is_zantara_query:
+            category = "zantara_identity"
+        elif is_team_query:
+            category = "team_query"
+
+        # STEP 3: Classify query type for RAG
+        query_type = (
+            category
+            if category in ["identity", "team_query", "zantara_identity"]
+            else self.response_handler.classify_query(message)
+        )
+
+        # STEP 4: Build identity context
+        identity_context = None
+        if collaborator and hasattr(collaborator, "id") and collaborator.id != "anonymous":
+            identity_context = self.context_builder.build_identity_context(collaborator)
+
+        # STEP 5: Query Rewriting
+        search_query = await self._rewrite_query_for_search(message, conversation_history)
+
+        # STEP 6: RAG retrieval
+        force_collection = "bali_zero_team" if category in ["identity", "team_query"] else None
+        rag_limit = 10 if query_type in ["business", "emergency"] else 5
+        rag_result = await self.rag_manager.retrieve_context(
+            query=search_query,
+            query_type=query_type,
+            user_level=0,
+            limit=rag_limit,
+            force_collection=force_collection,
+        )
+
+        # STEP 7-10: Build other contexts (Memory, Team, Cultural)
+        memory_context = self.context_builder.build_memory_context(memory)
+        team_context = self.context_builder.build_team_context(collaborator)
+        cultural_context = await self._get_cultural_context(message, conversation_history)
+
+        # Combine contexts
+        combined_context = self.context_builder.combine_contexts(
+            memory_context=memory_context,
+            team_context=team_context,
+            rag_context=rag_result["context"],
+            cultural_context=cultural_context,
+            identity_context=identity_context,
+            synthetic_context="",  # Deprecated synthetic context
+            zantara_identity=is_zantara_query,
+        )
+
+        return {
+            "combined_context": combined_context,
+            "category": category,
+            "rag_result": rag_result,
+            "metadata": {
+                "memory_used": bool(memory),
+                "used_rag": rag_result.get("used_rag", False),
+                "rag_sources": [
+                    doc.get("metadata", {}).get("source") or "Unknown"
+                    for doc in rag_result.get("docs", [])
+                ],
+                "intent": category,
+            },
+        }
 
     async def route_chat(
         self,
@@ -82,83 +167,25 @@ class IntelligentRouter:
         try:
             logger.info(f"🚦 [Router] Routing message for user {user_id}")
 
-            # STEP 0: Fast Intent Classification
-            intent = await self.classifier.classify_intent(message)
-            category = intent["category"]
-            logger.info(f"📋 [Router] Classification: {category}")
-
-            # STEP 0.5: Detect special query types
-            is_identity_query = self.context_builder.detect_identity_query(message)
-            is_zantara_query = self.context_builder.detect_zantara_query(message)
-            is_team_query = self.context_builder.detect_team_query(message)
-
-            if is_identity_query: category = "identity"
-            elif is_zantara_query: category = "zantara_identity"
-            elif is_team_query: category = "team_query"
-
-            # STEP 1: Fast Track (Optional - disabled for now to ensure consistency)
-            # if category in ["greeting", "casual"] ...
-
-            # STEP 2: Determine tools (Not used in this simplified flow yet)
-            
-            # STEP 3: Classify query type for RAG
-            query_type = (
-                category
-                if category in ["identity", "team_query", "zantara_identity"]
-                else self.response_handler.classify_query(message)
-            )
-
-            # STEP 4: Build identity context
-            identity_context = None
-            if collaborator and hasattr(collaborator, "id") and collaborator.id != "anonymous":
-                identity_context = self.context_builder.build_identity_context(collaborator)
-
-            # STEP 5: Query Rewriting
-            search_query = await self._rewrite_query_for_search(message, conversation_history)
-            
-            # STEP 6: RAG retrieval
-            force_collection = "bali_zero_team" if category in ["identity", "team_query"] else None
-            rag_limit = 10 if query_type in ["business", "emergency"] else 5
-            rag_result = await self.rag_manager.retrieve_context(
-                query=search_query,
-                query_type=query_type,
-                user_level=0,
-                limit=rag_limit,
-                force_collection=force_collection,
-            )
-
-            # STEP 7-10: Build other contexts (Memory, Team, Cultural)
-            memory_context = self.context_builder.build_memory_context(memory)
-            team_context = self.context_builder.build_team_context(collaborator)
-            cultural_context = await self._get_cultural_context(message, conversation_history)
-            
-            # Combine contexts
-            combined_context = self.context_builder.combine_contexts(
-                memory_context=memory_context,
-                team_context=team_context,
-                rag_context=rag_result["context"],
-                cultural_context=cultural_context,
-                identity_context=identity_context,
-                synthetic_context="", # Deprecated synthetic context
-                zantara_identity=is_zantara_query,
+            # Prepare context using unified logic
+            ctx = await self._prepare_routing_context(
+                message, user_id, conversation_history, memory, collaborator
             )
 
             # STEP 11: Generate Response via Gemini Jaksel
             logger.info("🎯 [Router] Generating response via Gemini Jaksel")
-            
+
             response_text = await gemini_jaksel.generate_response(
-                message=message,
-                history=conversation_history or [],
-                context=combined_context
+                message=message, history=conversation_history or [], context=ctx["combined_context"]
             )
 
             return {
                 "response": response_text,
                 "ai_used": "gemini-jaksel",
-                "category": category,
+                "category": ctx["category"],
                 "model": gemini_jaksel.model_name,
-                "tokens": {}, # Token counting not implemented yet
-                "used_rag": rag_result["used_rag"],
+                "tokens": {},  # Token counting not implemented yet
+                "used_rag": ctx["rag_result"]["used_rag"],
                 "used_tools": False,
                 "tools_called": [],
             }
@@ -181,90 +208,33 @@ class IntelligentRouter:
         try:
             logger.info(f"🚦 [Router Stream] Starting stream for user {user_id}")
 
-            # Reuse logic for context building (Simplified for brevity, ideally shared)
-            # ... (Classification, Rewriting, RAG Retrieval logic same as route_chat)
-            
-            # --- DUPLICATED LOGIC FOR CONTEXT BUILDING (To be refactored into helper) ---
-            intent = await self.classifier.classify_intent(message)
-            category = intent["category"]
-            
-            is_identity_query = self.context_builder.detect_identity_query(message)
-            is_zantara_query = self.context_builder.detect_zantara_query(message)
-            is_team_query = self.context_builder.detect_team_query(message)
-            
-            if is_identity_query: category = "identity"
-            elif is_zantara_query: category = "zantara_identity"
-            elif is_team_query: category = "team_query"
-            
-            query_type = (
-                category
-                if category in ["identity", "team_query", "zantara_identity"]
-                else self.response_handler.classify_query(message)
+            # Prepare context using unified logic
+            ctx = await self._prepare_routing_context(
+                message, user_id, conversation_history, memory, collaborator
             )
-            
-            search_query = await self._rewrite_query_for_search(message, conversation_history)
-            
-            force_collection = "bali_zero_team" if category in ["identity", "team_query"] else None
-            rag_limit = 10 if query_type in ["business", "emergency"] else 5
-            rag_result = await self.rag_manager.retrieve_context(
-                query=search_query,
-                query_type=query_type,
-                user_level=0,
-                limit=rag_limit,
-                force_collection=force_collection,
-            )
-            
-            identity_context = None
-            if collaborator and hasattr(collaborator, "id") and collaborator.id != "anonymous":
-                identity_context = self.context_builder.build_identity_context(collaborator)
-                
-            memory_context = self.context_builder.build_memory_context(memory)
-            team_context = self.context_builder.build_team_context(collaborator)
-            
-            combined_context = self.context_builder.combine_contexts(
-                memory_context=memory_context,
-                team_context=team_context,
-                rag_context=rag_result["context"],
-                cultural_context=None,
-                identity_context=identity_context,
-                synthetic_context="",
-                zantara_identity=is_zantara_query,
-            )
-            # -----------------------------------------------------------------------
 
             # Yield metadata first
-            metadata = {
-                "memory_used": bool(memory),
-                "used_rag": rag_result.get("used_rag", False),
-                "rag_sources": [
-                    doc.get("metadata", {}).get("source") or "Unknown"
-                    for doc in rag_result.get("docs", [])
-                ],
-                "intent": category,
-            }
-            yield {"type": "metadata", "data": metadata}
+            yield {"type": "metadata", "data": ctx["metadata"]}
             yield {"type": "ping", "data": "ping"}
 
             # Stream from Gemini Jaksel
             logger.info("🎯 [Router Stream] Streaming from Gemini Jaksel")
-            
+
             async for chunk in gemini_jaksel.generate_response_stream(
-                message=message,
-                history=conversation_history or [],
-                context=combined_context
+                message=message, history=conversation_history or [], context=ctx["combined_context"]
             ):
                 if chunk:
                     yield {"type": "token", "data": chunk}
 
             yield {"type": "done", "data": None}
-            logger.info(f"✅ [Router Stream] Completed")
+            logger.info("✅ [Router Stream] Completed")
 
         except Exception as e:
             logger.error(f"❌ [Router Stream] Error: {e}")
             raise Exception(f"Streaming failed: {str(e)}") from e
 
-    # ... (Keep helper methods like _rewrite_query_for_search, _get_cultural_context, _handle_emotional_override)
-    
+    # ... (Keep helper methods like _get_cultural_context, _handle_emotional_override)
+
     async def _handle_emotional_override(self, *args, **kwargs):
         # Placeholder to keep signature valid, but logic can be routed to Gemini too if needed
         return None
@@ -272,17 +242,48 @@ class IntelligentRouter:
     async def _rewrite_query_for_search(
         self, query: str, conversation_history: list[dict] | None
     ) -> str:
-        # Keep existing logic or simplify
-        return query # Simplified for now to rely on Gemini's context understanding
+        """
+        Rewrite query using Gemini to include context from history for better RAG retrieval.
+        """
+        if not conversation_history:
+            return query
+
+        try:
+            # Simple rewriting prompt
+            rewrite_prompt = f"""Rewrite the following user query to be a standalone search query, resolving any coreferences (like 'it', 'that', 'he') based on the conversation history.
+
+            History:
+            {str(conversation_history[-3:]) if conversation_history else 'None'}
+
+            User Query: {query}
+
+            Standalone Query:"""
+
+            # Use a lightweight call if possible, or just standard generation
+            # For now, we reuse the main service but with a specific prompt
+            rewritten = await gemini_jaksel.generate_response(
+                rewrite_prompt, history=[], context=""
+            )
+
+            # Clean up response
+            cleaned = rewritten.strip().replace("Standalone Query:", "").strip().strip('"')
+            logger.info(f"🔄 [Router] Rewrote query: '{query}' -> '{cleaned}'")
+            return cleaned
+        except Exception as e:
+            logger.warning(f"⚠️ [Router] Query rewriting failed: {e}. Using original query.")
+            return query
 
     async def _get_cultural_context(
         self, message: str, conversation_history: list[dict] | None
     ) -> str | None:
-        if not self.cultural_rag: return None
+        if not self.cultural_rag:
+            return None
         try:
             chunks = await self.cultural_rag.get_cultural_context({"query": message}, limit=2)
-            if chunks: return self.cultural_rag.build_cultural_prompt_injection(chunks)
-        except: pass
+            if chunks:
+                return self.cultural_rag.build_cultural_prompt_injection(chunks)
+        except:
+            pass
         return None
 
     def get_stats(self) -> dict:

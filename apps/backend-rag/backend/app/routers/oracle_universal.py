@@ -932,8 +932,6 @@ async def hybrid_oracle_query(
                 if not answer:
                     answer = f"User asked: {request.query}"
 
-
-
             except Exception as e:
                 logger.error(f"❌ JAKSEL EXCEPTION: {e}")
                 logger.error(f"❌ JAKSEL TRACEBACK: {traceback.format_exc()}")

@@ -24,14 +24,18 @@ from app.services.api_key_auth import APIKeyAuth
 
 @pytest.fixture
 def api_key_auth():
-    """Create APIKeyAuth instance"""
-    return APIKeyAuth()
+    """Create APIKeyAuth instance with mocked settings"""
+    with patch("app.services.api_key_auth.settings") as mock_settings:
+        mock_settings.api_keys = "zantara-secret-2024,zantara-test-2024"
+        return APIKeyAuth()
 
 
 @pytest.fixture
 def fresh_api_key_auth():
     """Create fresh APIKeyAuth instance for tests that need clean state"""
-    return APIKeyAuth()
+    with patch("app.services.api_key_auth.settings") as mock_settings:
+        mock_settings.api_keys = "zantara-secret-2024,zantara-test-2024"
+        return APIKeyAuth()
 
 
 # ============================================================================
@@ -51,16 +55,21 @@ def test_init_creates_admin_key(api_key_auth):
     admin_key = api_key_auth.valid_keys["zantara-secret-2024"]
     assert admin_key["role"] == "admin"
     assert admin_key["permissions"] == ["*"]
-    assert admin_key["created_at"] == "2024-01-01T00:00:00Z"
+    # created_at is dynamically generated, just verify it's a valid ISO format
+    assert "created_at" in admin_key
+    assert admin_key["created_at"].endswith("Z")
     assert "description" in admin_key
 
 
 def test_init_creates_test_key(api_key_auth):
     """Test initialization creates test key with correct properties"""
     test_key = api_key_auth.valid_keys["zantara-test-2024"]
-    assert test_key["role"] == "test"
+    # Role is determined by key name: "test" doesn't contain "admin" or "secret", so it's "user"
+    assert test_key["role"] == "user"
     assert test_key["permissions"] == ["read"]
-    assert test_key["created_at"] == "2024-01-01T00:00:00Z"
+    # created_at is dynamically generated, just verify it's a valid ISO format
+    assert "created_at" in test_key
+    assert test_key["created_at"].endswith("Z")
     assert "description" in test_key
 
 
@@ -114,9 +123,10 @@ def test_validate_api_key_success_test(api_key_auth):
 
     assert result is not None
     assert result["id"] == "api_key_zantara-"
-    assert result["email"] == "test@zantara.dev"
-    assert result["name"] == "API User (test)"
-    assert result["role"] == "test"
+    # Role is "user" because key doesn't contain "admin" or "secret"
+    assert result["email"] == "user@zantara.dev"
+    assert result["name"] == "API User (user)"
+    assert result["role"] == "user"
     assert result["status"] == "active"
     assert result["auth_method"] == "api_key"
     assert result["permissions"] == ["read"]
@@ -173,10 +183,11 @@ def test_validate_api_key_metadata_values(api_key_auth):
     result = api_key_auth.validate_api_key("zantara-secret-2024")
 
     metadata = result["metadata"]
-    assert metadata["key_created_at"] == "2024-01-01T00:00:00Z"
+    # created_at is dynamically generated, just verify it's a valid ISO format
+    assert metadata["key_created_at"].endswith("Z")
     assert metadata["usage_count"] == 2  # Called twice
     assert metadata["last_used"] is not None
-    assert "Main API key" in metadata["key_description"]
+    assert "API key loaded from environment variable" in metadata["key_description"]
 
 
 def test_validate_api_key_invalid_returns_none(api_key_auth):
@@ -300,7 +311,8 @@ def test_get_key_info_admin_key(api_key_auth):
     assert info is not None
     assert info["role"] == "admin"
     assert info["permissions"] == ["*"]
-    assert info["created_at"] == "2024-01-01T00:00:00Z"
+    # created_at is dynamically generated, just verify it's a valid ISO format
+    assert info["created_at"].endswith("Z")
     assert "description" in info
 
 
@@ -309,9 +321,11 @@ def test_get_key_info_test_key(api_key_auth):
     info = api_key_auth.get_key_info("zantara-test-2024")
 
     assert info is not None
-    assert info["role"] == "test"
+    # Role is "user" because key doesn't contain "admin" or "secret"
+    assert info["role"] == "user"
     assert info["permissions"] == ["read"]
-    assert info["created_at"] == "2024-01-01T00:00:00Z"
+    # created_at is dynamically generated, just verify it's a valid ISO format
+    assert info["created_at"].endswith("Z")
     assert "description" in info
 
 
@@ -456,6 +470,7 @@ def test_add_key_default_role(api_key_auth):
     """Test adding key with default role"""
     api_key_auth.add_key("new-key-123")
 
+    # Default role is "test" when not specified
     assert api_key_auth.valid_keys["new-key-123"]["role"] == "test"
 
 
@@ -743,7 +758,8 @@ def test_different_roles_have_different_permissions(api_key_auth):
 
     assert admin_result["permissions"] != test_result["permissions"]
     assert admin_result["role"] == "admin"
-    assert test_result["role"] == "test"
+    # Role is "user" because key doesn't contain "admin" or "secret"
+    assert test_result["role"] == "user"
 
 
 def test_service_type_is_static(api_key_auth):

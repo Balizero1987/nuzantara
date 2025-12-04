@@ -195,8 +195,8 @@ def test_auto_detect_and_parse_epub():
 
 def test_auto_detect_and_parse_unsupported_format():
     """Test auto-detect with unsupported format"""
-    with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as tmp:
-        tmp.write(b"text content")
+    with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as tmp:
+        tmp.write(b"fake docx content")
         tmp_path = tmp.name
 
     try:

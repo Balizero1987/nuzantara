@@ -9,19 +9,20 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { buildBackendUrl, executeProxyRequest, isStreamingResponse } from './proxy-utils';
 
 const BACKEND_URL = process.env.NUZANTARA_API_URL || 'https://nuzantara-rag.fly.dev';
 const API_KEY = process.env.NUZANTARA_API_KEY;
 
-async function proxyRequest(
+export async function proxyRequest(
   request: NextRequest,
   method: string,
   pathSegments: string[]
 ): Promise<Response> {
-  const path = '/' + pathSegments.join('/');
   const url = new URL(request.url);
   const queryString = url.search;
-  const backendUrl = `${BACKEND_URL}${path}${queryString}`;
+  const backendUrl = buildBackendUrl(BACKEND_URL, pathSegments, queryString);
+  const path = '/' + pathSegments.join('/');
 
   console.log(`[Backend Proxy] ${method} ${path}`);
 
@@ -29,14 +30,7 @@ async function proxyRequest(
   const authHeader = request.headers.get('Authorization');
 
   // Build headers
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  };
-
-  // Add API key if available (primary auth)
-  if (API_KEY) {
-    headers['X-API-Key'] = API_KEY;
-  }
+  const headers: Record<string, string> = {};
 
   // Forward JWT token if present (secondary auth)
   if (authHeader) {
@@ -55,7 +49,9 @@ async function proxyRequest(
       }
     }
 
-    const response = await fetch(backendUrl, {
+    const response = await executeProxyRequest({
+      backendUrl,
+      apiKey: API_KEY,
       method,
       headers,
       body,
@@ -78,7 +74,7 @@ async function proxyRequest(
 
     // Check if response is SSE (Server-Sent Events) for streaming
     const contentType = response.headers.get('content-type') || '';
-    if (contentType.includes('text/event-stream') || path.includes('stream')) {
+    if (isStreamingResponse(contentType, path)) {
       // Stream the response directly
       return new Response(response.body, {
         status: response.status,

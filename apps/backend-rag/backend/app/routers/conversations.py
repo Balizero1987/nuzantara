@@ -44,15 +44,12 @@ async def get_current_user(
         )
 
     try:
-        from jose import jwt, JWTError
+        from jose import JWTError, jwt
+
         from app.core.config import settings
 
         token = credentials.credentials
-        payload = jwt.decode(
-            token,
-            settings.jwt_secret_key,
-            algorithms=["HS256"]
-        )
+        payload = jwt.decode(token, settings.jwt_secret_key, algorithms=["HS256"])
 
         user_email = payload.get("sub") or payload.get("email")
         if not user_email:
@@ -74,6 +71,7 @@ async def get_current_user(
     except Exception as e:
         logger.error(f"Authentication error: {e}")
         raise HTTPException(status_code=401, detail="Authentication failed") from e
+
 
 # Import auto-CRM service (lazy import to avoid circular dependencies)
 _auto_crm_service = None

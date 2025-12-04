@@ -1,4 +1,3 @@
-
 import asyncio
 from pathlib import Path
 from playwright.async_api import async_playwright
@@ -18,11 +17,9 @@ VISA_LINKS = [
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/a36-bebas-visa-kru-alat-angkut-yang-sedang-bertugas?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/a37-bebas-visa-kru-alat-angkut-di-perairan-nusantara?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/a4-bebas-visa-tugas-pemerintahan?golden_visa=0&all=1",
-    
     # Group B (Visa Saat Kedatangan)
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/b1-visa-saat-kedatangan-wisata?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/b4-visa-saat-kedatangan-tugas-pemerintahan?golden_visa=0&all=1",
-    
     # Group C (Visa Kunjungan)
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/c1-visa-wisata?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/c10-visa-pertemuan-bisnis?golden_visa=0&all=1",
@@ -56,7 +53,6 @@ VISA_LINKS = [
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/c9-visa-studi-banding-kursus-dan-pelatihan-singkat?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/c9a-visa-studi-kursus-dan-pelatihan-singkat-bidang-keagamaan?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/c9b-visa-studi-kursus-dan-pelatihan-singkat-bidang-keagamaan?golden_visa=0&all=1",
-
     # Group D (Visa Tinggal Terbatas)
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/d1-visa-wisata?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/d12-visa-pra-investasi?golden_visa=0&all=1",
@@ -69,7 +65,6 @@ VISA_LINKS = [
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/d7b-visa-kru-pertunjukan-musik?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/d8a-visa-olahraga-atlet?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/d8b-visa-olahraga-ofisial?golden_visa=0&all=1",
-
     # Group E (Visa Tinggal Terbatas - Investor/Pekerja/Lainnya)
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/e28a-visa-investor?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/e28b-visa-investor-pendirian-perusahaan?golden_visa=1&all=1",
@@ -102,40 +97,40 @@ VISA_LINKS = [
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/e33g-visa-pekerja-jarak-jauh?golden_visa=1&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/e33g-visa-pengobatan?golden_visa=0&all=1",
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/e35-visa-bekerja-dan-berwisata?golden_visa=0&all=1",
-    
     # Group F (Visa Saat Kedatangan)
     "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/f1-visa-saat-kedatangan-wisata?golden_visa=0&all=1",
-    "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/f4-visa-saat-kedatangan-tugas-pemerintahan?golden_visa=0&all=1"
+    "https://www.imigrasi.go.id/wna/permohonan-visa-republik-indonesia/f4-visa-saat-kedatangan-tugas-pemerintahan?golden_visa=0&all=1",
 ]
+
 
 async def scrape_visa_page():
     logger.info(f"🚀 Starting Visa Scraper for {len(VISA_LINKS)} pages...")
-    
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
             user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         )
         page = await context.new_page()
-        
+
         for url in VISA_LINKS:
             try:
                 # Generate filename from URL slug
                 slug = url.split("/")[-1].split("?")[0]
                 filename = f"visa_{slug}.txt"
                 file_path = OUTPUT_DIR / filename
-                
+
                 # SKIP IF EXISTS
                 if file_path.exists():
                     logger.info(f"⏭️  Skipping {filename} (already exists)")
                     continue
-                
+
                 logger.info(f"📄 Scraping: {url}")
                 await page.goto(url, timeout=60000, wait_until="domcontentloaded")
-                
+
                 # Wait for content to settle
                 await asyncio.sleep(3)
-                
+
                 # Extract Title
                 title = "Unknown Visa"
                 try:
@@ -144,26 +139,27 @@ async def scrape_visa_page():
                         title = await title_elem.inner_text()
                 except:
                     pass
-                    
+
                 # Extract Content
                 content = await page.inner_text("body")
-                
+
                 # Save to file
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(f"TITLE: {title}\n")
                     f.write(f"SOURCE: {url}\n")
-                    f.write("="*50 + "\n\n")
+                    f.write("=" * 50 + "\n\n")
                     f.write(content)
-                    
+
                 logger.info(f"   ✅ Saved to {filename}")
-                
+
                 # Polite delay only if we actually scraped
                 await asyncio.sleep(2)
-                
+
             except Exception as e:
                 logger.error(f"   ❌ Error scraping {url}: {e}")
-            
+
         await browser.close()
+
 
 if __name__ == "__main__":
     asyncio.run(scrape_visa_page())

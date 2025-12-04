@@ -11,8 +11,6 @@ Valida qualità documenti Qdrant:
 
 import json
 import os
-import sys
-from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -54,18 +52,22 @@ class SimpleQdrantClient:
                 return {
                     "ids": [str(p["id"]) for p in points],
                     "documents": [p.get("payload", {}).get("text", "") for p in points],
-                    "metadatas": [p.get("payload", {}).get("metadata", {}) for p in points],
+                    "metadatas": [
+                        p.get("payload", {}).get("metadata", {}) for p in points
+                    ],
                 }
             else:
                 return {"ids": [], "documents": [], "metadatas": []}
-        except Exception as e:
+        except Exception:
             return {"ids": [], "documents": [], "metadatas": []}
 
 
 class QualityValidator:
     """Valida qualità documenti"""
 
-    def validate_collection(self, collection_name: str, documents: list[str], metadatas: list[dict]) -> dict[str, Any]:
+    def validate_collection(
+        self, collection_name: str, documents: list[str], metadatas: list[dict]
+    ) -> dict[str, Any]:
         """Valida una collezione"""
         issues = []
         stats = {
@@ -109,7 +111,9 @@ class QualityValidator:
 
         if lengths:
             stats["avg_length"] = sum(lengths) / len(lengths)
-            stats["min_length"] = stats["min_length"] if stats["min_length"] != float("inf") else 0
+            stats["min_length"] = (
+                stats["min_length"] if stats["min_length"] != float("inf") else 0
+            )
 
         # Quality score (0-100)
         quality_score = 100
@@ -127,7 +131,11 @@ class QualityValidator:
             "issues": issues[:20],  # Primi 20 problemi
             "total_issues": len(issues),
             "quality_score": round(quality_score, 2),
-            "status": "good" if quality_score >= 80 else "warning" if quality_score >= 60 else "critical",
+            "status": "good"
+            if quality_score >= 80
+            else "warning"
+            if quality_score >= 60
+            else "critical",
         }
 
 
@@ -158,7 +166,7 @@ def main():
             sample = client.peek(limit=100)
 
             if not sample.get("documents"):
-                print(f"   ⚠️ Nessun documento estratto")
+                print("   ⚠️ Nessun documento estratto")
                 continue
 
             validation = validator.validate_collection(
@@ -172,13 +180,17 @@ def main():
 
             # Print results
             print(f"✅ Documenti analizzati: {validation['stats']['total']}")
-            print(f"📊 Quality Score: {validation['quality_score']}/100 ({validation['status']})")
+            print(
+                f"📊 Quality Score: {validation['quality_score']}/100 ({validation['status']})"
+            )
             print(f"⚠️ Problemi trovati: {validation['total_issues']}")
             print(f"   - Chunk vuoti: {validation['stats']['empty_chunks']}")
             print(f"   - Chunk troppo corti: {validation['stats']['too_short_chunks']}")
             print(f"   - Chunk troppo lunghi: {validation['stats']['too_long_chunks']}")
             print(f"   - Metadata mancanti: {validation['stats']['missing_metadata']}")
-            print(f"   - Lunghezza media: {validation['stats']['avg_length']:.0f} caratteri")
+            print(
+                f"   - Lunghezza media: {validation['stats']['avg_length']:.0f} caratteri"
+            )
 
         except Exception as e:
             print(f"   ❌ Errore: {e}")
@@ -191,7 +203,9 @@ def main():
         "total_documents_validated": total_docs,
         "total_issues": total_issues,
         "average_quality_score": round(avg_quality, 2),
-        "collections_with_issues": sum(1 for c in results["collections"].values() if c.get("total_issues", 0) > 0),
+        "collections_with_issues": sum(
+            1 for c in results["collections"].values() if c.get("total_issues", 0) > 0
+        ),
     }
 
     # Save results
@@ -216,4 +230,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

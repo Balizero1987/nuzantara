@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { generate } = require('openapi-typescript-codegen');
 const path = require('path');
 const fs = require('fs');

@@ -62,7 +62,7 @@ class EnhancedSentinel:
             sentinel_script = self.root / "apps" / "core" / "sentinel.py"
             os.chdir(self.root)
             result = subprocess.run(
-                ["python3", str(sentinel_script)],
+                ["python3", str(sentinel_script)] + sys.argv[1:],
                 capture_output=True,
                 text=True,
                 timeout=300,

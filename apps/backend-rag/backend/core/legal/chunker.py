@@ -6,7 +6,7 @@ Pasal-aware semantic chunking with context injection
 import logging
 from typing import Any
 
-from .constants import CONTEXT_TEMPLATE, MAX_PASAL_TOKENS, PASAL_PATTERN
+from .constants import MAX_PASAL_TOKENS, PASAL_PATTERN
 
 logger = logging.getLogger(__name__)
 
@@ -76,11 +76,15 @@ class LegalChunker:
             pasal_length = len(pasal_text)
             if pasal_length > self.max_pasal_tokens:
                 # Split by Ayat
-                logger.debug(f"Pasal {pasal_num} too large ({pasal_length} chars), splitting by Ayat")
+                logger.debug(
+                    f"Pasal {pasal_num} too large ({pasal_length} chars), splitting by Ayat"
+                )
                 ayat_chunks = self._split_by_ayat(pasal_text, pasal_num)
 
                 for ayat_chunk in ayat_chunks:
-                    context = self._build_context(metadata, bab=bab_context, pasal=f"Pasal {pasal_num}")
+                    context = self._build_context(
+                        metadata, bab=bab_context, pasal=f"Pasal {pasal_num}"
+                    )
                     chunks.append(self._create_chunk(ayat_chunk, context, metadata, pasal_num))
             else:
                 # Keep Pasal as single chunk
@@ -249,4 +253,3 @@ class LegalChunker:
                     return f"BAB {bab.get('number')} - {bab.get('title', '')}"
 
         return None
-

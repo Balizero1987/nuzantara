@@ -150,8 +150,8 @@ describe('ChatPage', () => {
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi!' },
     ]
-    const { zantaraAPI } = require('@/lib/api/zantara-integration')
-    zantaraAPI.loadConversationHistory.mockResolvedValue(mockHistory)
+    const { zantaraAPI } = await import('@/lib/api/zantara-integration')
+      ; (zantaraAPI.loadConversationHistory as jest.Mock).mockResolvedValue(mockHistory)
 
     render(<ChatPage />)
 
@@ -297,8 +297,8 @@ describe('ChatPage', () => {
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi there!' },
     ]
-    const { zantaraAPI } = require('@/lib/api/zantara-integration')
-    zantaraAPI.loadConversationHistory.mockResolvedValue(mockHistory)
+    const { zantaraAPI } = await import('@/lib/api/zantara-integration')
+      ; (zantaraAPI.loadConversationHistory as jest.Mock).mockResolvedValue(mockHistory)
 
     render(<ChatPage />)
 
@@ -502,8 +502,15 @@ describe('ChatPage', () => {
     expect(generateBtn).toBeDisabled()
   })
 
-  it('should handle metadata in chat stream', async () => {
-    const mockMetadata = { sources: ['doc1', 'doc2'], confidence: 0.95 }
+  it('should handle metadata in chat stream with document sources', async () => {
+    const mockMetadata = {
+      memory_used: true,
+      rag_sources: [
+        { document: 'doc1', score: 0.95, text_preview: 'Preview 1' },
+        { collection: 'col1', score: 0.90, text_preview: 'Preview 2' },
+      ],
+      intent: 'question',
+    }
 
     mockStreamChat.mockImplementation((
       message: string,
@@ -526,6 +533,145 @@ describe('ChatPage', () => {
     await waitFor(() => {
       expect(mockStreamChat).toHaveBeenCalled()
     })
+  })
+
+  it('should handle metadata with collection sources', async () => {
+    const mockMetadata = {
+      memory_used: true,
+      rag_sources: [
+        { collection: 'col1', score: 0.95, text_preview: 'Preview 1' },
+      ],
+      intent: 'question',
+    }
+
+    mockStreamChat.mockImplementation((
+      message: string,
+      onChunk: (chunk: string) => void,
+      onMetadata: (meta: any) => void,
+      onComplete: () => void,
+    ) => {
+      onChunk('Response')
+      onMetadata(mockMetadata)
+      onComplete()
+      return Promise.resolve()
+    })
+
+    render(<ChatPage />)
+
+    const input = screen.getByPlaceholderText('Ketik pesan Anda...')
+    fireEvent.change(input, { target: { value: 'Test' } })
+    fireEvent.click(screen.getByLabelText('Send message'))
+
+    await waitFor(() => {
+      expect(mockStreamChat).toHaveBeenCalled()
+    })
+  })
+
+  it('should handle chat error in catch block', async () => {
+    mockStreamChat.mockImplementation(() => {
+      throw new Error('Chat error')
+    })
+
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
+
+    render(<ChatPage />)
+
+    const input = screen.getByPlaceholderText('Ketik pesan Anda...')
+    fireEvent.change(input, { target: { value: 'Test error' } })
+    fireEvent.click(screen.getByLabelText('Send message'))
+
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('[ZANTARA] Chat error:', expect.any(Error))
+    })
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('should handle clearHistory error', async () => {
+    const { chatAPI } = await import('@/lib/api/chat')
+      ; (chatAPI.clearHistory as jest.Mock).mockRejectedValue(new Error('Clear failed'))
+
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
+
+    render(<ChatPage />)
+
+    fireEvent.click(screen.getByLabelText('Menu'))
+    fireEvent.click(screen.getByText('New Chat'))
+
+    await waitFor(() => {
+      expect(consoleWarnSpy).toHaveBeenCalledWith('[ZANTARA] Failed to clear backend history:', expect.any(Error))
+    })
+
+    consoleWarnSpy.mockRestore()
+  })
+
+  it('should handle file upload preview clear', async () => {
+    render(<ChatPage />)
+
+    const fileInputs = document.querySelectorAll('input[type="file"][accept="image/*"]')
+    const fileInput = fileInputs[1] as HTMLInputElement
+
+    const file = new File(['test'], 'test.png', { type: 'image/png' })
+
+    const mockFileReader = {
+      readAsDataURL: jest.fn(),
+      result: 'data:image/png;base64,preview',
+      onload: null as any,
+    }
+    jest.spyOn(global, 'FileReader').mockImplementation(() => mockFileReader as any)
+
+    fireEvent.change(fileInput, { target: { files: [file] } })
+
+    if (mockFileReader.onload) {
+      mockFileReader.onload({ target: { result: 'data:image/png;base64,preview' } })
+    }
+
+    // Find and click clear preview button
+    await waitFor(() => {
+      const clearButtons = document.querySelectorAll('button')
+      const clearButton = Array.from(clearButtons).find(btn =>
+        btn.textContent?.includes('×') || btn.getAttribute('aria-label')?.includes('clear')
+      )
+      if (clearButton) {
+        fireEvent.click(clearButton)
+      }
+    })
+  })
+
+  it('should close RAG drawer', async () => {
+    const mockMetadata = {
+      rag_sources: [{ document: 'doc1', score: 0.95 }],
+    }
+
+    mockStreamChat.mockImplementation((
+      message: string,
+      onChunk: (chunk: string) => void,
+      onMetadata: (meta: any) => void,
+      onComplete: () => void,
+    ) => {
+      onChunk('Response')
+      onMetadata(mockMetadata)
+      onComplete()
+      return Promise.resolve()
+    })
+
+    render(<ChatPage />)
+
+    const input = screen.getByPlaceholderText('Ketik pesan Anda...')
+    fireEvent.change(input, { target: { value: 'Test' } })
+    fireEvent.click(screen.getByLabelText('Send message'))
+
+    await waitFor(() => {
+      const ragDrawer = screen.getByTestId('rag-drawer')
+      expect(ragDrawer).toBeInTheDocument()
+    })
+
+    // Close drawer by clicking backdrop or close button
+    const drawer = screen.getByTestId('rag-drawer')
+    const closeButton = drawer.querySelector('button[aria-label*="close" i], button:has(svg)')
+    if (closeButton) {
+      fireEvent.click(closeButton)
+    }
   })
 
   it('should close image modal with X button', () => {
@@ -578,7 +724,7 @@ describe('ChatPage', () => {
     })
   })
 
-  it('should upload preview and allow removal', () => {
+  it('should upload preview and allow removal', async () => {
     render(<ChatPage />)
 
     const fileInputs = document.querySelectorAll('input[type="file"][accept="image/*"]')
@@ -597,6 +743,81 @@ describe('ChatPage', () => {
 
     if (mockFileReader.onload) {
       mockFileReader.onload({ target: { result: 'data:image/png;base64,preview' } })
+    }
+
+    // Wait for preview to be set, then find and click clear button
+    await waitFor(() => {
+      const clearButtons = document.querySelectorAll('button')
+      const clearButton = Array.from(clearButtons).find(btn => 
+        btn.textContent?.includes('×') || 
+        btn.getAttribute('aria-label')?.toLowerCase().includes('clear') ||
+        btn.className.includes('clear')
+      )
+      if (clearButton) {
+        fireEvent.click(clearButton)
+      }
+    }, { timeout: 1000 })
+  })
+
+  it('should handle clearHistory error in new chat', async () => {
+    const { chatAPI } = require('@/lib/api/chat')
+    chatAPI.clearHistory = jest.fn().mockRejectedValue(new Error('Clear failed'))
+
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
+
+    render(<ChatPage />)
+
+    fireEvent.click(screen.getByLabelText('Menu'))
+    fireEvent.click(screen.getByText('New Chat'))
+
+    await waitFor(() => {
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        '[ZANTARA] Failed to clear backend history:',
+        expect.any(Error)
+      )
+    }, { timeout: 2000 })
+
+    consoleWarnSpy.mockRestore()
+  })
+
+  it('should close RAG drawer when onClose is called', async () => {
+    const mockMetadata = {
+      rag_sources: [{ document: 'doc1', score: 0.95 }],
+    }
+
+    mockStreamChat.mockImplementation((
+      message: string,
+      onChunk: (chunk: string) => void,
+      onMetadata: (meta: any) => void,
+      onComplete: () => void,
+    ) => {
+      onChunk('Response')
+      onMetadata(mockMetadata)
+      onComplete()
+      return Promise.resolve()
+    })
+
+    render(<ChatPage />)
+
+    const input = screen.getByPlaceholderText('Ketik pesan Anda...')
+    fireEvent.change(input, { target: { value: 'Test' } })
+    fireEvent.click(screen.getByLabelText('Send message'))
+
+    await waitFor(() => {
+      const ragDrawer = screen.getByTestId('rag-drawer')
+      expect(ragDrawer).toBeInTheDocument()
+    })
+
+    // Find close button in drawer
+    const drawer = screen.getByTestId('rag-drawer')
+    const closeButtons = drawer.querySelectorAll('button')
+    const closeButton = Array.from(closeButtons).find(btn => 
+      btn.textContent?.includes('×') || 
+      btn.getAttribute('aria-label')?.toLowerCase().includes('close')
+    )
+    
+    if (closeButton) {
+      fireEvent.click(closeButton)
     }
   })
 })

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * ZANTARA Webapp Integration Test
  * 
@@ -150,7 +151,7 @@ async function simulateWebappChatStream(message, context, token, apiKey, backend
 
       res.on('data', (chunk) => {
         buffer += chunk.toString();
-        
+
         // Process SSE format
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
@@ -167,7 +168,7 @@ async function simulateWebappChatStream(message, context, token, apiKey, backend
                 reject(new Error(`API Error: ${event.data}`));
                 return;
               }
-            } catch (e) {
+            } catch {
               if (dataStr.trim()) {
                 accumulated += dataStr;
                 process.stdout.write(dataStr);
@@ -202,27 +203,27 @@ async function simulateWebappChatStream(message, context, token, apiKey, backend
 /**
  * Analyze response for service access indicators
  */
-function analyzeResponse(response, scenario) {
+function analyzeResponse(response) {
   const responseLower = response.toLowerCase();
-  
+
   const indicators = {
     hasServiceKnowledge: [
       'api', 'endpoint', 'servizio', 'service', 'backend',
       'database', 'postgresql', 'qdrant', 'vector',
       'crm', 'memory', 'conversation', 'tool', 'handler',
     ].some(term => responseLower.includes(term)),
-    
+
     hasAccessInfo: [
       'puoi', 'può', 'disponibile', 'available', 'accedere',
       'access', 'utilizzare', 'use', 'chiamare', 'call',
     ].some(term => responseLower.includes(term)),
-    
+
     hasNoAccess: [
       "non so", "non conosco", "non ho accesso", "non posso accedere",
       "non ho la possibilità", "non posso", "i don't know",
       "non ho conoscenza", "non conosco questo servizio",
     ].some(term => responseLower.includes(term)),
-    
+
     mentionsTools: [
       'tool', 'function', 'handler', 'execute', 'eseguire',
       'get_pricing', 'search_team', 'memory', 'crm',
@@ -291,17 +292,17 @@ async function main() {
         backendUrl
       );
 
-      const analysis = analyzeResponse(response, scenario);
-      
+      const analysis = analyzeResponse(response);
+
       log('\nResponse Analysis:', 'bright');
       log(`  Length: ${analysis.length} chars`, 'cyan');
-      log(`  Has Service Knowledge: ${analysis.hasServiceKnowledge ? '✅' : '❌'}`, 
+      log(`  Has Service Knowledge: ${analysis.hasServiceKnowledge ? '✅' : '❌'}`,
         analysis.hasServiceKnowledge ? 'green' : 'red');
-      log(`  Has Access Info: ${analysis.hasAccessInfo ? '✅' : '❌'}`, 
+      log(`  Has Access Info: ${analysis.hasAccessInfo ? '✅' : '❌'}`,
         analysis.hasAccessInfo ? 'green' : 'red');
-      log(`  Mentions Tools: ${analysis.mentionsTools ? '✅' : '❌'}`, 
+      log(`  Mentions Tools: ${analysis.mentionsTools ? '✅' : '❌'}`,
         analysis.mentionsTools ? 'green' : 'yellow');
-      log(`  Has No Access: ${analysis.hasNoAccess ? '❌' : '✅'}`, 
+      log(`  Has No Access: ${analysis.hasNoAccess ? '❌' : '✅'}`,
         analysis.hasNoAccess ? 'red' : 'green');
       log(`\nPreview: ${analysis.preview}...`, 'blue');
 
@@ -342,13 +343,13 @@ async function main() {
 
   log(`\nTotal Scenarios: ${results.length}`, 'cyan');
   log(`Successful: ${successful}/${results.length}`, successful > 0 ? 'green' : 'red');
-  log(`With Service Knowledge: ${withServiceKnowledge}/${successful}`, 
+  log(`With Service Knowledge: ${withServiceKnowledge}/${successful}`,
     withServiceKnowledge > 0 ? 'green' : 'yellow');
-  log(`With Access Info: ${withAccessInfo}/${successful}`, 
+  log(`With Access Info: ${withAccessInfo}/${successful}`,
     withAccessInfo > 0 ? 'green' : 'yellow');
-  log(`Mentions Tools: ${withTools}/${successful}`, 
+  log(`Mentions Tools: ${withTools}/${successful}`,
     withTools > 0 ? 'green' : 'yellow');
-  log(`No Access Indicators: ${noAccess}/${successful}`, 
+  log(`No Access Indicators: ${noAccess}/${successful}`,
     noAccess > 0 ? 'red' : 'green');
 
   // Save results
@@ -368,7 +369,7 @@ async function main() {
       no_access: noAccess,
     },
   }, null, 2), 'utf-8');
-  
+
   log(`\n✅ Results saved to: ${outputPath}`, 'green');
 }
 

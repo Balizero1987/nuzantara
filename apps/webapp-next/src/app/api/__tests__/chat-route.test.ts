@@ -272,4 +272,87 @@ describe('Chat API Route', () => {
       },
     });
   });
+
+  it('should handle error without status code', async () => {
+    (mockHybridOracleQuery as any).mockRejectedValue({
+      body: { detail: 'Custom error message' },
+    });
+
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'Test' }],
+      }),
+    });
+
+    const response = await POST(request);
+    const data: any = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(data.message).toBe('Custom error message');
+  });
+
+  it('should handle error without body detail', async () => {
+    (mockHybridOracleQuery as any).mockRejectedValue({
+      status: 500,
+    });
+
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'Test' }],
+      }),
+    });
+
+    const response = await POST(request);
+    const data: any = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(data.message).toBe('Failed to connect to AI service');
+  });
+
+  it('should handle token without Bearer prefix', async () => {
+    (mockHybridOracleQuery as any).mockResolvedValue({
+      answer: 'Response',
+      sources: [],
+      model_used: 'gemini-2.5-flash',
+    });
+
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'plain-token',
+      },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'Test' }],
+      }),
+    });
+
+    await POST(request);
+
+    expect(mockHybridOracleQuery).toHaveBeenCalled();
+  });
+
+  it('should handle missing Authorization header', async () => {
+    (mockHybridOracleQuery as any).mockResolvedValue({
+      answer: 'Response',
+      sources: [],
+      model_used: 'gemini-2.5-flash',
+    });
+
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'Test' }],
+      }),
+    });
+
+    await POST(request);
+
+    expect(mockHybridOracleQuery).toHaveBeenCalled();
+  });
 });

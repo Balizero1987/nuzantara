@@ -5,7 +5,7 @@ Tests all 4 stages: Cleaner, Metadata Extractor, Structure Parser, Chunker
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -15,8 +15,8 @@ if str(backend_path) not in sys.path:
     sys.path.insert(0, str(backend_path))
 
 from core.legal import LegalChunker, LegalCleaner, LegalMetadataExtractor, LegalStructureParser
-from services.legal_ingestion_service import LegalIngestionService
 
+from services.legal_ingestion_service import LegalIngestionService
 
 # ============================================================================
 # Sample Legal Document Text (Indonesian)
@@ -275,10 +275,11 @@ def test_legal_chunker_splits_large_pasal_by_ayat(legal_chunker):
 async def test_legal_ingestion_service_full_pipeline():
     """Test complete legal ingestion pipeline"""
     # Mock file operations
-    with patch("services.legal_ingestion_service.auto_detect_and_parse") as mock_parse, \
-         patch("services.legal_ingestion_service.QdrantClient") as mock_qdrant, \
-         patch("services.legal_ingestion_service.EmbeddingsGenerator") as mock_embedder:
-
+    with patch("services.legal_ingestion_service.auto_detect_and_parse") as mock_parse, patch(
+        "services.legal_ingestion_service.QdrantClient"
+    ) as mock_qdrant, patch(
+        "services.legal_ingestion_service.EmbeddingsGenerator"
+    ) as mock_embedder:
         # Setup mocks
         mock_parse.return_value = SAMPLE_LEGAL_TEXT
         mock_qdrant_instance = MagicMock()
@@ -301,9 +302,8 @@ def test_ingestion_service_routes_to_legal():
     # Mock EmbeddingsGenerator to avoid API key requirement
     with patch("services.ingestion_service.EmbeddingsGenerator") as mock_embedder:
         from services.ingestion_service import IngestionService
-        
+
         service = IngestionService()
         # Test detection method
         # Note: This requires a real file, so we test the detection logic
         assert hasattr(service, "_is_legal_document")
-

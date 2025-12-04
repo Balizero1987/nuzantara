@@ -9,7 +9,6 @@ import json
 import glob
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 
 def load_latest_reports():
@@ -19,19 +18,25 @@ def load_latest_reports():
     reports = {}
 
     # Trova ultimo report analisi struttura
-    analysis_files = sorted(glob.glob(str(reports_dir / "qdrant_analysis_*.json")), reverse=True)
+    analysis_files = sorted(
+        glob.glob(str(reports_dir / "qdrant_analysis_*.json")), reverse=True
+    )
     if analysis_files:
         with open(analysis_files[0], "r") as f:
             reports["structure_analysis"] = json.load(f)
 
     # Trova ultimo report struttura documenti
-    structure_files = sorted(glob.glob(str(reports_dir / "document_structure_*.json")), reverse=True)
+    structure_files = sorted(
+        glob.glob(str(reports_dir / "document_structure_*.json")), reverse=True
+    )
     if structure_files:
         with open(structure_files[0], "r") as f:
             reports["document_structure"] = json.load(f)
 
     # Trova ultimo report validazione qualità
-    quality_files = sorted(glob.glob(str(reports_dir / "quality_validation_*.json")), reverse=True)
+    quality_files = sorted(
+        glob.glob(str(reports_dir / "quality_validation_*.json")), reverse=True
+    )
     if quality_files:
         with open(quality_files[0], "r") as f:
             reports["quality_validation"] = json.load(f)
@@ -70,7 +75,9 @@ Questo report contiene l'analisi completa dei **25,458 documenti** distribuiti s
     md += "|------------|-----------|-------------|----------|--------|\n"
 
     if "structure_analysis" in reports:
-        for coll_name, coll_data in reports["structure_analysis"].get("collections", {}).items():
+        for coll_name, coll_data in (
+            reports["structure_analysis"].get("collections", {}).items()
+        ):
             if "error" not in coll_data and "empty" not in coll_data:
                 stats = coll_data.get("stats", {})
                 md += f"| `{coll_name}` | {stats.get('total_documents', 0):,} | {stats.get('vector_size', 'N/A')} | {stats.get('distance', 'N/A')} | {stats.get('status', 'N/A')} |\n"
@@ -82,8 +89,10 @@ Questo report contiene l'analisi completa dei **25,458 documenti** distribuiti s
 
     if "structure_analysis" in reports:
         meta_analysis = reports["structure_analysis"].get("metadata_analysis", {})
-        md += f"### Campi Metadata Cross-Collection\n\n"
-        md += f"- **Campi totali unici**: {len(meta_analysis.get('all_fields', []))}\n\n"
+        md += "### Campi Metadata Cross-Collection\n\n"
+        md += (
+            f"- **Campi totali unici**: {len(meta_analysis.get('all_fields', []))}\n\n"
+        )
 
         md += "**Campi più comuni**:\n\n"
         for field, count in list(meta_analysis.get("field_frequency", {}).items())[:10]:
@@ -112,7 +121,9 @@ Questo report contiene l'analisi completa dei **25,458 documenti** distribuiti s
         md += "| Collezione | JSON | Markdown | Prezzi | Date | URL |\n"
         md += "|------------|------|----------|--------|------|-----|\n"
 
-        for coll_name, coll_data in reports["document_structure"].get("collections", {}).items():
+        for coll_name, coll_data in (
+            reports["document_structure"].get("collections", {}).items()
+        ):
             patterns = coll_data.get("patterns_found", {})
             md += f"| `{coll_name}` | "
             md += f"{'✅' if patterns.get('contains_json', 0) > 0 else '❌'} | "
@@ -131,7 +142,9 @@ Questo report contiene l'analisi completa dei **25,458 documenti** distribuiti s
         md += "| Collezione | Quality Score | Status | Problemi |\n"
         md += "|------------|---------------|--------|----------|\n"
 
-        for coll_name, coll_data in reports["quality_validation"].get("collections", {}).items():
+        for coll_name, coll_data in (
+            reports["quality_validation"].get("collections", {}).items()
+        ):
             if "error" not in coll_data:
                 score = coll_data.get("quality_score", 0)
                 status = coll_data.get("status", "unknown")
@@ -250,7 +263,12 @@ def main():
     # Salva anche JSON per riferimento
     json_path = output_dir / f"FINAL_REPORT_{timestamp}.json"
     with open(json_path, "w", encoding="utf-8") as f:
-        json.dump({"reports": reports, "generated_at": datetime.now().isoformat()}, f, indent=2, ensure_ascii=False)
+        json.dump(
+            {"reports": reports, "generated_at": datetime.now().isoformat()},
+            f,
+            indent=2,
+            ensure_ascii=False,
+        )
 
     print(f"✅ Report JSON salvato: {json_path}")
     print("\n✅ Report finale generato!")
@@ -258,4 +276,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

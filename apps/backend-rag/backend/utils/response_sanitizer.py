@@ -3,8 +3,8 @@ Response Sanitization Utilities for ZANTARA
 Fixes Phase 1 & 2: Remove training data artifacts and enforce quality standards
 """
 
-import re
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 

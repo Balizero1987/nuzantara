@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
 from app.models import TierLevel
@@ -181,4 +181,3 @@ async def get_collection_stats(collection_name: str = "legal_unified") -> dict[s
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get collection stats: {str(e)}",
         )
-

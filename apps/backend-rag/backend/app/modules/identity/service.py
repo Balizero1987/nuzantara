@@ -28,6 +28,15 @@ class IdentityService:
         self.jwt_secret = settings.jwt_secret_key
         self.jwt_algorithm = settings.jwt_algorithm
 
+        # Warn if using default or empty secret key
+        if (
+            not self.jwt_secret
+            or self.jwt_secret == "zantara_default_secret_key_2025_change_in_production"
+        ):
+            logger.warning(
+                "⚠️  Using default or empty JWT secret key. This is insecure for production!"
+            )
+
     def get_password_hash(self, password: str) -> str:
         """
         Hash password/PIN using bcrypt nativo

@@ -4,16 +4,16 @@ Handles interactions with Google Cloud Vertex AI (Gemini Pro).
 Used as a fallback for complex extraction tasks.
 """
 
+import json
 import logging
 import os
-import json
-from typing import Any, Dict, Optional
+from typing import Any
 
 import vertexai
-from vertexai.preview.generative_models import GenerativeModel, GenerationConfig
-from google.oauth2 import service_account
+from vertexai.preview.generative_models import GenerationConfig, GenerativeModel
 
 logger = logging.getLogger(__name__)
+
 
 class VertexAIService:
     """
@@ -23,7 +23,7 @@ class VertexAIService:
     def __init__(self, project_id: str = None, location: str = "us-central1"):
         """
         Initialize Vertex AI service.
-        
+
         Args:
             project_id: Google Cloud Project ID (defaults to env var GOOGLE_CLOUD_PROJECT)
             location: Vertex AI location (default: us-central1)
@@ -42,7 +42,7 @@ class VertexAIService:
             # Check for credentials
             if not self.project_id:
                 logger.warning("GOOGLE_CLOUD_PROJECT not set. Vertex AI may fail.")
-            
+
             vertexai.init(project=self.project_id, location=self.location)
             self.model = GenerativeModel("gemini-pro")
             self._initialized = True
@@ -51,23 +51,23 @@ class VertexAIService:
             logger.error(f"Failed to initialize Vertex AI: {e}")
             raise
 
-    async def extract_metadata(self, text: str) -> Dict[str, Any]:
+    async def extract_metadata(self, text: str) -> dict[str, Any]:
         """
         Extract legal metadata from text using Gemini Pro.
-        
+
         Args:
             text: The text content of the document.
-            
+
         Returns:
             Dictionary containing extracted metadata.
         """
         self._ensure_initialized()
-        
+
         prompt = f"""
         You are an expert Indonesian Legal Analyst.
         Extract the following metadata from the provided legal document text.
         Return ONLY a JSON object. Do not include markdown formatting.
-        
+
         Fields to extract:
         - type: The type of regulation (e.g., "UNDANG-UNDANG", "PERATURAN PEMERINTAH").
         - type_abbrev: Abbreviation (e.g., "UU", "PP", "PERPRES").
@@ -76,40 +76,38 @@ class VertexAIService:
         - topic: A brief topic or title of the regulation.
         - status: The status if mentioned (e.g., "BERLAKU", "MENCABUT").
         - full_title: The full title of the document.
-        
+
         Text:
         {text[:10000]}  # Limit context to first 10k chars to fit window/save costs
         """
-        
+
         try:
             response = self.model.generate_content(
                 prompt,
                 generation_config=GenerationConfig(
-                    temperature=0.1,
-                    max_output_tokens=1024,
-                    response_mime_type="application/json"
-                )
+                    temperature=0.1, max_output_tokens=1024, response_mime_type="application/json"
+                ),
             )
-            
+
             result_text = response.text.strip()
             # Clean up potential markdown code blocks if the model ignores the instruction
             if result_text.startswith("```json"):
                 result_text = result_text[7:]
             if result_text.endswith("```"):
                 result_text = result_text[:-3]
-                
+
             return json.loads(result_text)
-            
+
         except Exception as e:
             logger.error(f"Vertex AI extraction failed: {e}")
             return {}
 
-    async def extract_structure(self, text: str) -> Dict[str, Any]:
+    async def extract_structure(self, text: str) -> dict[str, Any]:
         """
         Extract document structure (BAB/Pasal) using Gemini Pro.
         Use this only if regex parsing fails completely.
         """
-        # This is expensive and complex for full text. 
+        # This is expensive and complex for full text.
         # For now, we rely on the pattern extractor for structure.
         # This is a placeholder for future implementation.
         pass

@@ -48,7 +48,7 @@ class MockResponse {
 (global as any).Response = MockResponse;
 
 // Mock global fetch
-const mockFetch = jest.fn() as unknown as jest.Mock<(...args: any[]) => Promise<any>>;
+const mockFetch = jest.fn<any, any>() as jest.MockedFunction<typeof fetch>;
 (global as any).fetch = mockFetch;
 
 // Import AFTER mocks
@@ -83,7 +83,7 @@ describe('Image Generate API Route', () => {
       ok: true,
       status: 200,
       json: async () => mockImageData,
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost/api/image/generate', {
       method: 'POST',
@@ -95,7 +95,7 @@ describe('Image Generate API Route', () => {
         prompt: 'A beautiful sunset',
         style: 'realistic',
       }),
-    });
+    } as unknown as Response);
 
     const response = await POST(request);
     const data: any = await response.json();
@@ -110,7 +110,7 @@ describe('Image Generate API Route', () => {
       ok: true,
       status: 200,
       json: async () => ({ image_url: 'test.png' }),
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost/api/image/generate', {
       method: 'POST',
@@ -138,7 +138,7 @@ describe('Image Generate API Route', () => {
       ok: false,
       status: 400,
       json: async () => ({ detail: 'Invalid prompt' }),
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost/api/image/generate', {
       method: 'POST',
@@ -158,7 +158,7 @@ describe('Image Generate API Route', () => {
       ok: false,
       status: 500,
       json: async () => ({}),
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost/api/image/generate', {
       method: 'POST',
@@ -174,7 +174,7 @@ describe('Image Generate API Route', () => {
   });
 
   it('should handle network errors', async () => {
-    mockFetch.mockRejectedValue(new Error('Network error'));
+    mockFetch.mockRejectedValue(new Error('Network error') as any);
 
     const request = new Request('http://localhost/api/image/generate', {
       method: 'POST',
@@ -194,7 +194,7 @@ describe('Image Generate API Route', () => {
       ok: true,
       status: 200,
       json: async () => ({ image_url: 'test.png' }),
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost/api/image/generate', {
       method: 'POST',
@@ -221,7 +221,7 @@ describe('Image Generate API Route', () => {
       ok: true,
       status: 200,
       json: async () => ({ image_url: 'test.png' }),
-    });
+    } as unknown as Response);
 
     const requestBody = {
       prompt: 'A cat in space',
@@ -250,7 +250,7 @@ describe('Image Generate API Route', () => {
       ok: true,
       status: 200,
       json: async () => ({ image_url: 'test.png' }),
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost/api/image/generate', {
       method: 'POST',

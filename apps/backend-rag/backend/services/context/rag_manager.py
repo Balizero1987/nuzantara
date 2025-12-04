@@ -302,7 +302,7 @@ class RAGManager:
                 "collection_used": "multi",
             }
 
-        except Exception as e:
+        except Exception:
             return {
                 "context": None,
                 "used_rag": False,
@@ -314,42 +314,42 @@ class RAGManager:
     async def retrieve_few_shot_examples(self, query: str, limit: int = 2) -> list[dict]:
         """
         Retrieve few-shot examples from conversation_examples collection.
-        
+
         Args:
             query: User query
             limit: Number of examples to retrieve
-            
+
         Returns:
             List of example dicts {question, answer, persona}
         """
         if not self.search:
             return []
-            
+
         try:
             # Check if collection exists (handled by search service usually, but good to be safe)
             if hasattr(self.search, "search_collection"):
                 results = await self.search.search_collection(
-                    query=query,
-                    collection_name="conversation_examples",
-                    limit=limit
+                    query=query, collection_name="conversation_examples", limit=limit
                 )
-                
+
                 examples = []
                 for res in results.get("results", []):
                     metadata = res.get("metadata", {})
-                    examples.append({
-                        "question": metadata.get("question", "Unknown"),
-                        "answer": metadata.get("answer", res.get("text", "")),
-                        "persona": metadata.get("persona", "general")
-                    })
-                
+                    examples.append(
+                        {
+                            "question": metadata.get("question", "Unknown"),
+                            "answer": metadata.get("answer", res.get("text", "")),
+                            "persona": metadata.get("persona", "general"),
+                        }
+                    )
+
                 if examples:
                     logger.info(f"🧪 [RAGManager] Retrieved {len(examples)} few-shot examples")
-                
+
                 return examples
-                
+
             return []
-            
+
         except Exception as e:
             logger.warning(f"🧪 [RAGManager] Few-shot retrieval failed: {e}")
             return []

@@ -377,3 +377,4 @@ Mau lo kasih detail lebih spesifik untuk kebutuhan lo?
 3. **Fine-tuning**: Aggiustare prompt Jaksel per categorie problematiche
 4. **Monitoring**: Setup monitoring continuo per qualità risposte
 
+

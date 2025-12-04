@@ -33,7 +33,8 @@ test.describe('Authentication Flow', () => {
       await page.waitForTimeout(1000)
 
       // Check if error is displayed (adjust selector based on your UI)
-      const errorMessage = page.locator('text=/error|invalid|failed/i').first()
+      // Check if error is displayed (adjust selector based on your UI)
+      await expect(page.locator('text=/error|invalid|failed/i').first()).toBeVisible()
       // Error might or might not be visible depending on implementation
     }
   })
@@ -42,7 +43,7 @@ test.describe('Authentication Flow', () => {
     // This test would require valid credentials
     // For now, we just check the structure
     const emailInput = page.locator('input[type="email"], input[name="email"]').first()
-    
+
     if (await emailInput.isVisible()) {
       // Test structure exists
       expect(emailInput).toBeVisible()

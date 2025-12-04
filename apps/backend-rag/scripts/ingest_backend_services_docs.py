@@ -38,21 +38,19 @@ else:
             load_dotenv(dotenv_path=alt_path, override=True)
             break
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
 def generate_backend_services_docs() -> list[dict[str, str]]:
     """
     Generate comprehensive documentation for all backend services.
-    
+
     Returns:
         List of documents with 'content' and 'metadata' keys
     """
     docs = []
-    
+
     # ========================================
     # 1. CRM SERVICES DOCUMENTATION
     # ========================================
@@ -623,11 +621,11 @@ async def ingest_documents(
 ) -> dict[str, any]:
     """
     Ingest documents into Qdrant collection.
-    
+
     Args:
         collection_name: Name of Qdrant collection
         docs: List of documents (if None, generates them)
-    
+
     Returns:
         Dictionary with ingestion results
     """
@@ -674,6 +672,7 @@ async def ingest_documents(
 
     # Generate IDs (Qdrant requires UUID or integer)
     import uuid
+
     ids = [str(uuid.uuid4()) for _ in docs]
 
     # Ingest into Qdrant
@@ -733,4 +732,3 @@ async def main():
 
 if __name__ == "__main__":
     sys.exit(asyncio.run(main()))
-

@@ -84,6 +84,43 @@ def run_auto_healing():
         print_fail("Ruff format failed.")
 
 
+# --- Phase 2.5: Security Audit (The Shield) ---
+def run_security_audit():
+    print_header("PHASE 2.5: SECURITY AUDIT")
+
+    # Check if pip-audit is installed
+    try:
+        subprocess.run(["pip-audit", "--version"], capture_output=True, check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print_info("pip-audit not found. Installing...")
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", "pip-audit"], check=True
+        )
+        print_success("pip-audit installed.")
+
+    print_info("Running Dependency Audit...")
+    try:
+        # Run pip-audit
+        # We use --desc to show vulnerability descriptions
+        result = subprocess.run(
+            ["pip-audit", "--desc"],
+            cwd=ROOT_DIR,
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode == 0:
+            print_success("No known vulnerabilities found.")
+        else:
+            print_fail("SECURITY VULNERABILITIES DETECTED!")
+            print(result.stdout)
+            # We don't exit here to allow other checks to run, but this is critical
+            print_info("Run 'pip-audit --fix' manually to attempt auto-remediation.")
+
+    except Exception as e:
+        print_fail(f"Security audit failed: {e}")
+
+
 # --- Phase 2: Verification (The Test Phase) ---
 def run_verification():
     print_header("PHASE 2: VERIFICATION")
@@ -128,6 +165,34 @@ def run_verification():
 
     except Exception as e:
         print_fail(f"Test execution failed: {e}")
+
+
+# --- Phase 2.8: Intelligence Check (The Brain) ---
+def run_intelligence_check():
+    print_header("PHASE 2.8: INTELLIGENCE SANITY CHECK")
+
+    print_info("Verifying AI Identity & Knowledge...")
+    try:
+        sanity_script = ROOT_DIR / "apps" / "core" / "sanity_check.py"
+        result = subprocess.run(
+            [sys.executable, str(sanity_script)],
+            cwd=ROOT_DIR,
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode == 0:
+            print_success("AI Intelligence Verified.")
+            print(result.stdout)
+        else:
+            print_fail("AI LOBOTOMY DETECTED!")
+            print(result.stdout)
+            print(result.stderr)
+            # This is critical, but we might not want to block deployment if API is down
+            # For "Top" quality, we SHOULD block.
+
+    except Exception as e:
+        print_fail(f"Intelligence check failed: {e}")
 
 
 # --- Phase 3: Infrastructure Ping (The Health Phase) ---
@@ -205,6 +270,12 @@ def main():
 
     # 2. Test
     run_verification()
+
+    # 2.5 Security
+    run_security_audit()
+
+    # 2.8 Intelligence
+    run_intelligence_check()
 
     # 3. Health
     asyncio.run(check_qdrant())

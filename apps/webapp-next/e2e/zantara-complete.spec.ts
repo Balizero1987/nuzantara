@@ -17,10 +17,10 @@ import { test, expect } from '@playwright/test';
  * - E2E_TEST_PIN: Test user PIN
  */
 
-const BACKEND_URL =
-  process.env.NUZANTARA_API_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  'https://nuzantara-rag.fly.dev';
+// const BACKEND_URL =
+//   process.env.NUZANTARA_API_URL ||
+//   process.env.NEXT_PUBLIC_API_URL ||
+//   'https://nuzantara-rag.fly.dev';
 
 const TEST_EMAIL = process.env.E2E_TEST_EMAIL;
 const TEST_PIN = process.env.E2E_TEST_PIN;
@@ -56,10 +56,10 @@ const JAKSEL_MULTILINGUAL = {
 };
 
 test.describe('ZANTARA Complete System Tests', () => {
-  let authToken: string;
+  // let authToken: string;
 
   // Helper: Login and get auth token
-  async function loginAndGetToken(page: any) {
+  async function loginAndGetToken(page: import('@playwright/test').Page) {
     await page.goto('/');
     await page.evaluate(() => {
       localStorage.clear();
@@ -82,7 +82,7 @@ test.describe('ZANTARA Complete System Tests', () => {
   }
 
   // Helper: Send chat message and wait for response
-  async function sendChatMessage(page: any, message: string, timeout = 45000) {
+  async function sendChatMessage(page: import('@playwright/test').Page, message: string, timeout = 45000) {
     const chatInput = page
       .locator('textarea, input[placeholder*="message"], input[type="text"]')
       .first();
