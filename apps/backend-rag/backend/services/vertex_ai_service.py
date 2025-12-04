@@ -9,6 +9,8 @@ import logging
 import os
 from typing import Any
 
+logger = logging.getLogger(__name__)
+
 try:
     import vertexai
     from vertexai.preview.generative_models import GenerationConfig, GenerativeModel
@@ -17,8 +19,6 @@ except ImportError:
     GenerationConfig = None
     GenerativeModel = None
     logger.warning("vertexai module not found. VertexAIService will be disabled.")
-
-logger = logging.getLogger(__name__)
 
 
 class VertexAIService:
