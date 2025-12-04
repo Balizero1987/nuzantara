@@ -23,3 +23,11 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: backend-tests-pre-push
+        name: Backend Unit Tests (Pre-Push)
+        entry: bash -c 'cd apps/backend-rag && python -m pytest tests/unit/ -v --tb=short -x -q || (echo "❌ Tests failed! Fix tests before pushing." && exit 1)'
+        language: system
+        pass_filenames: false
+        stages: [push]
+        files: ^apps/backend-rag/backend/.*\.py$
+        always_run: false
