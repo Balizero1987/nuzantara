@@ -77,14 +77,15 @@ class QueryRouter:
         "izin usaha",
         "standard industrial",
         "kode usaha",
-        "sektor",
-        "sector",
+        "sektor usaha",
+        "business sector",
         "foreign ownership",
         "kepemilikan asing",
         "negative list",
         "dnpi",
         "business activity",
         "kegiatan usaha",
+        "kode klasifikasi",
     ]
 
     TAX_KEYWORDS = [
@@ -209,6 +210,67 @@ class QueryRouter:
         "professionista",
         "expert",
         "consulente",
+    ]
+
+    # Backend Services keywords (for technical/API queries)
+    BACKEND_SERVICES_KEYWORDS = [
+        "backend",
+        "api endpoint",
+        "endpoint",
+        "servizio backend",
+        "backend service",
+        "python tool",
+        "tool python",
+        "zantara tool",
+        "get_pricing",
+        "search_team_member",
+        "tool executor",
+        "handler",
+        "typescript handler",
+        "crm service",
+        "conversation service",
+        "memory service",
+        "agentic function",
+        "api documentation",
+        "come posso chiamare",
+        "how to call",
+        "come accedere",
+        "how to access",
+        "quale endpoint",
+        "which endpoint",
+        "api disponibili",
+        "available api",
+        "servizi disponibili",
+        "available services",
+        "postgresql",
+        "qdrant",
+        "vector database",
+        "database vettoriale",
+        "auto-crm",
+        "client journey",
+        "compliance monitoring",
+        "dynamic pricing",
+        "cross-oracle synthesis",
+        "crm",
+        "conversazione",
+        "conversation",
+        "memoria",
+        "memory",
+        "semantic",
+        "semantica",
+        "salvare",
+        "save",
+        "caricare",
+        "load",
+        "database",
+        "client information",
+        "informazioni cliente",
+        "pratica",
+        "practice",
+        "interazione",
+        "interaction",
+        "log interaction",
+        "loggare",
     ]
 
     # NEW: Enumeration keywords that trigger team data retrieval
@@ -468,6 +530,12 @@ class QueryRouter:
         if "fondatore" in query_lower or "founder" in query_lower:
             logger.info("🧭 Route: bali_zero_team (EXPLICIT OVERRIDE: founder query detected)")
             return "bali_zero_team"
+
+        # PRIORITY CHECK: Backend services queries (highest priority after identity/team)
+        backend_services_score = sum(1 for kw in self.BACKEND_SERVICES_KEYWORDS if kw in query_lower)
+        if backend_services_score > 0:
+            logger.info(f"🧭 Route: zantara_books (BACKEND SERVICES QUERY: score={backend_services_score})")
+            return "zantara_books"
 
         # Calculate domain scores
         visa_score = sum(1 for kw in self.VISA_KEYWORDS if kw in query_lower)

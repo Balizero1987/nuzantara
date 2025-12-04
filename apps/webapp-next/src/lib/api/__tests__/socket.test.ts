@@ -1,18 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
-// Mock apiClient
-const mockGetToken = jest.fn();
-
-jest.mock('../client', () => ({
-  apiClient: {
-    getToken: () => mockGetToken(),
-  },
-}));
-
-// Import module under test
-import { socketClient } from '../socket';
-
 // Mock WebSocket
 class MockWebSocket {
   static OPEN = 1;
@@ -40,20 +28,51 @@ class MockWebSocket {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  send(_data: string) {
+  send(_data: any) {
     // Mock send
   }
 }
 
-// @ts-expect-error Mocking global WebSocket for testing
-global.WebSocket = MockWebSocket;
+// Global variable to capture the latest socket instance
+let latestMockSocket: MockWebSocket | null = null;
+
+// Custom MockWebSocket that captures the instance
+class CapturingMockWebSocket extends MockWebSocket {
+  constructor(url: string) {
+    super(url);
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    latestMockSocket = this;
+  }
+}
 
 describe('socketClient', () => {
-  beforeEach(() => {
+  let socketClient: any;
+  let mockGetToken: any;
+
+  beforeEach(async () => {
+    jest.resetModules(); // Reset modules to get fresh singleton
     jest.clearAllMocks();
     jest.useFakeTimers();
-    // Reset the socket client state by disconnecting
-    socketClient.disconnect();
+
+    // Setup mocks
+    mockGetToken = jest.fn();
+    jest.mock('../client', () => ({
+      apiClient: {
+        getToken: () => mockGetToken(),
+      },
+    }));
+
+    // Mock WebSocket global
+    (global as any).WebSocket = CapturingMockWebSocket;
+    latestMockSocket = null;
+
+    // Import module under test
+    // We must require it
+    const module = await import('../socket');
+    const freshSocketClient = module.socketClient;
+    socketClient = freshSocketClient;
+
+    // Mock console
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -106,7 +125,6 @@ describe('socketClient', () => {
     });
 
     it('should handle disconnect when not connected', () => {
-      // Should not throw
       expect(() => socketClient.disconnect()).not.toThrow();
     });
   });
@@ -117,7 +135,6 @@ describe('socketClient', () => {
 
       socketClient.on('test-event', handler);
 
-      // Handler is registered (we verify by triggering it)
       expect(() => socketClient.off('test-event', handler)).not.toThrow();
     });
 
@@ -127,14 +144,11 @@ describe('socketClient', () => {
       socketClient.on('test-event', handler);
       socketClient.off('test-event', handler);
 
-      // Handler should be removed without error
       expect(() => socketClient.off('test-event', handler)).not.toThrow();
     });
 
     it('should handle off() for non-existent event', () => {
       const handler = jest.fn();
-
-      // Should not throw for non-existent event
       expect(() => socketClient.off('non-existent', handler)).not.toThrow();
     });
 
@@ -145,7 +159,6 @@ describe('socketClient', () => {
       socketClient.on('multi-event', handler1);
       socketClient.on('multi-event', handler2);
 
-      // Both should be registered without error
       expect(() => {
         socketClient.off('multi-event', handler1);
         socketClient.off('multi-event', handler2);
@@ -174,154 +187,132 @@ describe('socketClient', () => {
       );
       expect(reconnectCalls.length).toBe(0);
     });
-  });
-});
 
-describe('WebSocketClient message handling', () => {
-  let mockSocket: MockWebSocket | null = null;
+    it('should attempt reconnection after unexpected disconnect', () => {
+      mockGetToken.mockReturnValue('test-token');
+      socketClient.connect();
+      jest.advanceTimersByTime(10);
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
-    socketClient.disconnect();
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
-    mockGetToken.mockReturnValue('test-token');
-
-    // Store reference to created socket
-    const OriginalMockWebSocket = global.WebSocket;
-    // @ts-expect-error Mocking global WebSocket for testing
-    global.WebSocket = class extends OriginalMockWebSocket {
-      constructor(url: string) {
-        super(url);
-        mockSocket = this as unknown as MockWebSocket;
+      // Simulate unexpected disconnect
+      if (latestMockSocket?.onclose) {
+        latestMockSocket.readyState = MockWebSocket.CLOSED;
+        latestMockSocket.onclose({ code: 1006 }); // Abnormal closure
       }
-    };
+
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Reconnecting'));
+
+      // Advance past reconnect interval
+      jest.advanceTimersByTime(3500);
+
+      // Should attempt to connect again
+      const connectingCalls = (console.log as jest.Mock).mock.calls.filter((call: any) =>
+        call[0].includes('Connecting')
+      );
+      expect(connectingCalls.length).toBeGreaterThan(1);
+    });
   });
 
-  afterEach(() => {
-    jest.useRealTimers();
-    jest.restoreAllMocks();
-    mockSocket = null;
-  });
+  describe('message handling', () => {
+    it('should trigger specific event handlers when message received', () => {
+      mockGetToken.mockReturnValue('test-token');
+      const handler = jest.fn();
+      socketClient.on('chat_message', handler);
 
-  it('should trigger specific event handlers when message received', () => {
-    const handler = jest.fn();
-    socketClient.on('chat_message', handler);
+      socketClient.connect();
+      jest.advanceTimersByTime(10);
 
-    socketClient.connect();
-    jest.advanceTimersByTime(10); // Wait for connection
+      if (latestMockSocket?.onmessage) {
+        latestMockSocket.onmessage({
+          data: JSON.stringify({ type: 'chat_message', data: { text: 'Hello' } }),
+        });
+      }
 
-    // Simulate receiving a message
-    if (mockSocket?.onmessage) {
-      mockSocket.onmessage({
-        data: JSON.stringify({ type: 'chat_message', data: { text: 'Hello' } }),
-      });
-    }
+      expect(handler).toHaveBeenCalledWith({ text: 'Hello' });
+    });
 
-    expect(handler).toHaveBeenCalledWith({ text: 'Hello' });
-  });
+    it('should trigger generic message handler when no specific handler exists', () => {
+      mockGetToken.mockReturnValue('test-token');
+      const genericHandler = jest.fn();
+      socketClient.on('message', genericHandler);
 
-  it('should trigger generic message handler when no specific handler exists', () => {
-    const genericHandler = jest.fn();
-    socketClient.on('message', genericHandler);
+      socketClient.connect();
+      jest.advanceTimersByTime(10);
 
-    socketClient.connect();
-    jest.advanceTimersByTime(10);
+      if (latestMockSocket?.onmessage) {
+        latestMockSocket.onmessage({
+          data: JSON.stringify({ type: 'unknown_event', data: { foo: 'bar' } }),
+        });
+      }
 
-    // Simulate receiving a message with no specific handler
-    if (mockSocket?.onmessage) {
-      mockSocket.onmessage({
-        data: JSON.stringify({ type: 'unknown_event', data: { foo: 'bar' } }),
-      });
-    }
+      expect(genericHandler).toHaveBeenCalledWith({ type: 'unknown_event', data: { foo: 'bar' } });
+    });
 
-    expect(genericHandler).toHaveBeenCalledWith({ type: 'unknown_event', data: { foo: 'bar' } });
-  });
+    it('should handle invalid JSON in message', () => {
+      mockGetToken.mockReturnValue('test-token');
+      socketClient.connect();
+      jest.advanceTimersByTime(10);
 
-  it('should handle invalid JSON in message', () => {
-    socketClient.connect();
-    jest.advanceTimersByTime(10);
+      if (latestMockSocket?.onmessage) {
+        latestMockSocket.onmessage({ data: 'not valid json {' });
+      }
 
-    // Simulate receiving invalid JSON
-    if (mockSocket?.onmessage) {
-      mockSocket.onmessage({ data: 'not valid json {' });
-    }
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to parse message'),
+        expect.any(Error)
+      );
+    });
 
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining('Failed to parse message'),
-      expect.any(Error)
-    );
-  });
+    it('should call multiple handlers for same event type', () => {
+      mockGetToken.mockReturnValue('test-token');
+      const handler1 = jest.fn();
+      const handler2 = jest.fn();
+      socketClient.on('multi_event', handler1);
+      socketClient.on('multi_event', handler2);
 
-  it('should call multiple handlers for same event type', () => {
-    const handler1 = jest.fn();
-    const handler2 = jest.fn();
-    socketClient.on('multi_event', handler1);
-    socketClient.on('multi_event', handler2);
+      socketClient.connect();
+      jest.advanceTimersByTime(10);
 
-    socketClient.connect();
-    jest.advanceTimersByTime(10);
+      if (latestMockSocket?.onmessage) {
+        latestMockSocket.onmessage({ data: JSON.stringify({ type: 'multi_event', data: 'test' }) });
+      }
 
-    if (mockSocket?.onmessage) {
-      mockSocket.onmessage({ data: JSON.stringify({ type: 'multi_event', data: 'test' }) });
-    }
+      expect(handler1).toHaveBeenCalledWith('test');
+      expect(handler2).toHaveBeenCalledWith('test');
+    });
 
-    expect(handler1).toHaveBeenCalledWith('test');
-    expect(handler2).toHaveBeenCalledWith('test');
-  });
+    it('should handle onerror event', () => {
+      mockGetToken.mockReturnValue('test-token');
+      socketClient.connect();
+      jest.advanceTimersByTime(10);
 
-  it('should handle onerror event', () => {
-    socketClient.connect();
-    jest.advanceTimersByTime(10);
+      if (latestMockSocket?.onerror) {
+        latestMockSocket.onerror(new Event('error'));
+      }
 
-    // Simulate error
-    if (mockSocket?.onerror) {
-      mockSocket.onerror(new Event('error'));
-    }
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('Error'),
+        expect.any(Event)
+      );
+    });
 
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Error'), expect.any(Event));
-  });
+    it('should not trigger generic handler when specific handler exists', () => {
+      mockGetToken.mockReturnValue('test-token');
+      const specificHandler = jest.fn();
+      const genericHandler = jest.fn();
+      socketClient.on('specific_event', specificHandler);
+      socketClient.on('message', genericHandler);
 
-  it('should attempt reconnection after unexpected disconnect', () => {
-    socketClient.connect();
-    jest.advanceTimersByTime(10);
+      socketClient.connect();
+      jest.advanceTimersByTime(10);
 
-    // Simulate unexpected disconnect (not explicit)
-    // We need to trigger onclose without calling disconnect()
-    if (mockSocket?.onclose) {
-      // Manually set readyState to closed and trigger onclose
-      mockSocket.readyState = MockWebSocket.CLOSED;
-      mockSocket.onclose({ code: 1006 }); // Abnormal closure
-    }
+      if (latestMockSocket?.onmessage) {
+        latestMockSocket.onmessage({
+          data: JSON.stringify({ type: 'specific_event', data: 'data' }),
+        });
+      }
 
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Reconnecting'));
-
-    // Advance past reconnect interval
-    jest.advanceTimersByTime(3500);
-
-    // Should attempt to connect again
-    const connectingCalls = (console.log as jest.Mock).mock.calls.filter((call: any) =>
-      call[0].includes('Connecting')
-    );
-    expect(connectingCalls.length).toBeGreaterThan(1);
-  });
-
-  it('should not trigger generic handler when specific handler exists', () => {
-    const specificHandler = jest.fn();
-    const genericHandler = jest.fn();
-    socketClient.on('specific_event', specificHandler);
-    socketClient.on('message', genericHandler);
-
-    socketClient.connect();
-    jest.advanceTimersByTime(10);
-
-    if (mockSocket?.onmessage) {
-      mockSocket.onmessage({ data: JSON.stringify({ type: 'specific_event', data: 'data' }) });
-    }
-
-    expect(specificHandler).toHaveBeenCalledWith('data');
-    expect(genericHandler).not.toHaveBeenCalled();
+      expect(specificHandler).toHaveBeenCalledWith('data');
+      expect(genericHandler).not.toHaveBeenCalled();
+    });
   });
 });

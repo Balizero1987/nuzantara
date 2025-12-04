@@ -22,13 +22,6 @@ import httpx
 # For local development, set environment variables manually or use direnv
 # from dotenv import load_dotenv
 # load_dotenv()
-
-# Langchain/Langgraph compatibility fix: add 'debug' attribute if missing
-# This fixes: "module 'langchain' has no attribute 'debug'" error
-import langchain
-
-if not hasattr(langchain, "debug"):
-    langchain.debug = False
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -41,13 +34,19 @@ from middleware.error_monitoring import ErrorMonitoringMiddleware
 from middleware.hybrid_auth import HybridAuthMiddleware
 from middleware.rate_limiter import RateLimitMiddleware
 
-# --- OpenTelemetry ---
-from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
+# --- OpenTelemetry (optional - only for local dev with Jaeger) ---
+OTEL_AVAILABLE = False
+try:
+    from opentelemetry import trace
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+    from opentelemetry.sdk.resources import Resource
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    OTEL_AVAILABLE = True
+except ImportError:
+    pass  # OpenTelemetry not installed - skip tracing
+
 from prometheus_fastapi_instrumentator import Instrumentator
 
 # --- App Dependencies & Config ---
@@ -132,18 +131,16 @@ app = FastAPI(
 Instrumentator().instrument(app).expose(app)
 
 # --- Observability: Tracing (Jaeger/OpenTelemetry) ---
-# Only enable if JAEGER_ENABLED is set (optional but good practice)
-resource = Resource.create(attributes={"service.name": "nuzantara-backend"})
-trace.set_tracer_provider(TracerProvider(resource=resource))
-# Use insecure only in development, configure TLS for production
-otlp_exporter = OTLPSpanExporter(
-    endpoint="http://jaeger:4317",
-    insecure=settings.log_level == "DEBUG",  # Only insecure in debug mode
-)
-trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
-
-# Instrument FastAPI
-FastAPIInstrumentor.instrument_app(app)
+# Only enable if OpenTelemetry is installed (for local dev with Jaeger)
+if OTEL_AVAILABLE:
+    resource = Resource.create(attributes={"service.name": "nuzantara-backend"})
+    trace.set_tracer_provider(TracerProvider(resource=resource))
+    otlp_exporter = OTLPSpanExporter(
+        endpoint="http://jaeger:4317",
+        insecure=settings.log_level == "DEBUG",
+    )
+    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
+    FastAPIInstrumentor.instrument_app(app)
 
 
 # --- CORS Configuration ---

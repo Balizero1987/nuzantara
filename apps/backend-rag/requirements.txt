@@ -33,12 +33,13 @@ PyPDF2==3.0.1
 EbookLib==0.17.1
 beautifulsoup4==4.12.2
 
-# LangChain Ecosystem - MINIMAL (only what's actually used)
-# Removed: langgraph, langchain-core, langchain-google-genai to resolve conflicts
-# If needed, use Google's native SDK (google-generativeai) instead
+# LangChain Ecosystem
+langgraph>=0.0.1
+langchain-core>=0.1.0
+# langchain-google-genai removed to resolve conflicts
 
 # HTTP/Network - UPGRADED TO RESOLVE CONFLICTS
-httpx>=0.28.1  # Required by mistralai, ag2
+httpx==0.27.2  # Pinned to 0.27.2 to avoid openai proxies conflict
 requests==2.31.0
 aiohttp>=3.10.0  # Required by litellm, runpod
 urllib3>=2.0.0  # Required by selenium, types-requests

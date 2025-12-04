@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+import { TextEncoder, TextDecoder } from 'util';
 
-// Mock fetchWithRetry
-const mockFetchWithRetry = jest.fn() as any;
-
-// Mock apiClient
-const mockApiClient = {
-  getToken: jest.fn(() => 'test-token'),
-};
+// Polyfill TextEncoder/TextDecoder
+global.TextEncoder = TextEncoder as any;
+global.TextDecoder = TextDecoder as any;
 
 // Mock localStorage
 const localStorageMock = {
@@ -22,54 +19,89 @@ Object.defineProperty(global, 'localStorage', {
   configurable: true,
 });
 
-jest.mock('../fetch-utils', () => ({
-  fetchWithRetry: mockFetchWithRetry,
-}));
-
-jest.mock('../client', () => ({
-  apiClient: mockApiClient,
-  client: {
-    conversations: {
-      saveConversationApiBaliZeroConversationsSavePost: (jest.fn() as any).mockResolvedValue({
-        conversation_id: 1,
-        messages_saved: 1,
-      }),
-      getConversationHistoryApiBaliZeroConversationsHistoryGet: (
-        jest.fn() as any
-      ).mockResolvedValue({ messages: [] }),
-    },
-    memory: {
-      generateEmbeddingApiMemoryEmbedPost: (jest.fn() as any).mockResolvedValue({ embedding: [] }),
-      searchMemoriesSemanticApiMemorySearchPost: (jest.fn() as any).mockResolvedValue({
-        results: [],
-      }),
-    },
-    crmClients: {
-      getClientByEmailApiCrmClientsByEmailEmailGet: (jest.fn() as any).mockResolvedValue({ id: 1 }),
-      getClientSummaryApiCrmClientsClientIdSummaryGet: (jest.fn() as any).mockResolvedValue({}),
-    },
-    agenticFunctions: {
-      getAgentsStatusApiAgentsStatusGet: (jest.fn() as any).mockResolvedValue({
-        agents_available: [],
-        active_journeys: [],
-        pending_alerts: 0,
-      }),
-    },
-  },
-}));
-
-jest.mock('../auth', () => ({
-  authAPI: {
-    getUser: jest.fn(() => ({ email: 'test@example.com' })),
-  },
-}));
-
-// Import module under test
-import { chatAPI } from '../chat';
-
 describe('chatAPI', () => {
-  beforeEach(() => {
+  let chatAPI: any;
+  let mockFetchWithRetry: any;
+  let mockGetToken: any;
+
+  beforeEach(async () => {
+    jest.resetModules();
     jest.clearAllMocks();
+
+    // Mock fetchWithRetry
+    mockFetchWithRetry = jest.fn();
+    jest.doMock('../fetch-utils', () => ({
+      fetchWithRetry: mockFetchWithRetry,
+    }));
+
+    // Mock client
+    mockGetToken = jest.fn(() => 'test-token');
+    jest.doMock('../client', () => ({
+      apiClient: {
+        getToken: mockGetToken,
+      },
+      client: {
+        conversations: {
+          saveConversationApiBaliZeroConversationsSavePost: jest.fn().mockImplementation(() =>
+            Promise.resolve({
+              conversation_id: 1,
+              messages_saved: 1,
+            })
+          ),
+          getConversationHistoryApiBaliZeroConversationsHistoryGet: jest
+            .fn()
+            .mockImplementation(() => Promise.resolve({ messages: [] })),
+        },
+        memory: {
+          generateEmbeddingApiMemoryEmbedPost: jest
+            .fn()
+            .mockImplementation(() => Promise.resolve({ embedding: [] })),
+          searchMemoriesSemanticApiMemorySearchPost: jest.fn().mockImplementation(() =>
+            Promise.resolve({
+              results: [],
+            })
+          ),
+        },
+        crmClients: {
+          getClientByEmailApiCrmClientsByEmailEmailGet: jest
+            .fn()
+            .mockImplementation(() => Promise.resolve({ id: 1 })),
+          getClientSummaryApiCrmClientsClientIdSummaryGet: jest
+            .fn()
+            .mockImplementation(() => Promise.resolve({})),
+        },
+        agenticFunctions: {
+          getAgentsStatusApiAgentsStatusGet: jest.fn().mockImplementation(() =>
+            Promise.resolve({
+              agents_available: [],
+              active_journeys: [],
+              pending_alerts: 0,
+            })
+          ),
+        },
+      },
+    }));
+
+    jest.doMock('../auth', () => ({
+      authAPI: {
+        getUser: jest.fn(() => ({ email: 'test@example.com' })),
+      },
+    }));
+
+    jest.doMock('../zantara-integration', () => ({
+      zantaraAPI: {
+        buildContext: jest.fn().mockImplementation(() =>
+          Promise.resolve({
+            session: { sessionId: 'test', userEmail: 'test@example.com' },
+          })
+        ),
+        postProcessTurn: jest.fn().mockImplementation(() => Promise.resolve({})),
+      },
+    }));
+
+    // Import module under test
+    const module = await import('../chat');
+    chatAPI = module.chatAPI;
   });
 
   describe('streamChat', () => {
@@ -83,7 +115,7 @@ describe('chatAPI', () => {
         },
       });
 
-      (mockFetchWithRetry as any).mockResolvedValue({
+      mockFetchWithRetry.mockResolvedValue({
         ok: true,
         body: mockStream,
       });
@@ -96,7 +128,7 @@ describe('chatAPI', () => {
       await chatAPI.streamChat('Hello', onChunk, onMetadata, onComplete, onError);
 
       expect(mockFetchWithRetry).toHaveBeenCalledWith(
-        '/api/chat/stream',
+        expect.stringContaining('/api/chat/stream'),
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -122,7 +154,7 @@ describe('chatAPI', () => {
         },
       });
 
-      (mockFetchWithRetry as any).mockResolvedValue({
+      mockFetchWithRetry.mockResolvedValue({
         ok: true,
         body: mockStream,
       });
@@ -147,7 +179,7 @@ describe('chatAPI', () => {
         },
       });
 
-      (mockFetchWithRetry as any).mockResolvedValue({
+      mockFetchWithRetry.mockResolvedValue({
         ok: true,
         body: mockStream,
       });
@@ -184,7 +216,7 @@ describe('chatAPI', () => {
     });
 
     it('should handle missing token', async () => {
-      (mockApiClient.getToken as any).mockReturnValue(null);
+      mockGetToken.mockReturnValue(null);
 
       const onError = jest.fn();
       await chatAPI.streamChat('Hello', jest.fn(), jest.fn(), jest.fn(), onError);

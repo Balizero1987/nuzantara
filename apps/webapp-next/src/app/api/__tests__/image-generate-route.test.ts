@@ -3,8 +3,6 @@
  * @jest-environment node
  */
 
-import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-
 // Mock Request for node environment
 class MockRequest {
   url: string;
@@ -52,13 +50,6 @@ class MockResponse {
 // Mock global fetch
 const mockFetch = jest.fn() as unknown as jest.Mock<(...args: any[]) => Promise<any>>;
 (global as any).fetch = mockFetch;
-
-// Mock NextResponse
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: (body: any, init?: { status?: number }) => new MockResponse(body, init),
-  },
-}));
 
 // Import AFTER mocks
 import { POST } from '../image/generate/route';

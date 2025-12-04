@@ -3,8 +3,6 @@
  * @jest-environment node
  */
 
-import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-
 // Mock Request for node environment
 class MockRequest {
   url: string;
@@ -27,36 +25,53 @@ class MockRequest {
   }
 }
 
+class MockResponse {
+  status: number;
+  headers: Map<string, string>;
+  body: any;
+  private _body: any;
+
+  constructor(body: any, init?: { status?: number; headers?: Record<string, string> }) {
+    this._body = body;
+    this.body = body;
+    this.status = init?.status || 200;
+    this.headers = new Map(Object.entries(init?.headers || {}));
+  }
+
+  async json() {
+    return typeof this._body === 'string' ? JSON.parse(this._body) : this._body;
+  }
+
+  static json(body: any, init?: { status?: number }) {
+    return new MockResponse(body, init);
+  }
+}
+
 // Mock globals
 (global as any).Request = MockRequest;
+(global as any).Response = MockResponse;
+
+import { createServerClient } from '@/lib/api/client';
 
 // Mock the client
-const mockHybridOracleQuery = jest.fn();
-
-// Mock NextResponse
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: (body: any, init?: { status?: number }) => ({
-      json: async () => body,
-      status: init?.status || 200,
-    }),
-  },
-}));
-
-jest.mock('../../../lib/api/client', () => ({
-  createServerClient: () => ({
-    oracleV53UltraHybrid: {
-      hybridOracleQueryApiOracleQueryPost: mockHybridOracleQuery,
-    },
-  }),
+jest.mock('@/lib/api/client', () => ({
+  createServerClient: jest.fn(),
 }));
 
 // Import AFTER mocks
 import { POST } from '../chat/route';
 
 describe('Chat API Route', () => {
+  let mockHybridOracleQuery: any;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockHybridOracleQuery = jest.fn();
+    (createServerClient as jest.Mock).mockReturnValue({
+      oracleV53UltraHybrid: {
+        hybridOracleQueryApiOracleQueryPost: mockHybridOracleQuery,
+      },
+    });
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
