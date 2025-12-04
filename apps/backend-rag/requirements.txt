@@ -46,7 +46,7 @@ urllib3>=2.0.0  # Required by selenium, types-requests
 
 # Web Scraping (Peraturan Spider)
 playwright==1.40.0
-fake-useragent==1.4.0
+fake-useragent==2.2.0
 
 # Authentication
 python-jose[cryptography]==3.3.0
