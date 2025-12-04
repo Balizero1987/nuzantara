@@ -10,7 +10,7 @@ Description:
 Production-ready hybrid RAG system integrating:
 - Qdrant Vector Database (Semantic Search)
 - Google Drive Integration (PDF Document Repository)
-- Google Gemini 1.5 Flash (Reasoning Engine)
+- Google Gemini 2.5 Flash (Reasoning Engine)
 - User Identity & Localization System (PostgreSQL)
 - Multimodal Capabilities (Text + Audio)
 - Comprehensive Error Handling & Logging
@@ -651,7 +651,7 @@ async def reason_with_gemini(
     documents: list[str], query: str, user_instruction: str, use_full_docs: bool = False
 ) -> dict[str, Any]:
     """
-    Advanced reasoning with Google Gemini 1.5 Flash
+    Advanced reasoning with Google Gemini 2.5 Flash
     Processes documents and query with user-specific instructions
     """
     try:

@@ -3,9 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 export type MemorySearchResponse = {
-  results: Array<Record<string, any>>;
-  ids: Array<string>;
-  distances: Array<number>;
-  total_found: number;
-  execution_time_ms: number;
+    results: Array<Record<string, any>>;
+    ids: Array<string>;
+    distances: Array<number>;
+    total_found: number;
+    execution_time_ms: number;
 };
+

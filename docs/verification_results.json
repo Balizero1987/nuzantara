@@ -1,0 +1,102 @@
+{
+  "health": {
+    "basic": {
+      "status": "healthy",
+      "version": "v100-qdrant",
+      "database": {
+        "status": "connected",
+        "type": "qdrant",
+        "collections": 17,
+        "total_documents": 25437
+      },
+      "embeddings": {
+        "status": "operational",
+        "provider": "openai",
+        "model": "text-embedding-3-small",
+        "dimensions": 1536
+      }
+    },
+    "detailed": {
+      "status": "critical",
+      "services": {
+        "search": {
+          "status": "healthy",
+          "critical": true,
+          "details": {
+            "provider": "openai",
+            "model": "text-embedding-3-small"
+          }
+        },
+        "ai": {
+          "status": "unavailable",
+          "critical": true
+        },
+        "database": {
+          "status": "unavailable",
+          "critical": false
+        },
+        "memory": {
+          "status": "unavailable",
+          "critical": false
+        },
+        "router": {
+          "status": "unavailable",
+          "critical": false
+        },
+        "health_monitor": {
+          "status": "unavailable",
+          "critical": false
+        }
+      },
+      "critical_services": [
+        "search",
+        "ai"
+      ],
+      "registry": null,
+      "timestamp": "2025-12-04T14:21:45.523556+00:00",
+      "version": "v100-qdrant"
+    }
+  },
+  "services": {
+    "Conversations": "accessible",
+    "Memory": "accessible",
+    "CRM": "accessible",
+    "Agents": "accessible",
+    "Knowledge": "accessible",
+    "Health": "accessible"
+  },
+  "webapp": {
+    "lib/api/zantara-integration.ts": {
+      "exists": true,
+      "references": 2
+    },
+    "lib/api/chat.ts": {
+      "exists": true,
+      "references": 9
+    },
+    "app/chat/page.tsx": {
+      "exists": true,
+      "references": 0
+    },
+    "app/api/chat/stream/route.ts": {
+      "exists": true,
+      "references": 1
+    }
+  },
+  "context_builder": {
+    "build_zantara_identity": true,
+    "build_backend_services_context": true,
+    "build_identity_context": true,
+    "build_memory_context": true,
+    "build_team_context": true,
+    "combine_contexts": true,
+    "backend_services_documented": true
+  },
+  "persona": {
+    "SYSTEM_INSTRUCTION": true,
+    "BACKEND SERVICES section": true,
+    "FEW_SHOT_EXAMPLES": true,
+    "Natural language guidelines": true,
+    "examples_count": 12
+  }
+}

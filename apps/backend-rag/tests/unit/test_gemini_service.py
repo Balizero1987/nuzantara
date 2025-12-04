@@ -54,7 +54,7 @@ def gemini_service(mock_genai, mock_generative_model):
         with patch(
             "services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model
         ):
-            return GeminiJakselService(model_name="gemini-1.5-flash")
+            return GeminiJakselService(model_name="gemini-2.5-flash")
 
 
 # ============================================================================
@@ -69,7 +69,7 @@ def test_init_default_model(mock_genai, mock_generative_model):
             "services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model
         ):
             service = GeminiJakselService()
-            assert service.model_name == "gemini-1.5-flash"
+            assert service.model_name == "gemini-2.5-flash"
             assert service.system_instruction is not None
             assert len(service.few_shot_history) > 0
 
@@ -80,8 +80,8 @@ def test_init_custom_model(mock_genai, mock_generative_model):
         with patch(
             "services.gemini_service.genai.GenerativeModel", return_value=mock_generative_model
         ):
-            service = GeminiJakselService(model_name="gemini-1.5-pro")
-            assert service.model_name == "gemini-1.5-pro"
+            service = GeminiJakselService(model_name="gemini-2.5-pro")
+            assert service.model_name == "gemini-2.5-pro"
 
 
 def test_init_system_instruction(mock_genai, mock_generative_model):

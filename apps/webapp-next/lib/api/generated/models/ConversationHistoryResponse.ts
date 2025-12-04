@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type ConversationHistoryResponse = {
-  success: boolean;
-  messages?: Array<Record<string, any>>;
-  total_messages?: number;
-  error?: string | null;
+    success: boolean;
+    messages?: Array<Record<string, any>>;
+    total_messages?: number;
+    error?: (string | null);
 };
+

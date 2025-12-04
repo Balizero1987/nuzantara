@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type StoreMemoryRequest = {
-  id: string;
-  document: string;
-  embedding: Array<number>;
-  metadata: Record<string, any>;
+    id: string;
+    document: string;
+    embedding: Array<number>;
+    metadata: Record<string, any>;
 };
+

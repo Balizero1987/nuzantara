@@ -6,16 +6,17 @@
  * Clock-in request
  */
 export type ClockInRequest = {
-  /**
-   * User identifier
-   */
-  user_id: string;
-  /**
-   * User email
-   */
-  email: string;
-  /**
-   * Optional metadata
-   */
-  metadata?: Record<string, any> | null;
+    /**
+     * User identifier
+     */
+    user_id: string;
+    /**
+     * User email
+     */
+    email: string;
+    /**
+     * Optional metadata
+     */
+    metadata?: (Record<string, any> | null);
 };
+

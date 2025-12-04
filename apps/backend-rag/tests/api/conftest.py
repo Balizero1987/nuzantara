@@ -45,7 +45,10 @@ def test_client():
     # Mock dependencies before importing app
     with patch("app.dependencies.search_service", MagicMock()):
         # Patch the settings to ensure the secret key matches what we use for token generation
-        with patch("app.core.config.settings.jwt_secret_key", "test_jwt_secret_key_for_testing_only_min_32_chars"):
+        with patch(
+            "app.core.config.settings.jwt_secret_key",
+            "test_jwt_secret_key_for_testing_only_min_32_chars",
+        ):
             from app.main_cloud import app
 
         # Override startup/shutdown events to skip heavy initialization

@@ -173,18 +173,14 @@ class TestConversationAuthentication:
 class TestSaveConversation:
     """Tests for POST /api/bali-zero/conversations/save endpoint"""
 
-    def test_save_conversation_success(
-        self, test_client, valid_jwt_token, mock_db_connection
-    ):
+    def test_save_conversation_success(self, test_client, valid_jwt_token, mock_db_connection):
         """Test successful conversation save"""
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = {"id": 123}
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.get_auto_crm", return_value=None), patch(
-            "app.routers.conversations.logger"
-        ):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.get_auto_crm", return_value=None
+        ), patch("app.routers.conversations.logger"):
             response = test_client.post(
                 "/api/bali-zero/conversations/save",
                 json={
@@ -210,11 +206,9 @@ class TestSaveConversation:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = {"id": 456}
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.get_auto_crm", return_value=None), patch(
-            "app.routers.conversations.logger"
-        ):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.get_auto_crm", return_value=None
+        ), patch("app.routers.conversations.logger"):
             response = test_client.post(
                 "/api/bali-zero/conversations/save",
                 json={
@@ -233,11 +227,9 @@ class TestSaveConversation:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = {"id": 789}
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.get_auto_crm", return_value=None), patch(
-            "app.routers.conversations.logger"
-        ):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.get_auto_crm", return_value=None
+        ), patch("app.routers.conversations.logger"):
             response = test_client.post(
                 "/api/bali-zero/conversations/save",
                 json={"messages": []},
@@ -263,9 +255,9 @@ class TestSaveConversation:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.execute.side_effect = Exception("Database error")
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.post(
                 "/api/bali-zero/conversations/save",
                 json={"messages": [{"role": "user", "content": "Test"}]},
@@ -294,9 +286,9 @@ class TestGetConversationHistory:
             "created_at": datetime.now(),
         }
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.get(
                 "/api/bali-zero/conversations/history",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -316,9 +308,9 @@ class TestGetConversationHistory:
             "created_at": datetime.now(),
         }
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.get(
                 "/api/bali-zero/conversations/history?limit=10",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -329,9 +321,7 @@ class TestGetConversationHistory:
             assert data["success"] is True
             assert len(data["messages"]) <= 10
 
-    def test_get_history_with_session_id(
-        self, test_client, valid_jwt_token, mock_db_connection
-    ):
+    def test_get_history_with_session_id(self, test_client, valid_jwt_token, mock_db_connection):
         """Test history retrieval filtered by session_id"""
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = {
@@ -339,9 +329,9 @@ class TestGetConversationHistory:
             "created_at": datetime.now(),
         }
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.get(
                 "/api/bali-zero/conversations/history?session_id=specific-session",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -356,9 +346,9 @@ class TestGetConversationHistory:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = None
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.get(
                 "/api/bali-zero/conversations/history",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -384,9 +374,9 @@ class TestClearConversationHistory:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.rowcount = 5
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.delete(
                 "/api/bali-zero/conversations/clear",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -402,9 +392,9 @@ class TestClearConversationHistory:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.rowcount = 2
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.delete(
                 "/api/bali-zero/conversations/clear?session_id=specific-session",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -415,16 +405,14 @@ class TestClearConversationHistory:
             assert data["success"] is True
             assert data["deleted_count"] == 2
 
-    def test_clear_no_matching_records(
-        self, test_client, valid_jwt_token, mock_db_connection
-    ):
+    def test_clear_no_matching_records(self, test_client, valid_jwt_token, mock_db_connection):
         """Test clearing when no matching records exist"""
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.rowcount = 0
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.delete(
                 "/api/bali-zero/conversations/clear",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -435,16 +423,14 @@ class TestClearConversationHistory:
             assert data["success"] is True
             assert data["deleted_count"] == 0
 
-    def test_clear_db_error_returns_500(
-        self, test_client, valid_jwt_token, mock_db_connection
-    ):
+    def test_clear_db_error_returns_500(self, test_client, valid_jwt_token, mock_db_connection):
         """Test that database errors return 500"""
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.execute.side_effect = Exception("Database error")
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.delete(
                 "/api/bali-zero/conversations/clear",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -470,9 +456,9 @@ class TestGetConversationStats:
             "last_conversation": datetime(2024, 1, 15, 12, 0, 0),
         }
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.get(
                 "/api/bali-zero/conversations/stats",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -494,9 +480,9 @@ class TestGetConversationStats:
             "last_conversation": None,
         }
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.get(
                 "/api/bali-zero/conversations/stats",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -509,16 +495,14 @@ class TestGetConversationStats:
             assert data["total_messages"] == 0
             assert data["last_conversation"] is None
 
-    def test_get_stats_db_error_returns_500(
-        self, test_client, valid_jwt_token, mock_db_connection
-    ):
+    def test_get_stats_db_error_returns_500(self, test_client, valid_jwt_token, mock_db_connection):
         """Test that database errors return 500"""
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.execute.side_effect = Exception("Database error")
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.logger"):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             response = test_client.get(
                 "/api/bali-zero/conversations/stats",
                 headers={"Authorization": f"Bearer {valid_jwt_token}"},
@@ -535,18 +519,14 @@ class TestGetConversationStats:
 class TestConversationSecurity:
     """Security-focused tests for conversation endpoints"""
 
-    def test_user_email_from_jwt_not_body(
-        self, test_client, valid_jwt_token, mock_db_connection
-    ):
+    def test_user_email_from_jwt_not_body(self, test_client, valid_jwt_token, mock_db_connection):
         """Test that user email is taken from JWT, not request body"""
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = {"id": 100}
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.get_auto_crm", return_value=None), patch(
-            "app.routers.conversations.logger"
-        ):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.get_auto_crm", return_value=None
+        ), patch("app.routers.conversations.logger"):
             response = test_client.post(
                 "/api/bali-zero/conversations/save",
                 json={
@@ -583,11 +563,9 @@ class TestConversationSecurity:
         }
         user2_token = jwt.encode(user2_payload, secret, algorithm="HS256")
 
-        with patch(
-            "app.routers.conversations.get_db_connection", return_value=mock_conn
-        ), patch("app.routers.conversations.get_auto_crm", return_value=None), patch(
-            "app.routers.conversations.logger"
-        ):
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.get_auto_crm", return_value=None
+        ), patch("app.routers.conversations.logger"):
             # User 1 saves
             response1 = test_client.post(
                 "/api/bali-zero/conversations/save",

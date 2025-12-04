@@ -3,8 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type SaveConversationRequest = {
-  user_email: string;
-  messages: Array<Record<string, any>>;
-  session_id?: string | null;
-  metadata?: Record<string, any> | null;
+    messages: Array<Record<string, any>>;
+    session_id?: (string | null);
+    metadata?: (Record<string, any> | null);
 };
+

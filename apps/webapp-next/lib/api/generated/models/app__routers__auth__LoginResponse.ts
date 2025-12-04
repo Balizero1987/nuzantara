@@ -6,7 +6,8 @@
  * Login response model
  */
 export type app__routers__auth__LoginResponse = {
-  success: boolean;
-  message: string;
-  data?: Record<string, any> | null;
+    success: boolean;
+    message: string;
+    data?: (Record<string, any> | null);
 };
+

@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-
+/* eslint-disable */
 export { NuzantaraClient } from './NuzantaraClient';
 
 export { ApiError } from './core/ApiError';
@@ -52,6 +52,8 @@ export type { IntelSearchRequest } from './models/IntelSearchRequest';
 export type { IntelStoreRequest } from './models/IntelStoreRequest';
 export type { InteractionCreate } from './models/InteractionCreate';
 export type { InteractionResponse } from './models/InteractionResponse';
+export type { LegalIngestRequest } from './models/LegalIngestRequest';
+export type { LegalIngestResponse } from './models/LegalIngestResponse';
 export type { MemorySearchResponse } from './models/MemorySearchResponse';
 export type { MonthlySummary } from './models/MonthlySummary';
 export type { OracleQueryRequest } from './models/OracleQueryRequest';
@@ -90,6 +92,7 @@ export { ImageService } from './services/ImageService';
 export { IngestionService } from './services/IngestionService';
 export { InstagramService } from './services/InstagramService';
 export { KnowledgeService } from './services/KnowledgeService';
+export { LegalIngestionService } from './services/LegalIngestionService';
 export { MediaService } from './services/MediaService';
 export { MemoryService } from './services/MemoryService';
 export { NotificationsService } from './services/NotificationsService';

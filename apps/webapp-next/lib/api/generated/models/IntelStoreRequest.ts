@@ -3,10 +3,11 @@
 /* tslint:disable */
 /* eslint-disable */
 export type IntelStoreRequest = {
-  collection: string;
-  id: string;
-  document: string;
-  embedding: Array<number>;
-  metadata: Record<string, any>;
-  full_data: Record<string, any>;
+    collection: string;
+    id: string;
+    document: string;
+    embedding: Array<number>;
+    metadata: Record<string, any>;
+    full_data: Record<string, any>;
 };
+

@@ -21,7 +21,7 @@ os.environ["JWT_SECRET_KEY"] = "mock-secret-key-for-sanity-check-must-be-32-char
 os.environ["API_KEYS"] = "mock-api-key"
 os.environ["WHATSAPP_VERIFY_TOKEN"] = "mock-verify-token"
 os.environ["INSTAGRAM_VERIFY_TOKEN"] = "mock-verify-token"
-os.environ["ENVIRONMENT"] = "development" # Force dev to allow mock mode if needed
+os.environ["ENVIRONMENT"] = "development"  # Force dev to allow mock mode if needed
 
 # Add backend directory to path so 'app' module can be found
 BACKEND_DIR = ROOT_DIR / "apps" / "backend-rag" / "backend"
@@ -54,7 +54,9 @@ async def run_sanity_check():
 
     # Check for Mock Mode
     if client.mock_mode:
-        print("⚠️  WARNING: AI Client is in MOCK MODE. Skipping strict intelligence checks.")
+        print(
+            "⚠️  WARNING: AI Client is in MOCK MODE. Skipping strict intelligence checks."
+        )
         print("   (To run real checks, set GOOGLE_API_KEY environment variable)")
         print("\n✨ ALL SYSTEMS INTELLIGENT (Mock Mode Verified)")
         sys.exit(0)

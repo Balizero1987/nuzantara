@@ -147,9 +147,7 @@ class TestConnectionManagement:
         assert mock_websocket in connection_manager.active_connections[user_id]
 
     @pytest.mark.asyncio
-    async def test_connect_multiple_connections_same_user(
-        self, connection_manager, mock_websocket
-    ):
+    async def test_connect_multiple_connections_same_user(self, connection_manager, mock_websocket):
         """Test multiple connections from the same user"""
         user_id = "multi-conn-user"
         ws1 = AsyncMock()
@@ -280,9 +278,7 @@ class TestMessageSending:
         await connection_manager.send_personal_message(message, "nonexistent-user")
 
     @pytest.mark.asyncio
-    async def test_send_personal_message_handles_failed_connection(
-        self, connection_manager
-    ):
+    async def test_send_personal_message_handles_failed_connection(self, connection_manager):
         """Test that failed connections are cleaned up during send"""
         user_id = "user-with-failing-conn"
         ws_good = AsyncMock()
@@ -730,9 +726,7 @@ class TestConcurrency:
 
         # Send multiple messages concurrently
         messages = [{"id": i} for i in range(5)]
-        tasks = [
-            connection_manager.send_personal_message(msg, user_id) for msg in messages
-        ]
+        tasks = [connection_manager.send_personal_message(msg, user_id) for msg in messages]
         await asyncio.gather(*tasks)
 
         # Each WebSocket should receive all messages

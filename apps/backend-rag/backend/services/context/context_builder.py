@@ -522,7 +522,9 @@ ISTRUZIONI OBBLIGATORIE PER LA KNOWLEDGE BASE:
                 insert_pos = 1 if identity_context else 0
                 if team_context:
                     insert_pos = 2 if identity_context else 1
-                contexts.insert(min(insert_pos, len(contexts)), self.build_backend_services_context())
+                contexts.insert(
+                    min(insert_pos, len(contexts)), self.build_backend_services_context()
+                )
 
         if not contexts:
             return None

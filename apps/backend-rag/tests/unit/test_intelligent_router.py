@@ -27,7 +27,7 @@ def mock_gemini_jaksel():
     service = AsyncMock()
     service.generate_response = AsyncMock(return_value="Gemini response")
     service.generate_response_stream = MagicMock()
-    service.model_name = "gemini-1.5-flash"
+    service.model_name = "gemini-2.5-flash"
     return service
 
 

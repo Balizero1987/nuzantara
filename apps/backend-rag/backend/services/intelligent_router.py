@@ -1,6 +1,6 @@
 """
 Intelligent Router - ZANTARA AI (REFACTORED 2025)
-Uses Gemini 1.5 Flash with In-Context Learning for Jaksel Persona.
+Uses Gemini 2.5 Flash with In-Context Learning for Jaksel Persona.
 
 UPDATED 2025-12-04:
 - Replaced SimpleJakselCaller with GeminiJakselService
