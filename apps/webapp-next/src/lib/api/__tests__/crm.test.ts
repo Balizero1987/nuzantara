@@ -155,7 +155,7 @@ describe('crmAPI', () => {
       expect(fetchWithRetry).toHaveBeenCalledWith(
         expect.stringContaining('/api/crm/clients/1'),
         expect.objectContaining({
-          method: 'PUT',
+          method: 'PATCH',
           body: JSON.stringify(updateData),
           headers: expect.objectContaining({
             Authorization: 'Bearer test-token',

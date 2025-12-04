@@ -178,8 +178,8 @@ export const zantaraAPI = {
     }
 
     try {
+      // NOTE: user_email is NOT included - backend extracts it from JWT token for security
       const request: SaveConversationRequest = {
-        user_email: user.email,
         messages: messages.map(m => ({
           role: m.role,
           content: m.content,

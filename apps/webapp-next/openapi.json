@@ -5926,6 +5926,61 @@
           }
         }
       }
+    },
+    "/api/chat/stream": {
+      "post": {
+        "summary": "Chat Stream Post",
+        "description": "Modern POST endpoint for chat streaming (JSON body).\nCompatible with frontend Next.js client.\n\nBody:\n{\n    \"message\": \"User query\",\n    \"user_id\": \"optional-user-id\",\n    \"conversation_history\": [{\"role\": \"user\", \"content\": \"...\"}, ...],\n    \"metadata\": {\"key\": \"value\"},\n    \"zantara_context\": {\"session_id\": \"...\", ...}\n}\n\nReturns: SSE stream with {\"type\": \"token|metadata|done\", \"data\": \"...\"}",
+        "operationId": "chat_stream_post_api_chat_stream_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatStreamRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6256,6 +6311,67 @@
           "start_time"
         ],
         "title": "CalendarEvent"
+      },
+      "ChatStreamRequest": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "conversation_history": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation History"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          },
+          "zantara_context": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zantara Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "ChatStreamRequest",
+        "description": "Request model for POST /api/chat/stream"
       },
       "ChunkMetadata": {
         "properties": {

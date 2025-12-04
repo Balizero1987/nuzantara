@@ -48,17 +48,18 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 from pydantic import BaseModel, ConfigDict, Field
 
-sys.path.append(str(Path(__file__).parent.parent.parent))
+sys.path.append(str(Path(__file__).parent.parent.parent))  # noqa: E402
 
 # Database Connection (PostgreSQL)
-import psycopg2
-from core.embeddings import EmbeddingsGenerator
-from psycopg2.extras import RealDictCursor
+import psycopg2  # noqa: E402
+from core.embeddings import EmbeddingsGenerator  # noqa: E402
+from psycopg2.extras import RealDictCursor  # noqa: E402
 
-from app.dependencies import get_search_service
-from services.personality_service import PersonalityService
-from services.search_service import SearchService
-from services.smart_oracle import smart_oracle
+from app.dependencies import get_search_service  # noqa: E402
+from app.models import UserProfile  # noqa: E402
+from services.personality_service import PersonalityService  # noqa: E402
+from services.search_service import SearchService  # noqa: E402
+from services.smart_oracle import smart_oracle  # noqa: E402
 
 # Production Logging Configuration (Fly.io Compatible)
 # Note: Fly.io captures stdout/stderr automatically, no file logging needed
@@ -395,19 +396,7 @@ db_manager = DatabaseManager(config.database_url)
 # ========================================
 
 
-class UserProfile(BaseModel):
-    """User profile with localization preferences"""
-
-    user_id: str
-    email: str
-    name: str
-    role: str
-    language: str = Field(default="en", description="User's preferred response language")
-    tone: str = Field(default="professional", description="Communication tone")
-    complexity: str = Field(default="medium", description="Response complexity level")
-    timezone: str = Field(default="Asia/Bali", description="User's timezone")
-    role_level: str = Field(default="member", description="User's role level")
-    meta_json: dict[str, Any] = Field(default_factory=dict)
+# UserProfile is now imported from app.models (unified model)
 
 
 class OracleQueryRequest(BaseModel):
@@ -914,7 +903,7 @@ async def hybrid_oracle_query(
         # 6. Apply Jaksel personality if user email is provided (moved outside use_ai condition)
         # DISABLED: Using only Gemini 2.5 for now
         if (
-            False
+            False  # noqa: SIM223
             and request.user_email
             and request.user_email
             in [
