@@ -6,16 +6,17 @@
  * Clock-out request
  */
 export type ClockOutRequest = {
-  /**
-   * User identifier
-   */
-  user_id: string;
-  /**
-   * User email
-   */
-  email: string;
-  /**
-   * Optional metadata
-   */
-  metadata?: Record<string, any> | null;
+    /**
+     * User identifier
+     */
+    user_id: string;
+    /**
+     * User email
+     */
+    email: string;
+    /**
+     * Optional metadata
+     */
+    metadata?: (Record<string, any> | null);
 };
+

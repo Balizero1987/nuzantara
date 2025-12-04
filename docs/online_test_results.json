@@ -1,0 +1,178 @@
+{
+  "auth": {
+    "login": {
+      "status": "success",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6Ik..."
+    }
+  },
+  "health": {
+    "basic": {
+      "status": "healthy",
+      "version": "v100-qdrant",
+      "database": {
+        "status": "connected",
+        "type": "qdrant",
+        "collections": 17,
+        "total_documents": 25437
+      },
+      "embeddings": {
+        "status": "operational",
+        "provider": "openai",
+        "model": "text-embedding-3-small",
+        "dimensions": 1536
+      }
+    },
+    "detailed": {
+      "status": "critical",
+      "services": {
+        "search": {
+          "status": "healthy",
+          "critical": true,
+          "details": {
+            "provider": "openai",
+            "model": "text-embedding-3-small"
+          }
+        },
+        "ai": {
+          "status": "unavailable",
+          "critical": true
+        },
+        "database": {
+          "status": "unavailable",
+          "critical": false
+        },
+        "memory": {
+          "status": "unavailable",
+          "critical": false
+        },
+        "router": {
+          "status": "unavailable",
+          "critical": false
+        },
+        "health_monitor": {
+          "status": "unavailable",
+          "critical": false
+        }
+      },
+      "critical_services": [
+        "search",
+        "ai"
+      ],
+      "registry": null,
+      "timestamp": "2025-12-04T14:32:09.833145+00:00",
+      "version": "v100-qdrant"
+    }
+  },
+  "services": {
+    "conversations": {
+      "status": "accessible",
+      "data": {
+        "success": true,
+        "user_email": "7dfe56b2-ff63-4d40-b78b-90c018127a02",
+        "total_conversations": 0,
+        "total_messages": 0,
+        "last_conversation": null
+      }
+    },
+    "memory": {
+      "status": "accessible",
+      "data": {
+        "total_memories": 0,
+        "collection_name": "zantara_memories",
+        "qdrant_url": "https://nuzantara-qdrant.fly.dev",
+        "users": 0,
+        "collection_size_mb": 0.0
+      }
+    },
+    "crm": {
+      "status": "endpoint_works",
+      "client_not_found": true
+    },
+    "agents": {
+      "status": "accessible",
+      "data": {
+        "status": "operational",
+        "total_agents": 10,
+        "agents": {
+          "phase_1_2_foundation": {
+            "count": 6,
+            "agents": [
+              "cross_oracle_synthesis",
+              "dynamic_pricing",
+              "autonomous_research",
+              "intelligent_query_router",
+              "conflict_resolution",
+              "business_plan_generator"
+            ],
+            "status": "operational"
+          },
+          "phase_3_orchestration": {
+            "count": 2,
+            "agents": [
+              "client_journey_orchestrator",
+              "proactive_compliance_monitor"
+            ],
+            "status": "operational"
+          },
+          "phase_4_advanced": {
+            "count": 1,
+            "agents": [
+              "knowledge_graph_builder"
+            ],
+            "status": "operational"
+          },
+          "phase_5_automation": {
+            "count": 1,
+            "agents": [
+              "auto_ingestion_orchestrator"
+            ],
+            "status": "operational"
+          }
+        },
+        "capabilities": {
+          "multi_oracle_synthesis": true,
+          "journey_orchestration": true,
+          "compliance_monitoring": true,
+          "knowledge_graph": true,
+          "auto_ingestion": true,
+          "dynamic_pricing": true,
+          "autonomous_research": true
+        }
+      }
+    },
+    "knowledge": {
+      "status": "status_404"
+    }
+  },
+  "zantara_chat": [
+    {
+      "question": "Cosa puoi fare per me?",
+      "status": "partial",
+      "keywords_found": [],
+      "response_length": 532,
+      "response_preview": "data: {\"type\": \"metadata\", \"data\": {\"status\": \"connected\", \"user\": \"zero@balizero.com\", \"identified\": \"Zero\"}}\n\ndata: {\"type\": \"metadata\", \"data\": {\"memory_used\": true, \"used_rag\": true, \"rag_sources\""
+    },
+    {
+      "question": "Puoi controllare le mie pratiche attive nel CRM?",
+      "status": "partial",
+      "keywords_found": [],
+      "response_length": 577,
+      "response_preview": "data: {\"type\": \"metadata\", \"data\": {\"status\": \"connected\", \"user\": \"zero@balizero.com\", \"identified\": \"Zero\"}}\n\ndata: {\"type\": \"metadata\", \"data\": {\"memory_used\": true, \"used_rag\": true, \"rag_sources\""
+    },
+    {
+      "question": "Cosa ricordi di me?",
+      "status": "partial",
+      "keywords_found": [],
+      "response_length": 577,
+      "response_preview": "data: {\"type\": \"metadata\", \"data\": {\"status\": \"connected\", \"user\": \"zero@balizero.com\", \"identified\": \"Zero\"}}\n\ndata: {\"type\": \"metadata\", \"data\": {\"memory_used\": true, \"used_rag\": true, \"rag_sources\""
+    },
+    {
+      "question": "Puoi cercare informazioni su Tax, Legal e Visa insieme?",
+      "status": "partial",
+      "keywords_found": [],
+      "response_length": 587,
+      "response_preview": "data: {\"type\": \"metadata\", \"data\": {\"status\": \"connected\", \"user\": \"zero@balizero.com\", \"identified\": \"Zero\"}}\n\ndata: {\"type\": \"metadata\", \"data\": {\"memory_used\": true, \"used_rag\": true, \"rag_sources\""
+    }
+  ],
+  "summary": {}
+}

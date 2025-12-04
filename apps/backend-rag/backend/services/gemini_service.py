@@ -23,7 +23,11 @@ class GeminiJakselService:
             - Ultra plan: Both unlimited for normal use
             - Old models (1.5-flash, 1.5-pro) are deprecated and no longer available
         """
-        self.model_name = model_name
+        # Ensure model name has the correct format (with 'models/' prefix if not present)
+        if not model_name.startswith("models/"):
+            self.model_name = f"models/{model_name}"
+        else:
+            self.model_name = model_name
 
         # Construct the full system prompt with examples
         # We inject examples into the system instruction or as history

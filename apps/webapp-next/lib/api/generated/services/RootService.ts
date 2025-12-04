@@ -5,16 +5,16 @@
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class RootService {
-  constructor(public readonly httpRequest: BaseHttpRequest) {}
-  /**
-   * Root
-   * @returns any Successful Response
-   * @throws ApiError
-   */
-  public rootGet(): CancelablePromise<any> {
-    return this.httpRequest.request({
-      method: 'GET',
-      url: '/',
-    });
-  }
+    constructor(public readonly httpRequest: BaseHttpRequest) {}
+    /**
+     * Root
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public rootGet(): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/',
+        });
+    }
 }

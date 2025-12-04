@@ -6,8 +6,9 @@
  * Health check response
  */
 export type HealthResponse = {
-  status: string;
-  version: string;
-  database: Record<string, any>;
-  embeddings: Record<string, any>;
+    status: string;
+    version: string;
+    database: Record<string, any>;
+    embeddings: Record<string, any>;
 };
+

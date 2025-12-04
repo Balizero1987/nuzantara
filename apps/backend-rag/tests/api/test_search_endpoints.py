@@ -6,7 +6,7 @@ These tests verify the full request/response cycle for search endpoints.
 
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 

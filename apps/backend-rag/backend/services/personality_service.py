@@ -7,7 +7,7 @@ Gestisce le diverse personalità dell'AI system:
 - Professional: Standard English/Indonesian
 - Custom: Basato sulle preferenze del team member
 
-Integra Gemini 1.5 (RAG research) + Zantara Oracle Cloud (personality voice)
+Integra Gemini 2.5 (RAG research) + Zantara Oracle Cloud (personality voice)
 """
 
 import logging
@@ -496,7 +496,7 @@ Be the expert consultant who provides reliable professional guidance.""",
         Traduce la risposta di Gemini nella personalità appropriata
 
         Args:
-            gemini_response: Risposta da Gemini 1.5 dopo RAG
+            gemini_response: Risposta da Gemini 2.5 dopo RAG
             user_email: Email dell'utente
             original_query: Query originale dell'utente
 

@@ -436,10 +436,9 @@ class TestGetAuditService:
     def test_get_audit_service_returns_same_instance(self, mock_settings):
         """Test that get_audit_service returns the same instance"""
         with patch("backend.services.audit_service.settings", mock_settings):
-            from backend.services.audit_service import get_audit_service
-
             # Reset the global instance
             import backend.services.audit_service as audit_module
+            from backend.services.audit_service import get_audit_service
 
             audit_module._audit_service = None
 
