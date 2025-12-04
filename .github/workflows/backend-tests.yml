@@ -61,7 +61,7 @@ jobs:
           --ignore=tests/unit/test_embeddings_local.py
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       if: matrix.python-version == '3.11'
       with:
         file: ./apps/backend-rag/coverage.xml
