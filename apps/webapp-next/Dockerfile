@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Frontend build dependencies (includes dev deps for Next.js build)
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS deps
+FROM node:25-alpine AS deps
 WORKDIR /app
 
 # Husky tries to touch .git during install; disable hooks in container builds
@@ -21,7 +21,7 @@ RUN npm install --workspace apps/webapp-next --include-workspace-root=false
 # -----------------------------------------------------------------------------
 # Build stage - compiles the Next.js application
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS builder
+FROM node:25-alpine AS builder
 WORKDIR /app
 ENV HUSKY=0
 
@@ -43,7 +43,7 @@ RUN npm run build
 # -----------------------------------------------------------------------------
 # Production dependencies stage (installs runtime-only deps)
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS prod-deps
+FROM node:25-alpine AS prod-deps
 WORKDIR /app
 ENV HUSKY=0
 
@@ -54,7 +54,7 @@ RUN npm install --workspace apps/webapp-next --include-workspace-root=false --om
 # -----------------------------------------------------------------------------
 # Runtime image
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS runner
+FROM node:25-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
