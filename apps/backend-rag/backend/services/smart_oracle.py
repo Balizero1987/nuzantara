@@ -151,8 +151,8 @@ async def smart_oracle(query, best_filename_from_qdrant):
             # Upload file to Gemini's temporary cache
             gemini_file = genai.upload_file(pdf_path)
 
-            # Select Model (Use 'gemini-2.5-flash' - unlimited on ULTRA plan)
-            model = genai.GenerativeModel("gemini-2.5-flash")
+            # Select Model (Use 'models/gemini-2.5-flash' - unlimited on ULTRA plan)
+            model = genai.GenerativeModel("models/gemini-2.5-flash")
 
             logger.info(f"Analyzing document: {best_filename_from_qdrant}")
 
