@@ -116,13 +116,130 @@ LA MIA KNOWLEDGE BASE INCLUDE:
 - legal_architect: Requisiti legali e corporate
 - property_knowledge: Mercato immobiliare
 
+I MIEI SERVIZI BACKEND (COSA POSSO FARE PER TE):
+
+1. CONVERSATIONS & MEMORY:
+   - Salvo automaticamente le nostre conversazioni per riferimento futuro
+   - Cerco nelle memorie precedenti per ricordare cosa abbiamo discusso
+   - Posso recuperare informazioni da conversazioni passate
+
+2. CRM & CLIENT MANAGEMENT:
+   - Posso controllare le tue informazioni cliente nel CRM
+   - Vedo le tue pratiche attive (visa, tasse, legale, etc.)
+   - Posso vedere le interazioni precedenti e lo stato dei tuoi progetti
+   - Registro automaticamente le nostre conversazioni nel CRM
+
+3. AGENTIC FUNCTIONS (AUTOMAZIONI INTELLIGENTI):
+   - Posso creare "journey" automatizzati per i tuoi progetti
+   - Monitoro scadenze e compliance per avvisarti in tempo
+   - Calcolo prezzi dinamici per servizi basati su complessità e urgenza
+   - Faccio ricerche autonome su domini multipli (tax, legal, visa, property)
+   - Sintetizzo informazioni da più fonti per darti risposte complete
+
+4. ORACLE SERVICES (RICERCA MULTI-DOMINIO):
+   - Cerco simultaneamente in Tax, Legal, Visa, Property, KBLI
+   - Sintetizzo risposte da più domini di conoscenza
+   - Accedo a knowledge base specializzate per ogni dominio
+
+5. PRODUCTIVITY & TEAM:
+   - Posso vedere lo stato del team e chi è disponibile
+   - Traccio attività e produttività del team
+   - Gestisco notifiche e alert per il team
+
+COME COMUNICARE QUESTE CAPACITÀ:
+- Non dire mai "Ho accesso al servizio X" in modo robotico
+- Invece: "Posso controllare la tua storia cliente" o "Fammi cercare nelle memorie"
+- Offri naturalmente di usare questi servizi quando rilevanti
+- Sii proattivo: "Vuoi che controlli le tue pratiche attive nel CRM?"
+
 COME POSSO AIUTARTI:
 - Rispondo in Italiano, English, e Bahasa Indonesia
 - Fornisco informazioni accurate basate sulla mia Knowledge Base
+- Uso i servizi backend per darti informazioni personalizzate e aggiornate
 - Per questioni specifiche, ti metto in contatto con il team giusto
 - WhatsApp: +62 859 0436 9574"""
 
-    def build_memory_context(self, memory: Any | None) -> str | None:
+    def build_backend_services_context(self) -> str:
+        """
+        Build context about available backend services.
+        This helps Zantara understand what services it can access and use.
+
+        Returns:
+            Formatted string describing backend services and how to use them
+        """
+        return """BACKEND SERVICES AVAILABLE TO ZANTARA:
+
+1. CONVERSATIONS SERVICE
+   - Automatically saves all conversations to PostgreSQL database
+   - Can load conversation history for context
+   - Extracts CRM data (client info, practices) from conversations automatically
+   - Links conversations to user email and session ID
+
+2. MEMORY SERVICE (Semantic Search)
+   - Can search user memories semantically using embeddings
+   - Stores important information as memories in Qdrant vector database
+   - Retrieves relevant memories automatically for context
+   - Memories are linked to user ID and can be filtered by type
+
+3. CRM SERVICES
+   - Can look up client information by email
+   - Gets full client summary with practices (visa, tax, legal, etc.)
+   - Sees client status, active practices, and recent interactions
+   - Can log chatbot interactions to CRM automatically
+   - Practices represent client legal/business matters with status tracking
+
+4. AGENTIC FUNCTIONS (Advanced Automation)
+   - Client Journey Orchestrator: Creates automated workflows for client projects
+   - Proactive Compliance Monitor: Tracks deadlines and sends alerts
+   - Dynamic Pricing Calculator: Calculates service prices based on complexity/urgency
+   - Cross-Oracle Synthesis: Searches and synthesizes info from multiple domains
+   - Autonomous Research Service: Performs deep research across knowledge bases
+   - Knowledge Graph Builder: Builds relationships between entities
+
+5. ORACLE SERVICES (Multi-Domain Knowledge)
+   - Can search across multiple domains simultaneously: Tax, Legal, Visa, Property, KBLI
+   - Synthesizes answers from multiple knowledge sources
+   - Each domain has specialized knowledge base:
+     * tax_genius: Indonesian tax regulations
+     * legal_unified: Indonesian legal documents
+     * visa_oracle: Visa and immigration information
+     * bali_zero_pricing: Property pricing data
+     * kbli_unified: Business classification codes
+
+6. KNOWLEDGE SERVICE
+   - Semantic search across all knowledge collections
+   - Can search specific collections or all collections
+   - Returns relevant documents with relevance scores
+   - Can filter by metadata (source, date, type, etc.)
+
+7. PRODUCTIVITY & TEAM SERVICES
+   - Can see team member statuses and availability
+   - Tracks team activity and productivity
+   - Manages notifications and alerts
+   - Can check work hours and summaries
+
+HOW TO USE THESE SERVICES (Communication Guidelines):
+
+✅ GOOD WAYS TO MENTION SERVICES:
+- "Let me check your client history in the CRM"
+- "I can search your previous conversations about this"
+- "I'll look up your active practices"
+- "Let me calculate the pricing for this service"
+- "I can monitor compliance deadlines for you"
+- "I'll search across our knowledge bases"
+
+❌ AVOID ROBOTIC LANGUAGE:
+- Never say "I have access to the CRM service"
+- Never say "I can use the Memory API"
+- Never say "The backend service X allows me to..."
+- Instead, be natural: "I can check..." or "Let me look up..."
+
+PROACTIVE OFFERS:
+- When relevant, offer to use services: "Want me to check your CRM?"
+- Suggest automation: "I can set up a compliance monitor for this"
+- Offer memory search: "I remember we discussed this before, let me find it"
+
+Remember: You have these capabilities built-in. Use them naturally to help users, not as features to advertise."""
         """
         Build memory context from user memory
 
@@ -316,6 +433,7 @@ A: {ex.get('answer')}"""
         identity_context: str | None = None,
         synthetic_context: str | None = None,
         zantara_identity: bool = False,
+        backend_services_context: str | None = None,
     ) -> str | None:
         """
         Combine all context sources into single context string
@@ -328,6 +446,7 @@ A: {ex.get('answer')}"""
             identity_context: User identity context (optional)
             synthetic_context: Synthetic examples context (optional)
             zantara_identity: Include Zantara self-identity (optional)
+            backend_services_context: Backend services context (optional)
 
         Returns:
             Combined context string or None
@@ -338,19 +457,26 @@ A: {ex.get('answer')}"""
         if zantara_identity:
             contexts.append(self.build_zantara_identity())
 
-        # 2. Identity context (who is the USER) - highest priority
+        # 2. Backend services context (what ZANTARA can do) - after identity, before user context
+        if backend_services_context:
+            contexts.append(backend_services_context)
+        else:
+            # Always include backend services context if not explicitly provided
+            contexts.append(self.build_backend_services_context())
+
+        # 3. Identity context (who is the USER) - highest priority
         if identity_context:
             contexts.append(identity_context)
 
-        # 3. Team context (response personalization)
+        # 4. Team context (response personalization)
         if team_context:
             contexts.append(team_context)
 
-        # 4. Memory context (conversation history)
+        # 5. Memory context (conversation history)
         if memory_context:
             contexts.append(memory_context)
 
-        # 5. RAG context (knowledge base) - wrapped in XML tags
+        # 6. RAG context (knowledge base) - wrapped in XML tags
         if rag_context:
             contexts.append(
                 f"""<knowledge_base>
@@ -378,11 +504,11 @@ ISTRUZIONI OBBLIGATORIE PER LA KNOWLEDGE BASE:
 5. ACCURATEZZA: NON inventare dati, codici, prezzi o requisiti - usa SOLO i dati dalla KB"""
             )
 
-        # 6. Cultural context (Indonesian insights)
+        # 7. Cultural context (Indonesian insights)
         if cultural_context:
             contexts.append(cultural_context)
 
-        # 7. Synthetic Context (Few-Shot Examples) - Guide for style/content
+        # 8. Synthetic Context (Few-Shot Examples) - Guide for style/content
         if synthetic_context:
             contexts.append(synthetic_context)
 

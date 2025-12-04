@@ -124,6 +124,9 @@ class IntelligentRouter:
         team_context = self.context_builder.build_team_context(collaborator)
         cultural_context = await self._get_cultural_context(message, conversation_history)
 
+        # Build backend services context
+        backend_services_context = self.context_builder.build_backend_services_context()
+
         # Combine contexts
         combined_context = self.context_builder.combine_contexts(
             memory_context=memory_context,
@@ -133,6 +136,7 @@ class IntelligentRouter:
             identity_context=identity_context,
             synthetic_context="",  # Deprecated synthetic context
             zantara_identity=is_zantara_query,
+            backend_services_context=backend_services_context,
         )
 
         return {
