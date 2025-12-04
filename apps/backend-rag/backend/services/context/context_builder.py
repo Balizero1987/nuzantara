@@ -285,24 +285,26 @@ COME POSSO AIUTARTI:
     def build_synthetic_context(self, examples: list[dict]) -> str | None:
         """
         Build context from synthetic few-shot examples.
-        
+
         Args:
             examples: List of example dicts {question, answer, persona}
-            
+
         Returns:
             Formatted string of examples
         """
         if not examples:
             return None
-            
+
         logger.info(f"📚 [ContextBuilder] Formatting {len(examples)} synthetic examples")
-        
+
         formatted_examples = []
         for i, ex in enumerate(examples, 1):
-            formatted_examples.append(f"""Esempio {i} ({ex.get('persona', 'general')}):
+            formatted_examples.append(
+                f"""Esempio {i} ({ex.get('persona', 'general')}):
 Q: {ex.get('question')}
-A: {ex.get('answer')}""")
-            
+A: {ex.get('answer')}"""
+            )
+
         return "ESEMPI DI RISPOSTA (FEW-SHOT):\n" + "\n\n".join(formatted_examples)
 
     def combine_contexts(

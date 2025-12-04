@@ -174,6 +174,50 @@ class ProactiveComplianceMonitor:
         logger.info("✅ ProactiveComplianceMonitor initialized")
         logger.info(f"   Annual deadlines: {len(self.ANNUAL_DEADLINES)}")
 
+        # Background task control
+        self.running = False
+        self.task = None
+        self.check_interval = 86400  # 24 hours (daily check)
+
+    async def start(self):
+        """Start the compliance monitoring loop"""
+        if self.running:
+            logger.warning("⚠️ ProactiveComplianceMonitor already running")
+            return
+
+        self.running = True
+        import asyncio
+
+        self.task = asyncio.create_task(self._monitoring_loop())
+        logger.info("🚀 ProactiveComplianceMonitor started (Daily checks)")
+
+    async def stop(self):
+        """Stop the compliance monitoring loop"""
+        self.running = False
+        if self.task:
+            self.task.cancel()
+            try:
+                await self.task
+            except Exception:
+                pass
+        logger.info("🛑 ProactiveComplianceMonitor stopped")
+
+    async def _monitoring_loop(self):
+        """Main monitoring loop"""
+        import asyncio
+
+        while self.running:
+            try:
+                logger.info("🔍 Running daily compliance check...")
+                self.check_compliance_items()
+                # Also generate alerts for dashboard
+                self.generate_alerts()
+            except Exception as e:
+                logger.error(f"❌ Error in compliance monitoring loop: {e}")
+
+            # Wait for next interval
+            await asyncio.sleep(self.check_interval)
+
     def add_compliance_item(
         self,
         client_id: str,

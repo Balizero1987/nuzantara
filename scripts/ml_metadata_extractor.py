@@ -9,7 +9,6 @@ in modo più accurato rispetto ai pattern regex.
 import json
 import os
 import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +24,7 @@ os.environ.setdefault("INSTAGRAM_VERIFY_TOKEN", "dummy")
 
 try:
     from llm.zantara_ai_client import ZantaraAIClient
+
     ML_AVAILABLE = True
 except Exception as e:
     print(f"⚠️ ZantaraAIClient non disponibile: {e}")
@@ -42,7 +42,7 @@ class MLMetadataExtractor:
     def __init__(self, model: str = "models/gemini-2.5-pro"):
         """
         Inizializza ML extractor con Zantara AI
-        
+
         Args:
             model: Modello Gemini da usare
                 - "models/gemini-2.5-pro": Migliore qualità, meno restrittivo (raccomandato con Ultra plan)
@@ -50,7 +50,7 @@ class MLMetadataExtractor:
         """
         if not ML_AVAILABLE:
             raise RuntimeError("ZantaraAIClient non disponibile")
-        
+
         # Con Ultra plan, usa Gemini 2.5 Pro per migliore qualità e meno restrizioni
         self.ai_client = ZantaraAIClient(model=model)
         self.model = model
@@ -58,7 +58,9 @@ class MLMetadataExtractor:
         if not self.ai_client.is_available():
             raise RuntimeError("Zantara AI non disponibile - verifica GOOGLE_API_KEY")
 
-    async def extract_with_ml_async(self, collection_name: str, text: str) -> dict[str, Any]:
+    async def extract_with_ml_async(
+        self, collection_name: str, text: str
+    ) -> dict[str, Any]:
         """Estrae metadata usando ML (async)"""
         schema = METADATA_SCHEMAS.get(collection_name, {})
         fields = schema.get("fields", {})
@@ -69,10 +71,11 @@ class MLMetadataExtractor:
         try:
             # Call Zantara AI (async)
             messages = [{"role": "user", "content": prompt}]
-            
+
             # Safety settings permissive per estrazione dati legali/fiscali
             # Formato corretto per Gemini API
             import google.generativeai as genai
+
             safety_settings = [
                 {
                     "category": genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -91,7 +94,7 @@ class MLMetadataExtractor:
                     "threshold": genai.types.HarmBlockThreshold.BLOCK_NONE,
                 },
             ]
-            
+
             result = await self.ai_client.chat_async(
                 messages=messages,
                 max_tokens=500,
@@ -100,25 +103,27 @@ class MLMetadataExtractor:
             )
 
             response_text = result.get("text", "")
-            
+
             # Se response_text è vuoto, potrebbe essere bloccato da safety filters
             if not response_text:
                 # Prova a estrarre direttamente dalla risposta raw
-                if hasattr(result, 'candidates') and result.candidates:
+                if hasattr(result, "candidates") and result.candidates:
                     candidate = result.candidates[0]
-                    if hasattr(candidate, 'content') and candidate.content.parts:
+                    if hasattr(candidate, "content") and candidate.content.parts:
                         response_text = candidate.content.parts[0].text
-            
+
             # Parse JSON from response
             metadata = self._parse_json_response(response_text)
-            
+
             return metadata
 
         except Exception as e:
             error_msg = str(e)
             # Se è un safety filter block, ritorna empty (pattern come fallback)
             if "safety" in error_msg.lower() or "blocked" in error_msg.lower():
-                print(f"   ⚠️ Response bloccato da safety filters, usando pattern fallback")
+                print(
+                    "   ⚠️ Response bloccato da safety filters, usando pattern fallback"
+                )
             else:
                 print(f"   ⚠️ Errore ML extraction: {e}")
             return {}
@@ -126,20 +131,26 @@ class MLMetadataExtractor:
     def extract_with_ml(self, collection_name: str, text: str) -> dict[str, Any]:
         """Estrae metadata usando ML (sync wrapper)"""
         import asyncio
-        
+
         try:
             loop = asyncio.get_event_loop()
         except RuntimeError:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-        
-        return loop.run_until_complete(self.extract_with_ml_async(collection_name, text))
 
-    def _build_extraction_prompt(self, collection_name: str, text: str, fields: dict) -> str:
+        return loop.run_until_complete(
+            self.extract_with_ml_async(collection_name, text)
+        )
+
+    def _build_extraction_prompt(
+        self, collection_name: str, text: str, fields: dict
+    ) -> str:
         """Costruisce prompt per estrazione"""
         field_descriptions = []
         for field_name, field_def in fields.items():
-            field_descriptions.append(f"- `{field_name}` ({field_def['type']}): {field_def['description']}")
+            field_descriptions.append(
+                f"- `{field_name}` ({field_def['type']}): {field_def['description']}"
+            )
 
         prompt = f"""Estrai metadata strutturati dal seguente testo secondo lo schema specificato.
 
@@ -166,12 +177,13 @@ JSON METADATA:"""
         """Estrae JSON dalla risposta AI"""
         # Try to find JSON in response
         json_patterns = [
-            r'\{[^{}]*\}',  # Simple JSON
-            r'```json\s*(\{.*?\})\s*```',  # JSON in code block
-            r'```\s*(\{.*?\})\s*```',  # JSON in code block without json tag
+            r"\{[^{}]*\}",  # Simple JSON
+            r"```json\s*(\{.*?\})\s*```",  # JSON in code block
+            r"```\s*(\{.*?\})\s*```",  # JSON in code block without json tag
         ]
 
         import re
+
         for pattern in json_patterns:
             match = re.search(pattern, response_text, re.DOTALL)
             if match:
@@ -195,9 +207,10 @@ class HybridMetadataExtractor:
         # Import pattern extractor
         import sys
         from pathlib import Path
+
         scripts_dir = Path(__file__).parent
         sys.path.insert(0, str(scripts_dir))
-        
+
         try:
             from extract_and_update_metadata import MetadataExtractor
         except ImportError:
@@ -205,9 +218,10 @@ class HybridMetadataExtractor:
             class MetadataExtractor:
                 def extract_metadata(self, collection_name: str, text: str) -> dict:
                     return {}
+
             print("⚠️ Pattern extractor non disponibile, solo ML extraction")
         self.pattern_extractor = MetadataExtractor()
-        
+
         if ML_AVAILABLE:
             try:
                 self.ml_extractor = MLMetadataExtractor()
@@ -217,10 +231,14 @@ class HybridMetadataExtractor:
         else:
             self.use_ml = False
 
-    def extract(self, collection_name: str, text: str, use_ml: bool = False) -> dict[str, Any]:
+    def extract(
+        self, collection_name: str, text: str, use_ml: bool = False
+    ) -> dict[str, Any]:
         """Estrae metadata con metodo ibrido"""
         # Pattern-based extraction (veloce)
-        pattern_metadata = self.pattern_extractor.extract_metadata(collection_name, text)
+        pattern_metadata = self.pattern_extractor.extract_metadata(
+            collection_name, text
+        )
 
         # ML-based extraction (più accurato ma più lento)
         ml_metadata = {}
@@ -251,7 +269,7 @@ def main():
         print("   export GOOGLE_API_KEY='your-api-key'")
         print("   oppure aggiungi a .env: GOOGLE_API_KEY=your-api-key")
         return
-    
+
     # Check API key
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
@@ -290,7 +308,7 @@ def main():
 
     try:
         extractor = HybridMetadataExtractor()
-        
+
         print("\n🔍 Test Pattern-Based Extraction:")
         for coll_name, text in test_samples.items():
             pattern_meta = extractor.pattern_extractor.extract_metadata(coll_name, text)
@@ -330,9 +348,9 @@ def main():
     except Exception as e:
         print(f"\n❌ Errore: {e}")
         import traceback
+
         traceback.print_exc()
 
 
 if __name__ == "__main__":
     main()
-

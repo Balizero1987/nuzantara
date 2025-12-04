@@ -51,7 +51,7 @@ def test_init_with_api_key(mock_settings, mock_genai):
             client = ZantaraAIClient(api_key="test-api-key")
 
             assert client.api_key == "test-api-key"
-            assert client.model == "gemini-2.5-flash"
+            assert client.model == "gemini-2.5-pro"
             assert hasattr(client, "model")
             mock_configure.assert_called_once_with(api_key="test-api-key")
 
@@ -91,7 +91,7 @@ def test_get_model_info(mock_settings, mock_genai):
         client = ZantaraAIClient()
         info = client.get_model_info()
 
-        assert info["model"] == "gemini-2.5-flash"
+        assert info["model"] == "gemini-2.5-pro"
         assert info["provider"] == "google"
         assert "pricing" in info
         assert info["pricing"]["input"] == 0.15

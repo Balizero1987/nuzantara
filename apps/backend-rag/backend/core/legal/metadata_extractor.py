@@ -172,4 +172,3 @@ class LegalMetadataExtractor:
 
         marker_count = sum(1 for marker in legal_markers if marker in text)
         return marker_count >= 2  # At least 2 markers suggest legal document
-

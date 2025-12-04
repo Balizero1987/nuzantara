@@ -518,6 +518,24 @@ async def test_close_exception(session_service):
     await session_service.close()
 
 
+@pytest.mark.asyncio
+async def test_export_session_exception_during_json_dumps(session_service):
+    """Test export_session handles exception during JSON serialization"""
+    session_id = str(uuid.uuid4())
+
+    # Mock get to return valid data
+    history = [{"role": "user", "content": "test"}]
+    session_service.redis.get = AsyncMock(return_value=json.dumps(history))
+
+    # Mock json.dumps to raise exception
+    with patch("services.session_service.json.dumps", side_effect=Exception("JSON error")):
+        with patch("services.session_service.logger") as mock_logger:
+            result = await session_service.export_session(session_id)
+
+            assert result is None
+            mock_logger.error.assert_called_once()
+
+
 # ============================================================================
 # Additional Tests - Edge Cases & Coverage
 # ============================================================================

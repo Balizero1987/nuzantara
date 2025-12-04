@@ -216,5 +216,121 @@ describe('API Client', () => {
         }
       });
     });
+
+    describe('isAuthenticated', () => {
+      it('should return false when no token', () => {
+        localStorageMock.getItem.mockReturnValue(null);
+
+        const isAuth = apiClient.isAuthenticated();
+
+        expect(isAuth).toBe(false);
+      });
+
+      it('should return false for invalid JWT format', () => {
+        localStorageMock.getItem.mockReturnValue('invalid-token');
+
+        const isAuth = apiClient.isAuthenticated();
+
+        expect(isAuth).toBe(false);
+      });
+
+      it('should return false for JWT with wrong number of parts', () => {
+        localStorageMock.getItem.mockReturnValue('header.payload'); // Only 2 parts
+
+        const isAuth = apiClient.isAuthenticated();
+
+        expect(isAuth).toBe(false);
+      });
+
+      it('should return true for valid JWT without expiration', () => {
+        // Create a valid JWT without exp claim
+        const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+        const payload = btoa(JSON.stringify({ sub: 'user@example.com' }));
+        const signature = 'signature';
+        const token = `${header}.${payload}.${signature}`;
+
+        localStorageMock.getItem.mockReturnValue(token);
+
+        const isAuth = apiClient.isAuthenticated();
+
+        expect(isAuth).toBe(true);
+      });
+
+      it('should return true for valid JWT with future expiration', () => {
+        // Create a valid JWT with future exp
+        const futureExp = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
+        const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+        const payload = btoa(JSON.stringify({ sub: 'user@example.com', exp: futureExp }));
+        const signature = 'signature';
+        const token = `${header}.${payload}.${signature}`;
+
+        localStorageMock.getItem.mockReturnValue(token);
+
+        const isAuth = apiClient.isAuthenticated();
+
+        expect(isAuth).toBe(true);
+      });
+
+      it('should return false for expired JWT', () => {
+        // Create a JWT with past exp
+        const pastExp = Math.floor(Date.now() / 1000) - 3600; // 1 hour ago
+        const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+        const payload = btoa(JSON.stringify({ sub: 'user@example.com', exp: pastExp }));
+        const signature = 'signature';
+        const token = `${header}.${payload}.${signature}`;
+
+        localStorageMock.getItem.mockReturnValue(token);
+
+        const isAuth = apiClient.isAuthenticated();
+
+        expect(isAuth).toBe(false);
+      });
+
+      it('should return false when JWT payload is invalid JSON', () => {
+        const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+        const payload = 'invalid-base64-json';
+        const signature = 'signature';
+        const token = `${header}.${payload}.${signature}`;
+
+        localStorageMock.getItem.mockReturnValue(token);
+
+        const isAuth = apiClient.isAuthenticated();
+
+        expect(isAuth).toBe(false);
+      });
+
+      it('should return false when localStorage is not available', async () => {
+        const originalLocalStorage = (globalThis as any).localStorage;
+        delete (globalThis as any).localStorage;
+
+        jest.resetModules();
+        const { apiClient: serverApiClient } = await import('../client');
+
+        const isAuth = serverApiClient.isAuthenticated();
+
+        expect(isAuth).toBe(false);
+
+        if (originalLocalStorage) {
+          (globalThis as any).localStorage = originalLocalStorage;
+        }
+      });
+    });
+  });
+
+  describe('tokenProvider', () => {
+    it('should return empty string when localStorage is not available (server-side)', async () => {
+      const originalLocalStorage = (globalThis as any).localStorage;
+      delete (globalThis as any).localStorage;
+
+      jest.resetModules();
+      const { tokenProvider } = await import('../client');
+      const token = await tokenProvider();
+
+      expect(token).toBe('');
+
+      if (originalLocalStorage) {
+        (globalThis as any).localStorage = originalLocalStorage;
+      }
+    });
   });
 });

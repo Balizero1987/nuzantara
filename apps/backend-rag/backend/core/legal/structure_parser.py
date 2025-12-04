@@ -67,7 +67,7 @@ class LegalStructureParser:
         # Batang Tubuh starts after Konsiderans (or at 0 if no Konsiderans)
         start_index = body_start_index if body_start_index is not None else 0
         batang_tubuh_text = text[start_index:penjelasan_start]
-        
+
         penjelasan_text = text[penjelasan_start:] if penjelasan_match else ""
 
         # Step 3: Parse Batang Tubuh (Body)
@@ -90,10 +90,10 @@ class LegalStructureParser:
     def _extract_konsiderans_with_index(self, text: str) -> tuple[str | None, int | None]:
         """
         Extract Konsiderans and return its text and end index.
-        
+
         Args:
             text: Document text
-            
+
         Returns:
             Tuple (konsiderans_text, end_index)
         """
@@ -123,21 +123,23 @@ class LegalStructureParser:
             if match:
                 konsiderans_end = konsiderans_start + match.start()
                 # If marker is MEMUTUSKAN, we want to include it in Konsiderans or skip it?
-                # Usually MEMUTUSKAN: Menetapkan: ... is the bridge. 
+                # Usually MEMUTUSKAN: Menetapkan: ... is the bridge.
                 # The actual body starts after "Menetapkan: ...".
                 # But for simplicity, let's say body starts at the marker match if it's BAB or Pasal,
                 # or after MEMUTUSKAN block if it's MEMUTUSKAN.
-                
+
                 # If marker is MEMUTUSKAN, let's try to find "Menetapkan:" and go after that.
                 if "MEMUTUSKAN" in marker.upper() or "MEMUTUSKAN" in match.group(0).upper():
-                     # Look for "Menetapkan" after this
-                     menetapkan_match = re.search(r"Menetapkan\s*:", text[konsiderans_start + match.start():], re.IGNORECASE)
-                     if menetapkan_match:
-                         # The body usually starts after the title of the law in Menetapkan.
-                         # E.g. Menetapkan: UNDANG-UNDANG TENTANG ...
-                         # Then BAB I.
-                         # So we might want to look for the first BAB or Pasal after this.
-                         pass
+                    # Look for "Menetapkan" after this
+                    menetapkan_match = re.search(
+                        r"Menetapkan\s*:", text[konsiderans_start + match.start() :], re.IGNORECASE
+                    )
+                    if menetapkan_match:
+                        # The body usually starts after the title of the law in Menetapkan.
+                        # E.g. Menetapkan: UNDANG-UNDANG TENTANG ...
+                        # Then BAB I.
+                        # So we might want to look for the first BAB or Pasal after this.
+                        pass
                 break
 
         if konsiderans_end is None:
@@ -211,9 +213,7 @@ class LegalStructureParser:
             bagian_title = bagian_match.group(2).strip()
 
             start_pos = bagian_match.end()
-            end_pos = (
-                bagian_matches[i + 1].start() if i + 1 < len(bagian_matches) else len(text)
-            )
+            end_pos = bagian_matches[i + 1].start() if i + 1 < len(bagian_matches) else len(text)
 
             bagian_text = text[start_pos:end_pos]
 
@@ -373,4 +373,3 @@ class LegalStructureParser:
                 return f"BAB {bab_match.group(1)} - {bab_match.group(2).strip()}"
 
         return None
-

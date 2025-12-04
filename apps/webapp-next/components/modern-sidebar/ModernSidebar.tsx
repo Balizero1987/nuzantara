@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils'
 import { SidebarProvider, useSidebar } from './SidebarProvider'
 import { SidebarSearch } from './SidebarSearch'
 import { ChatHistory } from './ChatHistory'
+import Image from 'next/image'
 
 interface ModernSidebarProps {
   className?: string
@@ -68,10 +69,12 @@ function SidebarContent({ className, onChatSelect, onNewChat }: ModernSidebarPro
           <div className="flex items-center justify-between p-4 border-b border-gray-800">
             {!isCollapsed ? (
               <div className="flex items-center gap-3">
-                <img
+                <Image
                   src="/images/zantara_avatar.png"
                   alt="Zantara AI"
-                  className="w-10 h-10 rounded-full object-cover"
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover"
                 />
                 <div>
                   <h1 className="text-white font-bold text-sm">Zantara AI</h1>
@@ -79,10 +82,12 @@ function SidebarContent({ className, onChatSelect, onNewChat }: ModernSidebarPro
                 </div>
               </div>
             ) : (
-              <img
+              <Image
                 src="/images/zantara_avatar.png"
                 alt="Zantara AI"
-                className="w-10 h-10 rounded-full object-cover mx-auto"
+                width={40}
+                height={40}
+                className="rounded-full object-cover mx-auto"
               />
             )}
 
@@ -211,10 +216,12 @@ function SidebarContent({ className, onChatSelect, onNewChat }: ModernSidebarPro
             {/* Mobile Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-800">
               <div className="flex items-center gap-3">
-                <img
+                <Image
                   src="/images/zantara_avatar.png"
                   alt="Zantara AI"
-                  className="w-10 h-10 rounded-full object-cover"
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover"
                 />
                 <div>
                   <h1 className="text-white font-bold text-sm">Zantara AI</h1>

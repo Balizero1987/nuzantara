@@ -106,3 +106,4 @@ curl https://nuzantara-rag.fly.dev/health
 - Il test completo richiede ~15-20 minuti (46 domande × ~20s medio)
 - Le risposte sono salvate complete nel report per analisi manuale
 
+

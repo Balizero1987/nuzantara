@@ -123,7 +123,7 @@ def test_init_with_default_secret_warning(mock_settings_default_secret):
         service = IdentityService()
         assert service.jwt_secret == "zantara_default_secret_key_2025_change_in_production"
         mock_logger.warning.assert_called_once()
-        assert "default JWT secret key" in mock_logger.warning.call_args[0][0]
+        assert "default or empty JWT secret key" in mock_logger.warning.call_args[0][0]
 
 
 def test_init_with_empty_secret_warning():

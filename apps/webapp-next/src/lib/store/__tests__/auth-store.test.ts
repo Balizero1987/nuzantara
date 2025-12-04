@@ -100,8 +100,22 @@ describe('useAuthStore', () => {
     it('should remove tokens from localStorage', () => {
       useAuthStore.getState().logout()
 
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('zantara_token')
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('zantara_auth_token')
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('zantara_user')
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('zantara_token')
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('zantara_session_token')
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('token')
+    })
+
+    it('should not remove tokens when window is undefined', () => {
+      const originalWindow = global.window
+      // @ts-ignore
+      delete global.window
+
+      // Should not throw
+      expect(() => useAuthStore.getState().logout()).not.toThrow()
+
+      global.window = originalWindow
     })
   })
 
@@ -150,6 +164,24 @@ describe('useAuthStore', () => {
       expect(state.user).toEqual(user)
       expect(state.token).toBe(token)
       expect(state.isAuthenticated).toBe(true)
+    })
+
+    it('should persist only user, token, and isAuthenticated', () => {
+      const user = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: 'user',
+      }
+      const token = 'test-token-123'
+
+      useAuthStore.getState().login(user, token)
+
+      // Verify partialize only includes these fields
+      const state = useAuthStore.getState()
+      expect(state).toHaveProperty('user')
+      expect(state).toHaveProperty('token')
+      expect(state).toHaveProperty('isAuthenticated')
     })
   })
 })

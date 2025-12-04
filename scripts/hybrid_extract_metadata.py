@@ -5,21 +5,16 @@ ZANTARA - Hybrid Metadata Extraction (Pattern + ML)
 Strategia ibrida: usa Pattern per velocità, ML per accuratezza.
 """
 
-import json
 import os
 import sys
-from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from extract_and_update_metadata import MetadataExtractor
 
 # Try to import ML extractor
 try:
-    from ml_metadata_extractor import MLMetadataExtractor, HybridMetadataExtractor
     ML_AVAILABLE = True
 except:
     ML_AVAILABLE = False
@@ -45,7 +40,8 @@ def main():
     print("\n" + "=" * 80)
     print("📊 Strategia Raccomandata")
     print("=" * 80)
-    print("""
+    print(
+        """
 1. **Pattern-Based (Attuale)**
    ✅ Success rate: 70-100%
    ✅ Gratis e veloce
@@ -62,7 +58,8 @@ def main():
    ✅ Adattivo e flessibile
 
 💡 Raccomandazione: Usa Pattern per default, ML solo quando necessario.
-    """)
+    """
+    )
 
     print("\n📚 Documentazione:")
     print("   - docs/ML_METADATA_EXTRACTION.md - Guida completa ML extraction")
@@ -72,4 +69,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

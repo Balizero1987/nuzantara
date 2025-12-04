@@ -532,9 +532,13 @@ class QueryRouter:
             return "bali_zero_team"
 
         # PRIORITY CHECK: Backend services queries (highest priority after identity/team)
-        backend_services_score = sum(1 for kw in self.BACKEND_SERVICES_KEYWORDS if kw in query_lower)
+        backend_services_score = sum(
+            1 for kw in self.BACKEND_SERVICES_KEYWORDS if kw in query_lower
+        )
         if backend_services_score > 0:
-            logger.info(f"🧭 Route: zantara_books (BACKEND SERVICES QUERY: score={backend_services_score})")
+            logger.info(
+                f"🧭 Route: zantara_books (BACKEND SERVICES QUERY: score={backend_services_score})"
+            )
             return "zantara_books"
 
         # Calculate domain scores

@@ -254,7 +254,8 @@ describe('chatAPI', () => {
     });
 
     it('should build context when enrichContext is enabled', async () => {
-      const mockBuildContext = jest.fn().mockResolvedValue({
+      const mockBuildContext = jest.fn() as jest.MockedFunction<() => Promise<any>>;
+      mockBuildContext.mockResolvedValue({
         session: {
           sessionId: 'test',
           userEmail: 'test@example.com',
@@ -269,15 +270,16 @@ describe('chatAPI', () => {
         },
       });
 
+      jest.resetModules(); // Reset modules to apply new mock
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
-          ...jest.requireActual('../zantara-integration').zantaraAPI,
+          ...(jest.requireActual('../zantara-integration') as any).zantaraAPI,
           buildContext: mockBuildContext,
         },
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const mockStream = new ReadableStream({
         start(controller) {
@@ -299,15 +301,16 @@ describe('chatAPI', () => {
 
     it('should not build context when enrichContext is disabled', async () => {
       const mockBuildContext = jest.fn();
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
-          ...jest.requireActual('../zantara-integration').zantaraAPI,
+          ...(jest.requireActual('../zantara-integration') as any).zantaraAPI,
           buildContext: mockBuildContext,
         },
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const mockStream = new ReadableStream({
         start(controller) {
@@ -328,15 +331,19 @@ describe('chatAPI', () => {
     });
 
     it('should handle context building errors gracefully', async () => {
+      const mockBuildContextError = jest.fn() as jest.MockedFunction<() => Promise<any>>;
+      mockBuildContextError.mockRejectedValue(new Error('Context error'));
+
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
-          buildContext: jest.fn().mockRejectedValue(new Error('Context error')),
+          buildContext: mockBuildContextError,
         },
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const mockStream = new ReadableStream({
         start(controller) {
@@ -359,6 +366,7 @@ describe('chatAPI', () => {
     });
 
     it('should include zantara_context in request when context is available', async () => {
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
@@ -387,7 +395,7 @@ describe('chatAPI', () => {
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const mockStream = new ReadableStream({
         start(controller) {
@@ -466,6 +474,7 @@ describe('chatAPI', () => {
 
     it('should post-process turn when saveConversation is enabled', async () => {
       const mockPostProcess = jest.fn().mockResolvedValue();
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
@@ -474,7 +483,7 @@ describe('chatAPI', () => {
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const mockStream = new ReadableStream({
         start(controller) {
@@ -503,6 +512,7 @@ describe('chatAPI', () => {
 
     it('should not post-process when saveConversation is disabled', async () => {
       const mockPostProcess = jest.fn();
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
@@ -511,7 +521,7 @@ describe('chatAPI', () => {
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const mockStream = new ReadableStream({
         start(controller) {
@@ -654,15 +664,18 @@ describe('chatAPI', () => {
         },
       });
 
+
+
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
-          ...jest.requireActual('../zantara-integration').zantaraAPI,
+          ...(jest.requireActual('../zantara-integration') as any).zantaraAPI,
           buildContext: mockBuildContext,
         },
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const context = await chatAPI.getContext('test message');
 
@@ -671,6 +684,7 @@ describe('chatAPI', () => {
     });
 
     it('should handle context errors gracefully', async () => {
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
@@ -679,7 +693,7 @@ describe('chatAPI', () => {
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const context = await chatAPI.getContext('test message');
 
@@ -690,6 +704,7 @@ describe('chatAPI', () => {
   describe('saveConversation', () => {
     it('should save conversation successfully', async () => {
       // Mock zantaraAPI.saveConversation by mocking the module
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
@@ -702,7 +717,7 @@ describe('chatAPI', () => {
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const result = await chatAPI.saveConversation([
         { role: 'user', content: 'Hello' },
@@ -713,6 +728,7 @@ describe('chatAPI', () => {
     });
 
     it('should return false on save error', async () => {
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
@@ -721,7 +737,7 @@ describe('chatAPI', () => {
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const result = await chatAPI.saveConversation([{ role: 'user', content: 'Hello' }]);
 
@@ -731,6 +747,7 @@ describe('chatAPI', () => {
 
   describe('loadHistory', () => {
     it('should load history successfully', async () => {
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
@@ -742,7 +759,7 @@ describe('chatAPI', () => {
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const history = await chatAPI.loadHistory(50);
 
@@ -750,6 +767,7 @@ describe('chatAPI', () => {
     });
 
     it('should handle load errors gracefully', async () => {
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
@@ -758,7 +776,7 @@ describe('chatAPI', () => {
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const history = await chatAPI.loadHistory();
 
@@ -769,6 +787,7 @@ describe('chatAPI', () => {
   describe('clearHistory', () => {
     it('should clear history successfully', async () => {
       const clearSessionMock = jest.fn();
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
@@ -778,7 +797,7 @@ describe('chatAPI', () => {
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const result = await chatAPI.clearHistory();
 
@@ -787,6 +806,7 @@ describe('chatAPI', () => {
     });
 
     it('should handle clear errors gracefully', async () => {
+      jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
@@ -795,7 +815,7 @@ describe('chatAPI', () => {
       }));
 
       const module = await import('../chat');
-      const chatAPI = module.chatAPI;
+      const chatAPI = (module as any).chatAPI;
 
       const result = await chatAPI.clearHistory();
 

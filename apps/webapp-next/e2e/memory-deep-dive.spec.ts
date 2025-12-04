@@ -416,7 +416,7 @@ test.describe('Memory & Conversation Persistence - Deep Dive', () => {
 
       await chatInput.fill(
         'Hi, my name is John Smith from USA. I want to open a tech company in Bali. ' +
-          'My email is john.smith@example.com and I need help with company registration.'
+        'My email is john.smith@example.com and I need help with company registration.'
       );
       await sendButton.click();
       await page.waitForTimeout(5000);
@@ -433,7 +433,7 @@ test.describe('Memory & Conversation Persistence - Deep Dive', () => {
       if (crmResponse?.ok()) {
         const clients = await crmResponse.json();
         // Check if John Smith was added
-        const foundClient = clients.find((c: any) =>
+        const foundClient = clients.find((c: { email?: string; name?: string }) =>
           c.email?.includes('john.smith') || c.name?.includes('John Smith')
         );
 

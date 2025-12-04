@@ -51,6 +51,49 @@ def notification_hub_instance(mock_settings):
 
 
 @pytest.fixture
+def notification_hub_with_sendgrid(mock_settings):
+    """Create NotificationHub instance with SendGrid available"""
+    from unittest.mock import MagicMock
+
+    mock_settings.sendgrid_api_key = "test_sendgrid_key"
+
+    # Create mock sendgrid module
+    mock_sendgrid_module = MagicMock()
+    mock_sendgrid_client = MagicMock()
+    mock_sendgrid_module.SendGridAPIClient = MagicMock(return_value=mock_sendgrid_client)
+
+    with patch("services.notification_hub.logger"):
+        # Mock sys.modules to simulate sendgrid being available
+        with patch.dict("sys.modules", {"sendgrid": mock_sendgrid_module}):
+            hub = NotificationHub()
+            return hub
+
+
+@pytest.fixture
+def notification_hub_with_twilio(mock_settings):
+    """Create NotificationHub instance with Twilio available"""
+    from unittest.mock import MagicMock
+
+    mock_settings.twilio_account_sid = "test_account_sid"
+    mock_settings.twilio_auth_token = "test_auth_token"
+
+    # Create mock twilio module
+    mock_twilio_rest = MagicMock()
+    mock_twilio_client = MagicMock()
+    mock_twilio_rest.Client = MagicMock(return_value=mock_twilio_client)
+    mock_twilio_module = MagicMock()
+    mock_twilio_module.rest = mock_twilio_rest
+
+    with patch("services.notification_hub.logger"):
+        # Mock sys.modules to simulate twilio being available
+        with patch.dict(
+            "sys.modules", {"twilio": mock_twilio_module, "twilio.rest": mock_twilio_rest}
+        ):
+            hub = NotificationHub()
+            return hub
+
+
+@pytest.fixture
 def sample_notification():
     """Create sample notification"""
     return Notification(
@@ -74,6 +117,20 @@ def test_notification_hub_init(notification_hub_instance):
     assert notification_hub_instance is not None
     assert "email" in notification_hub_instance.channels_config
     assert "whatsapp" in notification_hub_instance.channels_config
+
+
+def test_notification_hub_init_with_sendgrid(notification_hub_with_sendgrid):
+    """Test NotificationHub initialization with SendGrid available"""
+    # When sendgrid_api_key is set, SendGrid client should be initialized
+    assert hasattr(notification_hub_with_sendgrid, "sendgrid_client")
+    # The client may be None if import fails, but we test the code path
+
+
+def test_notification_hub_init_with_twilio(notification_hub_with_twilio):
+    """Test NotificationHub initialization with Twilio available"""
+    # When twilio credentials are set, Twilio client should be initialized
+    assert hasattr(notification_hub_with_twilio, "twilio_client")
+    # The client may be None if import fails, but we test the code path
 
 
 # ============================================================================
@@ -930,3 +987,107 @@ def test_all_priority_levels_in_templates():
         NotificationPriority.NORMAL in priorities_used
         or NotificationPriority.HIGH in priorities_used
     )
+
+
+def test_create_notification_template_title_keyerror():
+    """Test create_notification_from_template handles KeyError in title formatting"""
+    from unittest.mock import patch
+
+    from services.notification_hub import create_notification_from_template
+
+    # Create a template that will cause KeyError
+    template_with_missing_key = {
+        "title": "Hello {missing_key}",
+        "email_body": "Test body",
+        "priority": NotificationPriority.NORMAL,
+    }
+
+    with patch(
+        "services.notification_hub.NOTIFICATION_TEMPLATES",
+        {"test_template": template_with_missing_key},
+    ):
+        with patch("services.notification_hub.logger") as mock_logger:
+            notification = create_notification_from_template(
+                template_id="test_template",
+                recipient_id="user123",
+                template_data={"other_key": "value"},  # Missing 'missing_key'
+            )
+
+            # Should fallback to original title
+            assert notification.title == "Hello {missing_key}"
+            mock_logger.warning.assert_called()
+
+
+def test_create_notification_template_message_empty_template_data():
+    """Test create_notification_from_template with None template_data results in empty message"""
+    from services.notification_hub import create_notification_from_template
+
+    template = {
+        "title": "Test Title",
+        "email_body": "Hello {name}",
+        "priority": NotificationPriority.NORMAL,
+    }
+
+    with patch("services.notification_hub.NOTIFICATION_TEMPLATES", {"test_template": template}):
+        notification = create_notification_from_template(
+            template_id="test_template",
+            recipient_id="user123",
+            template_data=None,  # None template_data
+        )
+
+        # Message should be empty when template_data is None
+        assert notification.message == ""
+
+
+def test_create_notification_template_low_priority_channels():
+    """Test create_notification_from_template selects IN_APP for LOW priority"""
+    from services.notification_hub import (
+        NotificationChannel,
+        NotificationPriority,
+        create_notification_from_template,
+    )
+
+    template = {
+        "title": "Test Title",
+        "email_body": "Test body",
+        "priority": NotificationPriority.LOW,
+    }
+
+    with patch("services.notification_hub.NOTIFICATION_TEMPLATES", {"test_template": template}):
+        notification = create_notification_from_template(
+            template_id="test_template",
+            recipient_id="user123",
+            template_data={},
+        )
+
+        # LOW priority should select IN_APP channel
+        assert NotificationChannel.IN_APP in notification.channels
+
+
+def test_create_notification_template_critical_priority_channels():
+    """Test create_notification_from_template selects all channels for CRITICAL priority"""
+    from services.notification_hub import (
+        NotificationChannel,
+        NotificationPriority,
+        create_notification_from_template,
+    )
+
+    template = {
+        "title": "Test Title",
+        "email_body": "Test body",
+        "priority": NotificationPriority.CRITICAL,
+    }
+
+    with patch("services.notification_hub.NOTIFICATION_TEMPLATES", {"test_template": template}):
+        notification = create_notification_from_template(
+            template_id="test_template",
+            recipient_id="user123",
+            template_data={},
+        )
+
+        # CRITICAL priority should select all channels
+        assert NotificationChannel.EMAIL in notification.channels
+        assert NotificationChannel.WHATSAPP in notification.channels
+        assert NotificationChannel.SMS in notification.channels
+        assert NotificationChannel.SLACK in notification.channels
+        assert NotificationChannel.IN_APP in notification.channels

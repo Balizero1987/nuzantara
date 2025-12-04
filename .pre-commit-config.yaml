@@ -19,7 +19,7 @@ repos:
     hooks:
       - id: sentinel
         name: Sentinel System Guardian
-        entry: ./sentinel
+        entry: ./sentinel --scribe
         language: system
         pass_filenames: false
         always_run: true

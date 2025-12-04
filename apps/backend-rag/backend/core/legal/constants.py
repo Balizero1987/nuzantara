@@ -13,7 +13,9 @@ NOISE_PATTERNS = [
     # Page numbers
     re.compile(r"^Halaman\s+\d+\s+dari\s+\d+", re.IGNORECASE | re.MULTILINE),
     # Certification footer
-    re.compile(r"^Salinan sesuai dengan aslinya.*?(?=\n)", re.IGNORECASE | re.MULTILINE | re.DOTALL),
+    re.compile(
+        r"^Salinan sesuai dengan aslinya.*?(?=\n)", re.IGNORECASE | re.MULTILINE | re.DOTALL
+    ),
     # President header (repeated on every page)
     re.compile(r"^PRESIDEN REPUBLIK INDONESIA\s*\n", re.IGNORECASE | re.MULTILINE),
     # Page separators
@@ -30,7 +32,7 @@ NOISE_PATTERNS = [
 
 LEGAL_TYPE_PATTERN = re.compile(
     r"(UNDANG-UNDANG|PERATURAN PEMERINTAH|KEPUTUSAN PRESIDEN|PERATURAN MENTERI|QANUN|PERATURAN DAERAH|PERATURAN KEPALA)",
-    re.IGNORECASE
+    re.IGNORECASE,
 )
 
 # Abbreviations mapping
@@ -56,8 +58,7 @@ YEAR_PATTERN = re.compile(r"TAHUN\s+(\d{4})", re.IGNORECASE)
 
 # Topic (text after "TENTANG" until "DENGAN RAHMAT" or end)
 TOPIC_PATTERN = re.compile(
-    r"TENTANG\s+(.+?)(?=DENGAN RAHMAT|Menimbang|Mengingat|$)",
-    re.IGNORECASE | re.DOTALL
+    r"TENTANG\s+(.+?)(?=DENGAN RAHMAT|Menimbang|Mengingat|$)", re.IGNORECASE | re.DOTALL
 )
 
 # Status indicators
@@ -77,22 +78,30 @@ KONSIDERANS_MARKERS = [
 ]
 
 # Batang Tubuh (Body) structure
-BAB_PATTERN = re.compile(r"^BAB\s+([IVX]+|[A-Z]+|\d+)\s+(.+?)(?=\n|$)", re.IGNORECASE | re.MULTILINE)
-BAGIAN_PATTERN = re.compile(r"^Bagian\s+([A-Za-z]+|\d+)\s+(.+?)(?=\n|$)", re.IGNORECASE | re.MULTILINE)
+BAB_PATTERN = re.compile(
+    r"^BAB\s+([IVX]+|[A-Z]+|\d+)\s+(.+?)(?=\n|$)", re.IGNORECASE | re.MULTILINE
+)
+BAGIAN_PATTERN = re.compile(
+    r"^Bagian\s+([A-Za-z]+|\d+)\s+(.+?)(?=\n|$)", re.IGNORECASE | re.MULTILINE
+)
 PARAGRAF_PATTERN = re.compile(r"^Paragraf\s+(\d+)\s+(.+?)(?=\n|$)", re.IGNORECASE | re.MULTILINE)
 
 # Pasal (Article) - CRITICAL UNIT
 PASAL_PATTERN = re.compile(
     r"^Pasal\s+(\d+[A-Z]?)\s*(.+?)(?=^Pasal\s+\d+|^BAB\s+|^Penjelasan|\Z)",
-    re.IGNORECASE | re.MULTILINE | re.DOTALL
+    re.IGNORECASE | re.MULTILINE | re.DOTALL,
 )
 
 # Ayat (Clause/Paragraph within Pasal)
 # Ayat (Clause/Paragraph within Pasal)
-AYAT_PATTERN = re.compile(r"(?:^|\n)\s*\((\d+)\)\s*(.+?)(?=(?:^|\n)\s*\(\d+\)|$)", re.MULTILINE | re.DOTALL)
+AYAT_PATTERN = re.compile(
+    r"(?:^|\n)\s*\((\d+)\)\s*(.+?)(?=(?:^|\n)\s*\(\d+\)|$)", re.MULTILINE | re.DOTALL
+)
 
 # Penjelasan (Elucidation)
-PENJELASAN_PATTERN = re.compile(r"^Penjelasan\s+(?:Umum|Atas|Pasal|Ayat)", re.IGNORECASE | re.MULTILINE)
+PENJELASAN_PATTERN = re.compile(
+    r"^Penjelasan\s+(?:Umum|Atas|Pasal|Ayat)", re.IGNORECASE | re.MULTILINE
+)
 
 # ============================================================================
 # CHUNKING CONFIGURATION
@@ -102,7 +111,9 @@ PENJELASAN_PATTERN = re.compile(r"^Penjelasan\s+(?:Umum|Atas|Pasal|Ayat)", re.IG
 MAX_PASAL_TOKENS = 1000
 
 # Context template for chunk injection
-CONTEXT_TEMPLATE = "[CONTEXT: {type} NO {number} TAHUN {year} - TENTANG {topic}{bab}{pasal}]\n{content}"
+CONTEXT_TEMPLATE = (
+    "[CONTEXT: {type} NO {number} TAHUN {year} - TENTANG {topic}{bab}{pasal}]\n{content}"
+)
 
 # ============================================================================
 # WHITESPACE NORMALIZATION
@@ -114,4 +125,3 @@ WHITESPACE_FIXES = [
     (r"\n\s+\n", "\n\n"),  # Blank lines with spaces
     (r"([a-z])\n([A-Z])", r"\1 \2"),  # Broken sentences
 ]
-

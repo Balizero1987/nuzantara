@@ -9,7 +9,6 @@ secondo lo schema standardizzato.
 import json
 import os
 import re
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -45,11 +44,13 @@ class SimpleQdrantClient:
                 return {
                     "ids": [str(p["id"]) for p in points],
                     "documents": [p.get("payload", {}).get("text", "") for p in points],
-                    "metadatas": [p.get("payload", {}).get("metadata", {}) for p in points],
+                    "metadatas": [
+                        p.get("payload", {}).get("metadata", {}) for p in points
+                    ],
                 }
             else:
                 return {"ids": [], "documents": [], "metadatas": []}
-        except Exception as e:
+        except Exception:
             return {"ids": [], "documents": [], "metadatas": []}
 
     def update_metadata(self, point_id: str, metadata: dict) -> bool:
@@ -62,11 +63,11 @@ class SimpleQdrantClient:
             except ValueError:
                 # If not integer, try as UUID string
                 point_id_int = point_id
-            
+
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points/payload"
             payload = {
                 "points": [point_id_int],
-                "payload": metadata  # Qdrant payload è direttamente il dict, non nested
+                "payload": metadata,  # Qdrant payload è direttamente il dict, non nested
             }
             response = requests.post(url, json=payload, timeout=10)
 
@@ -74,9 +75,15 @@ class SimpleQdrantClient:
                 return True
             else:
                 # Log error for debugging
-                error_msg = response.text[:200] if hasattr(response, 'text') else str(response.status_code)
+                error_msg = (
+                    response.text[:200]
+                    if hasattr(response, "text")
+                    else str(response.status_code)
+                )
                 if response.status_code != 200:
-                    print(f"   ⚠️ Update failed (HTTP {response.status_code}): {error_msg}")
+                    print(
+                        f"   ⚠️ Update failed (HTTP {response.status_code}): {error_msg}"
+                    )
                 return False
         except Exception as e:
             print(f"   ⚠️ Errore update metadata: {e}")
@@ -88,21 +95,38 @@ class MetadataExtractor:
 
     def __init__(self):
         self.patterns = {
-            "visa_type": re.compile(r'\b([A-Z]\d+)\s+VISA\b', re.IGNORECASE),
-            "visa_category": re.compile(r'(tourist|business|work|transit|diplomatic)', re.IGNORECASE),
-            "entry_type": re.compile(r'(single|multiple)\s+entry', re.IGNORECASE),
-            "duration": re.compile(r'(\d+)\s*(days?|weeks?|months?|years?)', re.IGNORECASE),
-            "fee_usd": re.compile(r'\$\s*(\d+(?:[.,]\d{3})*(?:[.,]\d{2})?)|USD\s*(\d+(?:[.,]\d{3})*(?:[.,]\d{2})?)', re.IGNORECASE),
-            "fee_idr": re.compile(r'(?:IDR|Rp)\s*(\d+(?:[.,]\d{3})*(?:[.,]\d{3})*)', re.IGNORECASE),
-            "kbli_code": re.compile(r'\b(\d{5})\b'),
-            "investment_minimum": re.compile(r'investment.*?(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{3})*)\s*(?:IDR|Rp)', re.IGNORECASE),
-            "risk_level": re.compile(r'risk\s+level.*?(low|medium|high|mt|lt)', re.IGNORECASE),
-            "tax_rate": re.compile(r'(\d+(?:[.,]\d+)?)\s*%', re.IGNORECASE),
-            "law_id": re.compile(r'(?:UU|PERMEN|PERDA|KEPMEN)\s*(?:No\.?)?\s*(\d+)[/\s](\d{4})', re.IGNORECASE),
-            "pasal": re.compile(r'pasal\s+(\d+[A-Z]?)', re.IGNORECASE),
-            "status_vigensi": re.compile(r'(berlaku|dicabut|diubah)', re.IGNORECASE),
-            "date": re.compile(r'(\d{4}-\d{2}-\d{2})'),
-            "json": re.compile(r'\{[^{}]*\}', re.DOTALL),
+            "visa_type": re.compile(r"\b([A-Z]\d+)\s+VISA\b", re.IGNORECASE),
+            "visa_category": re.compile(
+                r"(tourist|business|work|transit|diplomatic)", re.IGNORECASE
+            ),
+            "entry_type": re.compile(r"(single|multiple)\s+entry", re.IGNORECASE),
+            "duration": re.compile(
+                r"(\d+)\s*(days?|weeks?|months?|years?)", re.IGNORECASE
+            ),
+            "fee_usd": re.compile(
+                r"\$\s*(\d+(?:[.,]\d{3})*(?:[.,]\d{2})?)|USD\s*(\d+(?:[.,]\d{3})*(?:[.,]\d{2})?)",
+                re.IGNORECASE,
+            ),
+            "fee_idr": re.compile(
+                r"(?:IDR|Rp)\s*(\d+(?:[.,]\d{3})*(?:[.,]\d{3})*)", re.IGNORECASE
+            ),
+            "kbli_code": re.compile(r"\b(\d{5})\b"),
+            "investment_minimum": re.compile(
+                r"investment.*?(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{3})*)\s*(?:IDR|Rp)",
+                re.IGNORECASE,
+            ),
+            "risk_level": re.compile(
+                r"risk\s+level.*?(low|medium|high|mt|lt)", re.IGNORECASE
+            ),
+            "tax_rate": re.compile(r"(\d+(?:[.,]\d+)?)\s*%", re.IGNORECASE),
+            "law_id": re.compile(
+                r"(?:UU|PERMEN|PERDA|KEPMEN)\s*(?:No\.?)?\s*(\d+)[/\s](\d{4})",
+                re.IGNORECASE,
+            ),
+            "pasal": re.compile(r"pasal\s+(\d+[A-Z]?)", re.IGNORECASE),
+            "status_vigensi": re.compile(r"(berlaku|dicabut|diubah)", re.IGNORECASE),
+            "date": re.compile(r"(\d{4}-\d{2}-\d{2})"),
+            "json": re.compile(r"\{[^{}]*\}", re.DOTALL),
         }
 
     def extract_visa_metadata(self, text: str) -> dict[str, Any]:
@@ -127,7 +151,9 @@ class MetadataExtractor:
         # Duration
         duration_match = self.patterns["duration"].search(text)
         if duration_match:
-            metadata["duration"] = f"{duration_match.group(1)} {duration_match.group(2)}"
+            metadata[
+                "duration"
+            ] = f"{duration_match.group(1)} {duration_match.group(2)}"
 
         # Fee USD
         fee_usd_match = self.patterns["fee_usd"].search(text)
@@ -142,7 +168,9 @@ class MetadataExtractor:
         fee_idr_match = self.patterns["fee_idr"].search(text)
         if fee_idr_match:
             try:
-                metadata["fee_idr"] = float(fee_idr_match.group(1).replace(",", "").replace(".", ""))
+                metadata["fee_idr"] = float(
+                    fee_idr_match.group(1).replace(",", "").replace(".", "")
+                )
             except:
                 pass
 
@@ -178,9 +206,13 @@ class MetadataExtractor:
             metadata["kbli_code"] = kbli_match.group(1)
 
         # Description (first sentence or markdown header)
-        desc_match = re.search(r'^#{1,3}\s+(.+)$|^(.+?)(?:\.|$)', text[:200], re.MULTILINE)
+        desc_match = re.search(
+            r"^#{1,3}\s+(.+)$|^(.+?)(?:\.|$)", text[:200], re.MULTILINE
+        )
         if desc_match:
-            metadata["kbli_description"] = (desc_match.group(1) or desc_match.group(2))[:200]
+            metadata["kbli_description"] = (desc_match.group(1) or desc_match.group(2))[
+                :200
+            ]
 
         # Investment minimum
         inv_match = self.patterns["investment_minimum"].search(text)
@@ -197,7 +229,9 @@ class MetadataExtractor:
             metadata["risk_level"] = risk_match.group(1).upper()
 
         # Required licenses (from markdown lists)
-        licenses = re.findall(r'^[-*+]\s+(.+license.+)$', text, re.MULTILINE | re.IGNORECASE)
+        licenses = re.findall(
+            r"^[-*+]\s+(.+license.+)$", text, re.MULTILINE | re.IGNORECASE
+        )
         if licenses:
             metadata["required_licenses"] = [l.strip() for l in licenses[:5]]
 
@@ -209,13 +243,15 @@ class MetadataExtractor:
 
         # Tax type (from headers or first line)
         tax_type_patterns = [
-            r'^(?:###\s+)?(.+tax.+?)(?:\s|$)',
-            r'(?:NPWP|PPh|PPN|PBB)\s*(.+?)',
-            r'Tax\s+Type[:\s]+(.+?)(?:\n|$)',
-            r'(.+?)\s+Tax',
+            r"^(?:###\s+)?(.+tax.+?)(?:\s|$)",
+            r"(?:NPWP|PPh|PPN|PBB)\s*(.+?)",
+            r"Tax\s+Type[:\s]+(.+?)(?:\n|$)",
+            r"(.+?)\s+Tax",
         ]
         for pattern in tax_type_patterns:
-            tax_type_match = re.search(pattern, text[:200], re.IGNORECASE | re.MULTILINE)
+            tax_type_match = re.search(
+                pattern, text[:200], re.IGNORECASE | re.MULTILINE
+            )
             if tax_type_match:
                 tax_type = tax_type_match.group(1).strip()
                 if len(tax_type) < 50:  # Avoid too long matches
@@ -224,9 +260,9 @@ class MetadataExtractor:
 
         # Tax rate (multiple patterns)
         rate_patterns = [
-            r'(\d+(?:[.,]\d+)?)\s*%',
-            r'rate[:\s]+(\d+(?:[.,]\d+)?)',
-            r'(\d+(?:[.,]\d+)?)\s*percent',
+            r"(\d+(?:[.,]\d+)?)\s*%",
+            r"rate[:\s]+(\d+(?:[.,]\d+)?)",
+            r"(\d+(?:[.,]\d+)?)\s*percent",
         ]
         for pattern in rate_patterns:
             rate_match = re.search(pattern, text, re.IGNORECASE)
@@ -282,7 +318,7 @@ class MetadataExtractor:
             metadata["status_vigensi"] = status_match.group(1).lower()
 
         # Year
-        year_match = re.search(r'\b(19|20)\d{2}\b', text)
+        year_match = re.search(r"\b(19|20)\d{2}\b", text)
         if year_match:
             try:
                 metadata["year"] = int(year_match.group(0))
@@ -290,7 +326,7 @@ class MetadataExtractor:
                 pass
 
         # Title (from markdown header)
-        title_match = re.search(r'^#{1,3}\s+(.+)$', text[:200], re.MULTILINE)
+        title_match = re.search(r"^#{1,3}\s+(.+)$", text[:200], re.MULTILINE)
         if title_match:
             metadata["law_title"] = title_match.group(1).strip()[:200]
 
@@ -308,13 +344,15 @@ class MetadataExtractor:
         else:
             # Try to find service name from various patterns
             service_patterns = [
-                r'^(\d+\.\s*[A-Z]\d+\s+VISA)',
-                r'^(\d+\.\s*.+?VISA)',
-                r'Description:\s*(.+?VISA)',
-                r'^(.+?)(?:\s+VISA|\s+Service|Description)',
+                r"^(\d+\.\s*[A-Z]\d+\s+VISA)",
+                r"^(\d+\.\s*.+?VISA)",
+                r"Description:\s*(.+?VISA)",
+                r"^(.+?)(?:\s+VISA|\s+Service|Description)",
             ]
             for pattern in service_patterns:
-                service_match = re.search(pattern, text[:200], re.IGNORECASE | re.MULTILINE)
+                service_match = re.search(
+                    pattern, text[:200], re.IGNORECASE | re.MULTILINE
+                )
                 if service_match:
                     metadata["service_name"] = service_match.group(1).strip()
                     if "visa" in metadata["service_name"].lower():
@@ -335,7 +373,9 @@ class MetadataExtractor:
         fee_idr_match = self.patterns["fee_idr"].search(text)
         if fee_idr_match:
             try:
-                metadata["price_idr"] = float(fee_idr_match.group(1).replace(",", "").replace(".", ""))
+                metadata["price_idr"] = float(
+                    fee_idr_match.group(1).replace(",", "").replace(".", "")
+                )
                 metadata["currency"] = "IDR"
             except:
                 pass
@@ -393,7 +433,7 @@ def main():
             sample = client.peek(limit=1000)  # Processa fino a 1000 documenti
 
             if not sample.get("documents"):
-                print(f"   ⚠️ Nessun documento estratto")
+                print("   ⚠️ Nessun documento estratto")
                 continue
 
             extracted_count = 0
@@ -410,23 +450,31 @@ def main():
                     extracted_count += 1
 
                     # Merge con metadata esistenti (non sovrascrivere se già presenti)
-                    merged_metadata = old_meta.copy() if isinstance(old_meta, dict) else {}
+                    merged_metadata = (
+                        old_meta.copy() if isinstance(old_meta, dict) else {}
+                    )
                     merged_metadata.update(new_metadata)
 
                     # Salva esempio
                     if len(examples) < 3:
-                        examples.append({
-                            "id": doc_id,
-                            "old_metadata": old_meta,
-                            "extracted_metadata": new_metadata,
-                            "merged_metadata": merged_metadata,
-                        })
+                        examples.append(
+                            {
+                                "id": doc_id,
+                                "old_metadata": old_meta,
+                                "extracted_metadata": new_metadata,
+                                "merged_metadata": merged_metadata,
+                            }
+                        )
 
                     # Update Qdrant
                     # NOTA: Decommentare per applicare gli aggiornamenti
                     # ATTENZIONE: Questo modificherà i documenti in produzione!
-                    update_enabled = os.getenv("ENABLE_QDRANT_UPDATE", "false").lower() == "true"
-                    if update_enabled and client.update_metadata(doc_id, merged_metadata):
+                    update_enabled = (
+                        os.getenv("ENABLE_QDRANT_UPDATE", "false").lower() == "true"
+                    )
+                    if update_enabled and client.update_metadata(
+                        doc_id, merged_metadata
+                    ):
                         updated_count += 1
 
             results["collections"][collection_name] = {
@@ -436,10 +484,12 @@ def main():
                 "examples": examples,
             }
 
-            print(f"\n✅ Risultati:")
+            print("\n✅ Risultati:")
             print(f"   Documenti processati: {len(sample['documents'])}")
             print(f"   Metadata estratti: {extracted_count}")
-            update_status = "✅ AGGIORNATI" if update_enabled else "⚠️ DISABILITATO (test mode)"
+            update_status = (
+                "✅ AGGIORNATI" if update_enabled else "⚠️ DISABILITATO (test mode)"
+            )
             print(f"   Documenti aggiornati: {updated_count} ({update_status})")
 
         except Exception as e:
@@ -459,13 +509,16 @@ def main():
     print(f"\n{'='*80}")
     print("📊 RIEPILOGO")
     print(f"{'='*80}")
-    total_extracted = sum(c.get("extracted_count", 0) for c in results["collections"].values())
+    total_extracted = sum(
+        c.get("extracted_count", 0) for c in results["collections"].values()
+    )
     print(f"Metadata estratti totali: {total_extracted}")
     print(f"\n✅ Report salvato: {json_path}")
     print("\n⚠️ NOTA: Update Qdrant DISABILITATO per sicurezza.")
-    print("   Per applicare gli aggiornamenti, decommentare le righe di update nel codice.")
+    print(
+        "   Per applicare gli aggiornamenti, decommentare le righe di update nel codice."
+    )
 
 
 if __name__ == "__main__":
     main()
-

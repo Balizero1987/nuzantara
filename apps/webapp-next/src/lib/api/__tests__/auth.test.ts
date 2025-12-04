@@ -168,6 +168,45 @@ describe('authAPI', () => {
       );
     });
 
+    it('should handle login error with non-Error exception', async () => {
+      (fetchWithRetry as jest.Mock).mockRejectedValue('String error');
+
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      await expect(authAPI.login({ email: 'test@example.com', pin: '1234' })).rejects.toThrow(
+        'Login failed'
+      );
+
+      expect(consoleErrorSpy).toHaveBeenCalled();
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle login error with Error exception', async () => {
+      (fetchWithRetry as jest.Mock).mockRejectedValue(new Error('Network error'));
+
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      await expect(authAPI.login({ email: 'test@example.com', pin: '1234' })).rejects.toThrow(
+        'Network error'
+      );
+
+      expect(consoleErrorSpy).toHaveBeenCalled();
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle login error without error message', async () => {
+      (fetchWithRetry as jest.Mock).mockResolvedValue({
+        ok: false,
+        json: async () => ({}), // No error field
+      });
+
+      await expect(authAPI.login({ email: 'test@example.com', pin: 'wrong' })).rejects.toThrow(
+        'Login failed'
+      );
+    });
+
     it('should save user to localStorage on login', async () => {
       const mockResponse = {
         ok: true,
@@ -222,6 +261,27 @@ describe('authAPI', () => {
       expect(localStorage.setItem).toHaveBeenCalledWith('zantara_user', JSON.stringify(user));
       expect(localStorage.setItem).toHaveBeenCalledWith('zantara_user_email', user.email);
     });
+
+    it('should not save user when localStorage is not available', () => {
+      const originalLocalStorage = (globalThis as any).localStorage;
+      delete (globalThis as any).localStorage;
+
+      const user = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: 'user',
+        avatar: null,
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+      };
+
+      expect(() => authAPI.saveUser(user)).not.toThrow();
+
+      if (originalLocalStorage) {
+        (globalThis as any).localStorage = originalLocalStorage;
+      }
+    });
   });
 
   describe('getUser', () => {
@@ -251,6 +311,19 @@ describe('authAPI', () => {
 
       expect(result).toBeNull();
     });
+
+    it('should return null when localStorage is not available', () => {
+      const originalLocalStorage = (globalThis as any).localStorage;
+      delete (globalThis as any).localStorage;
+
+      const result = authAPI.getUser();
+
+      expect(result).toBeNull();
+
+      if (originalLocalStorage) {
+        (globalThis as any).localStorage = originalLocalStorage;
+      }
+    });
   });
 
   describe('clearUser', () => {
@@ -261,6 +334,17 @@ describe('authAPI', () => {
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('zantara_user_email');
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('zantara_session_token');
     });
+
+    it('should not remove user when localStorage is not available', () => {
+      const originalLocalStorage = (globalThis as any).localStorage;
+      delete (globalThis as any).localStorage;
+
+      expect(() => authAPI.clearUser()).not.toThrow();
+
+      if (originalLocalStorage) {
+        (globalThis as any).localStorage = originalLocalStorage;
+      }
+    });
   });
 
   describe('logout', () => {
@@ -268,7 +352,20 @@ describe('authAPI', () => {
       authAPI.logout();
 
       expect(apiClient.clearToken).toHaveBeenCalled();
+      expect(localStorageMock.removeItem).toHaveBeenCalled();
       // expect(mockLocation.href).toBe('/'); // Flaky test in CI
+    });
+
+    it('should not redirect when window is not available', () => {
+      const originalWindow = (globalThis as any).window;
+      delete (globalThis as any).window;
+
+      expect(() => authAPI.logout()).not.toThrow();
+      expect(apiClient.clearToken).toHaveBeenCalled();
+
+      if (originalWindow) {
+        (globalThis as any).window = originalWindow;
+      }
     });
   });
 });

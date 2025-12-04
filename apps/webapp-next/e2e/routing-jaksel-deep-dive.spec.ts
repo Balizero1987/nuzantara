@@ -19,10 +19,10 @@ import { test, expect } from '@playwright/test';
  * - IntelligentRouter (orchestration)
  */
 
-const BACKEND_URL =
-  process.env.NUZANTARA_API_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  'https://nuzantara-rag.fly.dev';
+// const BACKEND_URL =
+//   process.env.NUZANTARA_API_URL ||
+//   process.env.NEXT_PUBLIC_API_URL ||
+//   'https://nuzantara-rag.fly.dev';
 
 const TEST_EMAIL = process.env.E2E_TEST_EMAIL;
 const TEST_PIN = process.env.E2E_TEST_PIN;
@@ -104,7 +104,7 @@ const MULTILINGUAL_QUERIES = {
 test.describe('Intelligent Routing & Jaksel - Deep Dive', () => {
   let authToken: string;
 
-  async function loginAndGetToken(page: any) {
+  async function loginAndGetToken(page: import('@playwright/test').Page) {
     await page.goto('/');
     await page.evaluate(() => {
       localStorage.clear();
@@ -125,7 +125,7 @@ test.describe('Intelligent Routing & Jaksel - Deep Dive', () => {
     return await page.evaluate(() => localStorage.getItem('zantara_auth_token'));
   }
 
-  async function sendChatMessage(page: any, message: string, timeout = 45000) {
+  async function sendChatMessage(page: import('@playwright/test').Page, message: string, timeout = 45000) {
     const chatInput = page
       .locator('textarea, input[placeholder*="message"], input[type="text"]')
       .first();
@@ -144,7 +144,7 @@ test.describe('Intelligent Routing & Jaksel - Deep Dive', () => {
   }
 
   test.beforeEach(async ({ page }) => {
-    authToken = await loginAndGetToken(page);
+    authToken = (await loginAndGetToken(page)) as string;
     expect(authToken).toBeTruthy();
   });
 

@@ -12,7 +12,6 @@ Analizza la struttura completa dei 25k+ documenti in Qdrant:
 
 import json
 import os
-import sys
 from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -74,13 +73,16 @@ class SimpleQdrantClient:
                 return {
                     "ids": [str(p["id"]) for p in points],
                     "documents": [p.get("payload", {}).get("text", "") for p in points],
-                    "metadatas": [p.get("payload", {}).get("metadata", {}) for p in points],
+                    "metadatas": [
+                        p.get("payload", {}).get("metadata", {}) for p in points
+                    ],
                 }
             else:
                 return {"ids": [], "documents": [], "metadatas": []}
         except Exception as e:
             print(f"   ⚠️ Errore peek: {e}")
             return {"ids": [], "documents": [], "metadatas": []}
+
 
 # Collezioni reali da analizzare (dal SearchService)
 COLLECTIONS = [
@@ -131,7 +133,9 @@ class QdrantDocumentAnalyzer:
         print(f"{'='*80}")
 
         try:
-            client = SimpleQdrantClient(qdrant_url=self.qdrant_url, collection_name=collection_name)
+            client = SimpleQdrantClient(
+                qdrant_url=self.qdrant_url, collection_name=collection_name
+            )
 
             # 1. Statistiche collezione
             stats = client.get_collection_stats()
@@ -147,25 +151,27 @@ class QdrantDocumentAnalyzer:
 
             total_docs = stats.get("total_documents", 0)
             if total_docs == 0:
-                print(f"   ⚠️ Collezione vuota!")
+                print("   ⚠️ Collezione vuota!")
                 return {"empty": True}
 
             # 2. Estrai sample documenti (max 100 per analisi)
-            print(f"\n📥 Estraendo sample documenti...")
+            print("\n📥 Estraendo sample documenti...")
             sample_size = min(100, total_docs)
             sample = client.peek(limit=sample_size)
 
             if not sample.get("documents"):
-                print(f"   ⚠️ Nessun documento estratto")
+                print("   ⚠️ Nessun documento estratto")
                 return {"error": "No documents extracted"}
 
             # 3. Analisi metadata
-            print(f"\n🔍 Analizzando metadata...")
+            print("\n🔍 Analizzando metadata...")
             metadata_analysis = self._analyze_metadata(sample["metadatas"])
 
             # 4. Analisi qualità
-            print(f"\n✅ Verificando qualità...")
-            quality_issues = self._check_quality(sample["documents"], sample["metadatas"])
+            print("\n✅ Verificando qualità...")
+            quality_issues = self._check_quality(
+                sample["documents"], sample["metadatas"]
+            )
 
             # 5. Statistiche chunk
             chunk_stats = self._analyze_chunks(sample["documents"])
@@ -173,12 +179,16 @@ class QdrantDocumentAnalyzer:
             # 6. Esempi documenti (primi 3)
             examples = []
             for i in range(min(3, len(sample["documents"]))):
-                examples.append({
-                    "id": sample["ids"][i],
-                    "text_preview": sample["documents"][i][:200] + "..." if len(sample["documents"][i]) > 200 else sample["documents"][i],
-                    "text_length": len(sample["documents"][i]),
-                    "metadata": sample["metadatas"][i],
-                })
+                examples.append(
+                    {
+                        "id": sample["ids"][i],
+                        "text_preview": sample["documents"][i][:200] + "..."
+                        if len(sample["documents"][i]) > 200
+                        else sample["documents"][i],
+                        "text_length": len(sample["documents"][i]),
+                        "metadata": sample["metadatas"][i],
+                    }
+                )
 
             collection_result = {
                 "stats": stats,
@@ -191,9 +201,13 @@ class QdrantDocumentAnalyzer:
 
             # Print summary
             print(f"\n📈 Riepilogo {collection_name}:")
-            print(f"   Campi metadata unici: {len(metadata_analysis.get('unique_fields', []))}")
+            print(
+                f"   Campi metadata unici: {len(metadata_analysis.get('unique_fields', []))}"
+            )
             print(f"   Problemi qualità: {len(quality_issues)}")
-            print(f"   Lunghezza media chunk: {chunk_stats.get('avg_length', 0):.0f} caratteri")
+            print(
+                f"   Lunghezza media chunk: {chunk_stats.get('avg_length', 0):.0f} caratteri"
+            )
 
             return collection_result
 
@@ -258,7 +272,9 @@ class QdrantDocumentAnalyzer:
             }
 
             # Se pochi valori unici, mostra tutti (escludendo dict/list)
-            simple_values = [v for v in unique_values if not isinstance(v, (dict, list))]
+            simple_values = [
+                v for v in unique_values if not isinstance(v, (dict, list))
+            ]
             if len(simple_values) <= 10 and simple_values:
                 field_analysis[field]["all_values"] = simple_values[:10]
 
@@ -275,31 +291,41 @@ class QdrantDocumentAnalyzer:
         for i, (doc, meta) in enumerate(zip(documents, metadatas)):
             # Chunk vuoti o troppo corti
             if not doc or len(doc.strip()) == 0:
-                issues.append({
-                    "type": "empty_chunk",
-                    "index": i,
-                    "collection": "unknown",
-                })
+                issues.append(
+                    {
+                        "type": "empty_chunk",
+                        "index": i,
+                        "collection": "unknown",
+                    }
+                )
 
             if doc and len(doc.strip()) < 10:
-                issues.append({
-                    "type": "too_short",
-                    "index": i,
-                    "length": len(doc),
-                    "collection": "unknown",
-                })
+                issues.append(
+                    {
+                        "type": "too_short",
+                        "index": i,
+                        "length": len(doc),
+                        "collection": "unknown",
+                    }
+                )
 
             # Metadata mancanti critici
             if isinstance(meta, dict):
                 # Controlla campi comuni che dovrebbero esserci
                 common_fields = ["book_title", "source", "collection", "tier", "law_id"]
-                missing_fields = [f for f in common_fields if f not in meta and f in ["book_title", "source"]]
+                missing_fields = [
+                    f
+                    for f in common_fields
+                    if f not in meta and f in ["book_title", "source"]
+                ]
                 if missing_fields:
-                    issues.append({
-                        "type": "missing_metadata",
-                        "index": i,
-                        "missing_fields": missing_fields,
-                    })
+                    issues.append(
+                        {
+                            "type": "missing_metadata",
+                            "index": i,
+                            "missing_fields": missing_fields,
+                        }
+                    )
 
         return issues
 
@@ -322,7 +348,7 @@ class QdrantDocumentAnalyzer:
 
     def analyze_all(self) -> dict[str, Any]:
         """Analizza tutte le collezioni"""
-        print(f"\n🚀 Inizio analisi completa Qdrant")
+        print("\n🚀 Inizio analisi completa Qdrant")
         print(f"   URL: {self.qdrant_url}")
         print(f"   Collezioni da analizzare: {len(COLLECTIONS)}")
 
@@ -346,7 +372,7 @@ class QdrantDocumentAnalyzer:
         }
 
         # Analisi metadata cross-collection
-        print(f"\n🔍 Analisi metadata cross-collection...")
+        print("\n🔍 Analisi metadata cross-collection...")
         self._analyze_cross_collection_metadata()
 
         return self.results
@@ -397,7 +423,9 @@ class QdrantDocumentAnalyzer:
             # Summary
             summary = self.results["summary"]
             f.write("## 📊 Riepilogo\n\n")
-            f.write(f"- **Collezioni analizzate**: {summary['successful_collections']}/{summary['total_collections_analyzed']}\n")
+            f.write(
+                f"- **Collezioni analizzate**: {summary['successful_collections']}/{summary['total_collections_analyzed']}\n"
+            )
             f.write(f"- **Documenti totali**: {summary['total_documents']:,}\n\n")
 
             # Per ogni collezione
@@ -410,7 +438,7 @@ class QdrantDocumentAnalyzer:
 
                 if "empty" in result:
                     f.write(f"### {collection_name}\n\n")
-                    f.write(f"⚠️ **Collezione vuota**\n\n")
+                    f.write("⚠️ **Collezione vuota**\n\n")
                     continue
 
                 stats = result.get("stats", {})
@@ -422,8 +450,12 @@ class QdrantDocumentAnalyzer:
                 f.write(f"- **Documenti**: {stats.get('total_documents', 0):,}\n")
                 f.write(f"- **Vector size**: {stats.get('vector_size', 'N/A')}\n")
                 f.write(f"- **Distance**: {stats.get('distance', 'N/A')}\n")
-                f.write(f"- **Campi metadata**: {len(metadata.get('unique_fields', []))}\n")
-                f.write(f"- **Lunghezza media chunk**: {chunk_stats.get('avg_length', 0):.0f} caratteri\n\n")
+                f.write(
+                    f"- **Campi metadata**: {len(metadata.get('unique_fields', []))}\n"
+                )
+                f.write(
+                    f"- **Lunghezza media chunk**: {chunk_stats.get('avg_length', 0):.0f} caratteri\n\n"
+                )
 
                 # Campi metadata
                 if metadata.get("unique_fields"):
@@ -431,7 +463,9 @@ class QdrantDocumentAnalyzer:
                     for field in metadata["unique_fields"][:10]:  # Primi 10
                         f.write(f"- `{field}`\n")
                     if len(metadata["unique_fields"]) > 10:
-                        f.write(f"- ... e altri {len(metadata['unique_fields']) - 10} campi\n")
+                        f.write(
+                            f"- ... e altri {len(metadata['unique_fields']) - 10} campi\n"
+                        )
                     f.write("\n")
 
                 # Esempi
@@ -443,16 +477,22 @@ class QdrantDocumentAnalyzer:
                         f.write(f"- **Lunghezza**: {ex['text_length']} caratteri\n")
                         f.write(f"- **Preview**: {ex['text_preview']}\n\n")
                         f.write("**Metadata**:\n```json\n")
-                        f.write(json.dumps(ex["metadata"], indent=2, ensure_ascii=False))
+                        f.write(
+                            json.dumps(ex["metadata"], indent=2, ensure_ascii=False)
+                        )
                         f.write("\n```\n\n")
 
             # Metadata cross-collection
             if self.results.get("metadata_analysis"):
                 f.write("## 🔍 Analisi Metadata Cross-Collection\n\n")
                 meta_analysis = self.results["metadata_analysis"]
-                f.write(f"- **Campi totali unici**: {len(meta_analysis.get('all_fields', []))}\n\n")
+                f.write(
+                    f"- **Campi totali unici**: {len(meta_analysis.get('all_fields', []))}\n\n"
+                )
                 f.write("**Campi più comuni**:\n\n")
-                for field, count in list(meta_analysis.get("field_frequency", {}).items())[:15]:
+                for field, count in list(
+                    meta_analysis.get("field_frequency", {}).items()
+                )[:15]:
                     f.write(f"- `{field}`: presente in {count} collezioni\n")
                 f.write("\n")
 
@@ -471,7 +511,9 @@ def main():
     print("📊 RIEPILOGO FINALE")
     print("=" * 80)
     summary = results["summary"]
-    print(f"Collezioni analizzate: {summary['successful_collections']}/{summary['total_collections_analyzed']}")
+    print(
+        f"Collezioni analizzate: {summary['successful_collections']}/{summary['total_collections_analyzed']}"
+    )
     print(f"Documenti totali: {summary['total_documents']:,}")
 
     # Generate reports
@@ -482,4 +524,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

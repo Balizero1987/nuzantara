@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * ZANTARA Backend Access Test - Webapp Edition
  * 
@@ -12,7 +13,6 @@
 const https = require('https');
 const http = require('http');
 const { URL } = require('url');
-const readline = require('readline');
 
 // Configuration
 const DEFAULT_BACKEND_URL = process.env.NUZANTARA_API_URL || 'https://nuzantara-rag.fly.dev';
@@ -168,7 +168,7 @@ async function streamChat(message, conversationHistory, token, apiKey, backendUr
 
       res.on('data', (chunk) => {
         buffer += chunk.toString();
-        
+
         // Process SSE format
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
@@ -185,7 +185,7 @@ async function streamChat(message, conversationHistory, token, apiKey, backendUr
                 reject(new Error(`API Error: ${event.data}`));
                 return;
               }
-            } catch (e) {
+            } catch {
               // Not JSON, might be raw text
               if (dataStr.trim()) {
                 accumulated += dataStr;
@@ -275,7 +275,7 @@ async function testServiceCategory(category, questions, token, apiKey, backendUr
         "non ho conoscenza", "non conosco questo servizio",
       ];
 
-      const hasNoKnowledge = noKnowledgeIndicators.some(indicator => 
+      const hasNoKnowledge = noKnowledgeIndicators.some(indicator =>
         responseLower.includes(indicator)
       );
 
@@ -427,11 +427,11 @@ async function main() {
       totalQuestions += summary.total_questions;
 
       log(`\n${result.category}:`, 'cyan');
-      log(`  ✅ Answered: ${summary.answered}/${summary.total_questions}`, 
+      log(`  ✅ Answered: ${summary.answered}/${summary.total_questions}`,
         summary.answered > 0 ? 'green' : 'reset');
-      log(`  ⚠️  Partial: ${summary.partial}/${summary.total_questions}`, 
+      log(`  ⚠️  Partial: ${summary.partial}/${summary.total_questions}`,
         summary.partial > 0 ? 'yellow' : 'reset');
-      log(`  ❌ No Knowledge: ${summary.no_knowledge}/${summary.total_questions}`, 
+      log(`  ❌ No Knowledge: ${summary.no_knowledge}/${summary.total_questions}`,
         summary.no_knowledge > 0 ? 'red' : 'reset');
       if (summary.errors > 0) {
         log(`  🔴 Errors: ${summary.errors}/${summary.total_questions}`, 'red');
@@ -442,13 +442,13 @@ async function main() {
   log(`\nOverall:`, 'bright');
   log(`  Total Questions: ${totalQuestions}`, 'cyan');
   if (totalQuestions > 0) {
-    log(`  ✅ Answered: ${totalAnswered} (${(totalAnswered/totalQuestions*100).toFixed(1)}%)`, 
+    log(`  ✅ Answered: ${totalAnswered} (${(totalAnswered / totalQuestions * 100).toFixed(1)}%)`,
       totalAnswered > totalQuestions * 0.5 ? 'green' : 'yellow');
-    log(`  ⚠️  Partial: ${totalPartial} (${(totalPartial/totalQuestions*100).toFixed(1)}%)`, 'yellow');
-    log(`  ❌ No Knowledge: ${totalNoKnowledge} (${(totalNoKnowledge/totalQuestions*100).toFixed(1)}%)`, 
+    log(`  ⚠️  Partial: ${totalPartial} (${(totalPartial / totalQuestions * 100).toFixed(1)}%)`, 'yellow');
+    log(`  ❌ No Knowledge: ${totalNoKnowledge} (${(totalNoKnowledge / totalQuestions * 100).toFixed(1)}%)`,
       totalNoKnowledge > totalQuestions * 0.3 ? 'red' : 'yellow');
     if (totalErrors > 0) {
-      log(`  🔴 Errors: ${totalErrors} (${(totalErrors/totalQuestions*100).toFixed(1)}%)`, 'red');
+      log(`  🔴 Errors: ${totalErrors} (${(totalErrors / totalQuestions * 100).toFixed(1)}%)`, 'red');
     }
   }
 

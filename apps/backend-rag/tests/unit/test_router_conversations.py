@@ -37,13 +37,18 @@ def mock_settings():
 @pytest.fixture
 def valid_jwt_token(mock_settings):
     """Generate a valid JWT token for testing"""
+    from datetime import datetime, timedelta, timezone
+
     from jose import jwt
 
+    # Use timezone-aware datetime and ensure expiration is in the future
+    exp = datetime.now(timezone.utc) + timedelta(hours=1)
     payload = {
-        "sub": "test-user-id",
+        "sub": "test@example.com",  # sub should be the email/identifier
         "email": "test@example.com",
+        "user_id": "test-user-id",
         "role": "member",
-        "exp": datetime.utcnow().timestamp() + 3600,
+        "exp": int(exp.timestamp()),  # JWT expects integer timestamp
     }
     token = jwt.encode(payload, mock_settings.jwt_secret_key, algorithm="HS256")
     return token
@@ -114,7 +119,7 @@ class TestGetCurrentUser:
         with patch("app.core.config.settings") as mock_settings:
             mock_settings.jwt_secret_key = "test-secret"
             mock_settings.jwt_algorithm = "HS256"
-            
+
             from app.routers.conversations import get_current_user
 
             with pytest.raises(HTTPException) as exc_info:
@@ -127,13 +132,11 @@ class TestGetCurrentUser:
     async def test_valid_token_returns_user(self, mock_settings, valid_jwt_token):
         """Test that valid token returns user dict"""
         with patch("app.core.config.settings", mock_settings):
-            from app.routers.conversations import get_current_user
             from fastapi.security import HTTPAuthorizationCredentials
 
-            credentials = HTTPAuthorizationCredentials(
-                scheme="Bearer",
-                credentials=valid_jwt_token
-            )
+            from app.routers.conversations import get_current_user
+
+            credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=valid_jwt_token)
 
             user = await get_current_user(credentials=credentials)
 
@@ -145,12 +148,12 @@ class TestGetCurrentUser:
     async def test_invalid_token_raises_401(self, mock_settings):
         """Test that invalid token raises 401"""
         with patch("app.core.config.settings", mock_settings):
-            from app.routers.conversations import get_current_user
             from fastapi.security import HTTPAuthorizationCredentials
 
+            from app.routers.conversations import get_current_user
+
             credentials = HTTPAuthorizationCredentials(
-                scheme="Bearer",
-                credentials="invalid-token-not-jwt"
+                scheme="Bearer", credentials="invalid-token-not-jwt"
             )
 
             with pytest.raises(HTTPException) as exc_info:
@@ -175,11 +178,10 @@ class TestSaveConversation:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = {"id": 123}
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), \
-             patch("app.routers.conversations.get_auto_crm", return_value=mock_auto_crm), \
-             patch("app.routers.conversations.logger"):
-
-            from app.routers.conversations import save_conversation, SaveConversationRequest
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.get_auto_crm", return_value=mock_auto_crm
+        ), patch("app.routers.conversations.logger"):
+            from app.routers.conversations import SaveConversationRequest, save_conversation
 
             request = SaveConversationRequest(
                 messages=[
@@ -200,18 +202,15 @@ class TestSaveConversation:
             assert result["user_email"] == "test@example.com"
 
     @pytest.mark.asyncio
-    async def test_save_uses_jwt_email_not_request(
-        self, mock_settings, mock_db_connection
-    ):
+    async def test_save_uses_jwt_email_not_request(self, mock_settings, mock_db_connection):
         """Test that user email comes from JWT, not request body (security)"""
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = {"id": 456}
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), \
-             patch("app.routers.conversations.get_auto_crm", return_value=None), \
-             patch("app.routers.conversations.logger"):
-
-            from app.routers.conversations import save_conversation, SaveConversationRequest
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.get_auto_crm", return_value=None
+        ), patch("app.routers.conversations.logger"):
+            from app.routers.conversations import SaveConversationRequest, save_conversation
 
             request = SaveConversationRequest(
                 messages=[{"role": "user", "content": "Test"}],
@@ -229,10 +228,10 @@ class TestSaveConversation:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.execute.side_effect = Exception("Database error")
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), \
-             patch("app.routers.conversations.logger"):
-
-            from app.routers.conversations import save_conversation, SaveConversationRequest
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
+            from app.routers.conversations import SaveConversationRequest, save_conversation
 
             request = SaveConversationRequest(
                 messages=[{"role": "user", "content": "Test"}],
@@ -266,17 +265,15 @@ class TestGetConversationHistory:
             "created_at": datetime.now(),
         }
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), \
-             patch("app.routers.conversations.logger"):
-
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             from app.routers.conversations import get_conversation_history
 
             current_user = {"email": "test@example.com", "user_id": "test"}
 
             result = await get_conversation_history(
-                limit=20,
-                session_id=None,
-                current_user=current_user
+                limit=20, session_id=None, current_user=current_user
             )
 
             assert result.success is True
@@ -289,17 +286,15 @@ class TestGetConversationHistory:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = None
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), \
-             patch("app.routers.conversations.logger"):
-
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             from app.routers.conversations import get_conversation_history
 
             current_user = {"email": "test@example.com", "user_id": "test"}
 
             result = await get_conversation_history(
-                limit=20,
-                session_id=None,
-                current_user=current_user
+                limit=20, session_id=None, current_user=current_user
             )
 
             assert result.success is True
@@ -321,17 +316,14 @@ class TestClearConversationHistory:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.rowcount = 5
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), \
-             patch("app.routers.conversations.logger"):
-
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             from app.routers.conversations import clear_conversation_history
 
             current_user = {"email": "test@example.com", "user_id": "test"}
 
-            result = await clear_conversation_history(
-                session_id=None,
-                current_user=current_user
-            )
+            result = await clear_conversation_history(session_id=None, current_user=current_user)
 
             assert result["success"] is True
             assert result["deleted_count"] == 5
@@ -356,9 +348,9 @@ class TestGetConversationStats:
             "last_conversation": datetime(2024, 1, 15, 12, 0, 0),
         }
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), \
-             patch("app.routers.conversations.logger"):
-
+        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
+            "app.routers.conversations.logger"
+        ):
             from app.routers.conversations import get_conversation_stats
 
             current_user = {"email": "test@example.com", "user_id": "test"}

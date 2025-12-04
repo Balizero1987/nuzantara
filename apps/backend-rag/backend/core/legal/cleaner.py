@@ -104,4 +104,3 @@ class LegalCleaner:
             cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE | re.MULTILINE)
 
         return cleaned.strip()
-

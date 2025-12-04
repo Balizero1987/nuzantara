@@ -5,6 +5,7 @@
  * Helper script to get JWT token for testing
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const https = require('https');
 const http = require('http');
 const { URL } = require('url');
@@ -13,17 +14,17 @@ async function login(email, pin, backendUrl, apiKey) {
   return new Promise((resolve, reject) => {
     // Try /api/auth/team-login endpoint (used by webapp)
     const url = new URL(`${backendUrl}/api/auth/team-login`);
-    
+
     const protocol = url.protocol === 'https:' ? https : http;
     const headers = {
       'Content-Type': 'application/json',
     };
-    
+
     // Add API key if available
     if (apiKey) {
       headers['X-API-Key'] = apiKey;
     }
-    
+
     const options = {
       hostname: url.hostname,
       port: url.port || (url.protocol === 'https:' ? 443 : 80),

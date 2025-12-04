@@ -168,4 +168,42 @@ describe('POST /api/auth/login', () => {
     expect(response.status).toBe(403);
     expect(data.error).toBe('Authentication service unavailable');
   });
+
+  it('should handle error without status code', async () => {
+    const backendError = {
+      body: { detail: 'Custom error' },
+    };
+    mockTeamLoginApiAuthTeamLoginPost.mockRejectedValue(backendError);
+
+    const request = new Request('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'test@example.com', pin: '123456' }),
+    });
+
+    const response = await POST(request);
+    const data: any = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(data.error).toBe('Custom error');
+  });
+
+  it('should handle error without body', async () => {
+    const backendError = {
+      status: 500,
+    };
+    mockTeamLoginApiAuthTeamLoginPost.mockRejectedValue(backendError);
+
+    const request = new Request('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'test@example.com', pin: '123456' }),
+    });
+
+    const response = await POST(request);
+    const data: any = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(data.error).toBe('Authentication service unavailable');
+  });
 });

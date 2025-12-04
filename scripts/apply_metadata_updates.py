@@ -8,7 +8,6 @@ Richiede conferma esplicita prima di procedere.
 
 import json
 import os
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -38,11 +37,13 @@ class SimpleQdrantClient:
                 return {
                     "ids": [str(p["id"]) for p in points],
                     "documents": [p.get("payload", {}).get("text", "") for p in points],
-                    "metadatas": [p.get("payload", {}).get("metadata", {}) for p in points],
+                    "metadatas": [
+                        p.get("payload", {}).get("metadata", {}) for p in points
+                    ],
                 }
             else:
                 return {"ids": [], "documents": [], "metadatas": []}
-        except Exception as e:
+        except Exception:
             return {"ids": [], "documents": [], "metadatas": []}
 
     def update_metadata(self, point_id: str, metadata: dict) -> bool:
@@ -63,9 +64,13 @@ class SimpleQdrantClient:
         try:
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points/payload"
             # Qdrant batch update format
-            points = [{"id": u["id"], "payload": {"metadata": u["metadata"]}} for u in updates]
+            points = [
+                {"id": u["id"], "payload": {"metadata": u["metadata"]}} for u in updates
+            ]
             payload = {"points": points}
-            response = requests.put(url, json=payload, params={"wait": "true"}, timeout=60)
+            response = requests.put(
+                url, json=payload, params={"wait": "true"}, timeout=60
+            )
 
             if response.status_code == 200:
                 return {"success": True, "updated": len(updates)}
@@ -80,9 +85,13 @@ def load_extraction_results():
     reports_dir = Path(__file__).parent / "qdrant_analysis_reports"
     import glob
 
-    extraction_files = sorted(glob.glob(str(reports_dir / "metadata_extraction_*.json")), reverse=True)
+    extraction_files = sorted(
+        glob.glob(str(reports_dir / "metadata_extraction_*.json")), reverse=True
+    )
     if not extraction_files:
-        print("❌ Nessun file di estrazione trovato. Esegui prima extract_and_update_metadata.py")
+        print(
+            "❌ Nessun file di estrazione trovato. Esegui prima extract_and_update_metadata.py"
+        )
         return None
 
     with open(extraction_files[0], "r") as f:
@@ -96,13 +105,15 @@ def apply_updates(collection_name: str, examples: list[dict], dry_run: bool = Tr
     updates = []
     for ex in examples:
         if ex.get("extracted_metadata"):
-            updates.append({
-                "id": ex["id"],
-                "metadata": ex["merged_metadata"],
-            })
+            updates.append(
+                {
+                    "id": ex["id"],
+                    "metadata": ex["merged_metadata"],
+                }
+            )
 
     if not updates:
-        print(f"   ⚠️ Nessun aggiornamento da applicare")
+        print("   ⚠️ Nessun aggiornamento da applicare")
         return {"updated": 0}
 
     if dry_run:
@@ -136,9 +147,13 @@ def main():
     print("\nCollezioni da aggiornare:")
     for coll_name, coll_data in extraction_results["collections"].items():
         if "error" not in coll_data:
-            print(f"  - {coll_name}: {coll_data.get('extracted_count', 0)} metadata estratti")
+            print(
+                f"  - {coll_name}: {coll_data.get('extracted_count', 0)} metadata estratti"
+            )
 
-    response = input("\nVuoi procedere con l'aggiornamento? (scrivi 'APPLICA' per confermare): ")
+    response = input(
+        "\nVuoi procedere con l'aggiornamento? (scrivi 'APPLICA' per confermare): "
+    )
     if response != "APPLICA":
         print("\n❌ Operazione annullata.")
         return
@@ -154,7 +169,9 @@ def main():
 
     # Chiedi conferma finale
     print("\n" + "=" * 80)
-    response2 = input("Confermi l'applicazione degli aggiornamenti? (scrivi 'CONFERMA'): ")
+    response2 = input(
+        "Confermi l'applicazione degli aggiornamenti? (scrivi 'CONFERMA'): "
+    )
     if response2 != "CONFERMA":
         print("\n❌ Operazione annullata.")
         return
@@ -183,4 +200,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

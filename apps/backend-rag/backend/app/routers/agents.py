@@ -58,15 +58,12 @@ async def get_current_user(
         )
 
     try:
-        from jose import jwt, JWTError
+        from jose import JWTError, jwt
+
         from app.core.config import settings
 
         token = credentials.credentials
-        payload = jwt.decode(
-            token,
-            settings.jwt_secret_key,
-            algorithms=["HS256"]
-        )
+        payload = jwt.decode(token, settings.jwt_secret_key, algorithms=["HS256"])
 
         user_email = payload.get("sub") or payload.get("email")
         if not user_email:
@@ -88,6 +85,7 @@ async def get_current_user(
     except Exception as e:
         logger.error(f"Authentication error: {e}")
         raise HTTPException(status_code=401, detail="Authentication failed") from e
+
 
 # Initialize agents that don't require dependencies
 journey_orchestrator = ClientJourneyOrchestrator()
@@ -174,8 +172,7 @@ class CreateJourneyRequest(BaseModel):
 
 @router.post("/journey/create")
 async def create_client_journey(
-    request: CreateJourneyRequest,
-    current_user: dict = Depends(get_current_user)
+    request: CreateJourneyRequest, current_user: dict = Depends(get_current_user)
 ):
     """
     🎯 AGENT 1: Client Journey Orchestrator
@@ -223,7 +220,7 @@ async def complete_journey_step(
     journey_id: str,
     step_id: str,
     notes: str | None = None,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Mark a journey step as completed"""
     try:
@@ -265,8 +262,7 @@ class AddComplianceItemRequest(BaseModel):
 
 @router.post("/compliance/track")
 async def add_compliance_tracking(
-    request: AddComplianceItemRequest,
-    current_user: dict = Depends(get_current_user)
+    request: AddComplianceItemRequest, current_user: dict = Depends(get_current_user)
 ):
     """
     ⚠️ AGENT 2: Proactive Compliance Monitor
@@ -309,7 +305,7 @@ async def get_compliance_alerts(
     client_id: str | None = None,
     severity: str | None = None,
     auto_notify: bool = False,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Get upcoming compliance alerts
@@ -526,7 +522,9 @@ async def extract_knowledge_graph(
 
 
 @router.get("/knowledge-graph/export")
-async def export_knowledge_graph(format: str = "neo4j", current_user: dict = Depends(get_current_user)):
+async def export_knowledge_graph(
+    format: str = "neo4j", current_user: dict = Depends(get_current_user)
+):
     """
     Export knowledge graph in Neo4j-ready format
 
@@ -557,7 +555,7 @@ async def export_knowledge_graph(format: str = "neo4j", current_user: dict = Dep
 async def run_auto_ingestion(
     sources: list[str] | None = None,
     force: bool = False,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """
     🤖 AGENT 4: Auto Ingestion Orchestrator

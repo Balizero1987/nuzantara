@@ -5,7 +5,7 @@ Tests for metadata filtering, query rewriting, and streaming improvements
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -181,11 +181,18 @@ async def test_query_rewriting_expands_followup_queries(mock_ai_client):
         {"role": "user", "content": "e per le tasse?"},
     ]
 
-    rewritten = await router._rewrite_query_for_search("e per le tasse?", conversation_history)
+    # Mock gemini_jaksel.generate_response
+    with patch("services.intelligent_router.gemini_jaksel.generate_response") as mock_generate:
+        mock_generate.return_value = "Quali sono le aliquote fiscali per le aziende in Indonesia?"
+        rewritten = await router._rewrite_query_for_search("e per le tasse?", conversation_history)
 
-    assert rewritten != "e per le tasse?"
-    assert len(rewritten) > len("e per le tasse?")
-    assert "fiscali" in rewritten.lower() or "tax" in rewritten.lower()
+        assert rewritten != "e per le tasse?"
+        assert len(rewritten) > len("e per le tasse?")
+        assert (
+            "fiscali" in rewritten.lower()
+            or "tax" in rewritten.lower()
+            or "aliquote" in rewritten.lower()
+        )
 
 
 @pytest.mark.asyncio
@@ -255,15 +262,11 @@ async def test_intelligent_router_yields_structured_chunks(mock_ai_client):
         tool_executor=None,
     )
 
-    # Mock stream to yield text chunks
-    async def mock_stream(
-        message, user_id, conversation_history, memory_context, identity_context, max_tokens
-    ):
+    # Mock gemini_jaksel.generate_response_stream to yield text chunks
+    async def mock_stream(message, history, context):
         yield "Hello"
         yield " world"
         yield "!"
-
-    mock_ai_client.stream = mock_stream
 
     # Mock RAG manager
     router.rag_manager = MagicMock()
@@ -292,26 +295,27 @@ async def test_intelligent_router_yields_structured_chunks(mock_ai_client):
     router.jaksel_caller = MagicMock()
     router.jaksel_caller.jaksel_users = []
 
-    chunks = []
-    async for chunk in router.stream_chat(
-        message="test",
-        user_id="test_user",
-        conversation_history=None,
-        memory=None,
-        collaborator=None,
-    ):
-        chunks.append(chunk)
+    with patch("services.intelligent_router.gemini_jaksel.generate_response_stream", mock_stream):
+        chunks = []
+        async for chunk in router.stream_chat(
+            message="test",
+            user_id="test_user",
+            conversation_history=None,
+            memory=None,
+            collaborator=None,
+        ):
+            chunks.append(chunk)
 
-    # Should yield structured dictionaries
-    assert len(chunks) > 0
-    # First chunk should be metadata
-    assert isinstance(chunks[0], dict)
-    assert chunks[0].get("type") == "metadata"
-    # Subsequent chunks should be tokens
-    token_chunks = [c for c in chunks[1:] if isinstance(c, dict) and c.get("type") == "token"]
-    assert len(token_chunks) > 0
-    # Last chunk should be done
-    assert chunks[-1].get("type") == "done"
+        # Should yield structured dictionaries
+        assert len(chunks) > 0
+        # First chunk should be metadata
+        assert isinstance(chunks[0], dict)
+        assert chunks[0].get("type") == "metadata"
+        # Subsequent chunks should be tokens
+        token_chunks = [c for c in chunks[1:] if isinstance(c, dict) and c.get("type") == "token"]
+        assert len(token_chunks) > 0
+        # Last chunk should be done
+        assert chunks[-1].get("type") == "done"
 
 
 @pytest.mark.asyncio

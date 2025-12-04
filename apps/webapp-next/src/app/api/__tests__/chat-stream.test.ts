@@ -73,7 +73,7 @@ class MockResponse {
 (global as any).Headers = MockHeaders;
 
 // Mock fetch globally
-const mockFetch = jest.fn() as unknown as jest.Mock<(...args: any[]) => Promise<any>>;
+const mockFetch = jest.fn<any, any>() as jest.MockedFunction<typeof fetch>;
 (global as any).fetch = mockFetch;
 
 // Import AFTER mocks
@@ -106,7 +106,7 @@ describe('POST /api/chat/stream', () => {
     mockFetch.mockResolvedValue({
       ok: true,
       body: mockStream,
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost:3000/api/chat/stream', {
       method: 'POST',
@@ -118,7 +118,7 @@ describe('POST /api/chat/stream', () => {
         message: 'Hello',
         conversation_history: [],
       }),
-    });
+    } as unknown as Response);
 
     const response = await POST(request);
 
@@ -132,7 +132,7 @@ describe('POST /api/chat/stream', () => {
     mockFetch.mockResolvedValue({
       ok: true,
       body: new ReadableStream(),
-    });
+    } as unknown as Response);
 
     const conversationHistory = [
       { role: 'user', content: 'Hi' },
@@ -172,7 +172,7 @@ describe('POST /api/chat/stream', () => {
       status: 503,
       statusText: 'Service Unavailable',
       text: async () => 'Backend service unavailable',
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost:3000/api/chat/stream', {
       method: 'POST',
@@ -191,7 +191,7 @@ describe('POST /api/chat/stream', () => {
   });
 
   it('should return 500 on network error', async () => {
-    mockFetch.mockRejectedValue(new Error('Network failure'));
+    mockFetch.mockRejectedValue(new Error('Network failure')) as any;
 
     const request = new Request('http://localhost:3000/api/chat/stream', {
       method: 'POST',
@@ -217,7 +217,7 @@ describe('POST /api/chat/stream', () => {
     mockFetch.mockResolvedValue({
       ok: true,
       body: new ReadableStream(),
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost:3000/api/chat/stream', {
       method: 'POST',
@@ -235,7 +235,7 @@ describe('POST /api/chat/stream', () => {
     mockFetch.mockResolvedValue({
       ok: true,
       body: new ReadableStream(),
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost:3000/api/chat/stream', {
       method: 'POST',
@@ -256,7 +256,7 @@ describe('POST /api/chat/stream', () => {
     mockFetch.mockResolvedValue({
       ok: true,
       body: new ReadableStream(),
-    });
+    } as unknown as Response);
 
     const request = new Request('http://localhost:3000/api/chat/stream', {
       method: 'POST',
@@ -284,5 +284,309 @@ describe('POST /api/chat/stream', () => {
 
     expect(response.status).toBe(500);
     expect((data as any).error).toBe('Server configuration error: API key not configured');
+  });
+
+  it('should include zantara_context session_id when provided', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: 'Hello',
+        zantara_context: {
+          session_id: 'test-session-123',
+        },
+      }),
+    });
+
+    await POST(request);
+
+    const [url] = mockFetch.mock.calls[0] as [string, any];
+    expect(url).toContain('session_id=test-session-123');
+  });
+
+  it('should include zantara_context CRM fields when provided', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: 'Hello',
+        zantara_context: {
+          session_id: 'test-session',
+          crm_client_id: 123,
+          crm_client_name: 'Test Client',
+          crm_status: 'active',
+        },
+      }),
+    });
+
+    await POST(request);
+
+    const [url] = mockFetch.mock.calls[0] as [string, any];
+    expect(url).toContain('crm_client_id=123');
+    expect(url).toContain('crm_client_name=Test'); // URL encoding can be + or %20
+    expect(url).toContain('crm_status=active');
+  });
+
+  it('should include active_practices when provided', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: 'Hello',
+        zantara_context: {
+          session_id: 'test-session',
+          active_practices: ['visa', 'company'],
+        },
+      }),
+    });
+
+    await POST(request);
+
+    const [url] = mockFetch.mock.calls[0] as [string, any];
+    expect(url).toContain('active_practices=');
+    expect(decodeURIComponent(url)).toContain('visa');
+    expect(decodeURIComponent(url)).toContain('company');
+  });
+
+  it('should include recent_memories when provided', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: 'Hello',
+        zantara_context: {
+          session_id: 'test-session',
+          recent_memories: ['Memory 1', 'Memory 2'],
+        },
+      }),
+    });
+
+    await POST(request);
+
+    const [url] = mockFetch.mock.calls[0] as [string, any];
+    expect(url).toContain('recent_memories=');
+  });
+
+  it('should include pending_alerts when greater than 0', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: 'Hello',
+        zantara_context: {
+          session_id: 'test-session',
+          pending_alerts: 5,
+        },
+      }),
+    });
+
+    await POST(request);
+
+    const [url] = mockFetch.mock.calls[0] as [string, any];
+    expect(url).toContain('pending_alerts=5');
+  });
+
+  it('should not include pending_alerts when 0', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: 'Hello',
+        zantara_context: {
+          session_id: 'test-session',
+          pending_alerts: 0,
+        },
+      }),
+    });
+
+    await POST(request);
+
+    const [url] = mockFetch.mock.calls[0] as [string, any];
+    expect(url).not.toContain('pending_alerts');
+  });
+
+  it('should not include active_practices when empty array', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: 'Hello',
+        zantara_context: {
+          session_id: 'test-session',
+          active_practices: [],
+        },
+      }),
+    });
+
+    await POST(request);
+
+    const [url] = mockFetch.mock.calls[0] as [string, any];
+    expect(url).not.toContain('active_practices');
+  });
+
+  it('should not include CRM fields when crm_client_id is missing', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: 'Hello',
+        zantara_context: {
+          session_id: 'test-session',
+          crm_client_name: 'Test Client',
+        },
+      }),
+    });
+
+    await POST(request);
+
+    const [url] = mockFetch.mock.calls[0] as [string, any];
+    expect(url).not.toContain('crm_client_id');
+    expect(url).not.toContain('crm_client_name');
+  });
+
+  it('should handle token extraction with Bearer prefix', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-token-123',
+      },
+      body: JSON.stringify({ message: 'Hello' }),
+    });
+
+    await POST(request);
+
+    const [, options] = mockFetch.mock.calls[0] as [string, any];
+    expect(options.headers['Authorization']).toBe('Bearer test-token-123');
+  });
+
+  it('should handle token extraction without Bearer prefix', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'test-token-123',
+      },
+      body: JSON.stringify({ message: 'Hello' }),
+    });
+
+    await POST(request);
+
+    const [, options] = mockFetch.mock.calls[0] as [string, any];
+    expect(options.headers['Authorization']).toBe('Bearer test-token-123');
+  });
+
+  it('should handle error response text parsing failure', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
+      text: async () => {
+        throw new Error('Failed to read');
+      },
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Hello' }),
+    });
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(data.error).toContain('Backend error');
+    expect(data.details).toBe('No error details');
+  });
+
+  it('should handle timeout abort', async () => {
+    const controller = new AbortController();
+    controller.abort();
+
+    mockFetch.mockRejectedValue(new Error('Aborted')) as any;
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Hello' }),
+    });
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(data.error).toBe('Failed to connect to AI service');
+  });
+
+  it('should clear timeout on successful response', async () => {
+    const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      body: new ReadableStream(),
+    } as unknown as Response);
+
+    const request = new Request('http://localhost:3000/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Hello' }),
+    });
+
+    await POST(request);
+
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+
+    clearTimeoutSpy.mockRestore();
   });
 });

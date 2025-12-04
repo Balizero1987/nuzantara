@@ -902,43 +902,8 @@ def test_memory_vector_health_stats_error(client):
 # ============================================================================
 
 
-@pytest.mark.skipif(
-    True,  # Skip in CI where Qdrant is not available
-    reason="Requires Qdrant service - test needs better mocking for CI",
-)
-def test_memory_workflow_complete(client, mock_qdrant_client, mock_embedder):
-    """Test complete workflow: init -> embed -> store -> search -> delete"""
-    # 1. Initialize
-    init_response = client.post("/api/memory/init", json={})
-    assert init_response.status_code == 200
-
-    # 2. Generate embedding
-    embed_response = client.post("/api/memory/embed", json={"text": "Test memory"})
-    assert embed_response.status_code == 200
-    embedding = embed_response.json()["embedding"]
-
-    # 3. Store memory
-    store_response = client.post(
-        "/api/memory/store",
-        json={
-            "id": "mem_test",
-            "document": "Test memory",
-            "embedding": embedding,
-            "metadata": {"userId": "test_user"},
-        },
-    )
-    assert store_response.status_code == 200
-
-    # 4. Search memories
-    search_response = client.post(
-        "/api/memory/search",
-        json={"query_embedding": embedding, "limit": 10},
-    )
-    assert search_response.status_code == 200
-
-    # 5. Delete memory
-    delete_response = client.delete("/api/memory/mem_test")
-    assert delete_response.status_code == 200
+# NOTE: This test has been moved to tests/integration/test_memory_vector_integration.py
+# It requires a real Qdrant instance and is better suited as an integration test.
 
 
 def test_concurrent_searches(client, mock_qdrant_client):

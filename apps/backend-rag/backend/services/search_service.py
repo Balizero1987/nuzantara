@@ -804,7 +804,7 @@ class SearchService:
 
             # Upsert
             cultural_db.upsert_documents(
-                chunks=[text], metadatas=[chroma_metadata], ids=[doc_id]
+                chunks=[text], embeddings=[embedding], metadatas=[chroma_metadata], ids=[doc_id]
             )
 
             logger.info(f"✅ Added cultural insight: {metadata.get('topic', 'unknown')}")
@@ -823,53 +823,54 @@ class SearchService:
     ) -> dict[str, Any]:
         """
         Direct search on a specific collection (e.g., for few-shot examples).
-        
+
         Args:
             query: Search query
             collection_name: Target collection
             limit: Max results
             filter: Optional filter
-            
+
         Returns:
             Search results
         """
         try:
             # Generate embedding
             query_embedding = self.embedder.generate_query_embedding(query)
-            
+
             # Get client (create ad-hoc if not in pre-defined list)
             if collection_name in self.collections:
                 client = self.collections[collection_name]
             else:
                 # Create ad-hoc client for new collections like conversation_examples
                 client = QdrantClient(
-                    qdrant_url=settings.qdrant_url, 
-                    collection_name=collection_name
+                    qdrant_url=settings.qdrant_url, collection_name=collection_name
                 )
-            
+
             # Search
-            raw_results = client.search(
-                query_embedding=query_embedding,
-                filter=filter,
-                limit=limit
-            )
-            
+            raw_results = client.search(query_embedding=query_embedding, filter=filter, limit=limit)
+
             # Format results to match standard SearchService output
             formatted_results = []
             for i in range(len(raw_results.get("documents", []))):
-                formatted_results.append({
-                    "id": raw_results["ids"][i] if i < len(raw_results.get("ids", [])) else None,
-                    "text": raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else "",
-                    "metadata": raw_results["metadatas"][i] if i < len(raw_results.get("metadatas", [])) else {},
-                    "score": raw_results["distances"][i] if i < len(raw_results.get("distances", [])) else 0.0
-                })
-            
-            return {
-                "query": query,
-                "results": formatted_results,
-                "collection": collection_name
-            }
-            
+                formatted_results.append(
+                    {
+                        "id": raw_results["ids"][i]
+                        if i < len(raw_results.get("ids", []))
+                        else None,
+                        "text": raw_results["documents"][i]
+                        if i < len(raw_results.get("documents", []))
+                        else "",
+                        "metadata": raw_results["metadatas"][i]
+                        if i < len(raw_results.get("metadatas", []))
+                        else {},
+                        "score": raw_results["distances"][i]
+                        if i < len(raw_results.get("distances", []))
+                        else 0.0,
+                    }
+                )
+
+            return {"query": query, "results": formatted_results, "collection": collection_name}
+
         except Exception as e:
             logger.error(f"Collection search failed: {e}")
             return {"results": [], "error": str(e)}

@@ -43,11 +43,15 @@ try:
     from opentelemetry.sdk.resources import Resource
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
     OTEL_AVAILABLE = True
 except ImportError:
     pass  # OpenTelemetry not installed - skip tracing
 
 from prometheus_fastapi_instrumentator import Instrumentator
+
+# --- Sanitizer for final safety net ---
+from utils.response_sanitizer import sanitize_zantara_response
 
 # --- App Dependencies & Config ---
 from app import dependencies
@@ -55,9 +59,6 @@ from app.core.config import settings
 from app.core.service_health import ServiceStatus, service_registry
 from app.modules.identity.router import router as identity_router
 from app.modules.knowledge.router import router as knowledge_router
-
-# --- Sanitizer for final safety net ---
-from utils.response_sanitizer import sanitize_zantara_response
 
 # --- Routers ---
 from app.routers import (
@@ -105,6 +106,7 @@ from services.health_monitor import HealthMonitor
 from services.intelligent_router import IntelligentRouter
 from services.memory_service_postgres import MemoryServicePostgres
 from services.personality_service import PersonalityService
+from services.proactive_compliance_monitor import ProactiveComplianceMonitor
 from services.query_router import QueryRouter
 from services.search_service import SearchService
 from services.tool_executor import ToolExecutor
@@ -663,10 +665,24 @@ async def initialize_services() -> None:
         service_registry.register("websocket", ServiceStatus.HEALTHY, critical=False)
         logger.info("✅ WebSocket Redis Listener started")
     except Exception as e:
-        service_registry.register(
-            "websocket", ServiceStatus.DEGRADED, error=str(e), critical=False
-        )
+        service_registry.register("websocket", ServiceStatus.DEGRADED, error=str(e), critical=False)
         logger.error(f"❌ Failed to start WebSocket Redis Listener: {e}")
+
+    # 11. Proactive Compliance Monitor (Business Value)
+    try:
+        logger.info("⚖️ Initializing Proactive Compliance Monitor...")
+        # In production, we would pass the notification service here
+        compliance_monitor = ProactiveComplianceMonitor(search_service=search_service)
+        await compliance_monitor.start()
+
+        app.state.compliance_monitor = compliance_monitor
+        service_registry.register("compliance", ServiceStatus.HEALTHY, critical=False)
+        logger.info("✅ Proactive Compliance Monitor: Active")
+    except Exception as e:
+        service_registry.register(
+            "compliance", ServiceStatus.DEGRADED, error=str(e), critical=False
+        )
+        logger.error(f"❌ Failed to initialize Compliance Monitor: {e}")
 
     app.state.services_initialized = True
     logger.info("✅ ZANTARA Services Initialization Complete.")
@@ -698,6 +714,14 @@ async def on_shutdown() -> None:
         await health_monitor.stop()
         logger.info("✅ Health Monitor stopped")
 
+    # Shutdown Compliance Monitor
+    compliance_monitor: ProactiveComplianceMonitor | None = getattr(
+        app.state, "compliance_monitor", None
+    )
+    if compliance_monitor:
+        await compliance_monitor.stop()
+        logger.info("✅ Compliance Monitor stopped")
+
     # Plugin System shutdown not needed (legacy plugins disabled)
 
     # Close HTTP clients
@@ -714,28 +738,7 @@ async def on_shutdown() -> None:
 # /healthz has been removed - use /health instead
 
 
-@app.get("/debug/config", tags=["debug"])
-async def debug_config():
-    """TEMPORARY: Debug endpoint to check loaded configuration"""
-    import os
-    from datetime import datetime, timezone
-    from app.core.config import settings
-
-    return {
-        "api_keys_count": len(settings.api_keys.split(",")) if settings.api_keys else 0,
-        "api_keys_preview": [
-            f"{key[:15]}...{key[-10:]}" for key in settings.api_keys.split(",") if key.strip()
-        ] if settings.api_keys else [],
-        "api_auth_enabled": settings.api_auth_enabled,
-        "jwt_secret_set": bool(settings.jwt_secret_key),
-        "jwt_secret_preview": f"{settings.jwt_secret_key[:10]}..." if settings.jwt_secret_key else None,
-        "environment": settings.environment,
-        "env_vars_present": {
-            "API_KEYS": "API_KEYS" in os.environ,
-            "JWT_SECRET": "JWT_SECRET" in os.environ or "JWT_SECRET_KEY" in os.environ,
-        },
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
+# /debug/config endpoint removed for security in production
 
 
 @app.get("/", tags=["root"])
@@ -861,7 +864,9 @@ async def bali_zero_chat_stream(
                         yield f"data: {json.dumps({'type': 'metadata', 'data': chunk_data}, ensure_ascii=False)}\n\n"
                     elif chunk_type == "token":
                         # FINAL SAFETY NET: Sanitize token data before yielding
-                        sanitized_data = sanitize_zantara_response(str(chunk_data)) if chunk_data else chunk_data
+                        sanitized_data = (
+                            sanitize_zantara_response(str(chunk_data)) if chunk_data else chunk_data
+                        )
                         yield f"data: {json.dumps({'type': 'token', 'data': sanitized_data}, ensure_ascii=False)}\n\n"
                     elif chunk_type == "done":
                         yield f"data: {json.dumps({'type': 'done', 'data': chunk_data}, ensure_ascii=False)}\n\n"

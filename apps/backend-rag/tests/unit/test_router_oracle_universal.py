@@ -275,6 +275,7 @@ class TestGoogleServices:
 class TestDatabaseManager:
     """Test DatabaseManager class"""
 
+    @pytest.mark.asyncio
     @patch("app.routers.oracle_universal.psycopg2")
     async def test_get_user_profile_success(self, mock_psycopg2, sample_user_profile):
         """Test successful user profile retrieval"""
@@ -294,6 +295,7 @@ class TestDatabaseManager:
         mock_cursor.execute.assert_called_once()
 
     @patch("app.routers.oracle_universal.psycopg2")
+    @pytest.mark.asyncio
     async def test_get_user_profile_not_found(self, mock_psycopg2):
         """Test user profile not found"""
         from app.routers.oracle_universal import DatabaseManager
@@ -310,6 +312,7 @@ class TestDatabaseManager:
         assert result is None
 
     @patch("app.routers.oracle_universal.psycopg2")
+    @pytest.mark.asyncio
     async def test_get_user_profile_with_json_parsing(self, mock_psycopg2):
         """Test user profile with JSON string meta_json"""
         from app.routers.oracle_universal import DatabaseManager
@@ -334,6 +337,7 @@ class TestDatabaseManager:
         assert result["meta_json"]["notes"] == "Test"
 
     @patch("app.routers.oracle_universal.psycopg2")
+    @pytest.mark.asyncio
     async def test_get_user_profile_error(self, mock_psycopg2, caplog):
         """Test user profile retrieval error"""
         from app.routers.oracle_universal import DatabaseManager
@@ -347,6 +351,7 @@ class TestDatabaseManager:
         assert "Error retrieving user profile" in caplog.text
 
     @patch("app.routers.oracle_universal.psycopg2")
+    @pytest.mark.asyncio
     async def test_store_query_analytics_success(self, mock_psycopg2):
         """Test successful analytics storage"""
         from app.routers.oracle_universal import DatabaseManager
@@ -376,6 +381,7 @@ class TestDatabaseManager:
         mock_conn.commit.assert_called_once()
 
     @patch("app.routers.oracle_universal.psycopg2")
+    @pytest.mark.asyncio
     async def test_store_query_analytics_error(self, mock_psycopg2, caplog):
         """Test analytics storage error handling"""
         from app.routers.oracle_universal import DatabaseManager
@@ -388,6 +394,7 @@ class TestDatabaseManager:
         assert "Error storing query analytics" in caplog.text
 
     @patch("app.routers.oracle_universal.psycopg2")
+    @pytest.mark.asyncio
     async def test_store_feedback_success(self, mock_psycopg2):
         """Test successful feedback storage"""
         from app.routers.oracle_universal import DatabaseManager
@@ -417,6 +424,7 @@ class TestDatabaseManager:
         mock_conn.commit.assert_called_once()
 
     @patch("app.routers.oracle_universal.psycopg2")
+    @pytest.mark.asyncio
     async def test_store_feedback_error(self, mock_psycopg2, caplog):
         """Test feedback storage error handling"""
         from app.routers.oracle_universal import DatabaseManager
@@ -752,6 +760,7 @@ class TestUtilityFunctions:
 
     @patch("app.routers.oracle_universal.google_services")
     @patch("app.routers.oracle_universal.time")
+    @pytest.mark.asyncio
     async def test_reason_with_gemini_success(self, mock_time, mock_google_services):
         """Test successful Gemini reasoning"""
         from app.routers.oracle_universal import reason_with_gemini
@@ -774,6 +783,7 @@ class TestUtilityFunctions:
 
     @patch("app.routers.oracle_universal.google_services")
     @patch("app.routers.oracle_universal.time")
+    @pytest.mark.asyncio
     async def test_reason_with_gemini_full_docs(self, mock_time, mock_google_services):
         """Test Gemini reasoning with full documents"""
         from app.routers.oracle_universal import reason_with_gemini
@@ -794,6 +804,7 @@ class TestUtilityFunctions:
 
     @patch("app.routers.oracle_universal.google_services")
     @patch("app.routers.oracle_universal.time")
+    @pytest.mark.asyncio
     async def test_reason_with_gemini_error(self, mock_time, mock_google_services):
         """Test Gemini reasoning error handling"""
         from app.routers.oracle_universal import reason_with_gemini
@@ -822,9 +833,7 @@ class TestAPIEndpoints:
             "app.routers.oracle_universal.google_services"
         ) as mock_google, patch(
             "app.routers.oracle_universal.EmbeddingsGenerator"
-        ) as mock_embedder, patch(
-            "app.routers.oracle_universal.smart_oracle"
-        ) as mock_smart_oracle, patch("app.routers.oracle_universal.jaksel_caller") as mock_jaksel:
+        ) as mock_embedder, patch("app.routers.oracle_universal.smart_oracle") as mock_smart_oracle:
             # Setup mock returns
             mock_db.get_user_profile = AsyncMock(return_value=None)
             mock_db.store_query_analytics = AsyncMock()
@@ -836,16 +845,11 @@ class TestAPIEndpoints:
 
             mock_smart_oracle.return_value = "Smart oracle response"
 
-            mock_jaksel.call_jaksel_direct = AsyncMock(
-                return_value={"success": True, "response": "Jaksel response"}
-            )
-
             yield {
                 "db": mock_db,
                 "google": mock_google,
                 "embedder": mock_embedder,
                 "smart_oracle": mock_smart_oracle,
-                "jaksel": mock_jaksel,
             }
 
     @pytest.mark.asyncio
@@ -987,14 +991,15 @@ class TestAPIEndpoints:
 
         sample_user_profile["email"] = "anton@balizero.com"
         mock_dependencies["db"].get_user_profile.return_value = sample_user_profile
-        mock_dependencies["jaksel"].call_jaksel_direct = AsyncMock(
-            return_value={
-                "success": True,
-                "response": "Jaksel style response",
-                "user_name": "Anton",
-                "language": "id",
-            }
-        )
+        # NOTE: jaksel_caller was removed from the module, test disabled
+        # mock_dependencies["jaksel"].call_jaksel_direct = AsyncMock(
+        #     return_value={
+        #         "success": True,
+        #         "response": "Jaksel style response",
+        #         "user_name": "Anton",
+        #         "language": "id",
+        #     }
+        # )
 
         mock_service = MagicMock()
         mock_router = MagicMock()
