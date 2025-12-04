@@ -5,7 +5,7 @@
 # ========================================
 # Stage 1: Build Stage
 # ========================================
-FROM python:3.11-slim as builder
+FROM python:3.14-slim as builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -29,7 +29,7 @@ RUN pip install --no-cache-dir --user -r requirements.txt \
 # ========================================
 # Stage 2: Runtime Stage
 # ========================================
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 # Install only runtime dependencies (curl for healthcheck)
 RUN apt-get update && apt-get install -y \
