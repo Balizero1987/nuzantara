@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Any
 
 from app.core.config import settings
+from backend.prompts.jaksel_builder import build_jaksel_system_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -481,17 +482,22 @@ CONTEXT USAGE INSTRUCTIONS:
         """
         logger.info(f"🌊 [ZantaraAI] Starting stream for user {user_id}")
 
-        # Build system prompt with all contexts
-        system = self._build_system_prompt(
+        # ✨ JAKSEL PERSONALITY: Build system prompt with few-shot examples
+        system, few_shot_messages = build_jaksel_system_prompt(
+            user_message=message,
             memory_context=memory_context,
             identity_context=identity_context,
+            include_few_shot=True,
+            num_examples=6
         )
+        logger.info(f"🎭 [ZantaraAI] Jaksel personality enabled with {len(few_shot_messages)//2} few-shot examples")
 
         # DRY RUN LOGGING: Log full prompt assembly for debugging
         logger.debug("=" * 80)
-        logger.debug("🔍 [DRY RUN] Full Prompt Assembly for stream")
+        logger.debug("🔍 [DRY RUN] Full Prompt Assembly for stream (JAKSEL MODE)")
         logger.debug("=" * 80)
         logger.debug(f"System Prompt ({len(system)} chars):\n{system}")
+        logger.debug(f"Few-shot examples: {len(few_shot_messages)//2} pairs")
         logger.debug(f"User Message: {message}")
         if conversation_history:
             logger.debug(f"Conversation History ({len(conversation_history)} messages):")
@@ -530,8 +536,19 @@ CONTEXT USAGE INSTRUCTIONS:
 
                     client_with_sys = genai.GenerativeModel(self.model, system_instruction=system)
 
-                    # Build history from conversation_history
+                    # Build history with few-shot examples FIRST, then conversation history
                     gemini_history = []
+
+                    # ✨ JAKSEL: Prepend few-shot examples to history
+                    for msg in few_shot_messages:
+                        role = msg.get("role")
+                        content = msg.get("content", "")
+                        if role == "user":
+                            gemini_history.append({"role": "user", "parts": [content]})
+                        elif role == "assistant":
+                            gemini_history.append({"role": "model", "parts": [content]})
+
+                    # Then add actual conversation history
                     if conversation_history:
                         for msg in conversation_history:
                             role = msg.get("role")
