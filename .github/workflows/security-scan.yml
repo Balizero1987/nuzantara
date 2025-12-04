@@ -208,6 +208,65 @@ jobs:
             echo "✅ No critical security issues detected"
           fi
 
+  container-security:
+    name: Container Image Security Scan
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - name: backend
+            dockerfile: apps/backend-rag/Dockerfile
+            context: apps/backend-rag
+          - name: webapp
+            dockerfile: apps/webapp-next/Dockerfile
+            context: apps/webapp-next
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t nuzantara-${{ matrix.name }}:scan -f ${{ matrix.dockerfile }} ${{ matrix.context }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'nuzantara-${{ matrix.name }}:scan'
+          format: 'sarif'
+          output: 'trivy-${{ matrix.name }}-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Upload Trivy scan results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-${{ matrix.name }}-results.sarif'
+          category: 'container-${{ matrix.name }}'
+
+      - name: Run Trivy (table output)
+        id: trivy_table
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'nuzantara-${{ matrix.name }}:scan'
+          format: 'table'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          ignore-unfixed: true
+          exit-code: '0'
+
+      - name: Upload Trivy report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-report-${{ matrix.name }}
+          path: 'trivy-${{ matrix.name }}-results.sarif'
+          retention-days: 30
+
   frontend-security:
     name: Frontend Security Analysis
     runs-on: ubuntu-latest
