@@ -26,8 +26,7 @@ The project is a **Monorepo** managed with `npm workspaces` and Docker.
 | :--- | :--- | :--- | :--- | :--- |
 | **Backend RAG** | `apps/backend-rag` | **Python 3.11+** (FastAPI) | ✅ **PRIMARY** | The central intelligence engine. Handles RAG, AI orchestration, Vector DB (Qdrant), and business logic. |
 | **Frontend** | `apps/webapp-next` | **Next.js 16** (React 19) | ✅ **PRIMARY** | The modern user interface. Uses Tailwind CSS and TypeScript. |
-| **Memory Service** | `apps/memory-service` | **Node.js** (TypeScript) | ✅ **ACTIVE** | Handles session persistence and long-term memory. |
-| **Legacy Backend** | `apps/backend-ts` | Node.js (Express) | ⚠️ **DEPRECATED** | Legacy system being migrated to Python. Touch only if necessary. |
+
 
 ### 2.2 Infrastructure
 - **Database:** PostgreSQL (Relational), Qdrant (Vector), Redis (Cache/Queue).
