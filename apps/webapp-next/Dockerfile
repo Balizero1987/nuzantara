@@ -9,7 +9,7 @@ COPY package.json pnpm-lock.yaml ./
 
 # Install pnpm and dependencies
 RUN npm install -g pnpm
-RUN pnpm install --no-frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 # Copy source code
@@ -32,13 +32,14 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Install dependencies for production
+RUN apk add --no-cache curl
 RUN npm install -g pnpm
 
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
 # Install only production dependencies
-RUN pnpm install --no-frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy built assets
 COPY --from=builder /app/.next/standalone ./
