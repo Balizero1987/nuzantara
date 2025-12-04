@@ -300,6 +300,7 @@ describe('chatAPI', () => {
     });
 
     it('should not build context when enrichContext is disabled', async () => {
+      // @ts-ignore
       const mockBuildContext = jest.fn();
       jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
@@ -370,6 +371,7 @@ describe('chatAPI', () => {
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
+          // @ts-ignore
           buildContext: jest.fn().mockResolvedValue({
             session: {
               sessionId: 'test-session',
@@ -473,11 +475,13 @@ describe('chatAPI', () => {
     });
 
     it('should post-process turn when saveConversation is enabled', async () => {
+      // @ts-ignore
       const mockPostProcess = jest.fn().mockResolvedValue();
       jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
+          // @ts-ignore
           postProcessTurn: mockPostProcess,
         },
       }));
@@ -511,11 +515,13 @@ describe('chatAPI', () => {
     });
 
     it('should not post-process when saveConversation is disabled', async () => {
+      // @ts-ignore
       const mockPostProcess = jest.fn();
       jest.resetModules();
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
+          // @ts-ignore
           postProcessTurn: mockPostProcess,
         },
       }));
@@ -654,6 +660,7 @@ describe('chatAPI', () => {
 
   describe('getContext', () => {
     it('should get context successfully', async () => {
+      // @ts-ignore
       const mockBuildContext = jest.fn().mockResolvedValue({
         session: {
           sessionId: 'test',
@@ -688,6 +695,7 @@ describe('chatAPI', () => {
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
+          // @ts-ignore
           buildContext: jest.fn().mockRejectedValue(new Error('Context error')),
         },
       }));
@@ -708,6 +716,7 @@ describe('chatAPI', () => {
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
+          // @ts-ignore
           saveConversation: jest.fn().mockResolvedValue({
             success: true,
             conversationId: 123,
@@ -732,6 +741,7 @@ describe('chatAPI', () => {
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
+          // @ts-ignore
           saveConversation: jest.fn().mockRejectedValue(new Error('Save error')),
         },
       }));
@@ -751,6 +761,7 @@ describe('chatAPI', () => {
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
+          // @ts-ignore
           loadConversationHistory: jest.fn().mockResolvedValue([
             { role: 'user', content: 'Hello', timestamp: '2024-01-01' },
             { role: 'assistant', content: 'Hi!', timestamp: '2024-01-01' },
@@ -771,6 +782,7 @@ describe('chatAPI', () => {
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
+          // @ts-ignore
           loadConversationHistory: jest.fn().mockRejectedValue(new Error('Load error')),
         },
       }));
@@ -791,6 +803,7 @@ describe('chatAPI', () => {
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
+          // @ts-ignore
           clearConversationHistory: jest.fn().mockResolvedValue(true),
           clearSession: clearSessionMock,
         },
@@ -810,6 +823,7 @@ describe('chatAPI', () => {
       jest.doMock('../zantara-integration', () => ({
         zantaraAPI: {
           ...jest.requireActual('../zantara-integration').zantaraAPI,
+          // @ts-ignore
           clearConversationHistory: jest.fn().mockRejectedValue(new Error('Clear error')),
         },
       }));
