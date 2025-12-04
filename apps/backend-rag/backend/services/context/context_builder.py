@@ -508,14 +508,21 @@ ISTRUZIONI OBBLIGATORIE PER LA KNOWLEDGE BASE:
             contexts.append(synthetic_context)
 
         # 8. Backend services context (what ZANTARA can do) - include if we have other contexts
-        # Only include if there are other contexts to avoid breaking existing behavior
+        # Only include if we have other contexts to avoid breaking existing behavior
         if contexts:  # Only add if we have other contexts
             if backend_services_context:
-                # Insert after identity/team but before RAG for better flow
-                contexts.insert(min(2, len(contexts)), backend_services_context)
+                # Insert after team context (position 1 or 2 depending on identity_context)
+                # This ensures team context appears first when present
+                insert_pos = 1 if identity_context else 0
+                if team_context:
+                    insert_pos = 2 if identity_context else 1
+                contexts.insert(min(insert_pos, len(contexts)), backend_services_context)
             else:
                 # Insert default backend services context
-                contexts.insert(min(2, len(contexts)), self.build_backend_services_context())
+                insert_pos = 1 if identity_context else 0
+                if team_context:
+                    insert_pos = 2 if identity_context else 1
+                contexts.insert(min(insert_pos, len(contexts)), self.build_backend_services_context())
 
         if not contexts:
             return None
