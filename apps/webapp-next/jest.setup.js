@@ -33,6 +33,13 @@ jest.mock('next/link', () => {
   return MockLink;
 });
 
+// Mock react-markdown and remark-gfm to avoid ESM issues
+jest.mock('react-markdown', () => (props) => {
+  return <div data-testid="react-markdown">{props.children}</div>;
+});
+
+jest.mock('remark-gfm', () => () => {});
+
 // Setup localStorage mock
 const localStorageMock = (() => {
   let store = {};
