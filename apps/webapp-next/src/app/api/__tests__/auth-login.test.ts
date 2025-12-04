@@ -7,7 +7,7 @@
  * Tests for /api/auth/login route handler
  */
 
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+import { createPublicClient } from '@/lib/api/client';
 
 // Mock Request for node environment - MUST be before imports
 class MockRequest {
@@ -34,25 +34,23 @@ class MockRequest {
 // Mock global Request
 (global as any).Request = MockRequest;
 
-// Mock the client
-const mockTeamLoginApiAuthTeamLoginPost = jest.fn();
-
 // Mock NextResponse
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: (body: any, init?: { status?: number }) => ({
-      json: async () => body,
-      status: init?.status || 200,
-    }),
-  },
-}));
-
-jest.mock('../../../lib/api/client', () => ({
-  createPublicClient: () => ({
-    identity: {
-      teamLoginApiAuthTeamLoginPost: mockTeamLoginApiAuthTeamLoginPost,
+jest.mock('next/server', () => {
+  return {
+    NextResponse: {
+      json: (body: any, init?: { status?: number }) => {
+        return {
+          json: async () => body,
+          status: init?.status || 200,
+        };
+      },
     },
-  }),
+  };
+});
+
+// Mock client
+jest.mock('@/lib/api/client', () => ({
+  createPublicClient: jest.fn(),
   createServerClient: jest.fn(),
 }));
 
@@ -60,8 +58,18 @@ jest.mock('../../../lib/api/client', () => ({
 import { POST } from '../auth/login/route';
 
 describe('POST /api/auth/login', () => {
+  let mockTeamLoginApiAuthTeamLoginPost: any;
+
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Setup mock implementation
+    mockTeamLoginApiAuthTeamLoginPost = jest.fn();
+    (createPublicClient as jest.Mock).mockReturnValue({
+      identity: {
+        teamLoginApiAuthTeamLoginPost: mockTeamLoginApiAuthTeamLoginPost,
+      },
+    });
   });
 
   it('should return token and user on successful login', async () => {
@@ -69,7 +77,7 @@ describe('POST /api/auth/login', () => {
       token: 'jwt-token-123',
       user: { id: '1', email: 'test@example.com', name: 'Test User' },
     };
-    (mockTeamLoginApiAuthTeamLoginPost as any).mockResolvedValue(mockResponse);
+    mockTeamLoginApiAuthTeamLoginPost.mockResolvedValue(mockResponse);
 
     const request = new Request('http://localhost:3000/api/auth/login', {
       method: 'POST',
@@ -87,7 +95,7 @@ describe('POST /api/auth/login', () => {
   });
 
   it('should call backend with correct credentials', async () => {
-    (mockTeamLoginApiAuthTeamLoginPost as any).mockResolvedValue({
+    mockTeamLoginApiAuthTeamLoginPost.mockResolvedValue({
       token: 'token',
       user: {},
     });
@@ -106,7 +114,7 @@ describe('POST /api/auth/login', () => {
   });
 
   it('should return 500 on backend error without status', async () => {
-    (mockTeamLoginApiAuthTeamLoginPost as any).mockRejectedValue(new Error('Network error'));
+    mockTeamLoginApiAuthTeamLoginPost.mockRejectedValue(new Error('Network error'));
 
     const request = new Request('http://localhost:3000/api/auth/login', {
       method: 'POST',
@@ -126,7 +134,7 @@ describe('POST /api/auth/login', () => {
       status: 401,
       body: { detail: 'Invalid credentials' },
     };
-    (mockTeamLoginApiAuthTeamLoginPost as any).mockRejectedValue(backendError);
+    mockTeamLoginApiAuthTeamLoginPost.mockRejectedValue(backendError);
 
     const request = new Request('http://localhost:3000/api/auth/login', {
       method: 'POST',
@@ -146,7 +154,7 @@ describe('POST /api/auth/login', () => {
       status: 403,
       body: {},
     };
-    (mockTeamLoginApiAuthTeamLoginPost as any).mockRejectedValue(backendError);
+    mockTeamLoginApiAuthTeamLoginPost.mockRejectedValue(backendError);
 
     const request = new Request('http://localhost:3000/api/auth/login', {
       method: 'POST',

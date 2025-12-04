@@ -1,13 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @jest-environment node
  */
 
-/**
- * Tests for /api/productivity/calendar/schedule route handler
- */
-
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+import { POST } from '../productivity/calendar/schedule/route';
 
 // Mock Request for node environment
 class MockRequest {
@@ -32,20 +27,11 @@ class MockRequest {
 }
 
 // Mock globals
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).Request = MockRequest;
 
 // Mock createServerClient
 const mockScheduleMeeting = jest.fn();
-
-// Mock NextResponse
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: (body: any, init?: { status?: number }) => ({
-      json: async () => body,
-      status: init?.status || 200,
-    }),
-  },
-}));
 
 jest.mock('../../../lib/api/client', () => ({
   createServerClient: () => ({
@@ -54,9 +40,6 @@ jest.mock('../../../lib/api/client', () => ({
     },
   }),
 }));
-
-// Import AFTER mocks
-import { POST } from '../productivity/calendar/schedule/route';
 
 describe('POST /api/productivity/calendar/schedule', () => {
   beforeEach(() => {
@@ -71,7 +54,7 @@ describe('POST /api/productivity/calendar/schedule', () => {
       duration_minutes: 60,
       attendees: ['user@example.com'],
     };
-    (mockScheduleMeeting as any).mockResolvedValue(mockResponse);
+    mockScheduleMeeting.mockResolvedValue(mockResponse);
 
     const request = new Request('http://localhost:3000/api/productivity/calendar/schedule', {
       method: 'POST',
@@ -88,6 +71,7 @@ describe('POST /api/productivity/calendar/schedule', () => {
     });
 
     const response = await POST(request);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await response.json();
 
     expect(data.status).toBe('success');
@@ -95,7 +79,7 @@ describe('POST /api/productivity/calendar/schedule', () => {
   });
 
   it('should call backend with correct parameters', async () => {
-    (mockScheduleMeeting as any).mockResolvedValue({ id: '456' });
+    mockScheduleMeeting.mockResolvedValue({ id: '456' });
 
     const eventData = {
       title: 'Meeting',
@@ -126,7 +110,7 @@ describe('POST /api/productivity/calendar/schedule', () => {
   });
 
   it('should use default values for optional parameters', async () => {
-    (mockScheduleMeeting as any).mockResolvedValue({ id: '789' });
+    mockScheduleMeeting.mockResolvedValue({ id: '789' });
 
     const request = new Request('http://localhost:3000/api/productivity/calendar/schedule', {
       method: 'POST',
@@ -158,7 +142,7 @@ describe('POST /api/productivity/calendar/schedule', () => {
       status: 400,
       body: { detail: 'Invalid event data' },
     };
-    (mockScheduleMeeting as any).mockRejectedValue(error);
+    mockScheduleMeeting.mockRejectedValue(error);
 
     const request = new Request('http://localhost:3000/api/productivity/calendar/schedule', {
       method: 'POST',
@@ -173,6 +157,7 @@ describe('POST /api/productivity/calendar/schedule', () => {
     });
 
     const response = await POST(request);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await response.json();
 
     expect(response.status).toBe(400);
@@ -180,7 +165,7 @@ describe('POST /api/productivity/calendar/schedule', () => {
   });
 
   it('should handle generic errors', async () => {
-    (mockScheduleMeeting as any).mockRejectedValue(new Error('Network failure'));
+    mockScheduleMeeting.mockRejectedValue(new Error('Network failure'));
 
     const request = new Request('http://localhost:3000/api/productivity/calendar/schedule', {
       method: 'POST',
@@ -195,6 +180,7 @@ describe('POST /api/productivity/calendar/schedule', () => {
     });
 
     const response = await POST(request);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await response.json();
 
     expect(response.status).toBe(500);
@@ -202,7 +188,7 @@ describe('POST /api/productivity/calendar/schedule', () => {
   });
 
   it('should handle missing Authorization header', async () => {
-    (mockScheduleMeeting as any).mockResolvedValue({ id: '123' });
+    mockScheduleMeeting.mockResolvedValue({ id: '123' });
 
     const request = new Request('http://localhost:3000/api/productivity/calendar/schedule', {
       method: 'POST',
@@ -216,6 +202,7 @@ describe('POST /api/productivity/calendar/schedule', () => {
     });
 
     const response = await POST(request);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await response.json();
 
     expect(data.status).toBe('success');

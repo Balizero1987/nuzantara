@@ -16,11 +16,11 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy requirements first (better caching)
+# Copy requirements
 COPY requirements.txt .
 
-# Install Python dependencies WITHOUT playwright (not needed at runtime)
-# Skip Playwright browsers download to save ~500MB
+# Install Python dependencies (skip Playwright browsers to save ~500MB)
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 RUN pip install --no-cache-dir --user -r requirements.txt \
     && find /root/.local -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true \
     && find /root/.local -type f -name "*.pyc" -delete \
@@ -56,7 +56,7 @@ ENV PYTHONPATH=/app:/app/backend
 ENV PATH=/home/nuzantara/.local/bin:$PATH
 # Prevent Python from writing .pyc files (forces fresh module loading)
 ENV PYTHONDONTWRITEBYTECODE=1
-# Skip Playwright browser installation
+# Skip Playwright browser installation at runtime
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 # Aggressive cleanup to reduce image size

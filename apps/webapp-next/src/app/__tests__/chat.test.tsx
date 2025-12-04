@@ -33,6 +33,16 @@ jest.mock('@/lib/api/auth', () => ({
   },
 }))
 
+// Mock zantaraAPI
+jest.mock('@/lib/api/zantara-integration', () => ({
+  zantaraAPI: {
+    initSession: jest.fn().mockResolvedValue({ sessionId: 'test-session' }),
+    loadConversationHistory: jest.fn().mockResolvedValue([]),
+    getCRMContext: jest.fn().mockResolvedValue(null),
+    clearHistory: jest.fn(),
+  },
+}))
+
 // Mock AuthContext
 const mockLogin = jest.fn()
 const mockLogout = jest.fn()
@@ -48,6 +58,7 @@ const mockStreamChat = jest.fn()
 jest.mock('@/lib/api/chat', () => ({
   chatAPI: {
     streamChat: (...args: any[]) => mockStreamChat(...args),
+    clearHistory: jest.fn(),
   },
 }))
 
@@ -134,21 +145,31 @@ describe('ChatPage', () => {
     expect(screen.getByText('New Chat')).toBeInTheDocument()
   })
 
-  it('should start new conversation when New Chat is clicked', () => {
-    localStorage.setItem('zantara_conversation', JSON.stringify([
+  it('should start new conversation when New Chat is clicked', async () => {
+    const mockHistory = [
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi!' },
-    ]))
+    ]
+    const { zantaraAPI } = require('@/lib/api/zantara-integration')
+    zantaraAPI.loadConversationHistory.mockResolvedValue(mockHistory)
 
     render(<ChatPage />)
 
-    expect(screen.getByText('Hello')).toBeInTheDocument()
+    // Wait for history to load
+    await waitFor(() => {
+      expect(screen.getByText('Hello')).toBeInTheDocument()
+    })
 
     fireEvent.click(screen.getByLabelText('Menu'))
     fireEvent.click(screen.getByText('New Chat'))
 
     expect(screen.getByText(/Selamat datang di ZANTARA/)).toBeInTheDocument()
-    expect(screen.queryByText('Chat History')).not.toBeInTheDocument()
+
+    // Sidebar should be closed (wait for async state update)
+    await waitFor(() => {
+      const sidebar = screen.getByText('Chat History').closest('aside')
+      expect(sidebar).toHaveClass('-translate-x-full')
+    })
   })
 
   it('should handle message submission', async () => {
@@ -271,17 +292,20 @@ describe('ChatPage', () => {
     })
   })
 
-  it('should load conversation from localStorage', () => {
-    const savedMessages = [
+  it('should load conversation from backend', async () => {
+    const mockHistory = [
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi there!' },
     ]
-    localStorage.setItem('zantara_conversation', JSON.stringify(savedMessages))
+    const { zantaraAPI } = require('@/lib/api/zantara-integration')
+    zantaraAPI.loadConversationHistory.mockResolvedValue(mockHistory)
 
     render(<ChatPage />)
 
-    expect(screen.getByText('Hello')).toBeInTheDocument()
-    expect(screen.getByText('Hi there!')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('Hello')).toBeInTheDocument()
+      expect(screen.getByText('Hi there!')).toBeInTheDocument()
+    })
   })
 
   it('should handle check in/out', () => {
@@ -299,17 +323,17 @@ describe('ChatPage', () => {
     const imageButton = screen.getByLabelText('Generate image')
     fireEvent.click(imageButton)
 
-    expect(screen.getByText('Generate Magical Image')).toBeInTheDocument()
+    expect(screen.getByText('Generate Image')).toBeInTheDocument()
   })
 
   it('should close image modal on cancel', () => {
     render(<ChatPage />)
 
     fireEvent.click(screen.getByLabelText('Generate image'))
-    expect(screen.getByText('Generate Magical Image')).toBeInTheDocument()
+    expect(screen.getByText('Generate Image')).toBeInTheDocument()
 
     fireEvent.click(screen.getByText('Cancel'))
-    expect(screen.queryByText('Generate Magical Image')).not.toBeInTheDocument()
+    expect(screen.queryByText('Generate Image')).not.toBeInTheDocument()
   })
 
   it('should handle file upload', () => {
@@ -346,7 +370,8 @@ describe('ChatPage', () => {
 
     fireEvent.click(screen.getByText('Tourist visa for Bali'))
 
-    expect(screen.queryByText('Chat History')).not.toBeInTheDocument()
+    const sidebar = screen.getByText('Chat History').closest('aside')
+    expect(sidebar).toHaveClass('-translate-x-full')
   })
 
   it('should close sidebar when backdrop is clicked', () => {
@@ -354,19 +379,14 @@ describe('ChatPage', () => {
 
     fireEvent.click(screen.getByLabelText('Menu'))
 
-    const backdrop = document.querySelector('.fixed.inset-0.bg-black\\/60')
+    // Updated selector to match ChatSidebar.tsx (bg-black/50)
+    const backdrop = document.querySelector('.fixed.inset-0.bg-black\\/50')
     if (backdrop) {
       fireEvent.click(backdrop)
     }
 
-    expect(screen.queryByText('Chat History')).not.toBeInTheDocument()
-  })
-
-  it('should handle invalid localStorage conversation gracefully', () => {
-    localStorage.setItem('zantara_conversation', 'invalid json {{{')
-
-    expect(() => render(<ChatPage />)).not.toThrow()
-    expect(screen.getByText(/Selamat datang di ZANTARA/)).toBeInTheDocument()
+    const sidebar = screen.getByText('Chat History').closest('aside')
+    expect(sidebar).toHaveClass('-translate-x-full')
   })
 
   it('should toggle check out when already checked in', () => {
@@ -430,7 +450,7 @@ describe('ChatPage', () => {
       ok: true,
       json: async () => ({
         success: true,
-        images: ['data:image/png;base64,generated'],
+        imageUrl: 'data:image/png;base64,generated',
       }),
     })
     global.fetch = mockFetch
@@ -439,7 +459,7 @@ describe('ChatPage', () => {
 
     fireEvent.click(screen.getByLabelText('Generate image'))
 
-    const promptInput = screen.getByPlaceholderText(/Describe your imagination/i)
+    const promptInput = screen.getByPlaceholderText(/A beautiful sunset/i)
     fireEvent.change(promptInput, { target: { value: 'A beautiful sunset' } })
 
     fireEvent.click(screen.getByText('Generate'))
@@ -451,29 +471,26 @@ describe('ChatPage', () => {
 
   it('should handle image generation error', async () => {
     const mockFetch = jest.fn().mockResolvedValue({
-      ok: true,
+      ok: false,
       json: async () => ({
         success: false,
         error: 'Generation failed',
       }),
     })
     global.fetch = mockFetch
-    const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => { })
 
     render(<ChatPage />)
 
     fireEvent.click(screen.getByLabelText('Generate image'))
 
-    const promptInput = screen.getByPlaceholderText(/Describe your imagination/i)
+    const promptInput = screen.getByPlaceholderText(/A beautiful sunset/i)
     fireEvent.change(promptInput, { target: { value: 'A test prompt' } })
 
     fireEvent.click(screen.getByText('Generate'))
 
     await waitFor(() => {
-      expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Failed to generate image'))
+      expect(screen.getByText(/Sorry, I couldn't generate the image/)).toBeInTheDocument()
     })
-
-    alertMock.mockRestore()
   })
 
   it('should not generate image with empty prompt', () => {
@@ -515,7 +532,7 @@ describe('ChatPage', () => {
     render(<ChatPage />)
 
     fireEvent.click(screen.getByLabelText('Generate image'))
-    expect(screen.getByText('Generate Magical Image')).toBeInTheDocument()
+    expect(screen.getByText('Generate Image')).toBeInTheDocument()
 
     const closeButtons = document.querySelectorAll('button')
     const xButton = Array.from(closeButtons).find(btn =>

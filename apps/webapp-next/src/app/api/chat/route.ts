@@ -1,39 +1,38 @@
-import { createServerClient } from "../../../lib/api/client"
+import { createServerClient } from '@/lib/api/client';
 
 export async function POST(req: Request) {
   try {
-    const { messages, user_id = "web_user" } = (await req.json()) as any
-    const lastMessage = messages[messages.length - 1]?.content || ""
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { messages, user_id = 'web_user' } = (await req.json()) as any;
+    const lastMessage = messages[messages.length - 1]?.content || '';
 
-    console.log("[ChatAPI] Production request:", { message: lastMessage, user_id })
+    console.log('[ChatAPI] Production request:', { message: lastMessage, user_id });
 
     // Extract token from Authorization header
-    const authHeader = req.headers.get("Authorization")
-    const token = authHeader?.replace("Bearer ", "") || ""
+    const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '') || '';
 
     // Call the real backend Oracle API using generated client
-    const client = createServerClient(token)
+    const client = createServerClient(token);
 
     const data = await client.oracleV53UltraHybrid.hybridOracleQueryApiOracleQueryPost({
       requestBody: {
         query: lastMessage,
-        user_email: user_id
-      }
-    })
+        user_email: user_id,
+      },
+    });
 
     return Response.json({
       message: data.answer || "I'm unable to process that request right now.",
       sources: data.sources || [],
-      model_used: data.model_used || "gemini-2.5-flash"
-    })
+      model_used: data.model_used || 'gemini-2.5-flash',
+    });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error("[ChatAPI] Production error:", error)
-    const status = error.status || 500
-    const message = error.body?.detail || "Failed to connect to AI service"
-    return Response.json(
-      { message: message },
-      { status: status }
-    )
+    console.error('[ChatAPI] Production error:', error);
+    const status = error.status || 500;
+    const message = error.body?.detail || 'Failed to connect to AI service';
+    return Response.json({ message: message }, { status: status });
   }
 }

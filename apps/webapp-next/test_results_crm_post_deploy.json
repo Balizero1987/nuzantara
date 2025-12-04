@@ -1,5 +1,5 @@
 {
-  "test_date": "2025-12-04T08:35:33.938Z",
+  "test_date": "2025-12-04T07:44:59.024Z",
   "backend_url": "https://nuzantara-rag.fly.dev",
   "categories_tested": ["CRM Services"],
   "results": [
@@ -10,7 +10,7 @@
           "question": "Come posso ottenere informazioni su un cliente dal CRM usando l'email?",
           "response": null,
           "status": "error",
-          "error": "HTTP 503: "
+          "error": "HTTP 502: "
         },
         {
           "question": "Quali servizi CRM sono disponibili nel backend?",

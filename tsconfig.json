@@ -2,11 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
@@ -24,20 +20,12 @@
     "sourceMap": true
   },
   "include": [
-    "apps/backend-ts/**/*.ts",
     "apps/backend-rag/**/*.ts",
     "apps/bali-intel-scraper/**/*.ts",
-    "apps/memory-service/**/*.ts",
-    "apps/webapp/**/*.ts",
+    "apps/webapp-next/**/*.ts",
     "packages/**/*.ts",
     "global.d.ts",
     ".test-hook.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "dist",
-    "build"
-  ]
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts", "dist", "build"]
 }

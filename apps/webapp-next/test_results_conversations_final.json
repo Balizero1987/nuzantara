@@ -1,0 +1,50 @@
+{
+  "test_date": "2025-12-04T08:37:56.190Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": ["Conversations Service"],
+  "results": [
+    {
+      "category": "Conversations Service",
+      "questions": [
+        {
+          "question": "Come posso salvare una conversazione nel database PostgreSQL?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 502: "
+        },
+        {
+          "question": "Quali endpoint API sono disponibili per gestire le conversazioni?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 502: "
+        },
+        {
+          "question": "Come posso caricare la cronologia delle conversazioni di un utente?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 502: "
+        },
+        {
+          "question": "Come funziona il salvataggio automatico delle conversazioni nel CRM?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 502: "
+        }
+      ],
+      "summary": {
+        "total_questions": 4,
+        "answered": 0,
+        "partial": 0,
+        "no_knowledge": 0,
+        "errors": 4
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 4,
+    "answered": 0,
+    "partial": 0,
+    "no_knowledge": 0,
+    "errors": 4
+  }
+}
