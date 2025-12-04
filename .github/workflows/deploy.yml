@@ -61,7 +61,7 @@ jobs:
           --ignore=tests/unit/test_router_jaksel_caller_base.py \
           --ignore=tests/unit/test_team_analytics_service.py \
           --ignore=tests/unit/test_identity_router.py \
-          || true
+          --ignore=tests/unit/test_identity_router.py
 
   deploy:
     name: Deploy to Fly.io
