@@ -499,7 +499,7 @@ def test_query_graph_max_depth(knowledge_graph_builder):
         rel = Relationship(
             relationship_id=f"rel_{i}",
             source_entity_id=f"entity_{i}",
-            target_entity_id=f"entity_{i+1}",
+            target_entity_id=f"entity_{i + 1}",
             relationship_type=RelationType.REQUIRES,
         )
         knowledge_graph_builder.add_relationship(rel)

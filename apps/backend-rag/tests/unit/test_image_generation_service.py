@@ -24,9 +24,11 @@ from services.image_generation_service import ImageGenerationService
 @pytest.fixture
 def image_service_with_key():
     """Create ImageGenerationService with API key"""
-    with patch("app.core.config.settings") as mock_settings, patch(
-        "google.generativeai.configure"
-    ), patch("services.image_generation_service.logger"):
+    with (
+        patch("app.core.config.settings") as mock_settings,
+        patch("google.generativeai.configure"),
+        patch("services.image_generation_service.logger"),
+    ):
         mock_settings.google_api_key = "test-api-key"
         service = ImageGenerationService()
         return service
@@ -35,8 +37,9 @@ def image_service_with_key():
 @pytest.fixture
 def image_service_no_key():
     """Create ImageGenerationService without API key"""
-    with patch("app.core.config.settings") as mock_settings, patch(
-        "services.image_generation_service.logger"
+    with (
+        patch("app.core.config.settings") as mock_settings,
+        patch("services.image_generation_service.logger"),
     ):
         mock_settings.google_api_key = None
         service = ImageGenerationService()
@@ -60,9 +63,11 @@ def test_image_service_init_no_key(image_service_no_key):
 
 def test_image_service_init_with_custom_key():
     """Test ImageGenerationService initialization with custom API key"""
-    with patch("app.core.config.settings") as mock_settings, patch(
-        "google.generativeai.configure"
-    ), patch("services.image_generation_service.logger"):
+    with (
+        patch("app.core.config.settings") as mock_settings,
+        patch("google.generativeai.configure"),
+        patch("services.image_generation_service.logger"),
+    ):
         mock_settings.google_api_key = None
         service = ImageGenerationService(api_key="custom-key")
         assert service.api_key == "custom-key"

@@ -80,11 +80,11 @@ def test_alert_service_init_without_webhooks(alert_service_no_webhooks):
 @pytest.mark.asyncio
 async def test_send_alert_success_all_channels(alert_service):
     """Test sending alert to all channels successfully"""
-    with patch.object(alert_service, "_log_alert") as mock_log, patch.object(
-        alert_service, "_send_slack_alert", new_callable=AsyncMock
-    ) as mock_slack, patch.object(
-        alert_service, "_send_discord_alert", new_callable=AsyncMock
-    ) as mock_discord:
+    with (
+        patch.object(alert_service, "_log_alert") as mock_log,
+        patch.object(alert_service, "_send_slack_alert", new_callable=AsyncMock) as mock_slack,
+        patch.object(alert_service, "_send_discord_alert", new_callable=AsyncMock) as mock_discord,
+    ):
         result = await alert_service.send_alert(
             title="Test Alert",
             message="Test message",
@@ -117,11 +117,10 @@ async def test_send_alert_no_webhooks(alert_service_no_webhooks):
 @pytest.mark.asyncio
 async def test_send_alert_logging_failure(alert_service):
     """Test alert handling when logging fails"""
-    with patch.object(
-        alert_service, "_log_alert", side_effect=Exception("Log failed")
-    ) as mock_log, patch.object(
-        alert_service, "_send_slack_alert", new_callable=AsyncMock
-    ) as mock_slack:
+    with (
+        patch.object(alert_service, "_log_alert", side_effect=Exception("Log failed")) as mock_log,
+        patch.object(alert_service, "_send_slack_alert", new_callable=AsyncMock) as mock_slack,
+    ):
         result = await alert_service.send_alert(
             title="Test Alert", message="Test message", level=AlertLevel.WARNING
         )
@@ -135,12 +134,16 @@ async def test_send_alert_logging_failure(alert_service):
 @pytest.mark.asyncio
 async def test_send_alert_slack_failure(alert_service):
     """Test alert handling when Slack fails"""
-    with patch.object(alert_service, "_log_alert"), patch.object(
-        alert_service,
-        "_send_slack_alert",
-        new_callable=AsyncMock,
-        side_effect=Exception("Slack failed"),
-    ), patch.object(alert_service, "_send_discord_alert", new_callable=AsyncMock):
+    with (
+        patch.object(alert_service, "_log_alert"),
+        patch.object(
+            alert_service,
+            "_send_slack_alert",
+            new_callable=AsyncMock,
+            side_effect=Exception("Slack failed"),
+        ),
+        patch.object(alert_service, "_send_discord_alert", new_callable=AsyncMock),
+    ):
         result = await alert_service.send_alert(
             title="Test Alert", message="Test message", level=AlertLevel.ERROR
         )
@@ -155,9 +158,11 @@ async def test_send_alert_all_levels(alert_service):
     """Test sending alerts with all severity levels"""
     levels = [AlertLevel.INFO, AlertLevel.WARNING, AlertLevel.ERROR, AlertLevel.CRITICAL]
 
-    with patch.object(alert_service, "_log_alert") as mock_log, patch.object(
-        alert_service, "_send_slack_alert", new_callable=AsyncMock
-    ), patch.object(alert_service, "_send_discord_alert", new_callable=AsyncMock):
+    with (
+        patch.object(alert_service, "_log_alert") as mock_log,
+        patch.object(alert_service, "_send_slack_alert", new_callable=AsyncMock),
+        patch.object(alert_service, "_send_discord_alert", new_callable=AsyncMock),
+    ):
         for level in levels:
             result = await alert_service.send_alert(
                 title=f"Test {level.value}", message="Test", level=level

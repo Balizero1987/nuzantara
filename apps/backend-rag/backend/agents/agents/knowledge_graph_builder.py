@@ -3,7 +3,6 @@
 Automatically builds and maintains a knowledge graph from all data sources
 """
 
-
 import psycopg2
 
 try:

@@ -44,9 +44,10 @@ def mock_collaborator_service():
 @pytest.fixture
 def zantara_tools(mock_pricing_service, mock_collaborator_service):
     """Create ZantaraTools instance"""
-    with patch(
-        "services.zantara_tools.get_pricing_service", return_value=mock_pricing_service
-    ), patch("services.zantara_tools.CollaboratorService", return_value=mock_collaborator_service):
+    with (
+        patch("services.zantara_tools.get_pricing_service", return_value=mock_pricing_service),
+        patch("services.zantara_tools.CollaboratorService", return_value=mock_collaborator_service),
+    ):
         return ZantaraTools()
 
 

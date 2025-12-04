@@ -5,6 +5,7 @@ Ingest Bali Zero Team Data into Qdrant
 Ingests team member profiles into Qdrant for RAG retrieval.
 This ensures queries like "Chi è il fondatore?" return accurate team information.
 """
+
 import asyncio
 import logging
 import requests

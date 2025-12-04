@@ -43,10 +43,10 @@ class EmbeddingsGenerator:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        model: Optional[str] = None,
-        provider: Optional[str] = None,
-        settings: Optional[object] = None,
+        api_key: str | None = None,
+        model: str | None = None,
+        provider: str | None = None,
+        settings: object | None = None,
     ):
         """
         Initialize embeddings generator.
@@ -82,7 +82,7 @@ class EmbeddingsGenerator:
             # Default to sentence-transformers (local, no API key needed)
             self._init_sentence_transformers(model)
 
-    def _init_openai(self, api_key: Optional[str] = None, model: Optional[str] = None):
+    def _init_openai(self, api_key: str | None = None, model: str | None = None):
         """Initialize OpenAI embeddings provider"""
         from openai import OpenAI
 
@@ -112,7 +112,7 @@ class EmbeddingsGenerator:
             f"🔌 [EmbeddingsGenerator] Initialized with OpenAI: {self.model} ({self.dimensions} dims)"
         )
 
-    def _init_sentence_transformers(self, model: Optional[str] = None):
+    def _init_sentence_transformers(self, model: str | None = None):
         """Initialize Sentence Transformers local embeddings provider"""
         self.model = (
             model
@@ -282,7 +282,7 @@ class EmbeddingsGenerator:
 
 
 # Convenience function
-def generate_embeddings(texts: list[str], api_key: Optional[str] = None) -> list[list[float]]:
+def generate_embeddings(texts: list[str], api_key: str | None = None) -> list[list[float]]:
     """
     Quick function to generate embeddings without instantiating class.
 

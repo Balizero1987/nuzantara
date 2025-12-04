@@ -5,7 +5,7 @@ Replaces Node.js audit-trail.ts
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import asyncpg
 
@@ -49,11 +49,11 @@ class AuditService:
         email: str,
         action: str,
         success: bool,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        user_id: Optional[str] = None,
-        failure_reason: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        user_id: str | None = None,
+        failure_reason: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ):
         """
         Log an authentication event (login, logout, failed attempt).
@@ -98,11 +98,11 @@ class AuditService:
         self,
         event_type: str,
         action: str,
-        user_id: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        user_id: str | None = None,
+        resource_id: str | None = None,
+        details: dict[str, Any] | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
     ):
         """
         Log a general system event for audit trail.

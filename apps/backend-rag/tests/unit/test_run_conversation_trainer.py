@@ -24,9 +24,10 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_success(self):
         """Test: Main executes successfully"""
-        with patch(
-            "agents.run_conversation_trainer.ConversationTrainer"
-        ) as mock_trainer_class, patch("sys.argv", ["run_conversation_trainer.py"]):
+        with (
+            patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class,
+            patch("sys.argv", ["run_conversation_trainer.py"]),
+        ):
             mock_trainer = MagicMock()
             mock_trainer.analyze_winning_patterns = AsyncMock(return_value=["insight1", "insight2"])
             mock_trainer.generate_prompt_update = AsyncMock(return_value="Improved prompt text")
@@ -47,9 +48,10 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_no_analysis_results(self):
         """Test: Main handles no high-rated conversations found"""
-        with patch(
-            "agents.run_conversation_trainer.ConversationTrainer"
-        ) as mock_trainer_class, patch("sys.argv", ["run_conversation_trainer.py"]):
+        with (
+            patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class,
+            patch("sys.argv", ["run_conversation_trainer.py"]),
+        ):
             mock_trainer = MagicMock()
             mock_trainer.analyze_winning_patterns = AsyncMock(return_value=None)
             mock_trainer_class.return_value = mock_trainer
@@ -64,9 +66,10 @@ class TestRunConversationTrainer:
     @pytest.mark.asyncio
     async def test_main_with_custom_days(self):
         """Test: Main accepts --days argument"""
-        with patch(
-            "agents.run_conversation_trainer.ConversationTrainer"
-        ) as mock_trainer_class, patch("sys.argv", ["run_conversation_trainer.py", "--days", "14"]):
+        with (
+            patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class,
+            patch("sys.argv", ["run_conversation_trainer.py", "--days", "14"]),
+        ):
             mock_trainer = MagicMock()
             mock_trainer.analyze_winning_patterns = AsyncMock(return_value=None)
             mock_trainer_class.return_value = mock_trainer
@@ -84,9 +87,10 @@ class TestRunConversationTrainer:
 
         import agents.run_conversation_trainer
 
-        with patch(
-            "agents.run_conversation_trainer.ConversationTrainer"
-        ) as mock_trainer_class, patch("sys.argv", ["run_conversation_trainer.py"]):
+        with (
+            patch("agents.run_conversation_trainer.ConversationTrainer") as mock_trainer_class,
+            patch("sys.argv", ["run_conversation_trainer.py"]),
+        ):
             mock_trainer_class.side_effect = Exception("Trainer initialization failed")
 
             # Reload module to ensure patch is applied

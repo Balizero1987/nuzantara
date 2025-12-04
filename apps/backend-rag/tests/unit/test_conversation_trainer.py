@@ -30,9 +30,10 @@ class TestConversationTrainer:
     @pytest.mark.asyncio
     async def test_analyze_winning_patterns_no_conversations(self):
         """Test: Returns None when no high-rated conversations found"""
-        with patch("app.core.config.settings") as mock_settings, patch(
-            "psycopg2.connect"
-        ) as mock_connect:
+        with (
+            patch("app.core.config.settings") as mock_settings,
+            patch("psycopg2.connect") as mock_connect,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.github_token = "token"
 
@@ -54,9 +55,10 @@ class TestConversationTrainer:
     @pytest.mark.asyncio
     async def test_analyze_winning_patterns_with_conversations(self):
         """Test: Analyzes patterns from high-rated conversations"""
-        with patch("app.core.config.settings") as mock_settings, patch(
-            "psycopg2.connect"
-        ) as mock_connect:
+        with (
+            patch("app.core.config.settings") as mock_settings,
+            patch("psycopg2.connect") as mock_connect,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.github_token = "token"
 

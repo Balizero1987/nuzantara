@@ -105,9 +105,13 @@ class TestAuditServiceConnect:
         """Test successful connection to database"""
         pool, _ = mock_pool
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.asyncpg.create_pool", AsyncMock(return_value=pool)
-        ), patch("backend.services.audit_service.logger"):
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch(
+                "backend.services.audit_service.asyncpg.create_pool", AsyncMock(return_value=pool)
+            ),
+            patch("backend.services.audit_service.logger"),
+        ):
             from backend.services.audit_service import AuditService
 
             service = AuditService(database_url=mock_settings.database_url)
@@ -119,9 +123,10 @@ class TestAuditServiceConnect:
     @pytest.mark.asyncio
     async def test_connect_disabled_no_database(self, mock_settings_no_db):
         """Test connect skips when disabled (no database URL)"""
-        with patch("backend.services.audit_service.settings", mock_settings_no_db), patch(
-            "backend.services.audit_service.logger"
-        ) as mock_logger:
+        with (
+            patch("backend.services.audit_service.settings", mock_settings_no_db),
+            patch("backend.services.audit_service.logger") as mock_logger,
+        ):
             from backend.services.audit_service import AuditService
 
             service = AuditService(database_url=None)
@@ -133,10 +138,14 @@ class TestAuditServiceConnect:
     @pytest.mark.asyncio
     async def test_connect_failure_disables_service(self, mock_settings):
         """Test that connection failure disables the service"""
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.asyncpg.create_pool",
-            AsyncMock(side_effect=Exception("Connection failed")),
-        ), patch("backend.services.audit_service.logger") as mock_logger:
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch(
+                "backend.services.audit_service.asyncpg.create_pool",
+                AsyncMock(side_effect=Exception("Connection failed")),
+            ),
+            patch("backend.services.audit_service.logger") as mock_logger,
+        ):
             from backend.services.audit_service import AuditService
 
             service = AuditService(database_url=mock_settings.database_url)
@@ -186,8 +195,9 @@ class TestLogAuthEvent:
         """Test successful auth event logging"""
         pool, mock_conn = mock_pool
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger"),
         ):
             from backend.services.audit_service import AuditService
 
@@ -213,8 +223,9 @@ class TestLogAuthEvent:
         """Test auth event logging with failure reason"""
         pool, mock_conn = mock_pool
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger"),
         ):
             from backend.services.audit_service import AuditService
 
@@ -236,8 +247,9 @@ class TestLogAuthEvent:
         """Test auth event logging with metadata"""
         pool, mock_conn = mock_pool
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger"),
         ):
             from backend.services.audit_service import AuditService
 
@@ -257,9 +269,10 @@ class TestLogAuthEvent:
     @pytest.mark.asyncio
     async def test_log_auth_event_disabled(self, mock_settings_no_db):
         """Test auth event logging when service is disabled"""
-        with patch("backend.services.audit_service.settings", mock_settings_no_db), patch(
-            "backend.services.audit_service.logger"
-        ) as mock_logger:
+        with (
+            patch("backend.services.audit_service.settings", mock_settings_no_db),
+            patch("backend.services.audit_service.logger") as mock_logger,
+        ):
             from backend.services.audit_service import AuditService
 
             service = AuditService(database_url=None)
@@ -276,9 +289,10 @@ class TestLogAuthEvent:
     @pytest.mark.asyncio
     async def test_log_auth_event_no_pool(self, mock_settings):
         """Test auth event logging when pool is None"""
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
-        ) as mock_logger:
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger") as mock_logger,
+        ):
             from backend.services.audit_service import AuditService
 
             service = AuditService(database_url=mock_settings.database_url)
@@ -299,9 +313,10 @@ class TestLogAuthEvent:
         pool, mock_conn = mock_pool
         mock_conn.execute.side_effect = Exception("Database error")
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
-        ) as mock_logger:
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger") as mock_logger,
+        ):
             from backend.services.audit_service import AuditService
 
             service = AuditService(database_url=mock_settings.database_url)
@@ -331,8 +346,9 @@ class TestLogSystemEvent:
         """Test successful system event logging"""
         pool, mock_conn = mock_pool
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger"),
         ):
             from backend.services.audit_service import AuditService
 
@@ -357,8 +373,9 @@ class TestLogSystemEvent:
         """Test system event logging with details"""
         pool, mock_conn = mock_pool
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger"),
         ):
             from backend.services.audit_service import AuditService
 
@@ -396,9 +413,10 @@ class TestLogSystemEvent:
         pool, mock_conn = mock_pool
         mock_conn.execute.side_effect = Exception("Database error")
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
-        ) as mock_logger:
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger") as mock_logger,
+        ):
             from backend.services.audit_service import AuditService
 
             service = AuditService(database_url=mock_settings.database_url)
@@ -424,8 +442,9 @@ class TestGetAuditService:
 
     def test_get_audit_service_creates_instance(self, mock_settings):
         """Test that get_audit_service creates a singleton instance"""
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service._audit_service", None
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service._audit_service", None),
         ):
             from backend.services.audit_service import get_audit_service
 
@@ -461,8 +480,9 @@ class TestAuditServiceEdgeCases:
         """Test auth event logging with None metadata defaults to empty dict"""
         pool, mock_conn = mock_pool
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger"),
         ):
             from backend.services.audit_service import AuditService
 
@@ -487,8 +507,9 @@ class TestAuditServiceEdgeCases:
         """Test system event logging with None details defaults to empty dict"""
         pool, mock_conn = mock_pool
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger"),
         ):
             from backend.services.audit_service import AuditService
 
@@ -509,8 +530,9 @@ class TestAuditServiceEdgeCases:
         """Test auth event logging with all optional parameters"""
         pool, mock_conn = mock_pool
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger"),
         ):
             from backend.services.audit_service import AuditService
 
@@ -536,8 +558,9 @@ class TestAuditServiceEdgeCases:
         """Test system event logging with all optional parameters"""
         pool, mock_conn = mock_pool
 
-        with patch("backend.services.audit_service.settings", mock_settings), patch(
-            "backend.services.audit_service.logger"
+        with (
+            patch("backend.services.audit_service.settings", mock_settings),
+            patch("backend.services.audit_service.logger"),
         ):
             from backend.services.audit_service import AuditService
 

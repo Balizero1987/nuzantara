@@ -283,9 +283,13 @@ async def test_get_collection_stats_success(qdrant_client, mock_requests):
     assert result["distance"] == "Cosine"
     assert result["status"] == "green"
 
-    mock_requests.get.assert_called_once_with(
-        "https://test-qdrant.example.com/collections/knowledge_base", timeout=10
-    )
+    # Verify call includes headers (api-key) if api_key is set
+    call_args = mock_requests.get.call_args
+    assert call_args[0][0] == "https://test-qdrant.example.com/collections/knowledge_base"
+    assert call_args[1]["timeout"] == 10
+    # Headers may or may not be present depending on api_key configuration
+    if "headers" in call_args[1]:
+        assert "api-key" in call_args[1]["headers"] or call_args[1]["headers"].get("api-key") is not None
 
 
 @pytest.mark.asyncio

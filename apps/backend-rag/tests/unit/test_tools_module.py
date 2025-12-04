@@ -451,7 +451,7 @@ class TestToolsModuleAccessPatterns:
         exec("from services.tools import *", namespace)
 
         # __all__ is empty, so only builtins should be present
-        imported_items = [k for k in namespace.keys() if not k.startswith("_")]
+        imported_items = [k for k in namespace if not k.startswith("_")]
         assert len(imported_items) == 0
 
     def test_from_import_all_attribute(self):

@@ -168,13 +168,12 @@ async def test_detailed_health_critical_unavailable():
     mock_app.state.health_monitor = None
     mock_app.state.service_registry = None
 
-    with patch("app.dependencies.search_service", None):
-        with patch("app.main_cloud.app", mock_app):
-            result = await detailed_health()
+    with patch("app.dependencies.search_service", None), patch("app.main_cloud.app", mock_app):
+        result = await detailed_health()
 
-            assert result["status"] == "critical"
-            assert result["services"]["search"]["status"] == "unavailable"
-            assert result["services"]["ai"]["status"] == "unavailable"
+        assert result["status"] == "critical"
+        assert result["services"]["search"]["status"] == "unavailable"
+        assert result["services"]["ai"]["status"] == "unavailable"
 
 
 @pytest.mark.asyncio
@@ -266,15 +265,14 @@ async def test_readiness_check_not_ready():
     mock_app = MagicMock()
     mock_app.state.services_initialized = False
 
-    with patch("app.dependencies.search_service", None):
-        with patch("app.main_cloud.app", mock_app):
-            from fastapi import HTTPException
+    with patch("app.dependencies.search_service", None), patch("app.main_cloud.app", mock_app):
+        from fastapi import HTTPException
 
-            with pytest.raises(HTTPException) as exc_info:
-                await readiness_check()
+        with pytest.raises(HTTPException) as exc_info:
+            await readiness_check()
 
-            assert exc_info.value.status_code == 503
-            assert exc_info.value.detail["ready"] is False
+        assert exc_info.value.status_code == 503
+        assert exc_info.value.detail["ready"] is False
 
 
 @pytest.mark.asyncio

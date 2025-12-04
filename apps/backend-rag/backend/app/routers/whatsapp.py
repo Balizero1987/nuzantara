@@ -5,7 +5,7 @@ Handles webhook verification and incoming messages from Meta
 
 import json
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
@@ -33,15 +33,15 @@ class WhatsAppMessage(BaseModel):
     from_: str = Field(..., alias="from")
     id: str
     timestamp: str
-    text: Optional[WhatsAppText] = None
+    text: WhatsAppText | None = None
     type: str
 
 
 class WhatsAppValue(BaseModel):
     messaging_product: str
     metadata: dict[str, Any]
-    contacts: Optional[list[dict[str, Any]]] = None
-    messages: Optional[list[WhatsAppMessage]] = None
+    contacts: list[dict[str, Any]] | None = None
+    messages: list[WhatsAppMessage] | None = None
 
 
 class WhatsAppChange(BaseModel):

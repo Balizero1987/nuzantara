@@ -186,13 +186,13 @@ for idx, package in enumerate(packages, 1):
     total_impact = sum(m["impact"] for m in package)
     total_test_lines = total_impact * 2
 
-    print(f"{'='*100}")
+    print(f"{'=' * 100}")
     print(f"🤖 CLAUDE #{idx}")
-    print(f"{'='*100}")
+    print(f"{'=' * 100}")
     print(
         f"Moduli: {len(package)} | Files: {total_files} | Impact: {total_impact:,} | Test Lines: ~{total_test_lines:,}"
     )
-    print(f"{'-'*100}")
+    print(f"{'-' * 100}")
 
     for mod in package:
         print(f"  📦 {mod['name']:<45} ({mod['count']:>2} files, {mod['impact']:>4} impact)")
@@ -207,15 +207,15 @@ print("📋 DETAILED MODULE BREAKDOWN")
 print("=" * 100)
 
 for i, mod in enumerate(module_summary, 1):
-    print(f"\n{'='*100}")
+    print(f"\n{'=' * 100}")
     print(f"MODULE {i}: {mod['name']}")
-    print(f"{'='*100}")
+    print(f"{'=' * 100}")
     print(
         f"Files: {mod['count']} | Impact: {mod['impact']:,} | Total Stmts: {mod['stmts']:,} | Avg Coverage: {mod['avg_coverage']:.1f}%"
     )
-    print(f"{'-'*100}")
+    print(f"{'-' * 100}")
     print(f"{'File':<65} {'Stmts':>6} {'Cov%':>7} {'Impact':>8}")
-    print(f"{'-'*100}")
+    print(f"{'-' * 100}")
 
     for f in sorted(mod["files"], key=lambda x: x["impact"], reverse=True):
         fname = f["file"].replace("backend/", "")

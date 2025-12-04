@@ -178,9 +178,11 @@ class TestSaveConversation:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = {"id": 123}
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
-            "app.routers.conversations.get_auto_crm", return_value=mock_auto_crm
-        ), patch("app.routers.conversations.logger"):
+        with (
+            patch("app.routers.conversations.get_db_connection", return_value=mock_conn),
+            patch("app.routers.conversations.get_auto_crm", return_value=mock_auto_crm),
+            patch("app.routers.conversations.logger"),
+        ):
             from app.routers.conversations import SaveConversationRequest, save_conversation
 
             request = SaveConversationRequest(
@@ -207,9 +209,11 @@ class TestSaveConversation:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = {"id": 456}
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
-            "app.routers.conversations.get_auto_crm", return_value=None
-        ), patch("app.routers.conversations.logger"):
+        with (
+            patch("app.routers.conversations.get_db_connection", return_value=mock_conn),
+            patch("app.routers.conversations.get_auto_crm", return_value=None),
+            patch("app.routers.conversations.logger"),
+        ):
             from app.routers.conversations import SaveConversationRequest, save_conversation
 
             request = SaveConversationRequest(
@@ -228,8 +232,9 @@ class TestSaveConversation:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.execute.side_effect = Exception("Database error")
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
-            "app.routers.conversations.logger"
+        with (
+            patch("app.routers.conversations.get_db_connection", return_value=mock_conn),
+            patch("app.routers.conversations.logger"),
         ):
             from app.routers.conversations import SaveConversationRequest, save_conversation
 
@@ -265,8 +270,9 @@ class TestGetConversationHistory:
             "created_at": datetime.now(),
         }
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
-            "app.routers.conversations.logger"
+        with (
+            patch("app.routers.conversations.get_db_connection", return_value=mock_conn),
+            patch("app.routers.conversations.logger"),
         ):
             from app.routers.conversations import get_conversation_history
 
@@ -286,8 +292,9 @@ class TestGetConversationHistory:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchone.return_value = None
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
-            "app.routers.conversations.logger"
+        with (
+            patch("app.routers.conversations.get_db_connection", return_value=mock_conn),
+            patch("app.routers.conversations.logger"),
         ):
             from app.routers.conversations import get_conversation_history
 
@@ -316,8 +323,9 @@ class TestClearConversationHistory:
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.rowcount = 5
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
-            "app.routers.conversations.logger"
+        with (
+            patch("app.routers.conversations.get_db_connection", return_value=mock_conn),
+            patch("app.routers.conversations.logger"),
         ):
             from app.routers.conversations import clear_conversation_history
 
@@ -348,8 +356,9 @@ class TestGetConversationStats:
             "last_conversation": datetime(2024, 1, 15, 12, 0, 0),
         }
 
-        with patch("app.routers.conversations.get_db_connection", return_value=mock_conn), patch(
-            "app.routers.conversations.logger"
+        with (
+            patch("app.routers.conversations.get_db_connection", return_value=mock_conn),
+            patch("app.routers.conversations.logger"),
         ):
             from app.routers.conversations import get_conversation_stats
 

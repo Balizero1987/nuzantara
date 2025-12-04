@@ -275,11 +275,11 @@ def test_legal_chunker_splits_large_pasal_by_ayat(legal_chunker):
 async def test_legal_ingestion_service_full_pipeline():
     """Test complete legal ingestion pipeline"""
     # Mock file operations
-    with patch("services.legal_ingestion_service.auto_detect_and_parse") as mock_parse, patch(
-        "services.legal_ingestion_service.QdrantClient"
-    ) as mock_qdrant, patch(
-        "services.legal_ingestion_service.EmbeddingsGenerator"
-    ) as mock_embedder:
+    with (
+        patch("services.legal_ingestion_service.auto_detect_and_parse") as mock_parse,
+        patch("services.legal_ingestion_service.QdrantClient") as mock_qdrant,
+        patch("services.legal_ingestion_service.EmbeddingsGenerator") as mock_embedder,
+    ):
         # Setup mocks
         mock_parse.return_value = SAMPLE_LEGAL_TEXT
         mock_qdrant_instance = MagicMock()

@@ -44,7 +44,7 @@ async def run():
 
         # Iterate questions
         for i, question in enumerate(questions):
-            print(f"❓ [{i+1}/{len(questions)}] Asking: {question}")
+            print(f"❓ [{i + 1}/{len(questions)}] Asking: {question}")
 
             try:
                 # Type and send
@@ -57,7 +57,7 @@ async def run():
                 await page.wait_for_timeout(120000)
 
                 # Capture screenshot
-                screenshot_path = f"jaksel_answer_{i+1}.png"
+                screenshot_path = f"jaksel_answer_{i + 1}.png"
                 await page.screenshot(path=screenshot_path)
                 print(f"📸 Saved screenshot: {screenshot_path}")
 

@@ -6,12 +6,7 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Project standardizes on npm; yarn/pnpm/bun commands are not supported in CI.
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -25,18 +20,18 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ### Unit Tests
 
 ```bash
-pnpm test           # Run tests
-pnpm test:watch     # Run tests in watch mode
-pnpm test:coverage  # Run tests with coverage
-pnpm test:ci        # Run tests in CI mode
+npm run test           # Run tests
+npm run test:watch     # Run tests in watch mode
+npm run test:coverage  # Run tests with coverage
+npm run test:ci        # Run tests in CI mode
 ```
 
 ### E2E Tests
 
 ```bash
-pnpm test:e2e           # Run all E2E tests
-pnpm test:e2e:ui        # Run E2E tests with UI
-pnpm test:e2e:headed    # Run E2E tests in headed mode
+npm run test:e2e           # Run all E2E tests
+npm run test:e2e:ui        # Run E2E tests with UI
+npm run test:e2e:headed    # Run E2E tests in headed mode
 ```
 
 ### Real Backend E2E Tests
@@ -49,7 +44,15 @@ export NUZANTARA_API_KEY=your-api-key
 export E2E_TEST_EMAIL=test@balizero.com
 export E2E_TEST_PIN=123456
 
-pnpm test:e2e -- e2e/real-backend.spec.ts
+npm run test:e2e -- e2e/real-backend.spec.ts
+```
+
+## Docker Build
+
+Build from the repository root so the Dockerfile can access the root `package.json`/`package-lock.json` workspace manifests:
+
+```bash
+docker build -f apps/webapp-next/Dockerfile .
 ```
 
 ## CI/CD Configuration

@@ -15,6 +15,8 @@ from typing import Any
 # Import new Gemini Service
 from services.gemini_service import gemini_jaksel
 
+from .citation_service import CitationService
+
 # Import modular components
 from .classification import IntentClassifier
 from .context import ContextBuilder, RAGManager
@@ -61,6 +63,7 @@ class IntelligentRouter:
 
         self.response_handler = ResponseHandler()
         self.tool_executor = tool_executor
+        self.citation_service = CitationService()
 
         logger.info("🎯 [IntelligentRouter] Initialized (GEMINI JAKSEL NATIVE)")
 
@@ -183,6 +186,13 @@ class IntelligentRouter:
                 message=message, history=conversation_history or [], context=ctx["combined_context"]
             )
 
+            # Process citations if RAG was used
+            if ctx["rag_result"]["used_rag"] and ctx["rag_result"].get("docs"):
+                citation_result = self.citation_service.process_response_with_citations(
+                    response_text, ctx["rag_result"]["docs"], auto_append=True
+                )
+                response_text = citation_result["response"]
+
             return {
                 "response": response_text,
                 "ai_used": "gemini-jaksel",
@@ -224,11 +234,25 @@ class IntelligentRouter:
             # Stream from Gemini Jaksel
             logger.info("🎯 [Router Stream] Streaming from Gemini Jaksel")
 
+            # Collect full response for citation processing
+            full_response_chunks = []
             async for chunk in gemini_jaksel.generate_response_stream(
                 message=message, history=conversation_history or [], context=ctx["combined_context"]
             ):
                 if chunk:
+                    full_response_chunks.append(chunk)
                     yield {"type": "token", "data": chunk}
+
+            # After streaming, yield sources if RAG was used
+            if ctx["rag_result"]["used_rag"] and ctx["rag_result"].get("docs"):
+                sources = [
+                    {
+                        "title": doc.get("metadata", {}).get("title", "KB"),
+                        "collection": doc.get("metadata", {}).get("source_collection", "unknown"),
+                    }
+                    for doc in ctx["rag_result"]["docs"][:3]
+                ]
+                yield {"type": "sources", "data": sources}
 
             yield {"type": "done", "data": None}
             logger.info("✅ [Router Stream] Completed")
@@ -257,7 +281,7 @@ class IntelligentRouter:
             rewrite_prompt = f"""Rewrite the following user query to be a standalone search query, resolving any coreferences (like 'it', 'that', 'he') based on the conversation history.
 
             History:
-            {str(conversation_history[-3:]) if conversation_history else 'None'}
+            {str(conversation_history[-3:]) if conversation_history else "None"}
 
             User Query: {query}
 

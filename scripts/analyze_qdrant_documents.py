@@ -128,9 +128,9 @@ class QdrantDocumentAnalyzer:
 
     def analyze_collection(self, collection_name: str) -> dict[str, Any]:
         """Analizza una singola collezione"""
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"📊 Analizzando collezione: {collection_name}")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         try:
             client = SimpleQdrantClient(

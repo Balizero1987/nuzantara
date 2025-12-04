@@ -679,15 +679,17 @@ async def test_get_db_connection_success():
 
     mock_connection = MagicMock()
 
-    with patch("app.routers.crm_practices.settings", mock_settings_with_db):
-        with patch(
+    with (
+        patch("app.routers.crm_practices.settings", mock_settings_with_db),
+        patch(
             "app.routers.crm_practices.psycopg2.connect", return_value=mock_connection
-        ) as mock_connect:
-            result = get_db_connection()
+        ) as mock_connect,
+    ):
+        result = get_db_connection()
 
-            # Verify psycopg2.connect was called with correct parameters
-            mock_connect.assert_called_once()
-            assert result == mock_connection
+        # Verify psycopg2.connect was called with correct parameters
+        mock_connect.assert_called_once()
+        assert result == mock_connection
 
 
 @pytest.mark.asyncio

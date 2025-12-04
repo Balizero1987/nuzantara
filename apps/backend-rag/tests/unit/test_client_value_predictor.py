@@ -29,9 +29,11 @@ class TestClientValuePredictorInit:
 
     def test_init_with_ai_available(self):
         """Test: Initialize with ZantaraAIClient available"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", True), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient"
-        ) as mock_ai, patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", True),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient") as mock_ai,
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "test_sid"
             mock_settings.twilio_auth_token = "test_token"
@@ -49,9 +51,11 @@ class TestClientValuePredictorInit:
 
     def test_init_without_ai_available(self):
         """Test: Initialize without AI client (fallback mode)"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -75,9 +79,11 @@ class TestCalculateRisk:
 
     def test_calculate_risk_high_risk(self):
         """Test: High LTV + inactive = HIGH_RISK"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -92,9 +98,11 @@ class TestCalculateRisk:
 
     def test_calculate_risk_low_risk_active(self):
         """Test: High LTV + active = LOW_RISK"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -109,9 +117,11 @@ class TestCalculateRisk:
 
     def test_calculate_risk_medium_risk(self):
         """Test: Low LTV + very inactive = MEDIUM_RISK"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -126,9 +136,11 @@ class TestCalculateRisk:
 
     def test_calculate_risk_low_risk_inactive_low_value(self):
         """Test: Low LTV + moderately inactive = LOW_RISK"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -152,9 +164,11 @@ class TestGetSegment:
 
     def test_get_segment_vip(self):
         """Test: LTV >= 80 = VIP"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -169,9 +183,11 @@ class TestGetSegment:
 
     def test_get_segment_high_value(self):
         """Test: 60 <= LTV < 80 = HIGH_VALUE"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -186,9 +202,11 @@ class TestGetSegment:
 
     def test_get_segment_medium_value(self):
         """Test: 40 <= LTV < 60 = MEDIUM_VALUE"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -203,9 +221,11 @@ class TestGetSegment:
 
     def test_get_segment_low_value(self):
         """Test: LTV < 40 = LOW_VALUE"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -230,11 +250,12 @@ class TestCalculateClientScore:
     @pytest.mark.asyncio
     async def test_calculate_client_score_success(self):
         """Test: Calculate client score with valid data"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings, patch(
-            "psycopg2.connect"
-        ) as mock_connect:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+            patch("psycopg2.connect") as mock_connect,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -289,11 +310,12 @@ class TestCalculateClientScore:
     @pytest.mark.asyncio
     async def test_calculate_client_score_not_found(self):
         """Test: Calculate score for non-existent client"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings, patch(
-            "psycopg2.connect"
-        ) as mock_connect:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+            patch("psycopg2.connect") as mock_connect,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -324,9 +346,11 @@ class TestGenerateNurturingMessage:
     @pytest.mark.asyncio
     async def test_generate_nurturing_message_without_ai_vip(self):
         """Test: Generate fallback message for VIP without AI"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -349,9 +373,11 @@ class TestGenerateNurturingMessage:
     @pytest.mark.asyncio
     async def test_generate_nurturing_message_without_ai_high_risk(self):
         """Test: Generate fallback message for HIGH_RISK without AI"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -375,9 +401,11 @@ class TestGenerateNurturingMessage:
     @pytest.mark.asyncio
     async def test_generate_nurturing_message_without_ai_default(self):
         """Test: Generate default fallback message without AI"""
-        with patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -427,11 +455,14 @@ class TestSendWhatsAppMessage:
         mock_twilio_rest.Client = mock_client_class
         mock_twilio_module.rest = mock_twilio_rest
 
-        with patch.dict(
-            sys.modules, {"twilio": mock_twilio_module, "twilio.rest": mock_twilio_rest}
-        ), patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch.dict(
+                sys.modules, {"twilio": mock_twilio_module, "twilio.rest": mock_twilio_rest}
+            ),
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "test_sid"
             mock_settings.twilio_auth_token = "test_token"
@@ -464,11 +495,14 @@ class TestSendWhatsAppMessage:
         mock_twilio_rest.Client = mock_client_class
         mock_twilio_module.rest = mock_twilio_rest
 
-        with patch.dict(
-            sys.modules, {"twilio": mock_twilio_module, "twilio.rest": mock_twilio_rest}
-        ), patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch.dict(
+                sys.modules, {"twilio": mock_twilio_module, "twilio.rest": mock_twilio_rest}
+            ),
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"
@@ -499,11 +533,14 @@ class TestSendWhatsAppMessage:
         mock_twilio_rest.Client = mock_client_class
         mock_twilio_module.rest = mock_twilio_rest
 
-        with patch.dict(
-            sys.modules, {"twilio": mock_twilio_module, "twilio.rest": mock_twilio_rest}
-        ), patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False), patch(
-            "agents.agents.client_value_predictor.ZantaraAIClient", None
-        ), patch("app.core.config.settings") as mock_settings:
+        with (
+            patch.dict(
+                sys.modules, {"twilio": mock_twilio_module, "twilio.rest": mock_twilio_rest}
+            ),
+            patch("agents.agents.client_value_predictor.ZANTARA_AVAILABLE", False),
+            patch("agents.agents.client_value_predictor.ZantaraAIClient", None),
+            patch("app.core.config.settings") as mock_settings,
+        ):
             mock_settings.database_url = "postgresql://test"
             mock_settings.twilio_account_sid = "sid"
             mock_settings.twilio_auth_token = "token"

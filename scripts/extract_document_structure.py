@@ -228,9 +228,9 @@ def main():
     }
 
     for collection_name in collections_to_analyze:
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"📊 Collezione: {collection_name}")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         try:
             client = SimpleQdrantClient(QDRANT_URL, collection_name)

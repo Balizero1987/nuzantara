@@ -173,15 +173,15 @@ def test_singleton_pattern(mock_settings, mock_openai_client):
 
 def test_fallback_to_openai_on_sentence_transformers_error(mock_settings, mock_openai_client):
     """Test fallback to OpenAI when Sentence Transformers fails"""
-    with patch(
-        "sentence_transformers.SentenceTransformer", side_effect=ImportError("Not available")
+    with (
+        patch(
+            "sentence_transformers.SentenceTransformer", side_effect=ImportError("Not available")
+        ),
+        patch("openai.OpenAI", return_value=mock_openai_client),
     ):
-        with patch("openai.OpenAI", return_value=mock_openai_client):
-            generator = EmbeddingsGenerator(
-                provider="sentence-transformers", settings=mock_settings
-            )
-            # Should fallback to OpenAI
-            assert generator.provider == "openai"
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
+        # Should fallback to OpenAI
+        assert generator.provider == "openai"
 
 
 def test_reset_instance():
@@ -295,15 +295,15 @@ def test_init_without_settings_no_provider():
 
 def test_init_sentence_transformers_generic_exception(mock_settings, mock_openai_client):
     """Test generic exception fallback in Sentence Transformers initialization"""
-    with patch(
-        "sentence_transformers.SentenceTransformer", side_effect=RuntimeError("Generic error")
+    with (
+        patch(
+            "sentence_transformers.SentenceTransformer", side_effect=RuntimeError("Generic error")
+        ),
+        patch("openai.OpenAI", return_value=mock_openai_client),
     ):
-        with patch("openai.OpenAI", return_value=mock_openai_client):
-            generator = EmbeddingsGenerator(
-                provider="sentence-transformers", settings=mock_settings
-            )
-            # Should fallback to OpenAI
-            assert generator.provider == "openai"
+        generator = EmbeddingsGenerator(provider="sentence-transformers", settings=mock_settings)
+        # Should fallback to OpenAI
+        assert generator.provider == "openai"
 
 
 def test_init_sentence_transformers_both_providers_fail(mock_settings):

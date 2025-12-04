@@ -173,6 +173,33 @@ BUSINESS_KEYWORDS = [
     "nib",
     "oss",
     "work permit",
+    # Italian business keywords (added for RAG activation)
+    "legale",
+    "leggi",
+    "contratto",
+    "memoria",
+    "ricordo",
+    "cliente",
+    "CRM",
+    "funzioni",
+    "servizi",
+    "errore",
+    "sistema",
+    "conoscenza",
+    "documento",
+    "informazione",
+    "azienda",
+    "consulenza",
+    "cerca",
+    "controlla",
+    "puoi",
+    "dimmi",
+    "trova",
+    "pratiche",
+    "visti",
+    "licenze",
+    "tasse",
+    "immigrazione",
 ]
 
 COMPLEX_INDICATORS = [
@@ -383,14 +410,19 @@ class IntentClassifier:
             # Fast heuristic fallback: short messages → Haiku
             logger.info(f"🏷️ [IntentClassifier] Fallback classification for: '{message[:50]}...'")
 
-            if len(message) < 50:
+            # Smarter fallback: only classify as casual if short AND no business keywords
+            if len(message) < 50 and not any(kw in message_lower for kw in BUSINESS_KEYWORDS):
                 category = "casual"
                 suggested_ai = "haiku"
-                logger.info("🏷️ [IntentClassifier] Fallback: casual (short message)")
+                logger.info(
+                    "🏷️ [IntentClassifier] Fallback: casual (short message, no business keywords)"
+                )
             else:
-                category = "business_simple"
+                category = "business_simple"  # Default to business, not casual
                 suggested_ai = "haiku"
-                logger.info("🏷️ [IntentClassifier] Fallback: business_simple (long message)")
+                logger.info(
+                    "🏷️ [IntentClassifier] Fallback: business_simple (has business keywords or long message)"
+                )
 
             return {
                 "category": category,

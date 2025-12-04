@@ -70,20 +70,22 @@ def test_get_drive_service_success(mock_settings):
                 "project_id": "test-project",
             }
         )
-        with patch(
-            "services.smart_oracle.service_account.Credentials.from_service_account_info"
-        ) as mock_creds:
-            with patch("services.smart_oracle.build") as mock_build:
-                mock_cred_instance = MagicMock()
-                mock_creds.return_value = mock_cred_instance
-                mock_service = MagicMock()
-                mock_build.return_value = mock_service
+        with (
+            patch(
+                "services.smart_oracle.service_account.Credentials.from_service_account_info"
+            ) as mock_creds,
+            patch("services.smart_oracle.build") as mock_build,
+        ):
+            mock_cred_instance = MagicMock()
+            mock_creds.return_value = mock_cred_instance
+            mock_service = MagicMock()
+            mock_build.return_value = mock_service
 
-                service = get_drive_service()
+            service = get_drive_service()
 
-                assert service is not None
-                assert service == mock_service
-                mock_build.assert_called_once()
+            assert service is not None
+            assert service == mock_service
+            mock_build.assert_called_once()
 
 
 def test_get_drive_service_no_credentials(mock_settings):
@@ -428,22 +430,24 @@ def test_get_drive_service_with_actual_credentials(mock_settings):
                 "client_id": "123456789",
             }
         )
-        with patch(
-            "services.smart_oracle.service_account.Credentials.from_service_account_info"
-        ) as mock_creds:
-            with patch("services.smart_oracle.build") as mock_build:
-                mock_cred_instance = MagicMock()
-                mock_creds.return_value = mock_cred_instance
-                mock_service = MagicMock()
-                mock_build.return_value = mock_service
+        with (
+            patch(
+                "services.smart_oracle.service_account.Credentials.from_service_account_info"
+            ) as mock_creds,
+            patch("services.smart_oracle.build") as mock_build,
+        ):
+            mock_cred_instance = MagicMock()
+            mock_creds.return_value = mock_cred_instance
+            mock_service = MagicMock()
+            mock_build.return_value = mock_service
 
-                service = get_drive_service()
+            service = get_drive_service()
 
-                assert service is not None
-                # Verify scopes are correct
-                mock_creds.assert_called_once()
-                call_args = mock_creds.call_args
-                assert call_args[1]["scopes"] == ["https://www.googleapis.com/auth/drive.readonly"]
+            assert service is not None
+            # Verify scopes are correct
+            mock_creds.assert_called_once()
+            call_args = mock_creds.call_args
+            assert call_args[1]["scopes"] == ["https://www.googleapis.com/auth/drive.readonly"]
 
 
 def test_download_pdf_multi_chunk(mock_settings, mock_drive_service):
@@ -578,27 +582,27 @@ async def test_smart_oracle_with_genai_config(mock_settings):
     with patch("services.smart_oracle.settings") as mock_settings_obj:
         mock_settings_obj.google_api_key = "test-api-key-123"
 
-        with patch("services.smart_oracle.genai.configure") as mock_configure:
-            with patch(
-                "services.smart_oracle.download_pdf_from_drive", return_value="/tmp/test.pdf"
-            ):
-                with patch("services.smart_oracle.genai.upload_file") as mock_upload:
-                    with patch("services.smart_oracle.genai.GenerativeModel") as mock_model:
-                        with patch("builtins.open", create=True):
-                            with patch("os.remove"):
-                                mock_file = MagicMock()
-                                mock_upload.return_value = mock_file
+        with (
+            patch("services.smart_oracle.genai.configure") as mock_configure,
+            patch("services.smart_oracle.download_pdf_from_drive", return_value="/tmp/test.pdf"),
+            patch("services.smart_oracle.genai.upload_file") as mock_upload,
+        ):
+            with patch("services.smart_oracle.genai.GenerativeModel") as mock_model:
+                with patch("builtins.open", create=True):
+                    with patch("os.remove"):
+                        mock_file = MagicMock()
+                        mock_upload.return_value = mock_file
 
-                                mock_model_instance = MagicMock()
-                                mock_response = MagicMock()
-                                mock_response.text = "Answer"
-                                mock_model_instance.generate_content.return_value = mock_response
-                                mock_model.return_value = mock_model_instance
+                        mock_model_instance = MagicMock()
+                        mock_response = MagicMock()
+                        mock_response.text = "Answer"
+                        mock_model_instance.generate_content.return_value = mock_response
+                        mock_model.return_value = mock_model_instance
 
-                                # Call smart_oracle
-                                result = await smart_oracle("Question?", "test.pdf")
+                        # Call smart_oracle
+                        result = await smart_oracle("Question?", "test.pdf")
 
-                                assert result == "Answer"
+                        assert result == "Answer"
 
 
 @pytest.mark.asyncio

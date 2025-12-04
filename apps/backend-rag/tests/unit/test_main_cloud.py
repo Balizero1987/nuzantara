@@ -62,10 +62,11 @@ def app():
     warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 
     # Mock database and external services at their source
-    with patch("asyncpg.create_pool") as mock_pool, patch(
-        "services.search_service.SearchService"
-    ), patch("services.intelligent_router.IntelligentRouter") as mock_router, patch(
-        "llm.zantara_ai_client.ZantaraAIClient"
+    with (
+        patch("asyncpg.create_pool") as mock_pool,
+        patch("services.search_service.SearchService"),
+        patch("services.intelligent_router.IntelligentRouter") as mock_router,
+        patch("llm.zantara_ai_client.ZantaraAIClient"),
     ):
         mock_pool.return_value = AsyncMock()
 

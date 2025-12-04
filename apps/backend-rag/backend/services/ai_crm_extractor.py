@@ -5,7 +5,6 @@ Uses ZANTARA AI to extract structured data from conversations for CRM auto-popul
 
 import json
 import logging
-from typing import Optional
 
 from llm.zantara_ai_client import ZantaraAIClient
 
@@ -28,7 +27,7 @@ class AICRMExtractor:
             raise
 
     async def extract_from_conversation(
-        self, messages: list[dict], existing_client_data: Optional[dict] = None
+        self, messages: list[dict], existing_client_data: dict | None = None
     ) -> dict:
         """
         Extract structured CRM data from conversation messages
@@ -201,7 +200,7 @@ RULES:
         }
 
     async def enrich_client_data(
-        self, extracted: dict, existing_client: Optional[dict] = None
+        self, extracted: dict, existing_client: dict | None = None
     ) -> dict:
         """
         Merge extracted data with existing client data (prefer non-null values)
@@ -248,7 +247,7 @@ RULES:
 
 
 # Singleton instance
-_extractor_instance: Optional[AICRMExtractor] = None
+_extractor_instance: AICRMExtractor | None = None
 
 
 def get_extractor(ai_client=None) -> AICRMExtractor:

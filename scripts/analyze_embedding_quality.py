@@ -73,9 +73,9 @@ def analyze_embedding_quality(
     collection_name: str, sample_size: int = 100
 ) -> dict[str, Any]:
     """Analizza qualità embeddings per una collezione"""
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"🔍 Analizzando qualità embeddings: {collection_name}")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     client = SimpleQdrantClient(QDRANT_URL, collection_name)
     sample = client.get_sample_with_vectors(limit=sample_size)
@@ -215,9 +215,9 @@ def main():
             results["collections"][collection_name] = {"error": str(e)}
 
     # Summary
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("📊 RIEPILOGO FINALE")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     for collection_name, result in results["collections"].items():
         if "error" not in result:

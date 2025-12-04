@@ -89,15 +89,15 @@ def print_phase(phase_num, title, file_list, target_cov):
     total_impact = sum(f["impact"] for f in file_list)
     total_stmts = sum(f["stmts"] for f in file_list)
 
-    print(f"\n{'='*90}")
+    print(f"\n{'=' * 90}")
     print(f"Phase {phase_num}: {title}")
-    print(f"{'='*90}")
+    print(f"{'=' * 90}")
     print(
-        f"Files: {len(file_list)} | Impact: {total_impact:,} statements | Test lines: ~{total_impact*2:,}"
+        f"Files: {len(file_list)} | Impact: {total_impact:,} statements | Test lines: ~{total_impact * 2:,}"
     )
-    print(f"{'-'*90}")
+    print(f"{'-' * 90}")
     print(f"{'File':<55} {'Stmts':>6} {'Now':>7} {'→ 90%':>7} {'Impact':>8}")
-    print(f"{'-'*90}")
+    print(f"{'-' * 90}")
 
     for f in file_list[:15]:  # Top 15 per phase
         fname = f["file"].replace("backend/", "")
@@ -115,7 +115,7 @@ def print_phase(phase_num, title, file_list, target_cov):
             f"{'... and ' + str(remaining) + ' more files':<55} {'':<6} {'':<7} {'':<7} {remaining_impact:>7}"
         )
 
-    print(f"{'-'*90}")
+    print(f"{'-' * 90}")
     print(f"{'PHASE TOTAL':<55} {total_stmts:>6} {'':<7} {'':<7} {total_impact:>7}")
     print()
 
