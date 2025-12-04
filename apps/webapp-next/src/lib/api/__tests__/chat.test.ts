@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import { TextEncoder, TextDecoder } from 'util';
