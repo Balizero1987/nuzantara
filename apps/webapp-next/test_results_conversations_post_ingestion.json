@@ -1,0 +1,52 @@
+{
+  "test_date": "2025-12-04T06:37:58.419Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "Conversations Service"
+  ],
+  "results": [
+    {
+      "category": "Conversations Service",
+      "questions": [
+        {
+          "question": "Come posso salvare una conversazione nel database PostgreSQL?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Quali endpoint API sono disponibili per gestire le conversazioni?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come posso caricare la cronologia delle conversazioni di un utente?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come funziona il salvataggio automatico delle conversazioni nel CRM?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        }
+      ],
+      "summary": {
+        "total_questions": 4,
+        "answered": 0,
+        "partial": 4,
+        "no_knowledge": 0,
+        "errors": 0
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 4,
+    "answered": 0,
+    "partial": 4,
+    "no_knowledge": 0,
+    "errors": 0
+  }
+}

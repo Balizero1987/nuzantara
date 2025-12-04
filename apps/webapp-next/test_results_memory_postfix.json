@@ -1,0 +1,52 @@
+{
+  "test_date": "2025-12-04T06:35:27.292Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "Memory Service"
+  ],
+  "results": [
+    {
+      "category": "Memory Service",
+      "questions": [
+        {
+          "question": "Come funziona il servizio di memoria semantica vettoriale?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 503: "
+        },
+        {
+          "question": "Come posso cercare memorie rilevanti per una query usando embeddings?",
+          "response": "Per cercare memorie rilevanti per una query usando embeddings, il processo prevede:\n\n*   **Caricamento dei dati:** I dati vengono caricati in collezioni specifiche all'interno di ChromaDB (ad esempio, `visa_oracle_kb/`, `legal_architect_kb/`, `kbli_codes_kb/`, `tax_genius_kb/`, `property_sage_kb/`). Per la creazione degli embeddings, possono essere utilizzati modelli come SentenceTransformer `all-MiniLM-L6-v2` o Ollama `nomic-embed-text` (Unknown).\n*   **Query del backend:** Un RAG Backend interroga ChromaDB per trovare dati rilevanti (Unknown).",
+          "status": "answered",
+          "length": 551
+        },
+        {
+          "question": "Come posso salvare una nuova memoria vettoriale?",
+          "response": "Per salvare una nuova memoria vettoriale, il processo prevede il **caricamento dei dati** in collezioni specifiche all'interno di ChromaDB. Per la creazione degli embeddings, possono essere utilizzati modelli come SentenceTransformer `all-MiniLM-L6-v2` o Ollama `nomic-embed-text` (Unknown).",
+          "status": "answered",
+          "length": 291
+        },
+        {
+          "question": "Quale database vettoriale viene usato per le memorie?",
+          "response": "Il database vettoriale utilizzato per le memorie è ChromaDB (Unknown).",
+          "status": "partial",
+          "length": 70
+        }
+      ],
+      "summary": {
+        "total_questions": 4,
+        "answered": 2,
+        "partial": 1,
+        "no_knowledge": 0,
+        "errors": 1
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 4,
+    "answered": 2,
+    "partial": 1,
+    "no_knowledge": 0,
+    "errors": 1
+  }
+}

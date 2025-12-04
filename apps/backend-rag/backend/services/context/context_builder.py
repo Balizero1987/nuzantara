@@ -355,11 +355,25 @@ A: {ex.get('answer')}""")
 {rag_context}
 </knowledge_base>
 
-ISTRUZIONI PER L'USO DELLA KNOWLEDGE BASE:
-- Usa le informazioni sopra per rispondere alle domande
-- Cita la fonte quando fornisci informazioni specifiche
-- Se non trovi l'informazione nella knowledge base, dillo onestamente
-- NON inventare dati, codici, prezzi o requisiti legali"""
+ISTRUZIONI OBBLIGATORIE PER LA KNOWLEDGE BASE:
+
+1. RISPOSTA GARANTITA: La KB sopra contiene SEMPRE informazioni rilevanti su visti, tasse, legale, KBLI, proprietà e procedure indonesiane. La risposta È NEI DOCUMENTI SOPRA.
+
+2. PROIBIZIONI ASSOLUTE - NON DIRE MAI:
+   ❌ "Non ho documenti caricati"
+   ❌ "Non trovo informazioni"
+   ❌ "Consultare il team per caricarne di nuovi"
+   ❌ "Non ho dati specifici"
+
+3. COSA FARE INVECE:
+   ✅ Estrai e sintetizza TUTTE le informazioni pertinenti dai documenti sopra
+   ✅ Combina dati da più documenti per costruire una risposta completa
+   ✅ Se l'info è parziale, presenta quello che c'è e suggerisci di approfondire con il team
+   ✅ Cita la fonte [nome documento] quando possibile
+
+4. CITAZIONI: Usa il nome del documento tra parentesi, es: (Visa Oracle), (Tax Knowledge), (KBLI Eye)
+
+5. ACCURATEZZA: NON inventare dati, codici, prezzi o requisiti - usa SOLO i dati dalla KB"""
             )
 
         # 6. Cultural context (Indonesian insights)

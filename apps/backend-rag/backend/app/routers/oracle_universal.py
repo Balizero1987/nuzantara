@@ -56,7 +56,6 @@ from core.embeddings import EmbeddingsGenerator
 from psycopg2.extras import RealDictCursor
 
 from app.dependencies import get_search_service
-from app.routers.simple_jaksel_caller_translation import SimpleJakselCaller
 from services.personality_service import PersonalityService
 from services.search_service import SearchService
 from services.smart_oracle import smart_oracle
@@ -739,9 +738,6 @@ def generate_query_hash(query_text: str) -> str:
 
 router = APIRouter(prefix="/api/oracle", tags=["Oracle v5.3 - Ultra Hybrid"])
 
-# Initialize Simple Jaksel Caller for direct Jaksel calls
-jaksel_caller = SimpleJakselCaller()
-
 # Initialize Personality Service
 personality_service = PersonalityService()
 
@@ -936,21 +932,7 @@ async def hybrid_oracle_query(
                 if not answer:
                     answer = f"User asked: {request.query}"
 
-                # Call Jaksel directly with SimpleJakselCaller
-                jaksel_result = await jaksel_caller.call_jaksel_direct(
-                    query=request.query, user_email=request.user_email, gemini_answer=answer
-                )
 
-                if jaksel_result["success"]:
-                    answer = jaksel_result["response"]
-                    model_used = (
-                        f"{model_used} + Jaksel (Gemma 9B)" if model_used else "Jaksel (Gemma 9B)"
-                    )
-                    logger.info(
-                        f"🎭 Jaksel responded for {jaksel_result['user_name']} in {jaksel_result['language']}"
-                    )
-                else:
-                    logger.error(f"❌ JAKSEL FAILED: {jaksel_result.get('error', 'Unknown')}")
 
             except Exception as e:
                 logger.error(f"❌ JAKSEL EXCEPTION: {e}")

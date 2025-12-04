@@ -3,7 +3,6 @@ NUZANTARA PRIME - Centralized Configuration
 All environment variables centralized using pydantic-settings
 """
 
-
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
@@ -237,9 +236,11 @@ class Settings(BaseSettings):
     service_name: str = "nuzantara-rag"  # Set via SERVICE_NAME env var
 
     class Config:
-        env_file = ".env"
+        # Disable .env loading - use environment variables only (for Fly.io secrets)
+        # For local development, set environment variables manually or use direnv
+        env_file = None
         case_sensitive = False
-        extra = "ignore"  # Ignore extra fields from .env
+        extra = "ignore"  # Ignore extra fields
 
 
 # Global settings instance

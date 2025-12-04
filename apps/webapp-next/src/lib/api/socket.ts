@@ -94,6 +94,23 @@ class WebSocketClient {
     }
 }
 
-// Singleton instance
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws';
+// Singleton instance - use secure WebSocket in production
+const getWebSocketURL = (): string => {
+    if (process.env.NEXT_PUBLIC_WS_URL) {
+        return process.env.NEXT_PUBLIC_WS_URL;
+    }
+    // In browser, derive from current location
+    if (typeof window !== 'undefined') {
+        const isSecure = window.location.protocol === 'https:';
+        const wsProtocol = isSecure ? 'wss:' : 'ws:';
+        // Use production backend if on production host
+        if (window.location.hostname.includes('fly.dev') || window.location.hostname.includes('nuzantara')) {
+            return 'wss://nuzantara-rag.fly.dev/ws';
+        }
+        return `${wsProtocol}//${window.location.hostname}:8000/ws`;
+    }
+    // SSR fallback - shouldn't be used
+    return 'wss://nuzantara-rag.fly.dev/ws';
+};
+const WS_URL = getWebSocketURL();
 export const socketClient = new WebSocketClient(WS_URL);

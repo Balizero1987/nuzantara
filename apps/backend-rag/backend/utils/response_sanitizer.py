@@ -4,6 +4,9 @@ Fixes Phase 1 & 2: Remove training data artifacts and enforce quality standards
 """
 
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def sanitize_zantara_response(response: str) -> str:
@@ -25,7 +28,39 @@ def sanitize_zantara_response(response: str) -> str:
     if not response:
         return response
 
+    logger.info(f"🧹 SANITIZER INPUT (len={len(response)}): {response[:100]}...")
     cleaned = response
+
+    # CRITICAL FIX: Replace "Non ho documenti" with helpful message
+    # This should NEVER appear - KB always has legal/visa info
+    # Aggressive pattern matching to catch any variation
+    replacement_msg = (
+        "Per questa domanda specifica, prova a riformulare in inglese o con più dettagli. "
+        "La nostra KB contiene informazioni complete su visti, tasse e procedure indonesiane."
+    )
+
+    # Use regex for aggressive pattern matching (case-insensitive)
+    bad_patterns = [
+        r"non\s+ho\s+document[io]",  # Non ho documenti/documento
+        r"non\s+trovo\s+document[io]",  # Non trovo documenti
+        r"non\s+ho\s+informazion[ie]",  # Non ho informazioni
+        r"non\s+dispongo\s+di\s+document[io]",  # Non dispongo di documenti
+        r"consultare\s+il\s+team",  # Consultare il team
+        r"caricare\s+.*document[io]",  # caricare documenti
+        r"non\s+ho\s+dati\s+specific[io]",  # Non ho dati specifici
+        r"non\s+è\s+presente\s+nella\s+.*knowledge",  # non è presente nella knowledge base
+        r"i\s+don'?t\s+have\s+.*documents?",  # I don't have documents
+        r"no\s+documents?\s+available",  # No documents available
+        r"no\s+information\s+found",  # No information found
+    ]
+
+    for pattern in bad_patterns:
+        if re.search(pattern, cleaned, re.IGNORECASE):
+            logger.warning(f"🚨 SANITIZER MATCH: pattern '{pattern}' matched! Replacing response.")
+            cleaned = replacement_msg
+            break  # Early exit once we find a match
+
+    logger.info(f"🧹 SANITIZER OUTPUT (len={len(cleaned)}): {cleaned[:100]}...")
 
     # Remove placeholder markers
     cleaned = re.sub(r"\[PRICE\]\.?\s*", "", cleaned)

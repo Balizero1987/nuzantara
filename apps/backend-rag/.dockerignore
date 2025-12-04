@@ -6,7 +6,9 @@
 !Dockerfile
 !fly.toml
 !.dockerignore
-!.env*
+# EXCLUDE .env files from Docker image (use Fly secrets instead)
+.env*
+backend/.env*
 
 # Git
 .git

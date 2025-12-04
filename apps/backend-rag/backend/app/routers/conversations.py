@@ -2,6 +2,9 @@
 ZANTARA Conversations Router
 Endpoints for persistent conversation history with PostgreSQL
 + Auto-CRM population from conversations
+
+SECURITY: All endpoints require JWT authentication (added 2025-12-03)
+User identity is taken from JWT token, NOT from request parameters.
 """
 
 import logging
@@ -10,7 +13,8 @@ from datetime import datetime
 from pathlib import Path
 
 import psycopg2
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from psycopg2.extras import Json, RealDictCursor
 from pydantic import BaseModel
 
@@ -20,6 +24,56 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/bali-zero/conversations", tags=["conversations"])
+
+# Security - JWT Authentication
+security = HTTPBearer(auto_error=False)
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> dict:
+    """
+    Validate JWT token and return current user.
+    Required for all conversation endpoints to prevent user spoofing.
+    """
+    if not credentials:
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required. Provide Bearer token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    try:
+        from jose import jwt, JWTError
+        from app.core.config import settings
+
+        token = credentials.credentials
+        payload = jwt.decode(
+            token,
+            settings.jwt_secret_key,
+            algorithms=["HS256"]
+        )
+
+        user_email = payload.get("sub") or payload.get("email")
+        if not user_email:
+            raise HTTPException(status_code=401, detail="Invalid token: missing user identifier")
+
+        return {
+            "email": user_email,
+            "user_id": payload.get("user_id", user_email),
+            "role": payload.get("role", "user"),
+            "permissions": payload.get("permissions", []),
+        }
+    except JWTError as e:
+        logger.warning(f"JWT validation failed: {e}")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from e
+    except Exception as e:
+        logger.error(f"Authentication error: {e}")
+        raise HTTPException(status_code=401, detail="Authentication failed") from e
 
 # Import auto-CRM service (lazy import to avoid circular dependencies)
 _auto_crm_service = None
@@ -42,7 +96,8 @@ def get_auto_crm():
 
 # Pydantic models
 class SaveConversationRequest(BaseModel):
-    user_email: str
+    # NOTE: user_email is no longer accepted from request body for security reasons.
+    # The authenticated user's email is extracted from the JWT token.
     messages: list[
         dict
     ]  # [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
@@ -71,14 +126,18 @@ def get_db_connection():
 
 
 @router.post("/save")
-async def save_conversation(request: SaveConversationRequest):
+async def save_conversation(
+    request: SaveConversationRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """
     Save conversation messages to PostgreSQL
     + Auto-populate CRM with client/practice data
 
+    SECURITY: User identity is extracted from JWT token, not request body.
+
     Body:
     {
-        "user_email": "user@example.com",
         "messages": [{"role": "user", "content": "..."}, ...],
         "session_id": "optional-session-id",
         "metadata": {"key": "value"}
@@ -89,6 +148,7 @@ async def save_conversation(request: SaveConversationRequest):
         "success": true,
         "conversation_id": 123,
         "messages_saved": 10,
+        "user_email": "authenticated-user@example.com",
         "crm": {
             "processed": true,
             "client_id": 42,
@@ -100,6 +160,9 @@ async def save_conversation(request: SaveConversationRequest):
         }
     }
     """
+    # Get user email from JWT token (prevents spoofing)
+    user_email = current_user["email"]
+
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -112,7 +175,7 @@ async def save_conversation(request: SaveConversationRequest):
             RETURNING id
         """,
             (
-                request.user_email,
+                user_email,
                 request.session_id or f"session-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
                 Json(request.messages),
                 Json(request.metadata or {}),
@@ -127,7 +190,7 @@ async def save_conversation(request: SaveConversationRequest):
         conn.close()
 
         logger.info(
-            f"✅ Saved conversation for {request.user_email} (ID: {conversation_id}, {len(request.messages)} messages)"
+            f"✅ Saved conversation for {user_email} (ID: {conversation_id}, {len(request.messages)} messages)"
         )
 
         # Auto-populate CRM (don't fail if this fails)
@@ -143,7 +206,7 @@ async def save_conversation(request: SaveConversationRequest):
                 crm_result = await auto_crm.process_conversation(
                     conversation_id=conversation_id,
                     messages=request.messages,
-                    user_email=request.user_email,
+                    user_email=user_email,
                     team_member=request.metadata.get("team_member", "system")
                     if request.metadata
                     else "system",
@@ -166,6 +229,7 @@ async def save_conversation(request: SaveConversationRequest):
             "success": True,
             "conversation_id": conversation_id,
             "messages_saved": len(request.messages),
+            "user_email": user_email,  # Return authenticated user's email
             "crm": crm_result,
         }
 
@@ -176,16 +240,22 @@ async def save_conversation(request: SaveConversationRequest):
 
 @router.get("/history")
 async def get_conversation_history(
-    user_email: str, limit: int = 20, session_id: str | None = None
+    limit: int = 20,
+    session_id: str | None = None,
+    current_user: dict = Depends(get_current_user),
 ) -> ConversationHistoryResponse:
     """
-    Get conversation history for a user
+    Get conversation history for the authenticated user
+
+    SECURITY: User identity is extracted from JWT token.
 
     Query params:
-    - user_email: User's email address
     - limit: Max number of messages to return (default: 20)
     - session_id: Optional session filter
     """
+    # Get user email from JWT token (prevents spoofing)
+    user_email = current_user["email"]
+
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -242,14 +312,21 @@ async def get_conversation_history(
 
 
 @router.delete("/clear")
-async def clear_conversation_history(user_email: str, session_id: str | None = None):
+async def clear_conversation_history(
+    session_id: str | None = None,
+    current_user: dict = Depends(get_current_user),
+):
     """
-    Clear conversation history for a user
+    Clear conversation history for the authenticated user
+
+    SECURITY: User identity is extracted from JWT token.
 
     Query params:
-    - user_email: User's email address
     - session_id: Optional session filter (if omitted, clears ALL conversations for user)
     """
+    # Get user email from JWT token (prevents spoofing)
+    user_email = current_user["email"]
+
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -287,13 +364,15 @@ async def clear_conversation_history(user_email: str, session_id: str | None = N
 
 
 @router.get("/stats")
-async def get_conversation_stats(user_email: str):
+async def get_conversation_stats(current_user: dict = Depends(get_current_user)):
     """
-    Get conversation statistics for a user
+    Get conversation statistics for the authenticated user
 
-    Query params:
-    - user_email: User's email address
+    SECURITY: User identity is extracted from JWT token.
     """
+    # Get user email from JWT token (prevents spoofing)
+    user_email = current_user["email"]
+
     try:
         conn = get_db_connection()
         cursor = conn.cursor()

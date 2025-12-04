@@ -17,10 +17,11 @@ from collections.abc import AsyncIterator
 
 import asyncpg
 import httpx
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# NOTE: .env files are NOT loaded in production (Fly.io uses secrets)
+# For local development, set environment variables manually or use direnv
+# from dotenv import load_dotenv
+# load_dotenv()
 
 # Langchain/Langgraph compatibility fix: add 'debug' attribute if missing
 # This fixes: "module 'langchain' has no attribute 'debug'" error
@@ -55,6 +56,9 @@ from app.core.config import settings
 from app.core.service_health import ServiceStatus, service_registry
 from app.modules.identity.router import router as identity_router
 from app.modules.knowledge.router import router as knowledge_router
+
+# --- Sanitizer for final safety net ---
+from utils.response_sanitizer import sanitize_zantara_response
 
 # --- Routers ---
 from app.routers import (
@@ -713,6 +717,30 @@ async def on_shutdown() -> None:
 # /healthz has been removed - use /health instead
 
 
+@app.get("/debug/config", tags=["debug"])
+async def debug_config():
+    """TEMPORARY: Debug endpoint to check loaded configuration"""
+    import os
+    from datetime import datetime, timezone
+    from app.core.config import settings
+
+    return {
+        "api_keys_count": len(settings.api_keys.split(",")) if settings.api_keys else 0,
+        "api_keys_preview": [
+            f"{key[:15]}...{key[-10:]}" for key in settings.api_keys.split(",") if key.strip()
+        ] if settings.api_keys else [],
+        "api_auth_enabled": settings.api_auth_enabled,
+        "jwt_secret_set": bool(settings.jwt_secret_key),
+        "jwt_secret_preview": f"{settings.jwt_secret_key[:10]}..." if settings.jwt_secret_key else None,
+        "environment": settings.environment,
+        "env_vars_present": {
+            "API_KEYS": "API_KEYS" in os.environ,
+            "JWT_SECRET": "JWT_SECRET" in os.environ or "JWT_SECRET_KEY" in os.environ,
+        },
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 @app.get("/", tags=["root"])
 async def root():
     return {"message": "ZANTARA RAG Backend Ready"}
@@ -835,7 +863,9 @@ async def bali_zero_chat_stream(
                     if chunk_type == "metadata":
                         yield f"data: {json.dumps({'type': 'metadata', 'data': chunk_data}, ensure_ascii=False)}\n\n"
                     elif chunk_type == "token":
-                        yield f"data: {json.dumps({'type': 'token', 'data': chunk_data}, ensure_ascii=False)}\n\n"
+                        # FINAL SAFETY NET: Sanitize token data before yielding
+                        sanitized_data = sanitize_zantara_response(str(chunk_data)) if chunk_data else chunk_data
+                        yield f"data: {json.dumps({'type': 'token', 'data': sanitized_data}, ensure_ascii=False)}\n\n"
                     elif chunk_type == "done":
                         yield f"data: {json.dumps({'type': 'done', 'data': chunk_data}, ensure_ascii=False)}\n\n"
                     else:

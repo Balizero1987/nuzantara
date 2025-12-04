@@ -46,9 +46,8 @@ for f in files:
     if "app/routers/" in path:
         # Group routers by domain
         filename = path.split("/")[-1]
-        if "jaksel" in filename or "simple_jaksel" in filename:
-            modules["Routers - Jaksel AI"].append(f)
-        elif "crm" in filename:
+
+        if "crm" in filename:
             modules["Routers - CRM"].append(f)
         elif "oracle" in filename:
             modules["Routers - Oracle"].append(f)

@@ -1,0 +1,52 @@
+{
+  "test_date": "2025-12-04T06:41:16.456Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "Tools & Handlers"
+  ],
+  "results": [
+    {
+      "category": "Tools & Handlers",
+      "questions": [
+        {
+          "question": "Quali tools sono disponibili per Zantara?",
+          "response": null,
+          "status": "error",
+          "error": "Client network socket disconnected before secure TLS connection was established"
+        },
+        {
+          "question": "Come funziona il sistema di tool execution?",
+          "response": null,
+          "status": "error",
+          "error": "Client network socket disconnected before secure TLS connection was established"
+        },
+        {
+          "question": "Quali handlers TypeScript sono disponibili?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 503: "
+        },
+        {
+          "question": "Come posso eseguire un tool tramite il backend?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 503: "
+        }
+      ],
+      "summary": {
+        "total_questions": 4,
+        "answered": 0,
+        "partial": 0,
+        "no_knowledge": 0,
+        "errors": 4
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 4,
+    "answered": 0,
+    "partial": 0,
+    "no_knowledge": 0,
+    "errors": 4
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "test_date": "2025-12-03T08:26:05.072Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "CRM Services"
+  ],
+  "results": [
+    {
+      "category": "CRM Services",
+      "questions": [
+        {
+          "question": "Come posso ottenere informazioni su un cliente dal CRM usando l'email?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Quali servizi CRM sono disponibili nel backend?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come posso creare una nuova pratica nel CRM?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come posso loggare un'interazione con un cliente nel CRM?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        },
+        {
+          "question": "Come funziona l'estrazione automatica di dati clienti dalle conversazioni?",
+          "response": "Non ho documenti caricati relativi a questo specifico argomento. Consultare il team per caricarne di nuovi.",
+          "status": "unclear",
+          "length": 107
+        }
+      ],
+      "summary": {
+        "total_questions": 5,
+        "answered": 0,
+        "partial": 5,
+        "no_knowledge": 0,
+        "errors": 0
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 5,
+    "answered": 0,
+    "partial": 5,
+    "no_knowledge": 0,
+    "errors": 0
+  }
+}

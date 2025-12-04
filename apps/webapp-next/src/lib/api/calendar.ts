@@ -10,7 +10,18 @@ interface CalendarEvent {
   description?: string;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// Use production URL in non-dev environments, with secure fallback
+const getBaseURL = (): string => {
+    if (process.env.NEXT_PUBLIC_API_URL) {
+        return process.env.NEXT_PUBLIC_API_URL;
+    }
+    if (typeof window !== 'undefined' &&
+        (window.location.hostname.includes('fly.dev') || window.location.hostname.includes('nuzantara'))) {
+        return 'https://nuzantara-rag.fly.dev';
+    }
+    return 'http://localhost:8000';
+};
+const BASE_URL = getBaseURL();
 
 export const calendarAPI = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,4 +1,4 @@
-# ZANTARA RAG Backend - Fly.io Deployment
+# ZANTARA RAG Backend - Fly.io Deployment (OPTIMIZED FOR <8GB)
 # Multi-stage build for security and optimization
 # Python 3.11 + FastAPI + Qdrant + Sentence Transformers
 
@@ -11,15 +11,20 @@ FROM python:3.11-slim as builder
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 WORKDIR /app
 
 # Copy requirements first (better caching)
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Install Python dependencies WITHOUT playwright (not needed at runtime)
+# Skip Playwright browsers download to save ~500MB
+RUN pip install --no-cache-dir --user -r requirements.txt \
+    && find /root/.local -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true \
+    && find /root/.local -type f -name "*.pyc" -delete \
+    && find /root/.local -type f -name "*.pyo" -delete
 
 # ========================================
 # Stage 2: Runtime Stage
@@ -51,6 +56,16 @@ ENV PYTHONPATH=/app:/app/backend
 ENV PATH=/home/nuzantara/.local/bin:$PATH
 # Prevent Python from writing .pyc files (forces fresh module loading)
 ENV PYTHONDONTWRITEBYTECODE=1
+# Skip Playwright browser installation
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+# Aggressive cleanup to reduce image size
+RUN find /home/nuzantara/.local -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true \
+    && find /home/nuzantara/.local -type f -name "*.pyc" -delete \
+    && find /home/nuzantara/.local -type f -name "*.pyo" -delete \
+    && find /home/nuzantara/.local -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true \
+    && find /home/nuzantara/.local -type d -name "test" -exec rm -rf {} + 2>/dev/null || true \
+    && rm -rf /home/nuzantara/.local/share/playwright 2>/dev/null || true
 
 # Change ownership of all files to non-root user
 RUN chown -R nuzantara:nuzantara /app

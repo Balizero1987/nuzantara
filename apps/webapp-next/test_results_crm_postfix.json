@@ -1,0 +1,58 @@
+{
+  "test_date": "2025-12-04T06:32:27.712Z",
+  "backend_url": "https://nuzantara-rag.fly.dev",
+  "categories_tested": [
+    "CRM Services"
+  ],
+  "results": [
+    {
+      "category": "CRM Services",
+      "questions": [
+        {
+          "question": "Come posso ottenere informazioni su un cliente dal CRM usando l'email?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 502: "
+        },
+        {
+          "question": "Quali servizi CRM sono disponibili nel backend?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 502: "
+        },
+        {
+          "question": "Come posso creare una nuova pratica nel CRM?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 502: "
+        },
+        {
+          "question": "Come posso loggare un'interazione con un cliente nel CRM?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 502: "
+        },
+        {
+          "question": "Come funziona l'estrazione automatica di dati clienti dalle conversazioni?",
+          "response": null,
+          "status": "error",
+          "error": "HTTP 502: "
+        }
+      ],
+      "summary": {
+        "total_questions": 5,
+        "answered": 0,
+        "partial": 0,
+        "no_knowledge": 0,
+        "errors": 5
+      }
+    }
+  ],
+  "summary": {
+    "total_questions": 5,
+    "answered": 0,
+    "partial": 0,
+    "no_knowledge": 0,
+    "errors": 5
+  }
+}

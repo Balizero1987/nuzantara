@@ -110,6 +110,34 @@ def extract_text_from_epub(file_path: str) -> str:
         raise DocumentParseError(f"Failed to parse EPUB {file_path}: {str(e)}") from e
 
 
+def extract_text_from_txt(file_path: str) -> str:
+    """
+    Extract text content from TXT file.
+
+    Args:
+        file_path: Path to TXT file
+
+    Returns:
+        Extracted text as string
+
+    Raises:
+        DocumentParseError: If parsing fails
+    """
+    try:
+        logger.info(f"Reading TXT: {file_path}")
+        with open(file_path, "r", encoding="utf-8") as f:
+            text = f.read()
+
+        if not text.strip():
+            raise DocumentParseError(f"No text extracted from TXT: {file_path}")
+
+        logger.info(f"Successfully extracted {len(text)} characters from TXT")
+        return text
+
+    except Exception as e:
+        raise DocumentParseError(f"Failed to read TXT {file_path}: {str(e)}") from e
+
+
 def auto_detect_and_parse(file_path: str) -> str:
     """
     Auto-detect file type and parse accordingly.
@@ -132,9 +160,11 @@ def auto_detect_and_parse(file_path: str) -> str:
         return extract_text_from_pdf(file_path)
     elif file_ext == ".epub":
         return extract_text_from_epub(file_path)
+    elif file_ext == ".txt":
+        return extract_text_from_txt(file_path)
     else:
         raise DocumentParseError(
-            f"Unsupported file type: {file_ext}. Supported formats: .pdf, .epub"
+            f"Unsupported file type: {file_ext}. Supported formats: .pdf, .epub, .txt"
         )
 
 
