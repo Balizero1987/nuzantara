@@ -8,6 +8,7 @@ from datetime import datetime
 
 import psycopg2
 from fastapi import APIRouter, HTTPException, Query
+from psycopg2 import sql
 from psycopg2.extras import Json, RealDictCursor
 from pydantic import BaseModel
 
@@ -353,33 +354,40 @@ async def get_interactions_stats(
         cursor = conn.cursor()
 
         # Base query with parameterized filters
-        params = []
-        base_conditions = []
+        params: list = []
+        base_conditions: list[sql.SQL] = []
 
         if team_member:
-            base_conditions.append("team_member = %s")
+            base_conditions.append(sql.SQL("team_member = %s"))
             params.append(team_member)
 
-        where_clause = "WHERE " + " AND ".join(base_conditions) if base_conditions else ""
+        def build_where_clause(conditions: list[sql.SQL]) -> sql.SQL:
+            if not conditions:
+                return sql.SQL("")
+            return sql.SQL(" WHERE ") + sql.SQL(" AND ").join(conditions)
 
         # By type
-        type_query = f"""
+        type_query = sql.SQL(
+            """
             SELECT interaction_type, COUNT(*) as count
             FROM interactions
             {where_clause}
             GROUP BY interaction_type
         """
+        ).format(where_clause=build_where_clause(base_conditions))
         cursor.execute(type_query, params)
         by_type = cursor.fetchall()
 
         # By sentiment
-        sentiment_query = f"""
+        sentiment_conditions = base_conditions + [sql.SQL("sentiment IS NOT NULL")]
+        sentiment_query = sql.SQL(
+            """
             SELECT sentiment, COUNT(*) as count
             FROM interactions
             {where_clause}
-            AND sentiment IS NOT NULL
             GROUP BY sentiment
         """
+        ).format(where_clause=build_where_clause(sentiment_conditions))
         cursor.execute(sentiment_query, params)
         by_sentiment = cursor.fetchall()
 
@@ -398,16 +406,17 @@ async def get_interactions_stats(
             by_team_member = []
 
         # Recent activity (last 7 days)
-        recent_query = f"""
+        recent_conditions = base_conditions + [
+            sql.SQL("interaction_date >= NOW() - INTERVAL '7 days'")
+        ]
+        recent_query = sql.SQL(
+            """
             SELECT COUNT(*) as count
             FROM interactions
             {where_clause}
-            AND interaction_date >= NOW() - INTERVAL '7 days'
         """
-        cursor.execute(
-            recent_query,
-            params,
-        )
+        ).format(where_clause=build_where_clause(recent_conditions))
+        cursor.execute(recent_query, params)
         recent_count = cursor.fetchone()["count"]
 
         cursor.close()

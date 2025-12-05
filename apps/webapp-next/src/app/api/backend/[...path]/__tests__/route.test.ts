@@ -1,6 +1,6 @@
 /**
  * @jest-environment node
- * 
+ *
  * Tests for backend proxy route handler
  * Tests the proxyRequest function directly
  */
@@ -16,7 +16,7 @@ beforeAll(() => {
 });
 
 // Now import after env is set
-import { proxyRequest } from '../route';
+import { proxyRequest } from '../proxy-handler';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Mock Next.js
@@ -44,7 +44,7 @@ describe('Backend Proxy Route Handler', () => {
     // Reset module to pick up env vars
     jest.resetModules();
     // Re-import to get fresh env vars
-    delete require.cache[require.resolve('../route')];
+    delete require.cache[require.resolve('../proxy-handler')];
   });
 
   afterEach(() => {
@@ -331,4 +331,3 @@ describe('Backend Proxy Route Handler', () => {
     });
   });
 });
-

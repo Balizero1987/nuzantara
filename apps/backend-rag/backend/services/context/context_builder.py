@@ -12,6 +12,11 @@ UPDATED 2025-11-30:
 import logging
 from typing import Any
 
+import psycopg2
+from psycopg2.extras import RealDictCursor
+
+from app.core.config import settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -132,6 +137,130 @@ COME POSSO AIUTARTI OGGI:
 - Posso controllare le tue pratiche?
 - Hai bisogno di chiarimenti su una nuova regolamentazione?
 - Vuoi pianificare una nuova espansione business?"""
+
+    def build_crm_context(self, user_email: str | None) -> str | None:
+        """
+        Build CRM context from user's client profile and active practices.
+        This provides real-time CRM data to Zantara so it can answer questions
+        about client status, active practices, etc.
+
+        Args:
+            user_email: User's email address to look up in CRM
+
+        Returns:
+            Formatted CRM context string or None if no data found
+        """
+        if not user_email:
+            return None
+
+        try:
+            # Get database connection
+            database_url = settings.database_url
+            if not database_url:
+                logger.warning("⚠️ [ContextBuilder] DATABASE_URL not set, skipping CRM context")
+                return None
+
+            conn = psycopg2.connect(database_url, cursor_factory=RealDictCursor)
+            cursor = conn.cursor()
+
+            # Find client by email
+            cursor.execute(
+                """
+                SELECT id, full_name, email, status, client_type, tags,
+                       first_contact_date, last_interaction_date
+                FROM clients
+                WHERE email = %s AND status = 'active'
+                LIMIT 1
+                """,
+                (user_email,),
+            )
+            client = cursor.fetchone()
+
+            if not client:
+                logger.info(f"📋 [ContextBuilder] No active client found for {user_email}")
+                cursor.close()
+                conn.close()
+                return None
+
+            client_id = client["id"]
+            client_name = client["full_name"]
+            client_status = client["status"]
+
+            # Get active practices for this client
+            cursor.execute(
+                """
+                SELECT p.id, p.status, p.priority, p.practice_type_id,
+                       pt.code as practice_type_code, pt.name as practice_type_name,
+                       p.quoted_price, p.actual_price, p.payment_status,
+                       p.start_date, p.completion_date, p.expiry_date,
+                       p.assigned_to, p.notes
+                FROM practices p
+                JOIN practice_types pt ON p.practice_type_id = pt.id
+                WHERE p.client_id = %s
+                ORDER BY p.created_at DESC
+                LIMIT 10
+                """,
+                (client_id,),
+            )
+            practices = cursor.fetchall()
+
+            cursor.close()
+            conn.close()
+
+            # Build context string
+            crm_parts = [
+                "CLIENT PROFILE (CRM DATA):",
+                f"- Name: {client_name}",
+                f"- Email: {user_email}",
+                f"- Status: {client_status}",
+            ]
+
+            if client.get("tags"):
+                crm_parts.append(f"- Tags: {', '.join(client['tags'])}")
+
+            if practices:
+                crm_parts.append(f"\nACTIVE PRACTICES ({len(practices)}):")
+                for practice in practices:
+                    practice_name = practice.get(
+                        "practice_type_name", practice.get("practice_type_code", "Unknown")
+                    )
+                    status = practice.get("status", "unknown")
+                    priority = practice.get("priority", "normal")
+
+                    # Calculate progress percentage if possible
+                    progress_info = ""
+                    if status == "completed":
+                        progress_info = " (100% complete)"
+                    elif status == "in_progress":
+                        # Estimate based on dates
+                        if practice.get("start_date") and practice.get("completion_date"):
+                            progress_info = " (in progress)"
+                        else:
+                            progress_info = " (in progress)"
+                    elif status == "pending":
+                        progress_info = " (pending start)"
+
+                    crm_parts.append(
+                        f"  • {practice_name}: {status}{progress_info} (Priority: {priority})"
+                    )
+
+                    if practice.get("assigned_to"):
+                        crm_parts.append(f"    Assigned to: {practice.get('assigned_to')}")
+
+                    if practice.get("expiry_date"):
+                        crm_parts.append(f"    Expiry: {practice.get('expiry_date')}")
+            else:
+                crm_parts.append("\nACTIVE PRACTICES: None")
+
+            crm_context = "\n".join(crm_parts)
+            logger.info(
+                f"📋 [ContextBuilder] Built CRM context for {user_email}: {len(practices)} practices"
+            )
+            return crm_context
+
+        except Exception as e:
+            logger.warning(f"⚠️ [ContextBuilder] Failed to build CRM context: {e}")
+            return None
 
     def build_backend_services_context(self) -> str:
         """
@@ -375,6 +504,7 @@ A: {ex.get("answer")}"""
         synthetic_context: str | None = None,
         zantara_identity: bool = False,
         backend_services_context: str | None = None,
+        crm_context: str | None = None,
     ) -> str | None:
         """
         Combine all context sources into single context string
@@ -402,15 +532,19 @@ A: {ex.get("answer")}"""
         if identity_context:
             contexts.append(identity_context)
 
-        # 3. Team context (response personalization)
+        # 3. CRM context (real client data) - high priority, after identity
+        if crm_context:
+            contexts.append(crm_context)
+
+        # 4. Team context (response personalization)
         if team_context:
             contexts.append(team_context)
 
-        # 4. Memory context (conversation history)
+        # 5. Memory context (conversation history)
         if memory_context:
             contexts.append(memory_context)
 
-        # 5. RAG context (knowledge base) - wrapped in XML tags
+        # 6. RAG context (knowledge base) - wrapped in XML tags
         if rag_context:
             contexts.append(
                 f"""<knowledge_base>
@@ -438,11 +572,11 @@ ISTRUZIONI OBBLIGATORIE PER LA KNOWLEDGE BASE:
 5. ACCURATEZZA: NON inventare dati, codici, prezzi o requisiti - usa SOLO i dati dalla KB"""
             )
 
-        # 6. Cultural context (Indonesian insights)
+        # 7. Cultural context (Indonesian insights)
         if cultural_context:
             contexts.append(cultural_context)
 
-        # 7. Synthetic Context (Few-Shot Examples) - Guide for style/content
+        # 8. Synthetic Context (Few-Shot Examples) - Guide for style/content
         if synthetic_context:
             contexts.append(synthetic_context)
 

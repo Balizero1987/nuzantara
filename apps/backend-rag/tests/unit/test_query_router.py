@@ -135,8 +135,8 @@ def test_route_pricing_keywords(query_router):
 
     for query in pricing_queries:
         result = query_router.route(query)
-        # Default fallback when no domain keywords match
-        assert result == "visa_oracle"
+        # Default fallback when no domain keywords match (changed to legal_architect for broader coverage)
+        assert result == "legal_architect"
 
     # Pricing queries with tax keywords route to tax collections
     tax_pricing_queries = [

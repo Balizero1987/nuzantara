@@ -289,7 +289,10 @@ async def test_get_collection_stats_success(qdrant_client, mock_requests):
     assert call_args[1]["timeout"] == 10
     # Headers may or may not be present depending on api_key configuration
     if "headers" in call_args[1]:
-        assert "api-key" in call_args[1]["headers"] or call_args[1]["headers"].get("api-key") is not None
+        assert (
+            "api-key" in call_args[1]["headers"]
+            or call_args[1]["headers"].get("api-key") is not None
+        )
 
 
 @pytest.mark.asyncio

@@ -449,6 +449,7 @@ class MemoryServicePostgres:
             try:
                 async with self.pool.acquire(timeout=10) as conn:
                     # Search memory_facts table with ILIKE for case-insensitive matching
+                    pattern = "%" + query + "%"
                     rows = await conn.fetch(
                         """
                         SELECT user_id, content, confidence, created_at
@@ -457,7 +458,7 @@ class MemoryServicePostgres:
                         ORDER BY confidence DESC, created_at DESC
                         LIMIT $2
                         """,
-                        f"%{query}%",
+                        pattern,
                         limit,
                     )
 

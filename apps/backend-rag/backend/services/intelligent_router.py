@@ -122,10 +122,19 @@ class IntelligentRouter:
             force_collection=force_collection,
         )
 
-        # STEP 7-10: Build other contexts (Memory, Team, Cultural)
+        # STEP 7-10: Build other contexts (Memory, Team, Cultural, CRM)
         memory_context = self.context_builder.build_memory_context(memory)
         team_context = self.context_builder.build_team_context(collaborator)
         cultural_context = await self._get_cultural_context(message, conversation_history)
+
+        # Build CRM context from user email
+        user_email = None
+        if collaborator and hasattr(collaborator, "email"):
+            user_email = collaborator.email
+        elif isinstance(user_id, str) and "@" in user_id:
+            user_email = user_id
+
+        crm_context = self.context_builder.build_crm_context(user_email)
 
         # Build backend services context
         backend_services_context = self.context_builder.build_backend_services_context()
@@ -140,6 +149,7 @@ class IntelligentRouter:
             synthetic_context="",  # Deprecated synthetic context
             zantara_identity=is_zantara_query,
             backend_services_context=backend_services_context,
+            crm_context=crm_context,
         )
 
         return {
@@ -147,7 +157,12 @@ class IntelligentRouter:
             "category": category,
             "rag_result": rag_result,
             "metadata": {
-                "memory_used": bool(memory),
+                "memory_used": memory_context is not None,  # Check if memory_context string exists
+                "memory_facts_count": len(memory.get("facts", []))
+                if memory and isinstance(memory, dict)
+                else (
+                    len(memory.profile_facts) if memory and hasattr(memory, "profile_facts") else 0
+                ),
                 "used_rag": rag_result.get("used_rag", False),
                 "rag_sources": [
                     doc.get("metadata", {}).get("source") or "Unknown"
@@ -163,10 +178,10 @@ class IntelligentRouter:
         user_id: str,
         conversation_history: list[dict] | None = None,
         memory: Any | None = None,
-        emotional_profile: Any | None = None,
-        _last_ai_used: str | None = None,
+        emotional_profile: Any | None = None,  # noqa: ARG002
+        _last_ai_used: str | None = None,  # noqa: ARG002
         collaborator: Any | None = None,
-        frontend_tools: list[dict] | None = None,
+        frontend_tools: list[dict] | None = None,  # noqa: ARG002
     ) -> dict:
         """
         Main routing function - classifies intent and routes to Gemini Jaksel
@@ -263,7 +278,7 @@ class IntelligentRouter:
 
     # ... (Keep helper methods like _get_cultural_context, _handle_emotional_override)
 
-    async def _handle_emotional_override(self, *args, **kwargs):
+    async def _handle_emotional_override(self, *args, **kwargs):  # noqa: ARG002
         # Placeholder to keep signature valid, but logic can be routed to Gemini too if needed
         return None
 
@@ -302,7 +317,7 @@ class IntelligentRouter:
             return query
 
     async def _get_cultural_context(
-        self, message: str, conversation_history: list[dict] | None
+        self, message: str, conversation_history: list[dict] | None  # noqa: ARG002
     ) -> str | None:
         if not self.cultural_rag:
             return None
@@ -310,7 +325,7 @@ class IntelligentRouter:
             chunks = await self.cultural_rag.get_cultural_context({"query": message}, limit=2)
             if chunks:
                 return self.cultural_rag.build_cultural_prompt_injection(chunks)
-        except:
+        except Exception:
             pass
         return None
 

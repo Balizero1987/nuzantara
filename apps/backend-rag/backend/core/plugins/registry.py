@@ -228,6 +228,14 @@ class PluginRegistry:
             logger.warning(f"Plugins directory not found: {plugins_dir}")
             return
 
+        if package_prefix and not all(
+            segment.isidentifier() for segment in package_prefix.split(".")
+        ):
+            logger.error(
+                "Package prefix %s contains invalid characters; aborting discovery", package_prefix
+            )
+            return
+
         logger.info(f"Discovering plugins in {plugins_dir}")
         discovered_count = 0
 
@@ -237,8 +245,25 @@ class PluginRegistry:
 
             # Import module
             try:
-                module_path = str(plugin_file.relative_to(plugins_dir).with_suffix(""))
-                module_path = module_path.replace("/", ".")
+                relative_path = plugin_file.relative_to(plugins_dir).with_suffix("")
+                parts = []
+                invalid_path = False
+                for part in relative_path.parts:
+                    safe_part = part.replace("-", "_")
+                    if not safe_part.isidentifier():
+                        logger.warning(
+                            "Skipping plugin %s due to invalid module segment '%s'",
+                            plugin_file,
+                            part,
+                        )
+                        invalid_path = True
+                        break
+                    parts.append(safe_part)
+
+                if invalid_path:
+                    continue
+
+                module_path = ".".join(parts)
 
                 if package_prefix:
                     full_module_path = f"{package_prefix}.{module_path}"

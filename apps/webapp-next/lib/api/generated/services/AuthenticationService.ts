@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { app__routers__auth__LoginRequest } from '../models/app__routers__auth__LoginRequest';
 import type { app__routers__auth__LoginResponse } from '../models/app__routers__auth__LoginResponse';
-import type { app__routers__auth__UserProfile } from '../models/app__routers__auth__UserProfile';
+import type { UserProfile } from '../models/UserProfile';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class AuthenticationService {
@@ -34,10 +34,10 @@ export class AuthenticationService {
     /**
      * Get Profile
      * Get current user profile
-     * @returns app__routers__auth__UserProfile Successful Response
+     * @returns UserProfile Successful Response
      * @throws ApiError
      */
-    public getProfileApiAuthProfileGet(): CancelablePromise<app__routers__auth__UserProfile> {
+    public getProfileApiAuthProfileGet(): CancelablePromise<UserProfile> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/auth/profile',

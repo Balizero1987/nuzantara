@@ -7,6 +7,7 @@ import logging
 from datetime import datetime
 
 import psycopg2
+from psycopg2 import sql
 from psycopg2.extras import Json, RealDictCursor
 
 from services.ai_crm_extractor import get_extractor
@@ -102,22 +103,25 @@ class AutoCRMService:
                 client_id = existing_client["id"]
 
                 if extracted["client"]["confidence"] >= 0.6:
-                    update_fields = []
+                    update_fields: list[sql.SQL] = []
                     params = []
 
                     # Update only if extracted value exists and current value is null
                     for field in ["full_name", "phone", "whatsapp", "nationality"]:
                         extracted_value = extracted["client"].get(field)
                         if extracted_value and not existing_client.get(field):
-                            update_fields.append(f"{field} = %s")
+                            update_fields.append(sql.SQL("{} = %s").format(sql.Identifier(field)))
                             params.append(extracted_value)
 
                     if update_fields:
-                        query = f"""
+                        set_clauses = update_fields + [sql.SQL("updated_at = NOW()")]
+                        query = sql.SQL(
+                            """
                             UPDATE clients
-                            SET {", ".join(update_fields)}, updated_at = NOW()
+                            SET {set_clause}
                             WHERE id = %s
                         """
+                        ).format(set_clause=sql.SQL(", ").join(set_clauses))
                         params.append(client_id)
                         cursor.execute(query, params)
                         client_updated = True

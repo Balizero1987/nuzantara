@@ -16,8 +16,6 @@ export type { app__modules__identity__router__LoginRequest } from './models/app_
 export type { app__modules__identity__router__LoginResponse } from './models/app__modules__identity__router__LoginResponse';
 export type { app__routers__auth__LoginRequest } from './models/app__routers__auth__LoginRequest';
 export type { app__routers__auth__LoginResponse } from './models/app__routers__auth__LoginResponse';
-export type { app__routers__auth__UserProfile } from './models/app__routers__auth__UserProfile';
-export type { app__routers__oracle_universal__UserProfile } from './models/app__routers__oracle_universal__UserProfile';
 export type { BatchIngestionRequest } from './models/BatchIngestionRequest';
 export type { BatchIngestionResponse } from './models/BatchIngestionResponse';
 export type { Body_upload_and_ingest_api_ingest_upload_post } from './models/Body_upload_and_ingest_api_ingest_upload_post';
@@ -73,6 +71,7 @@ export type { StoreMemoryRequest } from './models/StoreMemoryRequest';
 export type { TeamMemberStatus } from './models/TeamMemberStatus';
 export type { TemplateNotificationRequest } from './models/TemplateNotificationRequest';
 export { TierLevel } from './models/TierLevel';
+export type { UserProfile } from './models/UserProfile';
 export type { UserStatusResponse } from './models/UserStatusResponse';
 export type { ValidationError } from './models/ValidationError';
 export type { WeeklySummary } from './models/WeeklySummary';

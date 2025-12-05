@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { app__routers__oracle_universal__UserProfile } from './app__routers__oracle_universal__UserProfile';
+import type { UserProfile } from './UserProfile';
 /**
  * Universal Oracle query response with full context
  */
@@ -18,7 +18,7 @@ export type OracleQueryResponse = {
     collection_used?: (string | null);
     routing_reason?: (string | null);
     domain_confidence?: (Record<string, number> | null);
-    user_profile?: (app__routers__oracle_universal__UserProfile | null);
+    user_profile?: (UserProfile | null);
     language_detected?: (string | null);
     execution_time_ms: number;
     search_time_ms?: (number | null);

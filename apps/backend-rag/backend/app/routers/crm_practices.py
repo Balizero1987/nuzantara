@@ -9,6 +9,7 @@ from decimal import Decimal
 
 import psycopg2
 from fastapi import APIRouter, HTTPException, Query
+from psycopg2 import sql
 from psycopg2.extras import Json, RealDictCursor
 from pydantic import BaseModel
 
@@ -397,27 +398,31 @@ async def update_practice(
         cursor = conn.cursor()
 
         # Build update query
-        update_fields = []
+        update_fields: list[sql.SQL] = []
         params = []
 
         for field, value in updates.dict(exclude_unset=True).items():
             if value is not None:
+                column = sql.Identifier(field)
                 if field in ["documents", "missing_documents"]:
-                    update_fields.append(f"{field} = %s")
+                    update_fields.append(sql.SQL("{} = %s").format(column))
                     params.append(Json(value))
                 else:
-                    update_fields.append(f"{field} = %s")
+                    update_fields.append(sql.SQL("{} = %s").format(column))
                     params.append(value)
 
         if not update_fields:
             raise HTTPException(status_code=400, detail="No fields to update")
 
-        query = f"""
+        set_clauses = update_fields + [sql.SQL("updated_at = NOW()")]
+        query = sql.SQL(
+            """
             UPDATE practices
-            SET {", ".join(update_fields)}, updated_at = NOW()
+            SET {set_clause}
             WHERE id = %s
             RETURNING *
         """
+        ).format(set_clause=sql.SQL(", ").join(set_clauses))
         params.append(practice_id)
 
         cursor.execute(query, params)

@@ -14,6 +14,7 @@ import asyncio
 import json
 import logging
 from collections.abc import AsyncIterator
+from urllib.parse import urlparse
 
 import asyncpg
 import httpx
@@ -337,6 +338,14 @@ async def _validate_api_key(api_key: str | None) -> dict | None:
     return None
 
 
+def _safe_endpoint_label(url: str | None) -> str:
+    """Return a minimal identifier for logging without leaking credentials."""
+    if not url:
+        return "unknown"
+    parsed = urlparse(url)
+    return parsed.netloc or parsed.path or "unknown"
+
+
 async def _validate_auth_token(token: str | None) -> dict | None:
     """
     Validate JWT tokens locally using the shared secret.
@@ -389,7 +398,11 @@ async def _validate_auth_token(token: str | None) -> dict | None:
                 response = await client.post(validate_url, json={"token": token})
             if response.status_code != 200:
                 logger.warning(
-                    "Token validation failed via %s (status %s)", base_url, response.status_code
+                    "External JWT validation failed",
+                    extra={
+                        "endpoint": _safe_endpoint_label(base_url),
+                        "status_code": response.status_code,
+                    },
                 )
                 continue
             payload = response.json()
@@ -398,7 +411,10 @@ async def _validate_auth_token(token: str | None) -> dict | None:
                 logger.info(f"✅ External JWT validation successful via {base_url}")
                 return user
         except Exception as exc:
-            logger.error("Token validation request failed via %s: %s", base_url, exc)
+            logger.error(
+                "External JWT validation request error",
+                extra={"endpoint": _safe_endpoint_label(base_url), "error": str(exc)},
+            )
             continue
 
     return None

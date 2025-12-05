@@ -21,6 +21,7 @@ import sys
 import json
 import requests
 import os
+import shutil
 from pathlib import Path
 
 
@@ -33,10 +34,18 @@ class Colors:
 
 
 class ContractSentinel:
-    def __init__(self, backend_url: str, frontend_dir: Path):
+    def __init__(
+        self, backend_url: str, frontend_dir: Path, openapi_path: Path | None = None
+    ):
         self.backend_url = backend_url.rstrip("/")
         self.frontend_dir = frontend_dir
-        self.openapi_path = frontend_dir / "openapi.json"
+        self.openapi_path = openapi_path or (frontend_dir / "openapi.json")
+        npm_bin = shutil.which("npm")
+        if not npm_bin:
+            raise RuntimeError(
+                "npm binary not found in PATH. Install Node.js before running Sentinel."
+            )
+        self.npm_path = npm_bin
 
     def run_check(self) -> bool:
         print(f"{Colors.HEADER}🛡️  Starting Contract Sentinel Check...{Colors.ENDC}")
@@ -85,33 +94,37 @@ class ContractSentinel:
             raise Exception("Could not find OpenAPI spec at any common path")
         except Exception as e:
             print(f"{Colors.FAIL}✘ Failed to fetch OpenAPI Spec: {e}{Colors.ENDC}")
+            if self.openapi_path.exists():
+                print(
+                    f"{Colors.WARNING}⚠️  Falling back to existing {self.openapi_path} (offline mode).{Colors.ENDC}"
+                )
+                return True
             return False
 
     def _generate_client(self) -> bool:
         print(f"\n{Colors.WARNING}2. Regenerating Frontend Client...{Colors.ENDC}")
         try:
-            # Use the existing generate-client script but point to the local openapi.json
-            # We assume scripts/generate-client.js exists and can take an input file or we modify it
-            # Actually, looking at package.json, it runs `node scripts/generate-client.js`
-            # Let's see if we can run the codegen directly to be safe
-
-            # Use absolute path to npm
-            # We found it at /opt/homebrew/bin/npm
-            npm_path = "/opt/homebrew/bin/npm"
-
-            # Prepare environment with node in PATH
             env = os.environ.copy()
-            env["PATH"] = f"/opt/homebrew/bin:{env.get('PATH', '')}"
-
-            # Use 'npm exec' instead of npx to be safe
-            cmd = f"{npm_path} exec openapi-typescript-codegen -- --input openapi.json --output lib/api/generated --client fetch --name NuzantaraClient"
+            cmd = [
+                self.npm_path,
+                "exec",
+                "openapi-typescript-codegen",
+                "--",
+                "--input",
+                str(self.openapi_path.resolve()),
+                "--output",
+                "lib/api/generated",
+                "--client",
+                "fetch",
+                "--name",
+                "NuzantaraClient",
+            ]
 
             subprocess.run(
                 cmd,
                 cwd=self.frontend_dir,
                 check=True,
                 capture_output=True,
-                shell=True,
                 env=env,
             )
             print(f"{Colors.OKGREEN}✔ Client generated successfully{Colors.ENDC}")
@@ -124,20 +137,19 @@ class ContractSentinel:
     def _run_type_check(self) -> bool:
         print(f"\n{Colors.WARNING}3. Running TypeScript Type Check...{Colors.ENDC}")
         try:
-            npm_path = "/opt/homebrew/bin/npm"
-
-            # Prepare environment with node in PATH
             env = os.environ.copy()
-            env["PATH"] = f"/opt/homebrew/bin:{env.get('PATH', '')}"
-
-            # Run tsc --noEmit to check for errors without building
-            cmd = f"{npm_path} exec tsc -- --noEmit"
+            cmd = [
+                self.npm_path,
+                "exec",
+                "tsc",
+                "--",
+                "--noEmit",
+            ]
             subprocess.run(
                 cmd,
                 cwd=self.frontend_dir,
                 check=True,
                 capture_output=True,
-                shell=True,
                 env=env,
             )
             print(f"{Colors.OKGREEN}✔ No type errors found{Colors.ENDC}")
@@ -157,6 +169,11 @@ def main():
     parser.add_argument(
         "--backend-url", default="https://nuzantara-rag.fly.dev", help="Backend URL"
     )
+    parser.add_argument(
+        "--openapi-path",
+        default=None,
+        help="Optional path to reuse an existing OpenAPI spec (offline fallback)",
+    )
     args = parser.parse_args()
 
     # Determine paths
@@ -164,7 +181,10 @@ def main():
     root_dir = script_dir.parent.parent
     frontend_dir = root_dir / "apps" / "webapp-next"
 
-    sentinel = ContractSentinel(args.backend_url, frontend_dir)
+    openapi_path = Path(args.openapi_path) if args.openapi_path else None
+    sentinel = ContractSentinel(
+        args.backend_url, frontend_dir, openapi_path=openapi_path
+    )
     success = sentinel.run_check()
 
     sys.exit(0 if success else 1)

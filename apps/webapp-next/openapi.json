@@ -78,7 +78,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/app__routers__auth__UserProfile"
+                  "$ref": "#/components/schemas/UserProfile"
                 }
               }
             }
@@ -8254,7 +8254,7 @@
           "user_profile": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__routers__oracle_universal__UserProfile"
+                "$ref": "#/components/schemas/UserProfile"
               },
               {
                 "type": "null"
@@ -9125,6 +9125,153 @@
         "title": "TierLevel",
         "description": "Book tier classifications"
       },
+      "UserProfile": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "User ID (primary)"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "User ID (alias, for backward compatibility)"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status",
+            "description": "User status (active, inactive, etc.)"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "User's preferred response language",
+            "default": "en"
+          },
+          "language_preference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language Preference",
+            "description": "Alias for language, for backward compatibility"
+          },
+          "tone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tone",
+            "description": "Communication tone",
+            "default": "professional"
+          },
+          "complexity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Complexity",
+            "description": "Response complexity level",
+            "default": "medium"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timezone",
+            "description": "User's timezone",
+            "default": "Asia/Bali"
+          },
+          "role_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role Level",
+            "description": "User's role level",
+            "default": "member"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "General metadata"
+          },
+          "meta_json": {
+            "type": "object",
+            "title": "Meta Json",
+            "description": "Alias for metadata, for backward compatibility"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "name",
+          "role"
+        ],
+        "title": "UserProfile",
+        "description": "Unified User Profile model\nCombines authentication and oracle-specific user preferences\nSupports both 'id' and 'user_id' for backward compatibility"
+      },
       "UserStatusResponse": {
         "properties": {
           "user_id": {
@@ -9392,125 +9539,6 @@
         ],
         "title": "LoginResponse",
         "description": "Login response model"
-      },
-      "app__routers__auth__UserProfile": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id"
-          },
-          "email": {
-            "type": "string",
-            "title": "Email"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "role": {
-            "type": "string",
-            "title": "Role"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status"
-          },
-          "metadata": {
-            "anyOf": [
-              {
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Metadata"
-          },
-          "language_preference": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Language Preference"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "email",
-          "name",
-          "role",
-          "status"
-        ],
-        "title": "UserProfile",
-        "description": "User profile model"
-      },
-      "app__routers__oracle_universal__UserProfile": {
-        "properties": {
-          "user_id": {
-            "type": "string",
-            "title": "User Id"
-          },
-          "email": {
-            "type": "string",
-            "title": "Email"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "role": {
-            "type": "string",
-            "title": "Role"
-          },
-          "language": {
-            "type": "string",
-            "title": "Language",
-            "description": "User's preferred response language",
-            "default": "en"
-          },
-          "tone": {
-            "type": "string",
-            "title": "Tone",
-            "description": "Communication tone",
-            "default": "professional"
-          },
-          "complexity": {
-            "type": "string",
-            "title": "Complexity",
-            "description": "Response complexity level",
-            "default": "medium"
-          },
-          "timezone": {
-            "type": "string",
-            "title": "Timezone",
-            "description": "User's timezone",
-            "default": "Asia/Bali"
-          },
-          "role_level": {
-            "type": "string",
-            "title": "Role Level",
-            "description": "User's role level",
-            "default": "member"
-          },
-          "meta_json": {
-            "type": "object",
-            "title": "Meta Json"
-          }
-        },
-        "type": "object",
-        "required": [
-          "user_id",
-          "email",
-          "name",
-          "role"
-        ],
-        "title": "UserProfile",
-        "description": "User profile with localization preferences"
       }
     },
     "securitySchemes": {

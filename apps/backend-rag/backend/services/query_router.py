@@ -143,6 +143,25 @@ class QueryRouter:
         "legal compliance",
         "contract",
         "perjanjian",
+        # Italian keywords
+        "legge",
+        "normativa",
+        "norma",
+        "regolamento",
+        "contratto",
+        "atto",
+        "notaio",
+        # Code patterns (UU-, PP-, etc.)
+        "uu-",
+        "undang-undang",
+        "pp-",
+        "peraturan pemerintah",
+        "keputusan menteri",
+        "keppres",
+        "perpres",
+        "permen",
+        "pasal",
+        "ayat",
     ]
 
     # Property-related keywords (generic patterns only - no specific locations)
@@ -577,8 +596,8 @@ class QueryRouter:
 
         # Intelligent sub-routing based on primary domain + modifiers
         if primary_score == 0:
-            # No matches - default to visa_oracle
-            collection = "visa_oracle"
+            # No matches - default to legal_architect (broader coverage for generic queries)
+            collection = "legal_architect"
             logger.info(f"🧭 Route: {collection} (default - no keyword matches)")
         elif primary_domain == "tax":
             # Tax domain: route to genius/updates/knowledge
@@ -793,7 +812,7 @@ class QueryRouter:
 
         # Determine collection (same logic as route())
         if primary_score == 0:
-            collection = "visa_oracle"
+            collection = "legal_architect"
         elif primary_domain == "tax":
             if tax_genius_score > 0:
                 collection = "tax_genius"
