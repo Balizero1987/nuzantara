@@ -295,3 +295,6 @@ oracle_zantara_key.pem
 !apps/scraper/debug_google_*.png
 !apps/scraper/debug_ddg_*.png
 !debug_ddg_*.html
+nuzantara_laws.zip
+**/*.backup_*
+**/*chroma.sqlite3*

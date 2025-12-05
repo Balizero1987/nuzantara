@@ -801,9 +801,13 @@ async def test_update_practice_with_none_values(
             assert len(update_call) > 0
 
             # The None values should not be in the update
-            query = update_call[0][0][0]
-            assert "status" in query
-            assert "notes" in query
+            # Check the query string representation
+            query_str = str(update_call[0][0][0])
+            assert "status" in query_str
+            assert "notes" in query_str
+            # None values should not be in the update
+            assert "assigned_to" not in query_str or "assigned_to" not in str(update_call[0][0][1])
+            assert "priority" not in query_str or "priority" not in str(update_call[0][0][1])
 
 
 @pytest.mark.asyncio

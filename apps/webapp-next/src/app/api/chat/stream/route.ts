@@ -47,6 +47,9 @@ export async function POST(request: Request) {
       hasAgents: !!zantaraContext.agents_available?.length,
     } : 'none');
 
+    // Extract user email from body or zantara context
+    const userEmail = body.user_id || zantaraContext?.user_email || null;
+
     // Build query parameters
     const params = new URLSearchParams({
       query: message,
@@ -55,6 +58,11 @@ export async function POST(request: Request) {
       client_locale: metadata.client_locale || 'en-US',
       client_timezone: metadata.client_timezone || 'UTC',
     });
+
+    // Add user_email if available (for collaborator lookup)
+    if (userEmail) {
+      params.append('user_email', userEmail);
+    }
 
     // Add ZANTARA context if available
     if (zantaraContext) {
