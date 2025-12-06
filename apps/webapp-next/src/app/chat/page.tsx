@@ -22,6 +22,7 @@ import { WelcomeScreen } from "./components/WelcomeScreen"
 // Hooks
 import { useChatSession } from "./hooks/useChatSession"
 import { useImageGeneration } from "./hooks/useImageGeneration"
+import { useTokenRefresh } from "./hooks/useTokenRefresh"
 
 export default function ChatPage() {
   const router = useRouter()
@@ -61,6 +62,14 @@ export default function ChatPage() {
     setImagePrompt,
     handleGenerateImage
   } = useImageGeneration()
+
+  // Token refresh hook - automatically refreshes token before expiry
+  useTokenRefresh({
+    enabled: isAuthenticated,
+    onExpiryWarning: (minutesLeft) => {
+      console.log(`[ZANTARA] Token expires in ${minutesLeft} minutes`)
+    },
+  })
 
   // Auth redirect
   useEffect(() => {
