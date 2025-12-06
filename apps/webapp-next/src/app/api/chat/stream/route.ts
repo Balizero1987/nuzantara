@@ -33,11 +33,14 @@ export async function POST(request: Request) {
     const zantaraContext: ZantaraContextPayload | undefined = body.zantara_context;
 
     const authHeader = request.headers.get('Authorization');
+
+    // Extract user email from body or zantara context
+    const userEmail = body.user_id || zantaraContext?.user_email || null;
+
     console.log(
       '[ChatAPI] Stream request. Auth Header:',
       authHeader ? `${authHeader.substring(0, 15)}...` : 'Missing'
     );
-    console.log('[ChatAPI] Full auth header:', authHeader);
     console.log('[ChatAPI] Conversation history length:', conversationHistory.length);
     console.log('[ChatAPI] Client metadata:', metadata);
     console.log('[ChatAPI] ZANTARA context:', zantaraContext ? {
@@ -46,9 +49,7 @@ export async function POST(request: Request) {
       hasMemories: !!zantaraContext.recent_memories?.length,
       hasAgents: !!zantaraContext.agents_available?.length,
     } : 'none');
-
-    // Extract user email from body or zantara context
-    const userEmail = body.user_id || zantaraContext?.user_email || null;
+    console.log('[ChatAPI] User email (via header):', userEmail ? `${userEmail.substring(0, 3)}***` : 'none');
 
     // Build query parameters
     const params = new URLSearchParams({
@@ -59,10 +60,8 @@ export async function POST(request: Request) {
       client_timezone: metadata.client_timezone || 'UTC',
     });
 
-    // Add user_email if available (for collaborator lookup)
-    if (userEmail) {
-      params.append('user_email', userEmail);
-    }
+    // Note: user_email is now passed via X-User-Email header for security
+    // (removed from query params to prevent URL exposure in logs/caches)
 
     // Add ZANTARA context if available
     if (zantaraContext) {
@@ -116,6 +115,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
         'X-API-Key': API_KEY, // Primary auth method (fastest, bypasses DB)
         ...(token ? { Authorization: `Bearer ${token}` } : {}), // Fallback to JWT if API key fails
+        ...(userEmail ? { 'X-User-Email': userEmail } : {}), // User email in header (secure)
       },
       signal: controller.signal,
     });
